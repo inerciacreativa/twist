@@ -1,0 +1,12 @@
+{% spaceless %}
+<form itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction" method="get" action="{{ site.url }}" class="form-search form-inline" role="search" aria-label="{{ trans('Site search') }}">
+    <meta itemprop="target" content="{{ site.url }}?s={s}">
+    <div class="form-control">
+        <label>
+            <span class="form-label">{{ trans('Search for:') }}</span>
+            <input itemprop="query-input" class="form-input" type="search" name="s" value="{{ site.search|raw }}" placeholder="{{ trans('Search &hellip;')|raw }}" required>
+        </label>
+        <button type="submit" class="button button-search">{{ trans('Search') }}</button>
+    </div>
+</form>
+{% endspaceless %}

@@ -1,0 +1,15 @@
+{% for item in items %}
+
+            {% spaceless -%}
+            <li{% if item.classes %} class="{{ item.classes }}"{% endif %}>
+                <a href="{{ item.url }}" itemprop="url"{% if item.rel %} rel="{{ item.rel }}"{% endif %}>
+                    <span itemprop="name">{{ item.title }}</span>
+                </a>
+                {% if item.has_children %}
+                <ul>
+                    {% include 'partials/menu.twig' with {'items': item.children} only %}
+                </ul>
+                {% endif %}
+            </li>
+            {%- endspaceless %}
+{%- endfor %}

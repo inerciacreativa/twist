@@ -1,0 +1,13 @@
+{% if comments.are_open or comments.count > 0 %}
+    <section class="entry-comments">
+        <h2>{{ print(trans('One thought', '%1$s thoughts', comments.count, 'comments title'), number(comments.count))|raw }}</h2>
+        <meta itemprop="commentCount" content="{{ comments.count }}">
+
+        <ol>
+            {% include 'partials/comments.twig' with { 'comments': comments.all } only %}
+        </ol>
+
+        {{ comments.form|raw }}
+
+    </section>
+{% endif %}

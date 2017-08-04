@@ -1,0 +1,21 @@
+{% for comment in comments %}
+    <li>
+        <div id="comment-{{ comment.id }}" class="{{ comment.classes }}" itemprop="comment" itemscope itemtype="http://schema.org/Comment">
+            <p class="comment-byline">
+                <span itemprop="creator" itemscope itemtype="http://schema.org/Person">
+                    {{ comment.author.avatar(96, {'itemprop': 'image'})|raw }}
+                    {% if comment.author.url %}<a href="{{ comment.author.url }}" rel="nofollow" itemprop="url">{% endif %}<span itemprop="name">{{ comment.author.name }}</span>{% if comment.author.url %}</a>{% endif %}
+                </span>
+                <time datetime="{{ comment.datetime }}" itemprop="datePublished"><a href="{{ comment.link }}" itemprop="url">{{ comment.date }}</a></time>
+            </p>
+            <div class="comment-text" itemprop="text">
+                {{ comment.content|raw }}
+            </div>
+        </div>
+        {% if comment.has_replies %}
+            <ol>
+                {% include 'partials/comments.twig' with {'comments': comment.replies} only %}
+            </ol>
+        {% endif %}
+    </li>
+{% endfor %}

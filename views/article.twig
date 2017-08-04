@@ -1,0 +1,31 @@
+{% extends 'index.twig' %}
+
+{% block title %}{{ posts|first.title }}{% endblock %}
+
+{% block content %}
+    {% for post in posts %}
+
+    <article class="article hentry" itemscope itemtype="http://schema.org/Article" itemref="publisher">
+        <header class="entry-header">
+            <h1 class="entry-title" itemprop="headline">{{ post.title }}</h1>
+            <link itemprop="mainEntityOfPage url" href="{{ post.link }}" rel="bookmark">
+            {% include 'partials/byline.twig' with {'post': post} only %}
+            {% include 'partials/metas.twig' with {'taxonomies': post.taxonomies, 'tags': true} only %}
+
+        </header>
+        {% include 'partials/thumbnail.twig' with {'thumbnail': post.thumbnail, 'size': 'post-thumbnail', 'title': post.title} only %}
+
+        <div class="entry-content" itemprop="articleBody">
+            {{ post.content|raw }}
+        </div>
+
+        <footer class="entry-footer">
+            {% include 'partials/author.twig' with {'author': post.author} only %}
+        </footer>
+
+        {% include 'comments.twig' with {'comments': post.comments} only %}
+
+    </article>
+
+    {% endfor %}
+{% endblock %}

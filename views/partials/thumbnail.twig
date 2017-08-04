@@ -1,0 +1,14 @@
+{% if thumbnail.exists %}
+    {% set attributes = {'itemprop': 'url', 'class': ''} %}
+    {% if title is defined %}
+        {% set attributes = attributes|merge({'alt': title}) %}
+    {% endif %}
+    {% if size is defined %}
+        {{ thumbnail.size(size) }}
+    {% endif %}
+    <figure class="thumbnail" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+        {{ thumbnail.image(attributes)|raw }}
+        <meta itemprop="width" content="{{ thumbnail.width }}">
+        <meta itemprop="height" content="{{ thumbnail.height }}">
+    </figure>
+{% endif %}

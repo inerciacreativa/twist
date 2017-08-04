@@ -1,0 +1,409 @@
+<?php
+
+namespace Twist\Model\Post;
+
+use Twist\Model\Comment\Comments;
+use Twist\Model\Comment\Query;
+use Twist\Model\Model;
+use Twist\Template\Attachment\ImageCollection;
+
+/**
+ * Class Post
+ *
+ * @package Twist\Model\Post
+ */
+class Post extends Model
+{
+
+    /**
+     * @var \WP_Post
+     */
+    protected $post;
+
+    /**
+     * @var Taxonomies
+     */
+    protected $taxonomies;
+
+    /**
+     * @var Author
+     */
+    protected $author;
+
+    /**
+     * @var Metas
+     */
+    protected $metas;
+
+    /**
+     * @var Query
+     */
+    protected $comments;
+
+    /**
+     * @var int
+     */
+    protected $thumbnail;
+
+    protected $images;
+
+    /**
+     * Post constructor.
+     *
+     * @param \WP_Post|int|null $post
+     */
+    public function __construct($post = null)
+    {
+        $this->post = get_post($post);
+    }
+
+    /**
+     * Retrieve the ID of the post.
+     *
+     * @return int
+     */
+    public function id(): int
+    {
+        return (int)$this->post->ID;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function has_parent(): bool
+    {
+        return $this->post->post_parent && ($this->id() !== $this->post->post_parent);
+    }
+
+    /**
+     * @return Post|null
+     */
+    public function parent()
+    {
+        if ($this->parent === null && $this->has_parent()) {
+            $this->parent = new static($this->post->post_parent);
+        }
+
+        return $this->parent;
+    }
+
+    /**
+     * @return Thumbnail
+     */
+    public function thumbnail(): Thumbnail
+    {
+        return new Thumbnail($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function has_format(): bool
+    {
+        return post_type_supports($this->type(), 'post-formats');
+    }
+
+    /**
+     * Retrieve the post format.
+     *
+     * @param string $default
+     *
+     * @return string
+     */
+    public function format(string $default = 'standard'): string
+    {
+        if (!$this->has_format()) {
+            return '';
+        }
+
+        if (isset($this->taxonomies['post_format'])) {
+            if (is_int($this->taxonomies['post_format'])) {
+                $format = get_the_terms($this->id(), 'post_format');
+                $format = empty($format) ? $default : array_shift($format);
+
+                $this->taxonomies['post_format'] = $format;
+            } else {
+                $format = $this->taxonomies['post_format'];
+            }
+        } else {
+            $format = $default;
+        }
+
+        return "format-$format";
+    }
+
+    /**
+     * Retrieve the post type.
+     *
+     * @return string
+     */
+    public function type(): string
+    {
+        return $this->post->post_type;
+    }
+
+    /**
+     * @return bool
+     */
+    public function has_password(): bool
+    {
+        return !empty($this->post->post_password);
+    }
+
+    /**
+     * @return bool
+     */
+    public function is_password_required(): bool
+    {
+        return post_password_required($this->post);
+    }
+
+    /**
+     * @return bool
+     */
+    public function is_sticky(): bool
+    {
+        return is_sticky($this->id());
+    }
+
+    /**
+     * @return bool
+     */
+    public function is_draft(): bool
+    {
+        return in_array($this->post->post_status, ['draft', 'pending', 'auto-draft'], false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function is_future(): bool
+    {
+        return $this->post->post_status === 'future';
+    }
+
+    /**
+     * @return string
+     */
+    public function title(): string
+    {
+        return get_the_title($this->post);
+    }
+
+    /**
+     * @return string
+     */
+    public function link(): string
+    {
+        return apply_filters('the_permalink', get_permalink($this->post));
+    }
+
+    /**
+     * Retrieve the date on which the post was written.
+     *
+     * @param string $format
+     *
+     * @return string
+     */
+    public function date(string $format = ''): string
+    {
+        $format = $format ?: (string)get_option('date_format');
+        $date   = mysql2date($format, $this->post->post_date);
+
+        return apply_filters('get_the_date', $date, $format, $this->post);
+    }
+
+    /**
+     * Retrieve the date on which the post was written in ISO 8601 format.
+     *
+     * @see the_date()
+     *
+     * @return string
+     */
+    public function published(): string
+    {
+        return $this->getDatetime($this->post->post_date, 'the_date');
+    }
+
+    /**
+     * @see the_modified_date()
+     *
+     * @return string
+     */
+    public function modified(): string
+    {
+        return $this->getDatetime($this->post->post_modified, 'the_modified_date');
+    }
+
+    public function classes()
+    {
+
+        return post_class();
+    }
+
+    /**
+     * @return string
+     */
+    public function excerpt(): string
+    {
+        return apply_filters('the_excerpt', get_the_excerpt($this->post));
+    }
+
+    /**
+     * @param string $more
+     *
+     * @return string
+     */
+    public function content(string $more = null): string
+    {
+        ob_start();
+        the_content($more);
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Retrieve the post status.
+     *
+     * @return string
+     */
+    public function status(): string
+    {
+        $status = $this->post->post_status;
+
+        if ($this->type() === 'attachment') {
+            if ($status === 'private') {
+                return $status;
+            }
+
+            if ($this->has_parent()) {
+                $status = $this->parent()->status();
+
+                if ($status === 'trash') {
+                    return $this->parent()->metas()['_wp_trash_meta_status'];
+                }
+
+                return $status;
+            }
+
+            if ($status === 'inherit') {
+                return 'publish';
+            }
+        }
+
+        return apply_filters('get_post_status', $status, $this->post);
+    }
+
+    /**
+     * @return Author
+     */
+    public function author(): Author
+    {
+        if ($this->author === null) {
+            $this->author = new Author($this->post->post_author);
+        }
+
+        return $this->author;
+    }
+
+    /**
+     * @return Query
+     */
+    public function comments(): Query
+    {
+        if ($this->comments === null) {
+            $this->comments = Comments::from($this);
+        }
+
+        return $this->comments;
+    }
+
+    /**
+     * @return Taxonomies
+     */
+    public function taxonomies(): Taxonomies
+    {
+        if ($this->taxonomies === null) {
+            $this->taxonomies = new Taxonomies($this);
+        }
+
+        return $this->taxonomies;
+    }
+
+    /**
+     * @return Metas
+     */
+    public function metas(): Metas
+    {
+        if ($this->metas === null) {
+            $this->metas = new Metas($this);
+        }
+
+        return $this->metas;
+    }
+
+    /**
+     * @param string $field
+     *
+     * @return mixed|null
+     */
+    public function field(string $field)
+    {
+        return $this->post->$field ?? null;
+    }
+
+    /**
+     * @return null|\WP_Post
+     */
+    public function object()
+    {
+        return $this->post;
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (strpos($name, 'image') === 0) {
+            if (strpos($name, '_')) {
+                $size = explode('_', $name);
+                $size = array_pop($size);
+            } else {
+                $size = null;
+            }
+
+            $all = (strpos($name, 'images') === 0) ? true : false;
+
+            return $this->images($size, $all);
+        }
+    }
+
+    private function images($size, $all = true)
+    {
+        if (is_null($this->images)) {
+            $this->images = new ImageCollection($this);
+        }
+
+        $this->images->setSize($size);
+
+        if ($all) {
+            return $this->images->getAll();
+        }
+
+        return $this->images->getFeatured();
+    }
+
+    /**
+     * @param string $date
+     * @param string $filter
+     *
+     * @return string
+     */
+    protected function getDatetime(string $date, string $filter): string
+    {
+        $format = 'c';
+        $date   = (string)date($format, strtotime($date));
+        $date   = (string)apply_filters("get_$filter", $date, $format, $this->post);
+
+        return apply_filters($filter, $date, $format, '', '');
+    }
+
+}

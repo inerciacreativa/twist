@@ -1,0 +1,20 @@
+<div class="metas">
+    <p class="categories">{{ trans('Published in') }}
+        {% for category in taxonomies.category %}
+            {% spaceless %}
+            <a href="{{ category.link }}"><span itemprop="about">{{ category.name }}</span>
+                </a>{% if loop.last == false %}, {% endif %}
+            {% endspaceless %}
+        {% endfor %}
+    </p>
+
+    {% if tags and taxonomies.post_tag.count > 0 %}
+        <p class="tags">{{ trans('Tagged') }}
+            <span itemprop="keywords">
+                {% for tag in taxonomies.post_tag %}
+                    <a href="{{ tag.link }}">{{ tag.name }}</a>{% if loop.last == false %}, {% endif %}
+                {% endfor %}
+            </span>
+        </p>
+    {% endif %}
+</div>

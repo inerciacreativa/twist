@@ -1,0 +1,23 @@
+{
+  "publicPath": "/app/themes/twist",
+  "entry": {
+    "main": [
+      "./scripts/main.js"
+    ],
+    "customizer": [
+      "./scripts/customizer.js"
+    ]
+  },
+  "watch": [
+    "engine/**/*.php",
+    "views/**/*.twig"
+  ],
+  "devUrl": "http://twist.dev",
+  "proxyUrl": "http://localhost:3000",
+  "browsers": [
+    "> 2%",
+    "last 2 versions",
+    "android 4",
+    "opera 12"
+  ]
+}

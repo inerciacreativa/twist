@@ -1,0 +1,11 @@
+<p class="byline">{{ trans('By') }}
+    <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+        {% spaceless %}
+            <a itemprop="url" class="author" rel="author" href="{{ post.author.link }}">
+                <span itemprop="name">{{ post.author.name }}</span>
+            </a>
+        {% endspaceless %}
+    </span>
+    <time itemprop="datePublished" class="published" datetime="{{ post.published }}">{{ post.date }}</time>
+    <meta itemprop="dateModified" content="{{ post.modified }}">
+</p>

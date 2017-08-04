@@ -1,0 +1,34 @@
+{% if author.description %}
+    <h2>{{ trans('About the author') }}</h2>
+    <div class="about vcard">
+        <a class="url" href="{{ author.link }}">{{ author.avatar(96)|raw }}</a>
+        <h3><a class="fn" href="{{ author.link }}">{{ author.name }}</a></h3>
+        <div class="author-bio">
+            {{ author.description|raw }}
+        </div>
+
+        {% if author.posts.count > 0 %}
+            <h4>{{ trans('More from this author') }}</h4>
+            <ul class="author-more">
+                {% for post in author.posts %}
+                    <li><a href="{{ post.link }}">{{ post.title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if author.url or author.profiles.count > 0 %}
+            <h4>{{ trans('Other profiles') }}</h4>
+            <dl class="author-profiles">
+                {% if author.url %}
+                    <dt>{{ trans('Website') }}</dt>
+                    <dd><a href="{{ author.url }}" class="website">{{ author.url }}</a></dd>
+                {% endif %}
+                {% for name, profile in author.profiles %}
+                    <dt>{{ profile.title }}</dt>
+                    <dd><a href="{{ profile.url }}" class="{{ name }}">{{ profile.url }}</a></dd>
+                {% endfor %}
+            </dl>
+        {% endif %}
+
+    </div>
+{% endif %}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html prefix="og: http://ogp.me/ns#" lang="{{ site.language }}">
+
+<head>
+
+    <meta charset="{{ site.charset }}">
+    <title>{{ site.head.title|raw }}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{- site.head.metas|raw }}
+    {{ site.head.links|raw }}
+    {{ site.head.scripts|raw }}
+    {{ site.head.styles|raw }}
+</head>
+
+<body class="{{ site.classes }}" itemscope itemtype="http://schema.org/WebSite">
+
+    <header class="site-header" itemscope itemtype="http://schema.org/WPHeader">
+        <h1 id="publisher" class="site-brand" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+            {{ site.logo('/logo.png', 100, 100)|raw }}
+            <span class="site-name" itemprop="name">{{ site.name }}</span>
+        </h1>
+    </header>
+
+    <nav class="site-navigation" itemscope itemtype="http://schema.org/SiteNavigationElement">
+        <ul>
+        {{- site.navigation('primary')|raw }}
+            <li class="site-search">{% include 'partials/search.twig' %}</li>
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="aside aside-primary">
+            {{ site.widgets('footer-primary') }}
+        </div>
+        <div class="aside aside-secondary">
+            {{ site.widgets('footer-secondary') }}
+        </div>
+    </footer>
+    {{ site.foot.scripts|raw }}
+
+</body>
+
+</html>
