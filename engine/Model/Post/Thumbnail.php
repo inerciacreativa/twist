@@ -12,127 +12,140 @@ use Twist\Library\Util\Tag;
 class Thumbnail
 {
 
-    /**
-     * @var Post
-     */
-    protected $post;
+	/**
+	 * @var Post
+	 */
+	protected $post;
 
-    /**
-     * @var int
-     */
-    protected $id;
+	/**
+	 * @var int
+	 */
+	protected $id;
 
-    /**
-     * @var string
-     */
-    protected $size = 'post-thumbnail';
+	/**
+	 * @var string
+	 */
+	protected $size = 'post-thumbnail';
 
-    /**
-     * @var Tag
-     */
-    protected $image;
+	/**
+	 * @var Tag
+	 */
+	protected $image;
 
-    /**
-     * @var int
-     */
-    protected $width;
+	/**
+	 * @var int
+	 */
+	protected $width;
 
-    /**
-     * @var int
-     */
-    protected $height;
+	/**
+	 * @var int
+	 */
+	protected $height;
 
-    /**
-     * Thumbnail constructor.
-     *
-     * @param Post $post
-     */
-    public function __construct(Post $post)
-    {
-        $this->post = $post;
-        $this->id   = (int)$post->metas()['_thumbnail_id'];
-    }
+	/**
+	 * Thumbnail constructor.
+	 *
+	 * @param Post $post
+	 */
+	public function __construct(Post $post)
+	{
+		$this->post = $post;
+		$this->id = (int) $post->metas()['_thumbnail_id'];
+	}
 
-    /**
-     * @return bool
-     */
-    public function exists(): bool
-    {
-        return (bool)$this->id;
-    }
+	/**
+	 * @return bool
+	 */
+	public function exists(): bool
+	{
+		return (bool) $this->id;
+	}
 
-    /**
-     * @param string $size
-     */
-    public function size(string $size)
-    {
-        $size = (string)apply_filters('post_thumbnail_size', $size);
+	/**
+	 * @param string $size
+	 *
+	 * @return $this
+	 */
+	public function size(string $size)
+	{
+		$size = (string) apply_filters('post_thumbnail_size', $size);
 
-        if (!empty($size) && $size !== $this->size) {
-            $this->image = null;
-            $this->size  = $size;
-        }
-    }
+		if (!empty($size) && $size !== $this->size) {
+			$this->image = null;
+			$this->size = $size;
+		}
+	}
 
-    /**
-     * @param array $attributes
-     *
-     * @return Tag|null
-     */
-    public function image(array $attributes = [])
-    {
-        if ($this->id === 0) {
-            return null;
-        }
+	/**
+	 * @param array $attributes
+	 *
+	 * @return Tag|null
+	 */
+	public function image(array $attributes = [])
+	{
+		if ($this->id === 0) {
+			return null;
+		}
 
-        if ($this->image === null) {
-            $image = wp_get_attachment_image($this->id, $this->size);
-            $image = apply_filters('post_thumbnail_html', $image, $this->post->id(), $this->id, $this->size, []);
+		if (array_key_exists('size', $attributes)) {
+			$this->size($attributes['size']);
+			unset($attributes['size']);
+		}
 
-            $this->image = Tag::parse($image);
-        }
+		if ($this->image === null) {
+			$image = wp_get_attachment_image($this->id, $this->size);
+			$image = apply_filters('post_thumbnail_html', $image, $this->post->id(), $this->id, $this->size, []);
 
-        return $this->image->attributes($attributes);
-    }
+			$this->image = Tag::parse($image);
+		}
 
-    /**
-     * @return string
-     */
-    public function source(): string
-    {
-        return $this->get('src');
-    }
+		$image = $this->image->attributes($attributes);
 
-    /**
-     * @return int
-     */
-    public function width(): int
-    {
-        return (int)$this->get('width');
-    }
+		if (!isset($image['alt'])) {
+			$image['alt'] = '';
+		}
 
-    /**
-     * @return int
-     */
-    public function height(): int
-    {
-        return (int)$this->get('height');
-    }
+		return $image;
+	}
 
-    /**
-     * @param string $attribute
-     *
-     * @return null|string
-     */
-    protected function get(string $attribute)
-    {
-        if ($this->id === 0) {
-            return null;
-        }
+	/**
+	 * @return string
+	 */
+	public function source(): string
+	{
+		return $this->get('src');
+	}
 
-        $image = $this->image();
+	/**
+	 * @return int
+	 */
+	public function width(): int
+	{
+		return (int) $this->get('width');
+	}
 
-        return $image instanceof Tag ? $image[$attribute] : null;
-    }
+	/**
+	 * @return int
+	 */
+	public function height(): int
+	{
+		return (int) $this->get('height');
+	}
+
+	/**
+	 * @param string $attribute
+	 *
+	 * @return null|string
+	 */
+	protected function get(string $attribute)
+	{
+		if ($this->id === 0) {
+			return null;
+		}
+
+		$image = $this->image();
+
+		return $image instanceof Tag ? $image[$attribute] : null;
+	}
 
 }
