@@ -14,13 +14,13 @@ use Twist\View\ViewServiceInterface;
  */
 function app(string $id = null)
 {
-    static $container;
+	static $container;
 
-    if ($container === null) {
-        $container = new Application();
-    }
+	if ($container === null) {
+		$container = new Application();
+	}
 
-    return $id === null ? $container : $container[$id];
+	return $id === null ? $container : $container[$id];
 }
 
 /**
@@ -31,11 +31,11 @@ function app(string $id = null)
  */
 function config(string $key = null, $default = null)
 {
-    if ($key === null) {
-        return app('config');
-    }
+	if ($key === null) {
+		return app('config');
+	}
 
-    return app('config')->get($key, $default);
+	return app('config')->get($key, $default);
 }
 
 /**
@@ -47,15 +47,15 @@ function config(string $key = null, $default = null)
  */
 function view(string $template = null, array $data = [], bool $render = false)
 {
-    if ($template === null) {
-        return app('view');
-    }
+	if ($template === null) {
+		return app('view');
+	}
 
-    if ($render) {
-        return app('view')->render($template, $data);
-    }
+	if ($render) {
+		return app('view')->render($template, $data);
+	}
 
-    return app('view')->display($template, $data);
+	return app('view')->display($template, $data);
 }
 
 /**
@@ -66,15 +66,28 @@ function view(string $template = null, array $data = [], bool $render = false)
  */
 function asset(string $filename, bool $parent = false): string
 {
-    static $manifest;
+	static $manifest;
 
-    $source = $parent ? 'template' : 'stylesheet';
-    $path   = config("uri.$source") . '/assets/' . dirname($filename) . '/';
-    $file   = basename($filename);
+	$source = $parent ? 'template' : 'stylesheet';
+	$path = config("uri.$source") . '/assets/' . dirname($filename) . '/';
+	$file = basename($filename);
 
-    if ($manifest === null) {
-        $manifest = new JsonFile(config("dir.$source") . '/assets/assets.json');
-    }
+	if ($manifest === null) {
+		$manifest = new JsonFile(config("dir.$source") . '/assets/assets.json');
+	}
 
-    return $path . $manifest->get($file, $file);
+	return $path . $manifest->get($file, $file);
+}
+
+/**
+ * @param callable $function
+ *
+ * @return string
+ */
+function capture(callable $function): string
+{
+	ob_start();
+	$function();
+
+	return ob_get_clean();
 }
