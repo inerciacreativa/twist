@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Site;
 
+use Twist\Library\Util\Macro;
 use Twist\Library\Util\Tag;
 use Twist\Model\Navigation\Navigation;
 
@@ -13,297 +14,302 @@ use Twist\Model\Navigation\Navigation;
 class Site
 {
 
-    /**
-     * @var Header
-     */
-    protected $header;
+	use Macro;
 
-    /**
-     * @var Footer
-     */
-    protected $footer;
+	/**
+	 * @var Header
+	 */
+	protected $header;
 
-    /**
-     * @var Navigation
-     */
-    protected $navigation;
+	/**
+	 * @var Footer
+	 */
+	protected $footer;
 
-    /**
-     * Site constructor.
-     */
-    public function __construct()
-    {
-        $this->navigation = new Navigation();
-    }
+	/**
+	 * @var Navigation
+	 */
+	protected $navigation;
 
-    public function head(): Header
-    {
-        if ($this->header === null) {
-            $this->header = new Header();
-        }
+	/**
+	 * Site constructor.
+	 */
+	public function __construct()
+	{
+		$this->navigation = new Navigation();
+	}
 
-        return $this->header;
-    }
+	public function head(): Header
+	{
+		if ($this->header === null) {
+			$this->header = new Header();
+		}
 
-    /**
-     * @return string
-     */
-    public function charset(): string
-    {
-        return get_bloginfo('charset');
-    }
+		return $this->header;
+	}
 
-    /**
-     * @return string
-     */
-    public function language(): string
-    {
-        return get_bloginfo('language');
-    }
+	/**
+	 * @return string
+	 */
+	public function charset(): string
+	{
+		return get_bloginfo('charset');
+	}
 
-    /**
-     * @return string
-     */
-    public function url(): string
-    {
-        return home_url('/');
-    }
+	/**
+	 * @return string
+	 */
+	public function language(): string
+	{
+		return get_bloginfo('language');
+	}
 
-    /**
-     * @param string $source
-     * @param int    $width
-     * @param int    $height
-     *
-     * @return string
-     */
-    public function logo(string $source = null, int $width = 0, int $height = 0): string
-    {
-        if (empty($source) && ($id = get_theme_mod('custom_logo'))) {
-            $image = Tag::parse(wp_get_attachment_image($id, 'full'));
-        } else {
-            $image = Tag::img([
-                'src'    => home_url($source),
-                'width'  => $width,
-                'height' => $height,
-            ]);
-        }
+	/**
+	 * @return string
+	 */
+	public function url(): string
+	{
+		return home_url('/');
+	}
 
-        $image->attributes([
-            'alt'      => $this->name(),
-            'class'    => 'site-logo',
-            'itemprop' => 'url',
-        ]);
+	/**
+	 * @param string $source
+	 * @param int    $width
+	 * @param int    $height
+	 *
+	 * @return string
+	 */
+	public function logo(string $source = null, int $width = 0, int $height = 0): string
+	{
+		if (empty($source) && ($id = get_theme_mod('custom_logo'))) {
+			$image = Tag::parse(wp_get_attachment_image($id, 'full'));
+		} else {
+			$image = Tag::img([
+				'src'    => home_url($source),
+				'width'  => $width,
+				'height' => $height,
+			]);
+		}
 
-        return Tag::a([
-            'href'     => $this->url(),
-            'class'    => 'site-link',
-            'rel'      => 'home',
-            'itemprop' => 'url',
-            'id'       => 'site-logo',
-        ], Tag::span([
-            'itemprop'  => 'logo',
-            'itemscope' => true,
-            'itemtype'  => 'http://schema.org/ImageObject',
-        ], $image));
-    }
+		$image->attributes([
+			'alt'      => $this->name(),
+			'class'    => 'site-logo',
+			'itemprop' => 'url',
+		]);
 
-    /**
-     * @return string
-     */
-    public function name(): string
-    {
-        return get_bloginfo('name');
-    }
+		return Tag::a([
+			'href'     => $this->url(),
+			'class'    => 'site-link',
+			'rel'      => 'home',
+			'itemprop' => 'url',
+			'id'       => 'site-logo',
+		], Tag::span([
+			'itemprop'  => 'logo',
+			'itemscope' => true,
+			'itemtype'  => 'http://schema.org/ImageObject',
+		], $image));
+	}
 
-    /**
-     * @return string
-     */
-    public function id(): string
-    {
-        $url = parse_url($this->url(), PHP_URL_HOST);
-        $url = str_replace('.', '-', $url);
+	/**
+	 * @return string
+	 */
+	public function name(): string
+	{
+		return get_bloginfo('name');
+	}
 
-        return $url;
-    }
+	/**
+	 * @return string
+	 */
+	public function id(): string
+	{
+		$url = parse_url($this->url(), PHP_URL_HOST);
+		$url = str_replace('.', '-', $url);
 
-    /**
-     * @see body_class()
-     *
-     * @param array $options
-     *
-     * @return string
-     */
-    public function classes(array $options = []): string
-    {
-        /**
-         * @var $wp_query \WP_Query
-         */
-        global $wp_query;
+		return $url;
+	}
 
-        $options = wp_parse_args($options, [
-            'classes' => '',
-            'front'   => 'home',
-            'index'   => 'blog',
-        ]);
+	/**
+	 * @see body_class()
+	 *
+	 * @param array $options
+	 *
+	 * @return string
+	 */
+	public function classes(array $options = []): string
+	{
+		/**
+		 * @var $wp_query \WP_Query
+		 */
+		global $wp_query;
 
-        $classes = [];
+		$options = wp_parse_args($options, [
+			'classes' => '',
+			'front'   => 'home',
+			'index'   => 'blog',
+		]);
 
-        if (is_front_page()) {
-            $classes[] = $options['front'];
-        }
-        if (is_home()) {
-            $classes[] = $options['index'];
-        }
-        if (is_archive()) {
-            $classes[] = 'archive';
-        }
-        if (is_date()) {
-            $classes[] = 'date';
-        }
-        if (is_search()) {
-            $classes[] = 'search';
-            $classes[] = $wp_query->posts ? 'search-results' : 'search-no-results';
-        }
-        if (is_attachment()) {
-            $classes[] = 'attachment';
-        }
-        if (is_404()) {
-            $classes[] = 'not-found';
-        }
+		$classes = [];
 
-        if (is_singular()) {
-            $post_id   = $wp_query->get_queried_object_id();
-            $post      = $wp_query->get_queried_object();
-            $post_type = $post->post_type;
+		if (is_front_page()) {
+			$classes[] = $options['front'];
+		}
+		if (is_home()) {
+			$classes[] = $options['index'];
+		}
+		if (is_archive()) {
+			$classes[] = 'archive';
+		}
+		if (is_date()) {
+			$classes[] = 'date';
+		}
+		if (is_search()) {
+			$classes[] = 'search';
+			$classes[] = $wp_query->posts ? 'search-results' : 'search-no-results';
+		}
+		if (is_attachment()) {
+			$classes[] = 'attachment';
+		}
+		if (is_404()) {
+			$classes[] = 'not-found';
+		}
 
-            if (is_page_template()) {
-                $classes[] = "{$post_type}-template";
+		if (is_singular()) {
+			$post_id = $wp_query->get_queried_object_id();
+			$post = $wp_query->get_queried_object();
+			$post_type = $post->post_type;
 
-                $template_slug  = get_page_template_slug($post_id);
-                $template_parts = explode('/', $template_slug);
+			if (is_page_template()) {
+				$classes[] = "{$post_type}-template";
 
-                foreach ($template_parts as $part) {
-                    $classes[] = "{$post_type}-template-" . sanitize_html_class(str_replace(array('.', '/'), '-', basename($part, '.php')));
-                }
+				$template_slug = get_page_template_slug($post_id);
+				$template_parts = explode('/', $template_slug);
 
-                $classes[] = "{$post_type}-template-" . sanitize_html_class(str_replace('.', '-', $template_slug));
-            }
+				foreach ($template_parts as $part) {
+					$classes[] = "{$post_type}-template-" . sanitize_html_class(str_replace([
+							'.',
+							'/',
+						], '-', basename($part, '.php')));
+				}
 
-            if (is_single()) {
-                $classes[] = 'single';
-                if (isset($post->post_type)) {
-                    $classes[] = 'single-' . sanitize_html_class($post->post_type, $post_id);
+				$classes[] = "{$post_type}-template-" . sanitize_html_class(str_replace('.', '-', $template_slug));
+			}
 
-                    // Post Format
-                    if ($post_format = get_post_format($post->ID)) {
-                        $classes[] = 'format-' . sanitize_html_class($post_format);
-                    }
-                }
-            }
+			if (is_single()) {
+				$classes[] = 'single';
+				if (isset($post->post_type)) {
+					$classes[] = 'single-' . sanitize_html_class($post->post_type, $post_id);
 
-            if (is_page()) {
-                $classes[] = 'page';
-            }
-        } elseif (is_archive()) {
-            if (is_post_type_archive()) {
-                $post_type = get_query_var('post_type');
-                if (is_array($post_type)) {
-                    $post_type = reset($post_type);
-                }
-                $classes[] = 'archive-' . sanitize_html_class($post_type);
-            } elseif (is_author()) {
-                $classes[] = 'archive-author';
-            } elseif (is_category()) {
-                $classes[] = 'archive-category';
-            } elseif (is_tag()) {
-                $classes[] = 'archive-tag';
-            } elseif (is_tax()) {
-                $term      = $wp_query->get_queried_object();
-                $classes[] = 'archive-' . sanitize_html_class($term->taxonomy);
-            }
-        }
+					// Post Format
+					if ($post_format = get_post_format($post->ID)) {
+						$classes[] = 'format-' . sanitize_html_class($post_format);
+					}
+				}
+			}
 
-        if (is_user_logged_in()) {
-            $classes[] = 'user-logged-in';
-        }
-        if (is_admin_bar_showing()) {
-            $classes[] = 'admin-bar';
-        }
+			if (is_page()) {
+				$classes[] = 'page';
+			}
+		} else if (is_archive()) {
+			if (is_post_type_archive()) {
+				$post_type = get_query_var('post_type');
+				if (is_array($post_type)) {
+					$post_type = reset($post_type);
+				}
+				$classes[] = 'archive-' . sanitize_html_class($post_type);
+			} else if (is_author()) {
+				$classes[] = 'archive-author';
+			} else if (is_category()) {
+				$classes[] = 'archive-category';
+			} else if (is_tag()) {
+				$classes[] = 'archive-tag';
+			} else if (is_tax()) {
+				$term = $wp_query->get_queried_object();
+				$classes[] = 'archive-' . sanitize_html_class($term->taxonomy);
+			}
+		}
 
-        if (!empty($options->class)) {
-            if (!is_array($options->class)) {
-                $options->class = preg_split('#\s+#', $options->class);
-            }
+		if (is_user_logged_in()) {
+			$classes[] = 'user-logged-in';
+		}
+		if (is_admin_bar_showing()) {
+			$classes[] = 'admin-bar';
+		}
 
-            $classes = array_merge($classes, $options->class);
-        }
+		if (!empty($options->class)) {
+			if (!is_array($options->class)) {
+				$options->class = preg_split('#\s+#', $options->class);
+			}
 
-        $classes = array_filter($classes);
-        $classes = implode(' ', apply_filters('body_class', $classes, $options['classes']));
+			$classes = array_merge($classes, $options->class);
+		}
 
-        return $classes;
-    }
+		$classes = array_filter($classes);
+		$classes = implode(' ', apply_filters('body_class', $classes, $options['classes']));
 
-    /**
-     * @param string $sidebar
-     *
-     * @return bool
-     */
-    public function has_widgets(string $sidebar): bool
-    {
-        return is_active_sidebar($sidebar);
-    }
+		return $classes;
+	}
 
-    /**
-     * @param string $sidebar
-     */
-    public function widgets(string $sidebar)
-    {
-        if (is_active_sidebar($sidebar)) {
-            dynamic_sidebar($sidebar);
-        }
-    }
+	/**
+	 * @param string $sidebar
+	 *
+	 * @return bool
+	 */
+	public function has_widgets(string $sidebar): bool
+	{
+		return is_active_sidebar($sidebar);
+	}
 
-    /**
-     * @param string $menu
-     * @param string $location
-     * @param int    $depth
-     *
-     * @return string
-     */
-    public function navigation(string $menu, $location = null, $depth = 0): string
-    {
-        return $this->navigation->menu($menu, $location, $depth);
-    }
+	/**
+	 * @param string $sidebar
+	 */
+	public function widgets(string $sidebar)
+	{
+		if (is_active_sidebar($sidebar)) {
+			dynamic_sidebar($sidebar);
+		}
+	}
 
-    /**
-     * @return string
-     */
-    public function search(): string
-    {
-        return get_search_query();
-    }
+	/**
+	 * @param string $menu
+	 * @param string $location
+	 * @param int    $depth
+	 *
+	 * @return string
+	 */
+	public function navigation(string $menu, $location = null, $depth = 0): string
+	{
+		return $this->navigation->menu($menu, $location, $depth);
+	}
 
-    /**
-     * @return Footer
-     */
-    public function foot(): Footer
-    {
-        if ($this->footer === null) {
-            $this->footer = new Footer();
-        }
+	/**
+	 * @return string
+	 */
+	public function search(): string
+	{
+		return get_search_query();
+	}
 
-        return $this->footer;
-    }
+	/**
+	 * @return Footer
+	 */
+	public function foot(): Footer
+	{
+		if ($this->footer === null) {
+			$this->footer = new Footer();
+		}
 
-    /**
-     * @param string $format
-     *
-     * @return string
-     */
-    public function date(string $format): string
-    {
-        return date($format);
-    }
+		return $this->footer;
+	}
+
+	/**
+	 * @param string $format
+	 *
+	 * @return string
+	 */
+	public function date(string $format): string
+	{
+		return date($format);
+	}
 
 }
