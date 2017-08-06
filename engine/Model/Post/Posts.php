@@ -12,82 +12,52 @@ use Twist\Model\ModelCollection;
 class Posts extends ModelCollection
 {
 
-    /**
-     * @var \WP_Query
-     */
-    protected $query;
+	/**
+	 * @param array $posts
+	 *
+	 * @return static
+	 */
+	public static function make(array $posts = []): Posts {
+		$collection = new static();
 
-    /**
-     * @param array $query
-     *
-     * @return Posts
-     */
-    public static function query(array $query = null)
-    {
-        return new static(new \WP_Query($query));
-    }
+		foreach ($posts as $post) {
+			if (!($post instanceof Post)) {
+				$post = new Post($post);
+			}
 
-    /**
-     * Posts constructor.
-     *
-     * @param \WP_Query|null $query
-     */
-    public function __construct(\WP_Query $query = null)
-    {
-        global $wp_query;
+			$collection->add($post);
+		}
 
-        $this->query = $query ?? $wp_query;
+		return $collection;
+	}
 
-        parent::__construct();
-    }
+	public function rewind() {
+		parent::rewind();
+		wp_reset_postdata();
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function rewind()
-    {
-        $this->query->rewind_posts();
-    }
+	/**
+	 * @return bool
+	 */
+	public function valid(): bool {
+		$valid = parent::valid();
 
-    /**
-     * @inheritdoc
-     */
-    public function next()
-    {
-    }
+		if (!$valid) {
+			wp_reset_postdata();
+		}
 
-    /**
-     * @inheritdoc
-     */
-    public function valid()
-    {
-        return $this->query->have_posts();
-    }
+		return $valid;
+	}
 
-    /**
-     * @return Post
-     */
-    public function current()
-    {
-        $this->query->the_post();
+	/**
+	 * @return \Twist\Model\Post\Post
+	 */
+	public function current(): Post {
+		/** @var Post $post */
+		$post = parent::current();
+		setup_postdata($post->object());
 
-        return new Post();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function key()
-    {
-        return $this->query->post->ID;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function count()
-    {
-        return $this->query->post_count;
-    }
+		return $post;
+	}
 
 }

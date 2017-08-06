@@ -4,7 +4,7 @@ namespace Twist\Model\User;
 
 use Twist\Library\Util\Str;
 use Twist\Model\Model;
-use Twist\Model\Post\Posts;
+use Twist\Model\Post\Query;
 use Twist\Library\Util\Tag;
 
 /**
@@ -41,7 +41,7 @@ class User extends Model implements UserInterface
     protected $profiles;
 
     /**
-     * @var Posts
+     * @var Query
      */
     protected $posts;
 
@@ -257,9 +257,9 @@ class User extends Model implements UserInterface
     /**
      * @param int $number
      *
-     * @return Posts
+     * @return Query
      */
-    public function posts(int $number = 5): Posts
+    public function posts(int $number = 5): Query
     {
         if ($this->posts === null) {
             $query = [
@@ -273,7 +273,7 @@ class User extends Model implements UserInterface
                 $query['post__not_in'] = [$GLOBALS['post']->id];
             }
 
-            $this->posts = Posts::query($query);
+            $this->posts = Query::make($query);
         }
 
         return $this->posts;
