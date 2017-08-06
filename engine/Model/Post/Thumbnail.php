@@ -63,8 +63,6 @@ class Thumbnail
 
 	/**
 	 * @param string $size
-	 *
-	 * @return $this
 	 */
 	public function size(string $size)
 	{
