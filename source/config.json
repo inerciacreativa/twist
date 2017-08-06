@@ -9,6 +9,8 @@
     ]
   },
   "watch": [
+    "functions.php",
+    "source/config.json",
     "engine/**/*.php",
     "views/**/*.twig"
   ],
