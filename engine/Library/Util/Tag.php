@@ -448,7 +448,7 @@ class Tag implements \ArrayAccess
                 return $value ? $name : '';
             }
 
-            if ($value === '' && $name !== 'value') {
+			if ($value === '' && !in_array($name, ['value', 'alt'], false)) {
                 return $value;
             }
 
