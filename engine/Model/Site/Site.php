@@ -39,6 +39,9 @@ class Site
 		$this->navigation = new Navigation();
 	}
 
+	/**
+	 * @return Header
+	 */
 	public function head(): Header
 	{
 		if ($this->header === null) {
