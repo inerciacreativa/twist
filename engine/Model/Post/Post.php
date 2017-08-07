@@ -58,6 +58,26 @@ class Post extends Model
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function setup()
+	{
+		setup_postdata($this->post);
+
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function reset()
+	{
+		wp_reset_postdata();
+
+		return $this;
+	}
+
+	/**
 	 * Retrieve the ID of the post.
 	 *
 	 * @return int
