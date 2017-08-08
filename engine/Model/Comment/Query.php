@@ -100,7 +100,7 @@ class Query
     /**
      * @return Comments
      */
-    public function comments()
+    public function comments(): Comments
     {
         return $this->all(['type' => 'comment']);
     }
@@ -108,7 +108,7 @@ class Query
     /**
      * @return Comments
      */
-    public function pings()
+    public function pings(): Comments
     {
         return $this->all(['type' => 'pings']);
     }
@@ -120,7 +120,7 @@ class Query
      *
      * @return Comments
      */
-    public function all(array $arguments = [])
+    public function all(array $arguments = []): Comments
     {
         $comments  = new Comments($this);
 
@@ -178,7 +178,7 @@ class Query
     /**
      * @return Post
      */
-    public function post()
+    public function post(): Post
     {
         return $this->post;
     }
@@ -186,7 +186,7 @@ class Query
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return $this->count;
     }
@@ -194,7 +194,7 @@ class Query
     /**
      * @return int
      */
-    public function max_depth()
+    public function max_depth(): int
     {
         return $this->max_depth;
     }
@@ -202,7 +202,7 @@ class Query
     /**
      * @return bool
      */
-    public function are_open()
+    public function are_open(): bool
     {
         return apply_filters('comments_open', $this->post->field('comment_status') === 'open', $this->post->id());
     }
@@ -210,7 +210,7 @@ class Query
     /**
      * @return string
      */
-    public function form()
+    public function form(): string
     {
         $form = new Form();
 
@@ -222,7 +222,7 @@ class Query
      *
      * @return bool
      */
-    protected function setup()
+    protected function setup(): bool
     {
         if ($this->setup !== null) {
             return $this->setup;
@@ -266,7 +266,7 @@ class Query
     /**
      * @return \WP_Query
      */
-    protected function getMainQuery()
+    protected function getMainQuery(): \WP_Query
     {
         /** @var \WP_Query $wp_query */
         global $wp_query;
@@ -302,7 +302,7 @@ class Query
     /**
      * @return int
      */
-    protected function getQueryOffset()
+    protected function getQueryOffset(): int
     {
         if ($this->page) {
             return ($this->page - 1) * $this->per_page;
@@ -327,7 +327,7 @@ class Query
      *
      * @return \WP_Comment[]
      */
-    protected function getCommentsArray($type, \WP_Query $query = null)
+    protected function getCommentsArray($type, \WP_Query $query = null): array
     {
         if ($query) {
             $comments = &$query->comments;
@@ -366,7 +366,7 @@ class Query
      *
      * @return \WP_Comment[]
      */
-    protected function getCommentsFlattened(array $comments, array $arguments)
+    protected function getCommentsFlattened(array $comments, array $arguments): array
     {
         $flattened = [];
 
@@ -393,7 +393,7 @@ class Query
      *
      * @return Comments
      */
-    protected function getComments(Comments $comments, array $commentsArray, array $arguments)
+    protected function getComments(Comments $comments, array $commentsArray, array $arguments): Comments
     {
         if ($this->paged && $arguments['per_page'] === '') {
             $arguments['per_page'] = $this->per_page;
@@ -444,7 +444,7 @@ class Query
      *
      * @return int
      */
-    protected function getPagesCount(array $comments, array $arguments)
+    protected function getPagesCount(array $comments, array $arguments): int
     {
         if (empty($comments)) {
             return 0;
