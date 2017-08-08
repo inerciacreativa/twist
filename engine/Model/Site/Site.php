@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Site;
 
+use function Twist\asset;
 use Twist\Library\Util\Macro;
 use Twist\Library\Util\Tag;
 use Twist\Model\Navigation\Navigation;
@@ -88,7 +89,7 @@ class Site
 			$image = Tag::parse(wp_get_attachment_image($id, 'full'));
 		} else {
 			$image = Tag::img([
-				'src'    => home_url($source),
+				'src'    => asset($source),
 				'width'  => $width,
 				'height' => $height,
 			]);
@@ -111,6 +112,17 @@ class Site
 			'itemscope' => true,
 			'itemtype'  => 'http://schema.org/ImageObject',
 		], $image));
+	}
+
+	/**
+	 * @param string $filename
+	 * @param bool   $parent
+	 *
+	 * @return string
+	 */
+	public function asset(string $filename, bool $parent = false): string
+	{
+		return asset($filename, $parent);
 	}
 
 	/**
