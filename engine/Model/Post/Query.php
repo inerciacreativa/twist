@@ -22,7 +22,8 @@ class Query extends ModelCollection
 	 *
 	 * @return Query
 	 */
-	public static function make(array $query = null): Query {
+	public static function make(array $query = null): Query
+	{
 		return new static(new \WP_Query($query));
 	}
 
@@ -31,7 +32,8 @@ class Query extends ModelCollection
 	 *
 	 * @param \WP_Query|null $query
 	 */
-	public function __construct(\WP_Query $query = null) {
+	public function __construct(\WP_Query $query = null)
+	{
 		global $wp_query;
 
 		$this->query = $query ?? $wp_query;
@@ -42,27 +44,31 @@ class Query extends ModelCollection
 	/**
 	 * @inheritdoc
 	 */
-	public function rewind() {
+	public function rewind()
+	{
 		$this->query->rewind_posts();
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function next() {
+	public function next()
+	{
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function valid(): bool {
+	public function valid(): bool
+	{
 		return $this->query->have_posts();
 	}
 
 	/**
 	 * @return Post
 	 */
-	public function current(): Post {
+	public function current(): Post
+	{
 		$this->query->the_post();
 
 		return new Post();
@@ -71,14 +77,16 @@ class Query extends ModelCollection
 	/**
 	 * @inheritdoc
 	 */
-	public function key(): int {
+	public function key(): int
+	{
 		return $this->query->post->ID;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function count(): int {
+	public function count(): int
+	{
 		return $this->query->post_count;
 	}
 
