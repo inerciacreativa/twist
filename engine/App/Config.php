@@ -3,6 +3,7 @@
 namespace Twist\App;
 
 use Twist\Library\Data\Repository;
+use Twist\Library\Util\Data;
 
 /**
  * Class Config
@@ -27,5 +28,15 @@ class Config extends Repository
 
         return $this;
     }
+
+	/**
+	 * Make sure that returns a value (and not a closure).
+	 *
+	 * @inheritdoc
+	 */
+	public function get(string $key, $default = null)
+	{
+		return Data::value(parent::get($key, $default));
+	}
 
 }
