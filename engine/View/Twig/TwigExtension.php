@@ -13,7 +13,7 @@ class TwigExtension extends \Twig_Extension
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return 'twist';
     }
@@ -21,7 +21,7 @@ class TwigExtension extends \Twig_Extension
     /**
      * @return array
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new \Twig_SimpleFunction('trans', function () {
