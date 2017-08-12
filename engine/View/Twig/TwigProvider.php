@@ -17,6 +17,10 @@ class TwigProvider implements ServiceProviderInterface
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
+     * @throws \Pimple\Exception\ExpectedInvokableException
+     * @throws \Pimple\Exception\FrozenServiceException
+     * @throws \Pimple\Exception\InvalidServiceIdentifierException
+     * @throws \Pimple\Exception\UnknownIdentifierException
      */
     public function register(Application $app)
     {
@@ -30,18 +34,20 @@ class TwigProvider implements ServiceProviderInterface
         });
 
         $app->extend('twig.service', function (\Twig_Environment $provider) use ($app) {
-            $provider->addExtension(new TwigExtension());
-            $provider->addExtension(new \Twig_Extension_StringLoader());
+        	try {
+		        $provider->addExtension(new TwigExtension());
+		        $provider->addExtension(new \Twig_Extension_StringLoader());
 
-            if ($app['config']->get('app.debug')) {
-                $provider->addExtension(new \Twig_Extension_Debug());
-            }
+		        if ($app['config']->get('app.debug')) {
+			        $provider->addExtension(new \Twig_Extension_Debug());
+		        }
 
-            foreach ((array)$app['config']->get('view.data') as $name => $class) {
-                $provider->addGlobal($name, new $class());
-            }
-
-            return $provider;
+		        foreach ((array) $app['config']->get('view.data') as $name => $class) {
+			        $provider->addGlobal($name, new $class());
+		        }
+	        } finally {
+        		return $provider;
+	        }
         });
 
         $app->service('twig.loader', function (Application $app) {
