@@ -69,8 +69,8 @@ function asset(string $filename, bool $parent = false): string
 	static $manifest;
 
 	$source = $parent ? 'template' : 'stylesheet';
-	$path = config("uri.$source") . '/assets/' . dirname($filename) . '/';
-	$file = basename($filename);
+	$path   = config("uri.$source") . '/assets/' . dirname($filename) . '/';
+	$file   = basename($filename);
 
 	if ($manifest === null) {
 		$manifest = new JsonFile(config("dir.$source") . '/assets/assets.json');
