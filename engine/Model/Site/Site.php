@@ -97,7 +97,7 @@ class Site
 
 		$image->attributes([
 			'alt'      => $this->name(),
-			'class'    => 'site-logo',
+			'class'    => '',
 			'itemprop' => 'url',
 		]);
 
