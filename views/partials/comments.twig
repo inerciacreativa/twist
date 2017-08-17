@@ -14,7 +14,7 @@
         </div>
         {% if comment.has_replies %}
             <ol>
-                {% include 'partials/comments.twig' with {'comments': comment.replies} only %}
+                {% include 'partials/comment.twig' with {'comments': comment.replies} only %}
             </ol>
         {% endif %}
     </li>
