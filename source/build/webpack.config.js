@@ -34,7 +34,7 @@ let webpackConfig = {
     rules: [
       {
         enforce: 'pre',
-        test: /\.(js|s?[ca]ss)$/,
+        test: /\.(js|s[ca]ss|less|css)$/,
         include: config.paths.source,
         loader: 'import-glob',
       },
@@ -79,7 +79,7 @@ let webpackConfig = {
         }),
       },
       {
-        test: /\.scss$/,
+        test: /\.s[ac]ss$/,
         include: config.paths.source,
         use: ExtractTextPlugin.extract({
           fallback: 'style',
@@ -165,7 +165,7 @@ let webpackConfig = {
       stats: {colors: true},
     }),
     new webpack.LoaderOptionsPlugin({
-      test: /\.s?css|less$/,
+      test: /\.css|s[ac]ss|less$/,
       options: {
         output: {path: config.paths.target},
         context: config.paths.source,
@@ -174,7 +174,7 @@ let webpackConfig = {
   ],
 };
 
-if (config.enabled.lint) {
+if (['all', 'styles', 'scripts'].includes(config.enabled.lint)) {
   webpackConfig = merge(webpackConfig, require('./webpack.lint')(config));
 }
 
