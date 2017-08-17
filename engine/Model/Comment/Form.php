@@ -2,6 +2,9 @@
 
 namespace Twist\Model\Comment;
 
+use Twist\Model\Comment\Form\BootstrapDecorator;
+use Twist\Model\Comment\Form\BulmaDecorator;
+use Twist\Model\Comment\Form\FormDecoratorInterface;
 use Twist\Model\Post\Post;
 use Twist\Model\User\User;
 use Twist\Library\Util\Tag;
@@ -14,134 +17,111 @@ use Twist\Library\Util\Tag;
 class Form
 {
 
-    /**
-     * @var Post
-     */
-    protected $post;
+	static protected $decorators = [
+		'bulma'     => BulmaDecorator::class,
+		'bootstrap' => BootstrapDecorator::class,
+	];
 
-    /**
-     * Form constructor.
-     */
-    public function __construct()
-    {
-        add_filter('comment_form_defaults', [$this, 'setup'], 1);
-        add_filter('comment_id_fields', [$this, 'decorate']);
-    }
+	/**
+	 * @var Post
+	 */
+	protected $post;
 
-    /**
-     * @return string
-     */
-    public function show(): string
-    {
-        ob_start();
-        comment_form();
+	/**
+	 * @var FormDecoratorInterface
+	 */
+	protected $decorator;
 
-        return str_replace('<!-- #respond -->', '', ob_get_clean());
-    }
+	/**
+	 * Form constructor.
+	 *
+	 * @param string $decorator
+	 */
+	public function __construct(string $decorator = null)
+	{
+		$decorator       = self::$decorators[$decorator] ?? reset(self::$decorators);
+		$this->decorator = new $decorator;
 
-    /**
-     * @param array $arguments
-     *
-     * @return array
-     */
-    public function setup(array $arguments): array
-    {
-        $arguments['fields']        = $this->getFields();
-        $arguments['comment_field'] = $this->getTextArea();
-        $arguments['class_form']    = 'form-comment form-standard';
-        $arguments['submit_field']  = '<p class="form-actions">%1$s%2$s</p>' . "\n";
-        $arguments['submit_button'] = Tag::input([
-            'id'    => 'submit',
-            'name'  => 'submit',
-            'class' => 'btn btn-primary',
-            'type'  => 'submit',
-            'value' => '%4$s',
-        ]);
+		add_filter('comment_form_defaults', [$this, 'setup'], 1);
+		add_filter('comment_id_fields', [$this, 'decorate']);
+	}
 
-        return $arguments;
-    }
+	/**
+	 * @return string
+	 */
+	public function show(): string
+	{
+		ob_start();
+		comment_form();
 
-    /**
-     * @param string $fields
-     *
-     * @return string
-     */
-    public function decorate(string $fields): string
-    {
-        return str_replace(["'", ' />', "\n"], ['"', '>', ''], $fields);
-    }
+		return str_replace('<!-- #respond -->', '', ob_get_clean());
+	}
 
-    /**
-     * @return Tag
-     */
-    protected function getTextArea(): Tag
-    {
-        return Tag::p(['class' => 'form-group'], [
-            Tag::label(['for' => 'comment'], _x('Comment', 'noun')),
-            Tag::textarea([
-                'id'        => 'comment',
-                'name'      => 'comment',
-                'class'     => 'form-control',
-                'cols'      => 45,
-                'rows'      => 8,
-                'maxlength' => 65525,
-                'required'  => true,
-            ]),
-            Tag::span(['class' => 'form-required'], __('Required')),
-        ]);
-    }
+	/**
+	 * @param array $arguments
+	 *
+	 * @return array
+	 */
+	public function setup(array $arguments): array
+	{
+		$arguments = array_merge($arguments, $this->decorator->defaults());
 
-    /**
-     * @return array
-     */
-    protected function getFields(): array
-    {
-        $commenter = User::commenter();
+		$arguments['fields']        = $this->getFields();
+		$arguments['comment_field'] = $this->getTextArea();
 
-        return [
-            'author' => $this->getField('author', __('Name'), [
-                'value'     => $commenter->name(),
-                'type'      => 'text',
-                'maxlength' => 245,
-                'required'  => true,
-            ]),
-            'email'  => $this->getField('email', __('Email'), [
-                'value'            => $commenter->email(),
-                'type'             => 'email',
-                'maxlength'        => 100,
-                'required'         => true,
-                'aria-describedby' => 'email-notes',
-            ]),
-            'url'    => $this->getField('url', __('Website'), [
-                'value'     => $commenter->url(),
-                'type'      => 'url',
-                'maxlength' => 200,
-            ]),
-        ];
-    }
+		return $arguments;
+	}
 
-    /**
-     * @param string       $name
-     * @param string|array $label
-     * @param array        $attributes
-     *
-     * @return Tag
-     */
-    protected function getField(string $name, string $label, array $attributes): Tag
-    {
-        if (isset($attributes['required'])) {
-            $label = [
-                $label,
-                ' ',
-                Tag::span(['class' => 'required'], '*'),
-            ];
-        }
+	/**
+	 * @param string $fields
+	 *
+	 * @return string
+	 */
+	public function decorate(string $fields): string
+	{
+		return str_replace(["'", ' />', "\n"], ['"', '>', ''], $fields);
+	}
 
-        $field = Tag::p(['class' => 'form-group'], [
-            Tag::label(['for' => $name], $label),
-            Tag::input(array_merge(['id' => $name, 'name' => $name, 'class' => 'form-control'], $attributes)),
-        ]);
+	/**
+	 * @return Tag
+	 */
+	protected function getTextArea(): Tag
+	{
+		return $this->decorator->textarea('comment', _x('Comment', 'noun'), [
+			'cols'      => 45,
+			'rows'      => 8,
+			'maxlength' => 65525,
+			'required'  => true,
+		]);
+	}
 
-        return $field;
-    }
+	/**
+	 * @return array
+	 */
+	protected function getFields(): array
+	{
+		$commenter = User::commenter();
+
+		return [
+			'author' => $this->decorator->text('author', __('Name'), [
+				'value'     => $commenter->name(),
+				'type'      => 'text',
+				'maxlength' => 245,
+				'required'  => true,
+			]),
+			'email'  => $this->decorator->text('email', __('Email'), [
+				'value'            => $commenter->email(),
+				'type'             => 'email',
+				'maxlength'        => 100,
+				'required'         => true,
+				'aria-describedby' => 'email-notes',
+			]),
+			'url'    => $this->decorator->text('url', __('Website'), [
+				'value'     => $commenter->url(),
+				'type'      => 'url',
+				'maxlength' => 200,
+			]),
+		];
+	}
+
 }

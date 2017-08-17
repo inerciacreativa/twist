@@ -208,11 +208,13 @@ class Query
     }
 
     /**
+     * @param string $decorator
+     *
      * @return string
      */
-    public function form(): string
+    public function form(string $decorator = null): string
     {
-        $form = new Form();
+        $form = new Form($decorator);
 
         return $form->show();
     }
