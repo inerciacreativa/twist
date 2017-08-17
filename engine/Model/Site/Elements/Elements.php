@@ -41,7 +41,7 @@ abstract class Elements implements ElementsInterface
 
             $content = empty($node->nodeValue) ? null : $this->clean($node->nodeValue);
 
-            $this->elements[] = Tag::create($node->tagName, $attributes, $content);
+            $this->elements[] = Tag::make($node->tagName, $attributes, $content);
         }
     }
 
