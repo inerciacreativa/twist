@@ -162,9 +162,9 @@ class Tag implements \ArrayAccess
      * @param string $tag
      * @param array $arguments
      *
-     * @return static
+     * @return Tag
      */
-    public static function __callStatic($tag, $arguments)
+    public static function __callStatic(string $tag, $arguments): Tag
     {
         $attributes = Arr::get($arguments, 0, []);
         $content    = Arr::get($arguments, 1, null);
@@ -186,7 +186,7 @@ class Tag implements \ArrayAccess
      *
      * @return static
      */
-    public static function create($tag, array $attributes = [], $content = null)
+    public static function make(string $tag, array $attributes = [], $content = null): Tag
     {
         return new static($tag, $attributes, $content);
     }
@@ -198,7 +198,7 @@ class Tag implements \ArrayAccess
      *
      * @return static|null
      */
-    public static function parse($html)
+    public static function parse(string $html): Tag
     {
         try {
             $xml = new \SimpleXMLElement($html);
@@ -220,7 +220,7 @@ class Tag implements \ArrayAccess
      * @param array $attributes
      * @param mixed $content
      */
-    public function __construct($tag, array $attributes = [], $content = null)
+    public function __construct(string $tag, array $attributes = [], $content = null)
     {
         $this->tag        = $tag;
         $this->attributes = $attributes;
@@ -233,7 +233,7 @@ class Tag implements \ArrayAccess
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->render();
     }
