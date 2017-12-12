@@ -1,16 +1,16 @@
 <?php
 
-namespace Twist\Service;
+namespace Twist\Service\Api;
 
-use Twist\App\Service;
+use Twist\Service\Service;
 
 /**
- * Class EmbedService
+ * Class OEmbedService
  *
  * @package Twist\Service
  * @see     https://es.wordpress.org/plugins/disable-embeds/
  */
-class EmbedService extends Service
+class OEmbedService extends Service
 {
 
     /**
@@ -23,10 +23,10 @@ class EmbedService extends Service
         'wp_head'           => ['wp_oembed_add_discovery_links', 'wp_oembed_add_host_js'],
     ];
 
-    /**
+	/**
      * @inheritdoc
      */
-    public function boot()
+    public function start()
     {
         add_action('init', function () {
             foreach (self::$filters as $filter => $functions) {
@@ -49,7 +49,7 @@ class EmbedService extends Service
         });
 
         add_filter('tiny_mce_plugins', function ($plugins) {
-            if (is_array($plugins)) {
+            if (\is_array($plugins)) {
                 return array_diff($plugins, ['wpembed']);
             }
 

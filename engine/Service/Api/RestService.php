@@ -1,14 +1,14 @@
 <?php
 
-namespace Twist\Service;
+namespace Twist\Service\Api;
 
-use Twist\App\Service;
+use Twist\Service\Service;
 use Twist\Model\User\User;
 
 /**
  * Class RestService
  *
- * @package Twist\Service
+ * @package Twist\Service\Api
  * @see     http://www.binarytemplar.com/disable-json-api
  */
 class RestService extends Service
@@ -17,7 +17,7 @@ class RestService extends Service
     /**
      * @inheritdoc
      */
-    public function boot()
+    public function start()
     {
         add_filter('rest_authentication_errors', function ($access) {
             if (!User::current()->is_logged()) {
