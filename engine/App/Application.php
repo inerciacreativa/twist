@@ -3,6 +3,7 @@
 namespace Twist\App;
 
 use Pimple\Container;
+use Twist\Service\ServiceProviderInterface;
 
 /**
  * Class Application
@@ -12,66 +13,78 @@ use Pimple\Container;
 class Application extends Container
 {
 
-    /**
-     * @param string          $id
-     * @param string|callable $value
-     *
-     * @throws \RuntimeException
-     */
-    public function service($id, $value)
-    {
-        $this->offsetSet($id, $value);
-    }
+	/**
+	 * @var array
+	 */
+	private $boot = [];
 
-    /**
-     * @param string $id    The unique identifier for the parameter
-     * @param mixed  $value A callable to protect from being evaluated
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     */
-    public function parameter($id, $value)
-    {
-        if (is_object($value) && method_exists($value, '__invoke')) {
-            $this->protect($value);
-        }
+	/**
+	 * @param string   $id
+	 * @param callable $service
+	 * @param bool     $start
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function service($id, $service, $start = false)
+	{
+		$this->offsetSet($id, $service);
 
-        $this->offsetSet($id, $value);
-    }
+		if ($start) {
+			$this->boot[] = $id;
+		}
+	}
 
-    /**
-     * Registers a service provider.
-     *
-     * @param ServiceProviderInterface $provider A ServiceProviderInterface instance
-     * @param array                    $values   An array of values that customizes the provider
-     *
-     * @return static
-     * @throws \RuntimeException
-     */
-    public function provider(ServiceProviderInterface $provider, array $values = [])
-    {
-        $provider->register($this);
+	/**
+	 * @param string $id    The unique identifier for the parameter
+	 * @param mixed  $value A callable to protect from being evaluated
+	 *
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
+	 * @throws \Pimple\Exception\ExpectedInvokableException
+	 * @throws \Pimple\Exception\FrozenServiceException
+	 */
+	public function parameter($id, $value)
+	{
+		if (\is_object($value) && method_exists($value, '__invoke')) {
+			$this->protect($value);
+		}
 
-        foreach ($values as $id => $value) {
-            $this->offsetSet($id, $value);
-        }
+		$this->offsetSet($id, $value);
+	}
 
-        return $this;
-    }
+	/**
+	 * Registers a service provider.
+	 *
+	 * @param ServiceProviderInterface $provider A ServiceProviderInterface
+	 *                                           instance
+	 * @param array                    $values   An array of values that
+	 *                                           customizes the provider
+	 *
+	 * @return static
+	 *
+	 * @throws \RuntimeException
+	 * @throws \InvalidArgumentException
+	 * @throws \Pimple\Exception\FrozenServiceException
+	 */
+	public function provider(ServiceProviderInterface $provider, array $values = [])
+	{
+		$provider->register($this);
 
-    /**
-     * @param array $services
-     */
-    public function boot(array $services)
-    {
-        foreach ($services as $service) {
-            if (isset($this[$service]) && ($this[$service] instanceof ServiceInterface)) {
-                $this[$service]->boot();
-            } elseif (is_a($service, Service::class, true)) {
-                $name = $service::register($this);
-                $this[$name]->boot();
-            }
-        }
-    }
+		foreach ($values as $id => $value) {
+			$this->offsetSet($id, $value);
+		}
+
+		return $this;
+	}
+
+	/**
+	 *
+	 */
+	public function boot()
+	{
+		foreach ($this->boot as $service) {
+			$this[$service]->start();
+		}
+	}
 
 }

@@ -5,7 +5,7 @@ namespace Twist;
 use Twist\App\Application;
 use Twist\App\Config;
 use Twist\Library\Data\JsonFile;
-use Twist\View\ViewServiceInterface;
+use Twist\View\ViewInterface;
 
 /**
  * @param null|string $id
@@ -14,13 +14,13 @@ use Twist\View\ViewServiceInterface;
  */
 function app(string $id = null)
 {
-	static $container;
+	static $app;
 
-	if ($container === null) {
-		$container = new Application();
+	if ($app === null) {
+		$app = new Application();
 	}
 
-	return $id === null ? $container : $container[$id];
+	return $id === null ? $app : $app[$id];
 }
 
 /**
@@ -43,7 +43,7 @@ function config(string $key = null, $default = null)
  * @param array       $data
  * @param bool        $render
  *
- * @return ViewServiceInterface|string
+ * @return ViewInterface|string
  */
 function view(string $template = null, array $data = [], bool $render = false)
 {
@@ -59,24 +59,53 @@ function view(string $template = null, array $data = [], bool $render = false)
 }
 
 /**
+ * @param bool $parent
+ *
+ * @return JsonFile
+ */
+function manifest(bool $parent = false): JsonFile
+{
+	static $manifest = [];
+
+	$base = $parent ? 'template' : 'stylesheet';
+
+	if (!array_key_exists($base, $manifest)) {
+		$manifest[$base] = new JsonFile(config("dir.$base") . '/assets/assets.json');
+	}
+
+	return $manifest[$base];
+}
+
+/**
  * @param string $filename
  * @param bool   $parent
+ * @param bool   $source
  *
  * @return string
  */
-function asset(string $filename, bool $parent = false): string
+function asset_url(string $filename, bool $parent = false, bool $source = false): string
 {
-	static $manifest;
+	$base = $parent ? 'template' : 'stylesheet';
+	$type = $source ? 'source' : 'assets';
+	$file = $source ? $filename : manifest($parent)->get($filename, $filename);
 
-	$source = $parent ? 'template' : 'stylesheet';
-	$path   = config("uri.$source") . '/assets/' . dirname($filename) . '/';
-	$file   = basename($filename);
+	return config("uri.$base") . "/$type/$file";
+}
 
-	if ($manifest === null) {
-		$manifest = new JsonFile(config("dir.$source") . '/assets/assets.json');
-	}
+/**
+ * @param string $filename
+ * @param bool   $parent
+ * @param bool   $source
+ *
+ * @return string
+ */
+function asset_path(string $filename, bool $parent = false, bool $source = false): string
+{
+	$base = $parent ? 'template' : 'stylesheet';
+	$type = $source ? 'source' : 'assets';
+	$file = $source ? $filename : manifest($parent)->get($filename, $filename);
 
-	return $path . $manifest->get($file, $file);
+	return config("dir.$base") . "/$type/$file";
 }
 
 /**
