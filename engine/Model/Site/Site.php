@@ -2,10 +2,12 @@
 
 namespace Twist\Model\Site;
 
-use function Twist\asset;
+use function Twist\asset_url;
 use Twist\Library\Util\Macro;
 use Twist\Library\Util\Tag;
 use Twist\Model\Navigation\Navigation;
+use Twist\Model\Navigation\Links;
+use Twist\Model\Navigation\Pagination;
 
 /**
  * Class Site
@@ -89,7 +91,7 @@ class Site
 			$image = Tag::parse(wp_get_attachment_image($id, 'full'));
 		} else {
 			$image = Tag::img([
-				'src'    => asset($source),
+				'src'    => asset_url($source),
 				'width'  => $width,
 				'height' => $height,
 			]);
@@ -98,9 +100,10 @@ class Site
 		$image->attributes([
 			'alt'      => $this->name(),
 			'class'    => '',
-			'itemprop' => 'url',
+			'itemprop' => 'contentUrl',
 		]);
 
+		/*
 		return Tag::a([
 			'href'     => $this->url(),
 			'class'    => 'site-link',
@@ -112,6 +115,9 @@ class Site
 			'itemscope' => true,
 			'itemtype'  => 'http://schema.org/ImageObject',
 		], $image));
+		*/
+
+		return $image;
 	}
 
 	/**
@@ -122,7 +128,7 @@ class Site
 	 */
 	public function asset(string $filename, bool $parent = false): string
 	{
-		return asset($filename, $parent);
+		return asset_url($filename, $parent);
 	}
 
 	/**
@@ -190,14 +196,14 @@ class Site
 		}
 
 		if (is_singular()) {
-			$post_id = $wp_query->get_queried_object_id();
-			$post = $wp_query->get_queried_object();
+			$post_id   = $wp_query->get_queried_object_id();
+			$post      = $wp_query->get_queried_object();
 			$post_type = $post->post_type;
 
 			if (is_page_template()) {
 				$classes[] = "{$post_type}-template";
 
-				$template_slug = get_page_template_slug($post_id);
+				$template_slug  = get_page_template_slug($post_id);
 				$template_parts = explode('/', $template_slug);
 
 				foreach ($template_parts as $part) {
@@ -228,7 +234,7 @@ class Site
 		} else if (is_archive()) {
 			if (is_post_type_archive()) {
 				$post_type = get_query_var('post_type');
-				if (is_array($post_type)) {
+				if (\is_array($post_type)) {
 					$post_type = reset($post_type);
 				}
 				$classes[] = 'archive-' . sanitize_html_class($post_type);
@@ -239,7 +245,7 @@ class Site
 			} else if (is_tag()) {
 				$classes[] = 'archive-tag';
 			} else if (is_tax()) {
-				$term = $wp_query->get_queried_object();
+				$term      = $wp_query->get_queried_object();
 				$classes[] = 'archive-' . sanitize_html_class($term->taxonomy);
 			}
 		}
@@ -247,12 +253,13 @@ class Site
 		if (is_user_logged_in()) {
 			$classes[] = 'user-logged-in';
 		}
+
 		if (is_admin_bar_showing()) {
 			$classes[] = 'admin-bar';
 		}
 
 		if (!empty($options->class)) {
-			if (!is_array($options->class)) {
+			if (!\is_array($options->class)) {
 				$options->class = preg_split('#\s+#', $options->class);
 			}
 
@@ -286,23 +293,41 @@ class Site
 	}
 
 	/**
-	 * @param string $menu
-	 * @param string $location
-	 * @param int    $depth
-	 *
-	 * @return string
-	 */
-	public function navigation(string $menu, $location = null, $depth = 0): string
-	{
-		return $this->navigation->menu($menu, $location, $depth);
-	}
-
-	/**
 	 * @return string
 	 */
 	public function search(): string
 	{
 		return get_search_query();
+	}
+
+	/**
+	 * @param string $menu
+	 * @param string $location
+	 * @param int    $depth
+	 *
+	 * @return Links
+	 */
+	public function navigation(string $menu, $location = null, $depth = 0): Links
+	{
+		return $this->navigation->get($menu, $location, $depth);
+	}
+
+	/**
+	 * @return Pagination
+	 */
+	public function pagination(): Pagination
+	{
+		return new Pagination();
+	}
+
+	/**
+	 * @param array $arguments
+	 *
+	 * @return Links
+	 */
+	public function pager(array $arguments = []): Links
+	{
+		return $this->pagination()->get($arguments);
 	}
 
 	/**

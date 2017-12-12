@@ -1,33 +1,31 @@
 <?php
 
-namespace Twist\Template\Taxonomy;
+namespace Twist\Model\Taxonomy;
 
-use Twist\Template\Post\Post;
-
-class TagTaxonomy extends Taxonomy
+/**
+ * Class Tag
+ *
+ * @package Twist\Model\Taxonomy
+ */
+class Tag extends Taxonomy
 {
 
-    public function __construct(Post $post = null)
-    {
-        parent::__construct('post_tag', $post);
-    }
+	/**
+	 * Category constructor.
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function __construct()
+	{
+		parent::__construct('post_tag');
+	}
 
-    protected function isCurrentTaxonomy()
-    {
-        if (is_null($this->currentTaxonomy)) {
-            $this->currentTaxonomy = is_tag();
-        }
-
-        return $this->currentTaxonomy;
-    }
-
-    protected function isCurrentTerm($term)
-    {
-        if ($this->isCurrentTaxonomy() && is_tag($term->slug)) {
-            return true;
-        }
-
-        return false;
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function is_current($term = null): bool
+	{
+		return is_tag($term);
+	}
 
 }

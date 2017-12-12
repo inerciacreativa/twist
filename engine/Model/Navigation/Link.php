@@ -5,20 +5,20 @@ namespace Twist\Model\Navigation;
 use Twist\Model\ModelArray;
 
 /**
- * Class Item
+ * Class Link
  *
  * @package Twist\Model\Navigation
  */
-class Item extends ModelArray
+class Link extends ModelArray
 {
 
     /**
-     * Item constructor.
+     * Link constructor.
      *
-     * @param Items $items
+     * @param Links $items
      * @param array $properties
      */
-    public function __construct(Items $items, array $properties)
+    public function __construct(Links $items, array $properties)
     {
         parent::__construct($properties, $items->parent());
     }
@@ -32,11 +32,18 @@ class Item extends ModelArray
     }
 
     /**
-     * @return Items
+     * @return Links
      */
-    protected function setChildren(): Items
+    protected function setChildren(): Links
     {
-        return new Items($this);
+        return new Links($this);
     }
 
+	/**
+	 * @return string
+	 */
+    public function __toString(): string
+    {
+	    return (string)$this['title'];
+    }
 }

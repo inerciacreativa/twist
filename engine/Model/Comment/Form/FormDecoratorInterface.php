@@ -13,36 +13,55 @@ interface FormDecoratorInterface
 {
 
 	/**
+	 * @param array $arguments
+	 *
 	 * @return array
 	 */
-	public function defaults(): array;
+	public function getDefaults(array $arguments): array;
 
 	/**
 	 * @param string $type
-	 * @param string $name
+	 * @param string $id
 	 * @param string $label
 	 * @param array  $attributes
 	 *
 	 * @return \Twist\Library\Util\Tag
 	 */
-	public function field(string $type, string $name, string $label, array $attributes): Tag;
+	public function getField(string $type, string $id, string $label, array $attributes): Tag;
 
 	/**
-	 * @param string $name
+	 * @param string $id
 	 * @param string $label
 	 * @param array  $attributes
 	 *
 	 * @return \Twist\Library\Util\Tag
 	 */
-	public function text(string $name, string $label, array $attributes): Tag;
+	public function getTextInput(string $id, string $label, array $attributes): Tag;
 
 	/**
-	 * @param string $name
+	 * @param string $id
 	 * @param string $label
 	 * @param array  $attributes
 	 *
 	 * @return \Twist\Library\Util\Tag
 	 */
-	public function textarea(string $name, string $label, array $attributes): Tag;
+	public function getTextArea(string $id, string $label, array $attributes): Tag;
+
+	/**
+	 * @param string $id
+	 * @param string $label
+	 *
+	 * @return \Twist\Library\Util\Tag
+	 */
+	public function getSubmitButton(string $id, string $label): Tag;
+
+	/**
+	 * @param string $id
+	 * @param string $label
+	 * @param string $form
+	 *
+	 * @return \Twist\Library\Util\Tag
+	 */
+	public function getCancelButton(string $id, string $label, string $form): Tag;
 
 }

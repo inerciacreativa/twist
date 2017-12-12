@@ -2,7 +2,8 @@
 
 namespace Twist\Model\Post;
 
-use Twist\Model\ModelCollection;
+use Twist\Model\Taxonomy\Taxonomy;
+use Twist\Model\Taxonomy\Terms as TermCollection;
 use Twist\Model\Taxonomy\Term;
 
 /**
@@ -10,34 +11,26 @@ use Twist\Model\Taxonomy\Term;
  *
  * @package Twist\Model\Post
  */
-class Terms extends ModelCollection
+class Terms extends TermCollection
 {
 
-    /**
-     * Taxonomies constructor.
-     *
-     * @param Post   $post
-     * @param string $taxonomy
-     */
-    public function __construct(Post $post, $taxonomy)
-    {
-        parent::__construct();
+	/**
+	 * Taxonomies constructor.
+	 *
+	 * @param Post     $post
+	 * @param Taxonomy $taxonomy
+	 */
+	public function __construct(Post $post, Taxonomy $taxonomy)
+	{
+		parent::__construct();
 
-        $terms = get_the_terms($post->object(), $taxonomy);
+		$terms = get_the_terms($post->object(), $taxonomy->name());
 
-        if (is_array($terms)) {
-          $this->children = $terms;
-        }
-    }
-
-    /**
-     * @return Term
-     */
-    public function current()
-    {
-        $term = parent::current();
-
-        return new Term($this, $term);
-    }
+		if (\is_array($terms)) {
+			foreach ($terms as $term) {
+				$this->add(new Term($taxonomy, $term));
+			}
+		}
+	}
 
 }

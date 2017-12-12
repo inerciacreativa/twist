@@ -21,23 +21,29 @@ class Walker extends \Walker_Nav_Menu
 	];
 
 	/**
-	 * @var Items
+	 * @var Links
 	 */
-	protected $items;
+	private $root;
 
 	/**
-	 * @var Item
+	 * @var Links
 	 */
-	protected $item;
+	private $links;
+
+	/**
+	 * @var Link
+	 */
+	private $link;
 
 	/**
 	 * Walker constructor.
 	 *
-	 * @param Items $items
+	 * @param Links $links
 	 */
-	public function __construct(Items $items)
+	public function __construct(Links $links)
 	{
-		$this->items = $items;
+		$this->root  = $links;
+		$this->links = $links;
 	}
 
 	/**
@@ -50,24 +56,23 @@ class Walker extends \Walker_Nav_Menu
 		$classes = array_intersect($classes, array_keys(static::$classes));
 		// Apply filter and convert to string
 		$classes = apply_filters('nav_menu_css_class', $classes, $item, $arguments, $depth);
-		//$classes = implode(' ', apply_filters('nav_menu_css_class', $classes, $item, $arguments, $depth));
 		// Replace class names
-		//$classes = str_replace(array_keys(static::$classes), static::$classes, $classes);
+		$classes = str_replace(array_keys(static::$classes), static::$classes, implode(' ', $classes));
+		$classes = explode(' ', $classes);
 
 		$title = apply_filters('the_title', $item->title, $item->ID);
 		$title = apply_filters('nav_menu_item_title', $title, $item, $arguments, $depth);
 
-		$this->item = new Item($this->items, [
-			'id'           => $item->ID,
-			//'classes' => trim($classes),
-			'is_active'    => in_array('current-menu-item', $classes, false),
-			'target'       => $item->target,
-			'rel'          => $item->xfn,
-			'url'          => $item->url,
-			'title'        => $title,
+		$this->link = new Link($this->links, [
+			'id'        => $item->ID,
+			'classes'   => $classes,
+			'is_active' => \in_array('active', $classes, false),
+			'rel'       => $item->xfn,
+			'url'       => $item->url,
+			'title'     => $title,
 		]);
 
-		$this->items->add($this->item);
+		$this->links->add($this->link);
 	}
 
 	/**
@@ -82,7 +87,7 @@ class Walker extends \Walker_Nav_Menu
 	 */
 	public function start_lvl(&$output, $depth = 0, $arguments = [])
 	{
-		$this->items = $this->item->children();
+		$this->links = $this->link->children();
 	}
 
 	/**
@@ -90,7 +95,11 @@ class Walker extends \Walker_Nav_Menu
 	 */
 	public function end_lvl(&$output, $depth = 0, $arguments = [])
 	{
-		$this->items = $this->item->parent()->children();
+		$link  = $this->links->parent();
+		$links = $link->has_parent() ? $link->parent()
+		                                    ->children() : $this->root;
+
+		$this->links = $links;
 	}
 
 }

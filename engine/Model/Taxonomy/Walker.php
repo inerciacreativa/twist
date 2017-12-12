@@ -10,57 +10,95 @@ namespace Twist\Model\Taxonomy;
 class Walker extends \Walker_Category
 {
 
-    /**
-     * @var Terms
-     */
-    protected $terms;
+	/**
+	 * @var Taxonomy
+	 */
+	private $taxonomy;
 
-    /**
-     * @var Term
-     */
-    protected $term;
+	/**
+	 * @var Terms
+	 */
+	private $root;
 
-    /**
-     * Walker constructor.
-     *
-     * @param Terms $terms
-     */
-    public function __construct(Terms $terms = null)
-    {
-        $this->terms = $terms;
-    }
+	/**
+	 * @var Terms
+	 */
+	private $terms;
 
-    /**
-     * @inheritdoc
-     */
-    public function start_el(&$output, $term, $depth = 0, $arguments = [], $id = 0)
-    {
-        $this->term = new Term($this->terms, $term);
-        
-        $this->terms->add($this->term);
-    }
+	/**
+	 * @var Term
+	 */
+	private $term;
 
-    /**
-     * @inheritdoc
-     */
-    public function end_el(&$output, $term, $depth = 0, $args = [])
-    {
-    }
+	/**
+	 * Walker constructor.
+	 *
+	 * @param Taxonomy $taxonomy
+	 */
+	public function __construct(Taxonomy $taxonomy)
+	{
+		$this->taxonomy = $taxonomy;
+		$this->root  = new Terms();
+		$this->terms = $this->root;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function start_lvl(&$output, $depth = 0, $args = [])
-    {
-        $this->terms = $this->term->children();
-    }
+	/**
+	 * @return Terms
+	 */
+	public function terms(): Terms
+	{
+		return $this->root;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function end_lvl(&$output, $depth = 0, $args = [])
-    {
-        $this->terms = $this->term->parent()->children();
-    }
+	/**
+	 * @inheritdoc
+	 *
+	 * @param string   $output    Unused.
+	 * @param \WP_Term $term      Taxonomy data object.
+	 * @param int      $depth     Unused.
+	 * @param array    $arguments Optional. An array of arguments. See
+	 *                            wp_list_categories(). Default empty array.
+	 * @param int      $id        Unused.
+	 */
+	public function start_el(&$output, $term, $depth = 0, $arguments = [], $id = 0)
+	{
+		$this->term = new Term($this->taxonomy, $term, $this->terms);
+
+		$this->terms->add($this->term);
+	}
+
+	/**
+	 * @inheritdoc
+	 *
+	 * @param string   $output    Unused.
+	 * @param \WP_Term $term      Taxonomy data object.
+	 * @param int      $depth     Unused.
+	 * @param array    $arguments Optional. An array of arguments. See
+	 *                            wp_list_categories(). Default empty array.
+	 * @param int      $id        Unused.
+	 */
+	public function end_el(&$output, $term, $depth = 0, $arguments = [])
+	{
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function start_lvl(&$output, $depth = 0, $arguments = [])
+	{
+		$this->terms = $this->term->children();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function end_lvl(&$output, $depth = 0, $arguments = [])
+	{
+		$term  = $this->terms->parent();
+		$terms = $term->has_parent() ? $term->parent()
+		                                    ->children() : $this->root;
+
+		$this->terms = $terms;
+	}
 
 }

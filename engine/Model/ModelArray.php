@@ -43,7 +43,7 @@ abstract class ModelArray extends Model implements \ArrayAccess, \IteratorAggreg
      */
     public function count(): int
     {
-        return count($this->properties);
+        return \count($this->properties);
     }
 
     /**

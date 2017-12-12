@@ -2,202 +2,171 @@
 
 namespace Twist\Model\Taxonomy;
 
-use Twist\Model\ModelCollection;
-use Twist\Model\Post\Post;
-
 /**
  * Class Taxonomy
  *
  * @package Twist\Model\Taxonomy
  */
-abstract class Taxonomy
+class Taxonomy
 {
 
-    /**
-     * @var \WP_Taxonomy
-     */
-    protected $taxonomy;
+	/**
+	 * @var \WP_Taxonomy
+	 */
+	protected $taxonomy;
 
-    protected $terms;
+	/**
+	 * @var Term
+	 */
+	protected $current;
 
-    /**
-     * @var array
-     */
-    protected $arguments;
+	/**
+	 * Taxonomy constructor.
+	 *
+	 * @param string $taxonomy
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function __construct(string $taxonomy)
+	{
+		if (!taxonomy_exists($taxonomy)) {
+			throw new \RuntimeException("The taxonomy '$taxonomy' does not exists");
+		}
 
-    /**
-     * @var Post
-     */
-    protected $post;
+		$this->taxonomy = get_taxonomy($taxonomy);
+	}
 
-    /**
-     * @var bool
-     */
-    protected $currentTaxonomy;
+	/**
+	 * @return string
+	 */
+	public function name(): string
+	{
+		return $this->taxonomy->name;
+	}
 
-    /**
-     * @var Term
-     */
-    protected $currentTerm;
+	/**
+	 * @return bool
+	 */
+	public function is_hierarchical(): bool
+	{
+		return $this->taxonomy->hierarchical;
+	}
 
-    /**
-     * Taxonomy constructor.
-     *
-     * @param string    $taxonomy
-     * @param Post|null $post
-     *
-     * @throws \RuntimeException
-     */
-    public function __construct($taxonomy, Post $post = null)
-    {
-        $this->taxonomy = get_taxonomy($taxonomy);
+	/**
+	 * @param int|string|array $term
+	 *
+	 * @return bool
+	 */
+	public function is_current($term = null): bool
+	{
+		static $function;
 
-        if (!$this->taxonomy) {
-            throw new \RuntimeException("The taxonomy '$taxonomy' does not exists");
-        }
+		$taxonomy = $this->name();
 
-        $this->post = $post;
+		if ($function === null) {
+			if ($taxonomy === 'category') {
+				$function = function ($term) {
+					return is_category($term);
+				};
+			} elseif ($taxonomy === 'post_tag') {
+				$function = function ($term) {
+					return is_tag($term);
+				};
+			} else {
+				$function = function ($term) use ($taxonomy) {
+					return is_tax($taxonomy, $term);
+				};
+			}
+		}
 
-        if ($post === null) {
-            $this->terms = [];
-        }
-    }
+		return $function($term);
+	}
 
-    /**
-     * @return string
-     */
-    public function name()
-    {
-        return $this->taxonomy->name;
-    }
+	/**
+	 * @return Term
+	 */
+	public function current(): Term
+	{
+		if ($this->current === null) {
+			$this->current = false;
 
-    /**
-     * @return bool
-     */
-    public function is_hierarchical()
-    {
-        return $this->taxonomy->hierarchical;
-    }
+			if ($this->is_current(get_queried_object_id())) {
+				$this->current = new Term($this, get_queried_object());
+			}
+		}
 
-    public function terms(array $options = array())
-    {
-        return $this->post === null ? $this->getTerms($options) : $this->getPostTerms();
-    }
+		return $this->current ?? null;
+	}
 
-    public function current()
-    {
-        if ($this->currentTerm === null) {
-            $this->currentTerm = false;
+	/**
+	 * @param array $options
+	 *
+	 * @return Terms
+	 */
+	public function terms(array $options = []): Terms
+	{
+		$arguments = array_merge([
+			'child_of'         => 0,
+			'current_category' => 0,
+			'depth'            => 0,
+			'exclude'          => '',
+			'exclude_tree'     => '',
+			'hide_empty'       => 1,
+			'hierarchical'     => $this->taxonomy->hierarchical,
+			'order'            => 'ASC',
+			'orderby'          => 'name',
+			'show_count'       => 0,
+		], $options);
 
-            if ($this->isCurrentTaxonomy()) {
-                $this->currentTerm = $this->terms()->find(get_queried_object_id());
-            }
-        }
+		$arguments['taxonomy'] = $this->taxonomy->name;
 
-        return $this->currentTerm;
-    }
+		if (!isset($arguments['pad_counts']) && $arguments['show_count'] && $arguments['hierarchical']) {
+			$arguments['pad_counts'] = true;
+		}
 
-    /**
-     * @return bool
-     */
-    abstract protected function isCurrentTaxonomy();
+		if ((bool) $arguments['hierarchical'] === true) {
+			$exclude_tree = [];
 
-    /**
-     * @return bool
-     */
-    abstract protected function isCurrentTerm($term);
+			if ($arguments['exclude_tree']) {
+				$exclude_tree = array_merge($exclude_tree, wp_parse_id_list($arguments['exclude_tree']));
+			}
 
-    /**
-     * @param array $arguments
-     *
-     * @return array
-     */
-    public function getTermsArguments(array $arguments)
-    {
-        $this->arguments = $arguments;
+			if ($arguments['exclude']) {
+				$exclude_tree = array_merge($exclude_tree, wp_parse_id_list($arguments['exclude']));
+			}
 
-        return $arguments;
-    }
+			$arguments['exclude_tree'] = $exclude_tree;
+			$arguments['exclude']      = '';
+		}
 
-    protected function getTerms(array $options = array())
-    {
-        $key = md5(serialize($options));
+		$walker  = new Walker($this);
+		$objects = get_terms($arguments);
 
-        if (!isset($this->terms[$key])) {
-            add_filter('get_terms_args', [$this, 'getTermsArguments']);
-            $terms = get_terms($this->name(), $options);
-            remove_filter('get_terms_args', [$this, 'getTermsArguments']);
+		if ($objects) {
+			$arguments['walker'] = $walker;
 
-            $parent = 0;
-            if ($this->arguments['parent'] || $this->arguments['child_of']) {
-                $parent = $this->arguments['parent'] ?: $this->arguments['child_of'];
-            }
+			if (empty($arguments['current_category']) && $this->is_current()) {
+				$arguments['current_category'] = $this->current()->id();
+			}
 
-            $this->terms[$key] = $this->getNestedCollection($terms, $parent);
-        }
+			if ($arguments['hierarchical']) {
+				$depth = $arguments['depth'];
+			} else {
+				$depth = -1;
+			}
 
-        return $this->terms[$key];
-    }
+			walk_category_tree($objects, $depth, $arguments);
+		}
 
-    /**
-     * @param array $terms
-     * @param int   $parent
-     *
-     * @return ModelCollection
-     */
-    protected function getNestedCollection(array &$terms, $parent = 0)
-    {
-        if ($parent instanceof Term) {
-            $collection = new ModelCollection($parent);
-            $parent_id  = $parent->id();
-        } else {
-            $collection = new ModelCollection();
-            $parent_id  = $parent;
-        }
+		return $walker->terms();
+	}
 
-        foreach ($terms as $term) {
-            if ($term->parent === $parent_id) {
-                if ($this->isCurrentTerm($term)) {
-                    $term->current = true;
-                }
-
-                $term = new Term($term, $collection);
-                $collection->add($term);
-
-                $children = $this->getNestedCollection($terms, $term);
-                if ($children->count()) {
-                    $term->add($children);
-                }
-            }
-        }
-
-        return $collection;
-    }
-
-    protected function getPostTerms()
-    {
-        if ($this->terms === null) {
-            $terms = get_the_terms($this->post->id(), $this->name());
-
-            $this->terms = $this->getCollection($terms);
-        }
-
-        return $this->terms;
-    }
-
-    protected function getCollection(array &$terms)
-    {
-        $collection = new ModelCollection();
-
-        foreach ($terms as $term) {
-            if ($this->isCurrentTerm($term)) {
-                $term->current = true;
-            }
-
-            $collection->add(new Term($term));
-        }
-
-        return $collection;
-    }
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->name();
+	}
 
 }

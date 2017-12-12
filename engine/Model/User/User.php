@@ -105,7 +105,7 @@ class User extends Model implements UserInterface
             $this->user = wp_get_current_user();
         } elseif ($user instanceof \WP_User) {
             $this->user = $user;
-        } elseif (is_object($user) || is_numeric($user) || is_string($user)) {
+        } elseif (\is_object($user) || is_numeric($user) || \is_string($user)) {
             $this->user = new \WP_User($user);
         }
     }
@@ -248,10 +248,10 @@ class User extends Model implements UserInterface
             return false;
         }
 
-        $arguments = array_slice(func_get_args(), 1);
+        $arguments = \array_slice(\func_get_args(), 1);
         $arguments = array_merge([$capability], $arguments);
 
-        return call_user_func_array([$this->user, 'has_cap'], $arguments);
+        return \call_user_func_array([$this->user, 'has_cap'], $arguments);
     }
 
     /**

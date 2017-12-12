@@ -112,6 +112,16 @@ class Comment extends Model
         return (bool)(int)$this->comment->comment_approved;
     }
 
+	/**
+	 * Returns whether this comment is a user comment.
+	 *
+	 * @return bool
+	 */
+    public function is_comment(): bool
+    {
+	    return $this->type() === 'comment';
+    }
+
     /**
      * Returns whether this comment is a ping.
      *
@@ -119,7 +129,7 @@ class Comment extends Model
      */
     public function is_ping(): bool
     {
-        return $this->comment->comment_type !== 'comment';
+        return !$this->is_comment();
     }
 
     /**
@@ -289,11 +299,11 @@ class Comment extends Model
      */
     public function can_be_replied(): bool
     {
-        if ($this->query->are_open()) {
+        if (!$this->query->are_open()) {
             return false;
         }
 
-        if ($this->depth === 0 || $this->query->max_depth() <= $this->depth) {
+        if ($this->query->max_depth() <= $this->depth) {
             return false;
         }
 

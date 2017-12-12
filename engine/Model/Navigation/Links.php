@@ -5,11 +5,11 @@ namespace Twist\Model\Navigation;
 use Twist\Model\ModelCollection;
 
 /**
- * Class Items
+ * Class Links
  *
  * @package Twist\Model\Navigation
  */
-class Items extends ModelCollection
+class Links extends ModelCollection
 {
 
 }

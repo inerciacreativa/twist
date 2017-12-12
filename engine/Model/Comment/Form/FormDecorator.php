@@ -15,22 +15,17 @@ abstract class FormDecorator implements FormDecoratorInterface
 	/**
 	 * @inheritdoc
 	 */
-	abstract public function field(string $type, string $name, string $label, array $attributes): Tag;
-
-	/**
-	 * @inheritdoc
-	 */
-	public function text(string $name, string $label, array $attributes): Tag
+	public function getTextInput(string $id, string $label, array $attributes): Tag
 	{
-		return $this->field('input', $name, $label, $attributes);
+		return $this->getField('input', $id, $label, $attributes);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function textarea(string $name, string $label, array $attributes): Tag
+	public function getTextArea(string $id, string $label, array $attributes): Tag
 	{
-		return $this->field('textarea', $name, $label, $attributes);
+		return $this->getField('textarea', $id, $label, $attributes);
 	}
 
 	/**
@@ -39,14 +34,10 @@ abstract class FormDecorator implements FormDecoratorInterface
 	 *
 	 * @return array
 	 */
-	protected function label(string $label, array $attributes): array
+	protected function getLabel(string $label, array $attributes): array
 	{
 		if (isset($attributes['required'])) {
-			return [
-				$label,
-				' ',
-				Tag::span(['class' => 'required'], '*'),
-			];
+			return [$label, ' ', Tag::span(['class' => 'required'], '*')];
 		}
 
 		return [$label];

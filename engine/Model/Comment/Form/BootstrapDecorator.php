@@ -15,30 +15,61 @@ class BootstrapDecorator extends FormDecorator
 	/**
 	 * @inheritdoc
 	 */
-	public function defaults(): array
+	public function getDefaults(array $arguments): array
 	{
-		return [
-			'class_form'    => 'form-comment form-standard',
-			'submit_field'  => '<p class="form-actions">%1$s%2$s</p>',
-			'submit_button' => Tag::input([
-				'id'    => 'submit',
-				'name'  => 'submit',
-				'class' => 'btn btn-primary',
-				'type'  => 'submit',
-				'value' => '%4$s',
-			]),
-		];
+		return array_merge($arguments, [
+			'title_reply_before' => '<h2 class="subtitle">',
+			'title_reply_after'  => '</h2>',
+			'submit_field'       => '<p class="form-actions">%1$s%2$s</p>',
+		]);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function field(string $type, string $name, string $label, array $attributes): Tag
+	public function getField(string $type, string $id, string $label, array $attributes): Tag
 	{
+		$labelAttributes = [
+			'for' => $id,
+		];
+
+		$fieldAttributes = array_merge([
+			'id'    => $id,
+			'name'  => $id,
+			'class' => 'form-control',
+		], $attributes);
+
 		return Tag::p(['class' => 'form-group'], [
-			Tag::label(['for' => $name], $this->label($label, $attributes)),
-			Tag::make($type, array_merge(['id' => $name, 'name' => $name, 'class' => 'form-control'], $attributes)),
+			Tag::label($labelAttributes, $this->getLabel($label, $attributes)),
+			Tag::make($type, $fieldAttributes),
 		]);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getSubmitButton(string $id, string $label): Tag
+	{
+		return Tag::input([
+			'id'    => $id,
+			'name'  => $id,
+			'type'  => 'submit',
+			'class' => 'btn btn-lg btn-primary',
+			'value' => $label,
+		]);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getCancelButton(string $id, string $label): Tag
+	{
+		return Tag::button([
+			'id'    => $id,
+			'name'  => $id,
+			'type'  => 'reset',
+			'class' => 'btn btn-xs btn-danger',
+		], $label);
 	}
 
 }

@@ -89,7 +89,7 @@ class ModelCollection implements \Countable, \Iterator
 	 */
 	public function count(): int
 	{
-		return count($this->children);
+		return \count($this->children);
 	}
 
 	/**
@@ -135,7 +135,7 @@ class ModelCollection implements \Countable, \Iterator
 	 */
 	public function key(): int
 	{
-		return key($this->children);
+		return $this->current()->id();
 	}
 
 }

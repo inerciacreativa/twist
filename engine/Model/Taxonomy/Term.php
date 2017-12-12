@@ -3,7 +3,6 @@
 namespace Twist\Model\Taxonomy;
 
 use Twist\Model\Model;
-use Twist\Model\ModelCollection;
 
 /**
  * Class Term
@@ -13,111 +12,150 @@ use Twist\Model\ModelCollection;
 class Term extends Model
 {
 
-    /**
-     * @var \stdClass
-     */
-    protected $term;
+	/**
+	 * @var Taxonomy
+	 */
+	protected $taxonomy;
 
-    /**
-     * Term constructor.
-     *
-     * @param ModelCollection $terms
-     * @param \stdClass|\WP_Term $term
-     */
-    public function __construct(ModelCollection $terms, $term)
-    {
-        $this->term = $term;
-    }
+	/**
+	 * @var \WP_Term
+	 */
+	protected $term;
 
-    /**
-     * @return int
-     */
-    public function id(): int
-    {
-        return (int)$this->term->term_id;
-    }
+	/**
+	 * Term constructor.
+	 *
+	 * @param Taxonomy $taxonomy
+	 * @param \WP_Term $term
+	 * @param Terms    $terms
+	 */
+	public function __construct(Taxonomy $taxonomy, \WP_Term $term, Terms $terms = null)
+	{
+		$this->taxonomy = $taxonomy;
+		$this->term     = $term;
 
-    /**
-     * @return string
-     */
-    public function name(): string
-    {
-        return $this->term->name;
-    }
+		if ($terms && $terms->has_parent()) {
+			$this->setParent($terms->parent());
+		}
+	}
 
-    /**
-     * @return string
-     */
-    public function link(): string
-    {
-        return get_term_link($this->term);
-    }
+	/**
+	 * @return Terms
+	 */
+	protected function setChildren(): Terms
+	{
+		return new Terms($this);
+	}
 
-    /**
-     * @return string
-     */
-    public function feed(): string
-    {
-        return get_term_feed_link($this->id(), $this->taxonomy());
-    }
+	/**
+	 * @return int
+	 */
+	public function id(): int
+	{
+		return (int) $this->term->term_id;
+	}
 
-    /**
-     * @return string
-     */
-    public function description(): string
-    {
-        return $this->term->description;
-    }
+	/**
+	 * @return string
+	 */
+	public function name(): string
+	{
+		return $this->sanitize('name');
+	}
 
-    /**
-     * @return int
-     */
-    public function count(): int
-    {
-        return (int)$this->term->count;
-    }
+	/**
+	 * @return string
+	 */
+	public function slug(): string
+	{
+		return $this->sanitize('slug');
+	}
 
-    /**
-     * @return string
-     */
-    public function taxonomy(): string
-    {
-        return $this->term->taxonomy;
-    }
+	/**
+	 * @return string
+	 */
+	public function link(): string
+	{
+		return get_term_link($this->term);
+	}
 
-    /**
-     * @return bool
-     */
-    public function current(): bool
-    {
-        return isset($this->term->current);
-    }
+	/**
+	 * @return string
+	 */
+	public function feed(): string
+	{
+		return get_term_feed_link($this->id(), $this->taxonomy());
+	}
 
-    /**
-     * @param string $prefix
-     *
-     * @return string
-     */
-    public function classes(string $prefix = ''): string
-    {
-        if ($prefix) {
-            $classes = array(
-                $prefix . '-item',
-                $prefix . '-' . $this->taxonomy(),
-            );
-        } else {
-            $prefix  = $this->taxonomy();
-            $classes = array(
-                $prefix,
-                $prefix . '-' . $this->term->slug,
-            );
-        }
+	/**
+	 * @return string
+	 */
+	public function description(): string
+	{
+		return $this->sanitize('description');
+	}
 
-        if ($this->current()) {
-            $classes[] = $prefix . '-current';
-        }
+	/**
+	 * @return int
+	 */
+	public function count(): int
+	{
+		return (int) $this->sanitize('count');
+	}
 
-        return implode(' ', $classes);
-    }
+	/**
+	 * @return Taxonomy
+	 */
+	public function taxonomy(): Taxonomy
+	{
+		return $this->taxonomy;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function is_current(): bool
+	{
+		$current = $this->taxonomy()->current();
+
+		return $current && $current->id() === $this->id();
+	}
+
+	/**
+	 * @param string $prefix
+	 *
+	 * @return string
+	 */
+	public function classes(string $prefix = ''): string
+	{
+		if ($prefix) {
+			$classes = [
+				$prefix . '-item',
+				$prefix . '-' . $this->taxonomy()->name(),
+			];
+		} else {
+			$prefix  = $this->taxonomy()->name();
+			$classes = [
+				$prefix,
+				$prefix . '-' . $this->term->slug,
+			];
+		}
+
+		if ($this->is_current()) {
+			$classes[] = $prefix . '-current';
+		}
+
+		return implode(' ', $classes);
+	}
+
+	/**
+	 * @param string $field
+	 *
+	 * @return string
+	 */
+	protected function sanitize(string $field): string
+	{
+		return sanitize_term_field($field, $this->term->$field, $this->id(), $this->taxonomy(), 'display');
+	}
 
 }

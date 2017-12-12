@@ -63,6 +63,8 @@ class Thumbnail
 
 	/**
 	 * @param string $size
+	 *
+	 * @return $this
 	 */
 	public function size(string $size)
 	{
@@ -72,6 +74,8 @@ class Thumbnail
 			$this->image = null;
 			$this->size = $size;
 		}
+
+		return $this;
 	}
 
 	/**

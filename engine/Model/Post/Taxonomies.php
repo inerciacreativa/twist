@@ -3,6 +3,7 @@
 namespace Twist\Model\Post;
 
 use Twist\Model\ModelArray;
+use Twist\Model\Taxonomy\Taxonomy;
 
 /**
  * Class Taxonomies
@@ -12,37 +13,42 @@ use Twist\Model\ModelArray;
 class Taxonomies extends ModelArray
 {
 
-    /**
-     * Taxonomies constructor.
-     *
-     * @param Post $post
-     */
-    public function __construct(Post $post)
-    {
-        parent::__construct(array_flip(get_object_taxonomies($post->type())), $post);
-    }
+	/**
+	 * Taxonomies constructor.
+	 *
+	 * @param Post $post
+	 */
+	public function __construct(Post $post)
+	{
+		parent::__construct(array_flip(get_object_taxonomies($post->type())), $post);
+	}
 
-    /**
-     * @param string $name
-     *
-     * @return Terms
-     */
-    public function offsetGet($name)
-    {
-        $terms = parent::offsetGet($name);
+	/**
+	 * @param string $name
+	 *
+	 * @return Terms
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function offsetGet($name): Terms
+	{
+		$terms = parent::offsetGet($name);
 
-        if ($terms === null) {
-            return null;
-        }
+		if ($terms === null) {
+			return null;
+		}
 
-        if (!($terms instanceof Terms)) {
-            /** @var Post $post */
-            $post  = $this->parent();
-            $terms = new Terms($post, $name);
-            $this->setValue($name, $terms);
-        }
+		if (!($terms instanceof Terms)) {
+			/** @var Post $post */
+			$post     = $this->parent();
+			$taxonomy = new Taxonomy($name);
+			$terms    = new Terms($post, $taxonomy);
 
-        return $terms;
-    }
+			$this->setValue($name, $terms);
+		}
+
+
+		return $terms;
+	}
 
 }

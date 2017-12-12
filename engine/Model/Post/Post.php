@@ -43,7 +43,7 @@ class Post extends Model
 	protected $comments;
 
 	/**
-	 * @var int
+	 * @var Thumbnail
 	 */
 	protected $thumbnail;
 
@@ -108,11 +108,23 @@ class Post extends Model
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function has_thumbnail(): bool
+	{
+		return $this->thumbnail()->exists();
+	}
+
+	/**
 	 * @return Thumbnail
 	 */
 	public function thumbnail(): Thumbnail
 	{
-		return new Thumbnail($this);
+		if ($this->thumbnail === null) {
+			$this->thumbnail = new Thumbnail($this);
+		}
+
+		return $this->thumbnail;
 	}
 
 	/**
@@ -137,7 +149,7 @@ class Post extends Model
 		}
 
 		if (isset($this->taxonomies['post_format'])) {
-			if (is_int($this->taxonomies['post_format'])) {
+			if (\is_int($this->taxonomies['post_format'])) {
 				$format = get_the_terms($this->id(), 'post_format');
 				$format = empty($format) ? $default : array_shift($format);
 
@@ -191,7 +203,7 @@ class Post extends Model
 	 */
 	public function is_draft(): bool
 	{
-		return in_array($this->post->post_status, [
+		return \in_array($this->post->post_status, [
 			'draft',
 			'pending',
 			'auto-draft',
@@ -370,6 +382,22 @@ class Post extends Model
 		}
 
 		return $this->taxonomies;
+	}
+
+	/**
+	 * @return Terms
+	 */
+	public function categories(): Terms
+	{
+		return $this->taxonomies()['category'];
+	}
+
+	/**
+	 * @return Terms
+	 */
+	public function tags(): Terms
+	{
+		return $this->taxonomies()['post_tag'];
 	}
 
 	/**

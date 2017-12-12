@@ -96,7 +96,7 @@ abstract class Section
 
         $dom = new Document();
         $dom->loadMarkup($html);
-        $dom->removeComments();
+        $dom->cleanComments();
 
         $this->extract($dom, 'link', $this->links);
         $this->extract($dom, 'script', $this->scripts);

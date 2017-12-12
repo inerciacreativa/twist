@@ -31,11 +31,11 @@ class Metas extends ModelArray
     {
         $value = parent::offsetGet($name);
 
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             return null;
         }
 
-        return count($value) === 1 ? maybe_unserialize($value[0]) : array_map('maybe_unserialize', $value);
+        return \count($value) === 1 ? maybe_unserialize($value[0]) : array_map('maybe_unserialize', $value);
     }
 
 }

@@ -2,8 +2,6 @@
 
 namespace Twist\Model\Taxonomy;
 
-use Twist\Model\Post\Post;
-
 /**
  * Class Category
  *
@@ -15,31 +13,19 @@ class Category extends Taxonomy
     /**
      * Category constructor.
      *
-     * @param Post|null $post
+     * @throws \RuntimeException
      */
-    public function __construct(Post $post = null)
+    public function __construct()
     {
-        parent::__construct('category', $post);
+        parent::__construct('category');
     }
 
     /**
      * @inheritdoc
      */
-    protected function isCurrentTaxonomy()
-    {
-        if ($this->currentTaxonomy === null) {
-            $this->currentTaxonomy = is_category();
-        }
-
-        return $this->currentTaxonomy;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function isCurrentTerm($term)
-    {
-        return $this->isCurrentTaxonomy() && is_category($term->term_id);
-    }
+	public function is_current($term = null): bool
+	{
+		return is_category($term);
+	}
 
 }

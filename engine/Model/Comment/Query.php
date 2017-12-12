@@ -252,7 +252,7 @@ class Query
         $comments     = $this->threaded ? $this->getCommentsFlattened($commentQuery->comments, $arguments) : $commentQuery->comments;
 
         $mainQuery->comments              = apply_filters('comments_array', $comments, $this->post->id());
-        $mainQuery->comment_count         = count($mainQuery->comments);
+        $mainQuery->comment_count         = \count($mainQuery->comments);
         $mainQuery->max_num_comment_pages = (int)$commentQuery->max_num_pages;
 
         if ($this->page === 0 && $mainQuery->max_num_comment_pages > 1) {
