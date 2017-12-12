@@ -25,7 +25,7 @@ class Data
             return $target[$key];
         }
 
-        if (is_object($target) && isset($target->{$key})) {
+        if (\is_object($target) && isset($target->{$key})) {
             return $target->{$key};
         }
 
@@ -55,16 +55,16 @@ class Data
             return false;
         }
 
-        $key = is_array($key) ? $key : explode('.', $key);
+        $key = \is_array($key) ? $key : explode('.', $key);
 
         while (($segment = array_shift($key)) !== null) {
             if ($segment === '*') {
-                return ($target instanceof Collection || is_array($target));
+                return ($target instanceof Collection || \is_array($target));
             }
 
             if (Arr::accessible($target) && Arr::exists($target, $segment)) {
                 $target = $target[$segment];
-            } elseif (is_object($target) && isset($target->{$segment})) {
+            } elseif (\is_object($target) && isset($target->{$segment})) {
                 $target = $target->{$segment};
             } else {
                 return false;
@@ -89,24 +89,24 @@ class Data
             return $target;
         }
 
-        $key = is_array($key) ? $key : explode('.', $key);
+        $key = \is_array($key) ? $key : explode('.', $key);
 
         while (($segment = array_shift($key)) !== null) {
             if ($segment === '*') {
                 if ($target instanceof Collection) {
                     $target = $target->all();
-                } elseif (!is_array($target)) {
+                } elseif (!\is_array($target)) {
                     return static::value($default);
                 }
 
                 $result = Arr::pluck($target, $key);
 
-                return in_array('*', $key, false) ? Arr::collapse($result) : $result;
+                return \in_array('*', $key, false) ? Arr::collapse($result) : $result;
             }
 
             if (Arr::accessible($target) && Arr::exists($target, $segment)) {
                 $target = $target[$segment];
-            } elseif (is_object($target) && isset($target->{$segment})) {
+            } elseif (\is_object($target) && isset($target->{$segment})) {
                 $target = $target->{$segment};
             } else {
                 return static::value($default);
@@ -128,7 +128,7 @@ class Data
      */
     public static function set(&$target, $key, $value, $overwrite = true)
     {
-        $segments = is_array($key) ? $key : explode('.', $key);
+        $segments = \is_array($key) ? $key : explode('.', $key);
 
         if (($segment = array_shift($segments)) === '*') {
             if (!Arr::accessible($target)) {
@@ -156,7 +156,7 @@ class Data
             } elseif ($overwrite || !Arr::exists($target, $segment)) {
                 $target[$segment] = $value;
             }
-        } elseif (is_object($target)) {
+        } elseif (\is_object($target)) {
             if ($segments) {
                 if (!isset($target->{$segment})) {
                     $target->{$segment} = [];
@@ -216,7 +216,7 @@ class Data
             return true;
         }
 
-        if (is_object($value) && method_exists($value, '__invoke')) {
+        if (\is_object($value) && method_exists($value, '__invoke')) {
             return true;
         }
 

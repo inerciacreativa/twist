@@ -167,9 +167,9 @@ class Tag implements \ArrayAccess
     public static function __callStatic(string $tag, $arguments): Tag
     {
         $attributes = Arr::get($arguments, 0, []);
-        $content    = Arr::get($arguments, 1, null);
+        $content    = Arr::get($arguments, 1);
 
-        if (is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
+        if (\is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
             return new static($tag, $attributes, $content);
         }
 
@@ -415,15 +415,15 @@ class Tag implements \ArrayAccess
             $result = '';
         }
 
-        if (is_string($content) || (is_object($content) && method_exists($content, '__toString'))) {
+        if (\is_string($content) || (\is_object($content) && method_exists($content, '__toString'))) {
             $result = (string)$content;
         }
 
-        if ($content instanceof \Closure || (is_object($content) && method_exists($content, '__invoke'))) {
+        if ($content instanceof \Closure || (\is_object($content) && method_exists($content, '__invoke'))) {
             $result = $content();
         }
 
-        if (is_array($content)) {
+        if (\is_array($content)) {
             $result = array_reduce($content, function ($string, $content) {
                 return $string . static::getContent($content);
             }, '');
@@ -448,7 +448,7 @@ class Tag implements \ArrayAccess
                 return $value ? $name : '';
             }
 
-			if ($value === '' && !in_array($name, ['value', 'alt'], false)) {
+			if ($value === '' && !\in_array($name, ['value', 'alt'], false)) {
                 return $value;
             }
 
@@ -473,7 +473,7 @@ class Tag implements \ArrayAccess
      */
     public static function isVoidTag(string $tag): bool
     {
-        return in_array($tag, static::$voidTags, false);
+        return \in_array($tag, static::$voidTags, false);
     }
 
     /**
@@ -483,7 +483,7 @@ class Tag implements \ArrayAccess
      */
     public static function isBoolAttribute(string $attribute): bool
     {
-        return in_array($attribute, static::$boolAttributes, true);
+        return \in_array($attribute, static::$boolAttributes, true);
     }
 
     /**
@@ -493,7 +493,7 @@ class Tag implements \ArrayAccess
      */
     public static function isUrlAttribute(string $attribute): bool
     {
-        return in_array($attribute, static::$urlAttributes, true);
+        return \in_array($attribute, static::$urlAttributes, true);
     }
 
 }

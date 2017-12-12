@@ -32,16 +32,16 @@ class Singleton
      */
     public static function create()
     {
-        $class = get_called_class();
+        $class = \get_called_class();
 
         if (!isset(self::$instances[$class])) {
-            if (func_num_args()) {
+            if (\func_num_args()) {
                 try {
                     $reflection  = new \ReflectionClass($class);
                     $instance    = $reflection->newInstanceWithoutConstructor();
                     $constructor = $reflection->getConstructor();
                     $constructor->setAccessible(true);
-                    $constructor->invokeArgs($instance, func_get_args());
+                    $constructor->invokeArgs($instance, \func_get_args());
 
                     self::$instances[$class] = $instance;
                 } catch (\ReflectionException $exception) {

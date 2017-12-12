@@ -211,7 +211,7 @@ class Document extends \DOMDocument
      *
      * @return static
      */
-    public function cleanAttributes(\DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = [])
+    public function cleanNodeAttributes(\DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = [])
     {
         $disallowedAttributes = array_merge($disallowedAttributes, static::$disallowedAttributes);
 
@@ -229,15 +229,15 @@ class Document extends \DOMDocument
      *
      * @return static
      */
-    public function cleanDocumentAttributes(array $disallowedAttributes = [], array $allowedStyles = [])
+    public function cleanAttributes(array $disallowedAttributes = [], array $allowedStyles = [])
     {
-        return $this->cleanAttributes($this->getElementsWithAttributes(), $disallowedAttributes, $allowedStyles);
+        return $this->cleanNodeAttributes($this->getElementsWithAttributes(), $disallowedAttributes, $allowedStyles);
     }
 
     /**
      * @return $this
      */
-    public function cleanDocument()
+    public function cleanElements()
     {
         $this->removeElements($this->getElementsWithoutAttributes('span'));
         $this->removeEmptyTextNodes();
@@ -250,7 +250,7 @@ class Document extends \DOMDocument
      *
      * @return static
      */
-    public function removeComments()
+    public function cleanComments()
     {
         /** @var $node \DOMElement */
         foreach ($this->getComments() as $node) {

@@ -64,7 +64,7 @@ class Element extends \DOMElement
     {
         $classes = $this->getClassNames();
 
-        if (!in_array($className, $classes, false)) {
+        if (!\in_array($className, $classes, false)) {
             $classes[] = $className;
             $this->setAttribute('class', implode(' ', $classes));
 
@@ -107,7 +107,7 @@ class Element extends \DOMElement
 
         /** @var \DOMAttr $attribute */
         foreach ($this->attributes as $attribute) {
-            if (in_array($attribute->nodeName, $disallowedAttributes, false)) {
+            if (\in_array($attribute->nodeName, $disallowedAttributes, false)) {
                 $remove[] = $attribute;
             } elseif ($attribute->nodeName === 'style') {
                 $styles = $this->filterStyles($attribute->nodeValue, $allowedStyles);
@@ -159,7 +159,7 @@ class Element extends \DOMElement
             $style = explode(':', strtolower($style));
             $style = array_map('trim', $style);
 
-            if (in_array($style[0], $allowed, false)) {
+            if (\in_array($style[0], $allowed, false)) {
                 $result[] = sprintf('%s: %s', $style[0], $style[1]);
             }
         }

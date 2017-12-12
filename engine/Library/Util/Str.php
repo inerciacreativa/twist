@@ -191,8 +191,8 @@ class Str
         if (static::$multiByte === null) {
             static::$multiByte = false;
 
-            if (extension_loaded('mbstring') && function_exists('mb_list_encodings')) {
-                static::$multiByte = in_array(static::$encoding, mb_list_encodings(), false);
+            if (\extension_loaded('mbstring') && \function_exists('mb_list_encodings')) {
+                static::$multiByte = \in_array(static::$encoding, mb_list_encodings(), false);
             }
         }
 
@@ -265,7 +265,7 @@ class Str
      */
     public static function length(string $string): int
     {
-        return static::isMultiByte() ? mb_strlen($string, static::getEncoding()) : strlen($string);
+        return static::isMultiByte() ? mb_strlen($string, static::getEncoding()) : \strlen($string);
     }
 
     /**
@@ -371,18 +371,17 @@ class Str
      */
     public static function replace(string $string, string $replace, int $start, int $length = null): string
     {
-        $start  = (int)$start;
-        $length = $length === null ? Str::length($string) : (int)$length;
+        $length = $length === null ? self::length($string) : (int)$length;
 
         if ($start === 0) {
-            return $replace . Str::substring($string, $length);
+            return $replace . self::substring($string, $length);
         }
 
-        if ($start === Str::length($string)) {
+        if ($start === self::length($string)) {
             return $string . $replace;
         }
 
-        return Str::substring($string, 0, $start) . $replace . Str::substring($string, $length);
+        return self::substring($string, 0, $start) . $replace . self::substring($string, $length);
     }
 
     /**
@@ -409,7 +408,7 @@ class Str
         $position = static::search($string, $search);
 
         if ($position !== false) {
-            return static::replace($string, $replace, $position, Str::length($search));
+            return static::replace($string, $replace, $position, self::length($search));
         }
 
         return $string;
@@ -427,7 +426,7 @@ class Str
         $position = static::searchLast($string, $search);
 
         if ($position !== false) {
-            return static::replace($string, $replace, $position, Str::length($search));
+            return static::replace($string, $replace, $position, self::length($search));
         }
 
         return $string;
@@ -534,7 +533,7 @@ class Str
      */
     public static function toArrayNotation(string $id): string
     {
-        if (strpos($id, '.') === false || strpos($id, '[' !== false)) {
+        if (strpos($id, '.') === false || strpos($id, '[') !== false) {
             return $id;
         }
 

@@ -22,7 +22,7 @@ class Repository implements RepositoryInterface
      */
     public function count(): int
     {
-        return count($this->items);
+        return \count($this->items);
     }
 
     /**

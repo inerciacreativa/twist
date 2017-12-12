@@ -23,7 +23,7 @@ class Arr
      */
     public static function accessible($value): bool
     {
-        return is_array($value) || $value instanceof \ArrayAccess;
+        return \is_array($value) || $value instanceof \ArrayAccess;
     }
 
     /**
@@ -50,7 +50,7 @@ class Arr
     {
         $results = [];
         foreach ($array as $key => $value) {
-            if (is_array($value) && static::isAssoc($value)) {
+            if (\is_array($value) && static::isAssoc($value)) {
                 $results = array_merge($results, static::dot($value, $prepend . $key . '.'));
             } else {
                 $results[$prepend . $key] = $value;
@@ -70,7 +70,7 @@ class Arr
      */
     public static function fill(array $target, array $source): array
     {
-        $values = Arr::dot($source);
+        $values = self::dot($source);
 
         foreach ($values as $key => $value) {
             if (static::has($target, $key, true)) {
@@ -169,7 +169,7 @@ class Arr
         foreach ($array as $values) {
             if ($values instanceof Collection) {
                 $values = $values->all();
-            } elseif (!is_array($values)) {
+            } elseif (!\is_array($values)) {
                 continue;
             }
 
@@ -194,7 +194,7 @@ class Arr
         foreach ($array as $item) {
             $item = $item instanceof Collection ? $item->all() : $item;
 
-            if (is_array($item)) {
+            if (\is_array($item)) {
                 if ($depth === 1) {
                     $result = array_merge($result, $item);
                     continue;
@@ -231,9 +231,9 @@ class Arr
 
         $keys = explode('.', $key);
 
-        while (count($keys) > 1) {
+        while (\count($keys) > 1) {
             $key = array_shift($keys);
-            if (!isset($array[$key]) || !is_array($array[$key])) {
+            if (!isset($array[$key]) || !\is_array($array[$key])) {
                 $array[$key] = [];
             }
 
@@ -354,7 +354,7 @@ class Arr
         $original = &$array;
         $keys     = (array)$keys;
 
-        if (count($keys) === 0) {
+        if (\count($keys) === 0) {
             return $array;
         }
 
@@ -367,10 +367,10 @@ class Arr
             $parts = explode('.', $key);
             $array = &$original;
 
-            while (count($parts) > 1) {
+            while (\count($parts) > 1) {
                 $part = array_shift($parts);
 
-                if (isset($array[$part]) && is_array($array[$part])) {
+                if (isset($array[$part]) && \is_array($array[$part])) {
                     $array = &$array[$part];
                 } else {
                     continue 2;
@@ -425,7 +425,7 @@ class Arr
     {
         $results = [];
 
-        list($value, $key) = Arr::explodePluckParameters($value, $key);
+        list($value, $key) = self::explodePluckParameters($value, $key);
 
         foreach ($array as $item) {
             $itemValue = Data::get($item, $value);
@@ -452,8 +452,8 @@ class Arr
      */
     protected static function explodePluckParameters($value, $key): array
     {
-        $value = is_string($value) ? explode('.', $value) : $value;
-        $key   = ($key === null) || is_array($key) ? $key : explode('.', $key);
+        $value = \is_string($value) ? explode('.', $value) : $value;
+        $key   = ($key === null) || \is_array($key) ? $key : explode('.', $key);
 
         return [$value, $key];
     }
@@ -518,7 +518,7 @@ class Arr
     public static function sortRecursive(array $array): array
     {
         foreach ($array as &$value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $value = static::sortRecursive($value);
             }
         }
@@ -588,7 +588,7 @@ class Arr
      */
     public static function items($items): array
     {
-        if (is_array($items)) {
+        if (\is_array($items)) {
             return $items;
         }
 
@@ -613,9 +613,9 @@ class Arr
      */
     public static function implode(array $array, string $glue = ''): string
     {
-        $result = Arr::flatten($array);
+        $result = self::flatten($array);
 
-        return implode($glue, Arr::values($result));
+        return implode($glue, self::values($result));
     }
 
     /**
@@ -630,6 +630,22 @@ class Arr
         $items = array_map($callback, $keys, $array);
 
         return array_combine($keys, $items);
+    }
+
+	/**
+	 * @param array $defaults
+	 * @param array $values
+	 *
+	 * @return array
+	 */
+    public static function defaults(array $defaults, array $values): array
+    {
+    	$result = [];
+    	foreach ($defaults as $key => $value) {
+    		$result[$key] = $values[$key] ?? $value;
+	    }
+
+	    return $result;
     }
 
 }
