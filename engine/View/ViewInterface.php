@@ -3,11 +3,11 @@
 namespace Twist\View;
 
 /**
- * Interface ViewServiceInterface
+ * Interface ViewInterface
  *
  * @package Twist\View
  */
-interface ViewServiceInterface
+interface ViewInterface
 {
 
     /**
@@ -16,18 +16,18 @@ interface ViewServiceInterface
      *
      * @return string
      */
-    public function render($template, array $data = []);
+    public function render(string $template, array $data = []): string;
 
     /**
      * @param string $template
      * @param array  $data
      */
-    public function display($template, array $data = []);
+    public function display(string $template, array $data = []);
 
     /**
      * @param string $name
      * @param mixed  $value
      */
-    public function data($name, $value);
+    public function data(string $name, $value);
 
 }
