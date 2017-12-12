@@ -11,14 +11,15 @@ include_once __DIR__ . '/engine/boot.php';
  * Sets up theme defaults.
  */
 add_action('after_setup_theme', function () {
-    add_theme_support('custom-logo', [
-        'height'      => 250,
-        'width'       => 250,
-        'flex-height' => true,
-        'flex-width'  => true,
-    ]);
+	add_theme_support('customize-selective-refresh-widgets');
+	add_theme_support('title-tag');
+	add_theme_support('html5', [
+		'gallery',
+		'caption',
+	]);
 
-    add_theme_support('post-formats', [
+	add_theme_support('post-thumbnails');
+	add_theme_support('post-formats', [
         'aside',
         'image',
         'video',
@@ -28,7 +29,14 @@ add_action('after_setup_theme', function () {
         'audio',
     ]);
 
-    set_post_thumbnail_size(850, 510, true);
+	add_theme_support('custom-logo', [
+		'height'      => 250,
+		'width'       => 250,
+		'flex-height' => true,
+		'flex-width'  => true,
+	]);
+
+	set_post_thumbnail_size(850, 510, true);
 
     register_nav_menus([
         'primary' => __('Primary Menu', 'twist'),
@@ -75,10 +83,22 @@ add_action('widgets_init', function () {
  * Register theme assets.
  */
 add_filter('wp_enqueue_scripts', function () {
-    wp_enqueue_style('twist', Twist\asset('styles/main.css', true), false, null);
-    wp_enqueue_script('twist', Twist\asset('scripts/main.js', true), ['jquery'], null, true);
+    wp_enqueue_style('twist', Twist\asset_url('styles/main.css', true), false, null);
+    wp_enqueue_script('twist', Twist\asset_url('scripts/main.js', true), ['jquery'], null, true);
 
     if (is_single() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
     }
 }, 1);
+
+/**
+ * Register user contact methods.
+ */
+add_filter('user_contactmethods', function (array $methods) {
+	return array_merge($methods, [
+		'googleplus' => __('Google+', 'twist'),
+		'twitter'    => __('Twitter', 'twist'),
+		'facebook'   => __('Facebook', 'twist'),
+		'linkedin'   => __('LinkedIn', 'twist'),
+	]);
+});

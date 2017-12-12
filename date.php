@@ -3,6 +3,6 @@
 use function Twist\view;
 use Twist\Model\Post\Query;
 
-view('post.twig', [
+view('date.twig', [
 	'posts' => new Query(),
 ]);

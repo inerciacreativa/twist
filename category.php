@@ -2,7 +2,9 @@
 
 use function Twist\view;
 use Twist\Model\Post\Query;
+use Twist\Model\Taxonomy\Category;
 
-view('post.twig', [
+view('category.twig', [
+	'category' => new Category(),
 	'posts' => new Query(),
 ]);
