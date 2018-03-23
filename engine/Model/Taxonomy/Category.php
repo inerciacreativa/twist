@@ -13,7 +13,7 @@ class Category extends Taxonomy
     /**
      * Category constructor.
      *
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function __construct()
     {

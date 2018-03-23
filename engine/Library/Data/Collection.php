@@ -1209,11 +1209,11 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
     /**
      * Get an iterator for the items.
      *
-     * @return \ArrayIterator
+     * @return CollectionIteratorInterface
      */
-    public function getIterator(): \ArrayIterator
+    public function getIterator(): CollectionIteratorInterface
     {
-        return new \ArrayIterator($this->items);
+        return new CollectionIterator($this->items);
     }
 
     /**

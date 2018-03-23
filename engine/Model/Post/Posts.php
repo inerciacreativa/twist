@@ -75,13 +75,13 @@ class Posts extends ModelCollection
 	}
 
 	/**
-	 * @param int $key
+	 * @param int $id
 	 *
 	 * @return null|Post
 	 */
-	public function get($key)
+	public function get($id)
 	{
-		$post = parent::get($key);
+		$post = parent::get($id);
 
 		if ($post) {
 			/** @var Post $post */

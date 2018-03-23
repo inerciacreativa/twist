@@ -138,7 +138,7 @@ class Tag implements \ArrayAccess
      * @var array
      */
     protected static $boolAttributes = [
-        'async', 'autofocus', 'capture', 'checked', 'controls', 'default', 'defer', 'disabled', 'formnovalidate', 'hidden', 'ismap', 'itemscope', 'loop', 'multiple', 'muted', 'novalidate', 'open', 'readonly', 'required', 'reversed', 'selected',
+        'async', 'autofocus', 'capture', 'checked', 'controls', 'crossorigin', 'default', 'defer', 'disabled', 'formnovalidate', 'hidden', 'ismap', 'itemscope', 'loop', 'multiple', 'muted', 'novalidate', 'open', 'readonly', 'required', 'reversed', 'selected',
     ];
 
     /**

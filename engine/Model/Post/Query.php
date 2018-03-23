@@ -18,25 +18,71 @@ class Query extends ModelCollection
 	protected $query;
 
 	/**
+	 * @return Query
+	 */
+	public static function main(): Query
+	{
+		return new static();
+	}
+
+	/**
 	 * @param array $query
 	 *
 	 * @return Query
 	 */
-	public static function make(array $query = null): Query
+	public static function make(array $query): Query
 	{
-		return new static(new \WP_Query($query));
+		$parameters = array_merge($query, [
+			'suppress_filters'    => true,
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+		]);
+
+		if (empty($parameters['post_status'])) {
+			$parameters['post_status'] = ($parameters['post_type'] === 'attachment') ? 'inherit' : 'publish';
+		}
+
+		if (!empty($parameters['include'])) {
+			$ids = wp_parse_id_list($parameters['include']);
+
+			$parameters['posts_per_page'] = \count($ids);
+			$parameters['post__in']       = $ids;
+		} else if (!empty($parameters['exclude'])) {
+			$parameters['post__not_in'] = wp_parse_id_list($parameters['exclude']);
+		}
+
+		return new static($parameters);
+	}
+
+	/**
+	 * @param int   $number
+	 * @param array $query
+	 *
+	 * @return Query
+	 */
+	public static function latest(int $number = 3, array $query = []): Query
+	{
+		$parameters = array_merge([
+			'orderby'   => 'post_date',
+			'order'     => 'DESC',
+			'post_type' => 'post',
+		], $query);
+
+		$parameters['posts_per_page'] = $number;
+
+		return self::make($parameters);
 	}
 
 	/**
 	 * Posts constructor.
 	 *
-	 * @param \WP_Query|null $query
+	 * @param array $query
 	 */
-	public function __construct(\WP_Query $query = null)
+	public function __construct(array $query = [])
 	{
 		global $wp_query;
 
-		$this->query = $query ?? $wp_query;
+		$this->query = $query ? new \WP_Query($query) : $wp_query;
 
 		parent::__construct();
 	}
@@ -96,6 +142,14 @@ class Query extends ModelCollection
 	public function total(): int
 	{
 		return $this->query->found_posts;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function is_main(): bool
+	{
+		return $this->query->is_main_query();
 	}
 
 	/**

@@ -29,7 +29,7 @@ abstract class Elements implements ElementsInterface
 
             if ($node->hasAttributes()) {
                 foreach ($node->attributes as $attribute) {
-                    $attributes[$attribute->nodeName] = $attribute->nodeValue;
+                    $attributes[$attribute->nodeName] = $attribute->nodeValue ?: $attribute->nodeName;
                 }
             }
 

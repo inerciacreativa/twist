@@ -16,11 +16,11 @@ class Taxonomies extends ModelArray
 	/**
 	 * Taxonomies constructor.
 	 *
-	 * @param Post $post
+	 * @param Post $term
 	 */
-	public function __construct(Post $post)
+	public function __construct(Post $term)
 	{
-		parent::__construct(array_flip(get_object_taxonomies($post->type())), $post);
+		parent::__construct(array_flip(get_object_taxonomies($term->type())), $term);
 	}
 
 	/**

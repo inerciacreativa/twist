@@ -7,7 +7,7 @@ namespace Twist\Model\Taxonomy;
  *
  * @package Twist\Model\Taxonomy
  */
-class Taxonomy
+class Taxonomy implements TaxonomyInterface
 {
 
 	/**
@@ -25,12 +25,12 @@ class Taxonomy
 	 *
 	 * @param string $taxonomy
 	 *
-	 * @throws \RuntimeException
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct(string $taxonomy)
 	{
 		if (!taxonomy_exists($taxonomy)) {
-			throw new \RuntimeException("The taxonomy '$taxonomy' does not exists");
+			throw new \InvalidArgumentException("The taxonomy '$taxonomy' does not exists");
 		}
 
 		$this->taxonomy = get_taxonomy($taxonomy);
@@ -83,7 +83,7 @@ class Taxonomy
 	}
 
 	/**
-	 * @return Term
+	 * @return Term|null
 	 */
 	public function current(): Term
 	{

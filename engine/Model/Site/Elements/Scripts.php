@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Site\Elements;
 
+use function Twist\config;
+
 /**
  * Class Scripts
  *
@@ -23,9 +25,7 @@ class Scripts extends Elements
         wp_deregister_script('jquery');
         wp_register_script('jquery', false, ['jquery-core'], null, true);
         wp_deregister_script('jquery-core');
-        wp_register_script('jquery-core', '//code.jquery.com/jquery-3.2.1.min.js', [], null, true);
-        wp_deregister_script('jquery-migrate');
-        wp_register_script('jquery-migrate', '//code.jquery.com/jquery-migrate-3.0.0.min.js', [], null, true);
+	    wp_register_script('jquery-core', config('view.jquery'), [], null, true);
     }
 
     /**

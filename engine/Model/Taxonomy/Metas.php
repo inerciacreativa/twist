@@ -1,13 +1,13 @@
 <?php
 
-namespace Twist\Model\Post;
+namespace Twist\Model\Taxonomy;
 
 use Twist\Model\ModelArray;
 
 /**
  * Class Metas
  *
- * @package Twist\Model\Post
+ * @package Twist\Model\Taxonomy
  */
 class Metas extends ModelArray
 {
@@ -15,11 +15,11 @@ class Metas extends ModelArray
     /**
      * Metas constructor.
      *
-     * @param Post $term
+     * @param Term $term
      */
-    public function __construct(Post $term)
+    public function __construct(Term $term)
     {
-        parent::__construct(get_metadata('post', $term->id()), $term);
+        parent::__construct(get_metadata('term', $term->id()), $term);
     }
 
     /**

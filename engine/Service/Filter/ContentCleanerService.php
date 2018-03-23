@@ -29,8 +29,8 @@ class ContentCleanerService extends Service
 	 */
 	public function stop()
 	{
-		add_filter('the_content', [$this, 'clean'], PHP_INT_MAX);
-		add_filter('comment_text', [$this, 'clean'], PHP_INT_MAX);
+		remove_filter('the_content', [$this, 'clean'], PHP_INT_MAX);
+		remove_filter('comment_text', [$this, 'clean'], PHP_INT_MAX);
 	}
 
 	/**
@@ -58,6 +58,8 @@ class ContentCleanerService extends Service
 		if ($config['comments']) {
 			$document->cleanComments();
 		}
+
+		$document = apply_filters('ic_twist_content_cleaner', $document);
 
 		$content = $document->saveMarkup();
 

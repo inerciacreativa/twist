@@ -47,24 +47,24 @@ class ModelCollection implements \Countable, \Iterator
 	}
 
 	/**
-	 * @param int $key
+	 * @param int $id
 	 *
 	 * @return bool
 	 */
-	public function has($key): bool
+	public function has($id): bool
 	{
-		return array_key_exists($key, $this->children);
+		return array_key_exists($id, $this->children);
 	}
 
 	/**
-	 * @param int $key
+	 * @param int $id
 	 *
 	 * @return Model|null
 	 */
-	public function get($key)
+	public function get($id)
 	{
-		if ($this->has($key)) {
-			return $this->children[$key];
+		if ($this->has($id)) {
+			return $this->children[$id];
 		}
 
 		return null;
@@ -78,6 +78,18 @@ class ModelCollection implements \Countable, \Iterator
 	public function add(Model $child)
 	{
 		$this->children[$child->id()] = $child;
+
+		return $this;
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return $this
+	 */
+	public function remove(int $id)
+	{
+		unset($this->children[$id]);
 
 		return $this;
 	}
@@ -136,6 +148,64 @@ class ModelCollection implements \Countable, \Iterator
 	public function key(): int
 	{
 		return $this->current()->id();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ids(): array
+	{
+		return array_keys($this->children);
+	}
+
+	/**
+	 * @return Model
+	 */
+	public function first()
+	{
+		return array_values($this->children)[0];
+	}
+
+	/**
+	 * @return Model
+	 */
+	public function last()
+	{
+		return array_reverse(array_values($this->children))[0];
+	}
+
+	/**
+	 * @param int $limit
+	 *
+	 * @return static
+	 */
+	public function limit(int $limit)
+	{
+		$collection = clone $this;
+
+		if ($limit < 0) {
+			$collection->children = \array_slice($this->children, $limit, abs($limit), true);
+		} else {
+			$collection->children = \array_slice($this->children, 0, $limit, true);
+		}
+
+		return $collection;
+	}
+
+	/**
+	 * @param array $ids
+	 *
+	 * @return static
+	 */
+	public function filter(array $ids)
+	{
+		$collection = clone $this;
+
+		$collection->children = array_filter($this->children, function ($id) use ($ids) {
+			return !\in_array($id, $ids, true);
+		}, ARRAY_FILTER_USE_KEY);
+
+		return $collection;
 	}
 
 }

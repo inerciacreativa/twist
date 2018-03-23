@@ -16,7 +16,7 @@ add_action('after_setup_theme', function () {
 	app()->provider(new ViewProvider());
 
 	config()->fill([
-		'app.debug'      => defined('WP_DEBUG') && WP_DEBUG,
+		'app.debug'      => \defined('WP_DEBUG') && WP_DEBUG,
 		'dir.stylesheet' => STYLESHEETPATH,
 		'dir.template'   => TEMPLATEPATH,
 		'dir.upload'     => wp_upload_dir()['basedir'],
@@ -31,6 +31,7 @@ add_action('after_setup_theme', function () {
 		'view.data'    => [
 			'site' => Site::class,
 		],
+		'view.jquery'  => '//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js',
 		'view.cache'   => config('app.debug') ? false : config('dir.upload') . '/view_cache',
 		'view.paths'   => function () {
 			if ($theme = config('view.theme')) {

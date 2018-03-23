@@ -13,7 +13,7 @@ class Term extends Model
 {
 
 	/**
-	 * @var Taxonomy
+	 * @var TaxonomyInterface
 	 */
 	protected $taxonomy;
 
@@ -23,13 +23,18 @@ class Term extends Model
 	protected $term;
 
 	/**
+	 * @var Metas
+	 */
+	protected $metas;
+
+	/**
 	 * Term constructor.
 	 *
-	 * @param Taxonomy $taxonomy
-	 * @param \WP_Term $term
-	 * @param Terms    $terms
+	 * @param TaxonomyInterface $taxonomy
+	 * @param \WP_Term          $term
+	 * @param Terms             $terms
 	 */
-	public function __construct(Taxonomy $taxonomy, \WP_Term $term, Terms $terms = null)
+	public function __construct(TaxonomyInterface $taxonomy, \WP_Term $term, Terms $terms = null)
 	{
 		$this->taxonomy = $taxonomy;
 		$this->term     = $term;
@@ -45,6 +50,14 @@ class Term extends Model
 	protected function setChildren(): Terms
 	{
 		return new Terms($this);
+	}
+
+	/**
+	 * @return TaxonomyInterface
+	 */
+	public function taxonomy(): TaxonomyInterface
+	{
+		return $this->taxonomy;
 	}
 
 	/**
@@ -84,7 +97,7 @@ class Term extends Model
 	 */
 	public function feed(): string
 	{
-		return get_term_feed_link($this->id(), $this->taxonomy());
+		return get_term_feed_link($this->id(), $this->taxonomy->name());
 	}
 
 	/**
@@ -92,7 +105,7 @@ class Term extends Model
 	 */
 	public function description(): string
 	{
-		return $this->sanitize('description');
+		return wpautop(wptexturize($this->sanitize('description')));
 	}
 
 	/**
@@ -104,19 +117,11 @@ class Term extends Model
 	}
 
 	/**
-	 * @return Taxonomy
-	 */
-	public function taxonomy(): Taxonomy
-	{
-		return $this->taxonomy;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function is_current(): bool
 	{
-		$current = $this->taxonomy()->current();
+		$current = $this->taxonomy->current();
 
 		return $current && $current->id() === $this->id();
 	}
@@ -131,10 +136,10 @@ class Term extends Model
 		if ($prefix) {
 			$classes = [
 				$prefix . '-item',
-				$prefix . '-' . $this->taxonomy()->name(),
+				$prefix . '-' . $this->taxonomy->name(),
 			];
 		} else {
-			$prefix  = $this->taxonomy()->name();
+			$prefix  = $this->taxonomy->name();
 			$classes = [
 				$prefix,
 				$prefix . '-' . $this->term->slug,
@@ -149,13 +154,33 @@ class Term extends Model
 	}
 
 	/**
+	 * @return Metas
+	 */
+	public function metas(): Metas
+	{
+		if ($this->metas === null) {
+			$this->metas = new Metas($this);
+		}
+
+		return $this->metas;
+	}
+
+	/**
+	 * @return \WP_Term
+	 */
+	public function object(): \WP_Term
+	{
+		return $this->term;
+	}
+
+	/**
 	 * @param string $field
 	 *
 	 * @return string
 	 */
 	protected function sanitize(string $field): string
 	{
-		return sanitize_term_field($field, $this->term->$field, $this->id(), $this->taxonomy(), 'display');
+		return sanitize_term_field($field, $this->term->$field, $this->id(), $this->taxonomy->name(), 'display');
 	}
 
 }
