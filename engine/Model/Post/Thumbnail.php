@@ -80,10 +80,11 @@ class Thumbnail
 
 	/**
 	 * @param array $attributes
+	 * @param bool  $filter
 	 *
 	 * @return Tag|null
 	 */
-	public function image(array $attributes = [])
+	public function image(array $attributes = [], $filter = true)
 	{
 		if ($this->id === 0) {
 			return null;
@@ -96,18 +97,20 @@ class Thumbnail
 
 		if ($this->image === null) {
 			$image = wp_get_attachment_image($this->id, $this->size);
-			$image = apply_filters('post_thumbnail_html', $image, $this->post->id(), $this->id, $this->size, []);
+			if ($filter) {
+				$image = apply_filters('post_thumbnail_html', $image, $this->post->id(), $this->id, $this->size, []);
+			}
 
 			$this->image = Tag::parse($image);
 		}
 
-		$image = $this->image->attributes($attributes);
+		$tag = $this->image->attributes($attributes);
 
-		if (!isset($image['alt'])) {
-			$image['alt'] = '';
+		if (!isset($tag['alt'])) {
+			$tag['alt'] = '';
 		}
 
-		return $image;
+		return $tag;
 	}
 
 	/**

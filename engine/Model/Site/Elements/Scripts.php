@@ -25,7 +25,7 @@ class Scripts extends Elements
         wp_deregister_script('jquery');
         wp_register_script('jquery', false, ['jquery-core'], null, true);
         wp_deregister_script('jquery-core');
-	    wp_register_script('jquery-core', config('view.jquery'), [], null, true);
+	    wp_register_script('jquery-core', config('script.jquery', '//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'), [], null, true);
     }
 
     /**

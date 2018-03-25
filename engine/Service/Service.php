@@ -2,7 +2,7 @@
 
 namespace Twist\Service;
 
-use Twist\App\Application;
+use Twist\App\App;
 use Twist\App\Config;
 use Twist\Library\Util\Str;
 
@@ -15,7 +15,7 @@ abstract class Service implements ServiceInterface
 {
 
 	/**
-	 * @var Application
+	 * @var App
 	 */
 	protected $app;
 
@@ -41,9 +41,9 @@ abstract class Service implements ServiceInterface
 	/**
 	 * Service constructor.
 	 *
-	 * @param Application $app
+	 * @param App $app
 	 */
-	public function __construct(Application $app)
+	public function __construct(App $app)
 	{
 		$this->app    = $app;
 		$this->config = $this->app['config'];

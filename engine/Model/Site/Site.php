@@ -35,10 +35,16 @@ class Site
 	protected $navigation;
 
 	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	/**
 	 * Site constructor.
 	 */
 	public function __construct()
 	{
+		$this->assets = new Assets($this);
 		$this->navigation = new Navigation();
 	}
 
@@ -79,56 +85,11 @@ class Site
 	}
 
 	/**
-	 * @param string $source
-	 * @param int    $width
-	 * @param int    $height
-	 *
-	 * @return string
+	 * @return Assets
 	 */
-	public function logo(string $source = null, int $width = 0, int $height = 0): string
+	public function assets(): Assets
 	{
-		if (empty($source) && ($id = get_theme_mod('custom_logo'))) {
-			$image = Tag::parse(wp_get_attachment_image($id, 'full'));
-		} else {
-			$image = Tag::img([
-				'src'    => asset_url($source),
-				'width'  => $width,
-				'height' => $height,
-			]);
-		}
-
-		$image->attributes([
-			'alt'      => $this->name(),
-			'class'    => '',
-			'itemprop' => 'contentUrl',
-		]);
-
-		/*
-		return Tag::a([
-			'href'     => $this->url(),
-			'class'    => 'site-link',
-			'rel'      => 'home',
-			'itemprop' => 'url',
-			'id'       => 'site-logo',
-		], Tag::span([
-			'itemprop'  => 'logo',
-			'itemscope' => true,
-			'itemtype'  => 'http://schema.org/ImageObject',
-		], $image));
-		*/
-
-		return $image;
-	}
-
-	/**
-	 * @param string $filename
-	 * @param bool   $parent
-	 *
-	 * @return string
-	 */
-	public function asset(string $filename, bool $parent = false): string
-	{
-		return asset_url($filename, $parent);
+		return $this->assets;
 	}
 
 	/**

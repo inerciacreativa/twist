@@ -863,8 +863,8 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
     public function reject($callback): Collection
     {
         if ($this->useAsCallable($callback)) {
-            return $this->filter(function ($item) use ($callback) {
-                return !$callback($item);
+            return $this->filter(function ($value, $key) use ($callback) {
+                return !$callback($value, $key);
             });
         }
 
