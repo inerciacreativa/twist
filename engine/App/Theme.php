@@ -96,10 +96,10 @@ class Theme
 
 		add_filter('after_setup_theme', [$this, 'setup'], PHP_INT_MIN);
 
-		add_filter('wp_enqueue_scripts', [$this, 'addStyles'], 1);
-		add_filter('wp_enqueue_scripts', [$this, 'addScripts'], 1);
-		add_filter('script_loader_tag', [$this, 'addScriptsAttributes'], 1, 2);
-		add_filter('wp_resource_hints', [$this, 'addResourceHints'], 1, 2);
+		add_filter('wp_enqueue_scripts', [$this, 'addStyles'], 999);
+		add_filter('wp_enqueue_scripts', [$this, 'addScripts'], 999);
+		add_filter('script_loader_tag', [$this, 'addScriptsAttributes'], 999, 2);
+		add_filter('wp_resource_hints', [$this, 'addResourceHints'], 999, 2);
 		add_filter('widgets_init', [$this, 'addSidebars'], 1);
 		add_filter('user_contactmethods', [$this, 'addContactMethods'], 1);
 		add_filter('wp_footer', [$this, 'addWebFonts'], PHP_INT_MAX);
