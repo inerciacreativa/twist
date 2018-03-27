@@ -2,6 +2,7 @@
 
 namespace Twist\Service\Api;
 
+use function Twist\config;
 use Twist\Service\Service;
 use Twist\Model\User\User;
 
@@ -19,6 +20,10 @@ class RestService extends Service
      */
     public function start()
     {
+    	if (!config('api.rest')) {
+    		return;
+	    }
+
         add_filter('rest_authentication_errors', function ($access) {
             if (!User::current()->is_logged()) {
                 return new \WP_Error('rest_cannot_access', __('Only authenticated users can access the REST API.', 'twist'), ['status' => rest_authorization_required_code()]);
