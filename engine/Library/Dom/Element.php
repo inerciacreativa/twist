@@ -15,7 +15,7 @@ class Element extends \DOMElement
     /**
      * @param string $tagName
      *
-     * @return \DOMElement
+     * @return static
      */
     public function setTagName(string $tagName): \DOMElement
     {
@@ -143,7 +143,7 @@ class Element extends \DOMElement
      *
      * @return array
      */
-    private function filterStyles(string $value, array $allowed): array
+    protected function filterStyles(string $value, array $allowed): array
     {
         $result = [];
 

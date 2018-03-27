@@ -144,7 +144,7 @@ class Document extends \DOMDocument
     protected function removeRootNode()
     {
         $root = $this->query(sprintf('//*[@id="%s"]', self::ROOT));
-        $this->removeElements($root);
+        $this->unwrapElements($root);
     }
 
     /**
@@ -165,35 +165,42 @@ class Document extends \DOMDocument
     }
 
     /**
+     * Gets elements which have any attributes.
+     *
      * @param string $tagName
+     * @param null|\DOMNode $context
      *
      * @return \DOMNodeList
      */
-    public function getElementsWithAttributes(string $tagName = '*'): \DOMNodeList
+    public function getElementsWithAttributes(string $tagName = '*', \DOMNode $context = null): \DOMNodeList
     {
-        return $this->query(sprintf('//%s[@*]', $tagName));
+        return $this->query(sprintf('//%s[@*]', $tagName), $context ?? $this);
     }
 
     /**
+     * Gets elements without attributes.
+     *
      * @param string $tagName
+     * @param null|\DOMNode $context
      *
      * @return \DOMNodeList
      */
-    public function getElementsWithoutAttributes(string $tagName = '*'): \DOMNodeList
+    public function getElementsWithoutAttributes(string $tagName = '*', \DOMNode $context = null): \DOMNodeList
     {
-        return $this->query(sprintf('//%s[not(@*)]', $tagName));
+        return $this->query(sprintf('//%s[not(@*)]', $tagName), $context ?? $this);
     }
 
     /**
      * Gets elements by class name.
      *
+     * @param null|\DOMNode $context
      * @param string $className
      *
      * @return \DOMNodeList
      */
-    public function getElementsByClassName(string $className): \DOMNodeList
+    public function getElementsByClassName(string $className, \DOMNode $context = null): \DOMNodeList
     {
-        return $this->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $className ')]");
+        return $this->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $className ')]", $context ?? $this);
     }
 
     /**
@@ -209,9 +216,9 @@ class Document extends \DOMDocument
      * @param array        $disallowedAttributes
      * @param array        $allowedStyles
      *
-     * @return static
+     * @return $this
      */
-    public function cleanNodeAttributes(\DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = [])
+    public function cleanNodeAttributes(\DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = []): self
     {
         $disallowedAttributes = array_merge($disallowedAttributes, static::$disallowedAttributes);
 
@@ -227,9 +234,9 @@ class Document extends \DOMDocument
      * @param array $disallowedAttributes
      * @param array $allowedStyles
      *
-     * @return static
+     * @return $this
      */
-    public function cleanAttributes(array $disallowedAttributes = [], array $allowedStyles = [])
+    public function cleanAttributes(array $disallowedAttributes = [], array $allowedStyles = []): self
     {
         return $this->cleanNodeAttributes($this->getElementsWithAttributes(), $disallowedAttributes, $allowedStyles);
     }
@@ -237,20 +244,17 @@ class Document extends \DOMDocument
     /**
      * @return $this
      */
-    public function cleanElements()
+    public function cleanElements(): self
     {
-        $this->removeElements($this->getElementsWithoutAttributes('span'));
-        $this->removeEmptyTextNodes();
-
-        return $this;
+        return $this->unwrapElements($this->getElementsWithoutAttributes('span'))->removeEmptyTextNodes();
     }
 
     /**
      * Removes all the comments.
      *
-     * @return static
+     * @return $this
      */
-    public function cleanComments()
+    public function cleanComments(): self
     {
         /** @var $node \DOMElement */
         foreach ($this->getComments() as $node) {
@@ -265,9 +269,9 @@ class Document extends \DOMDocument
      *
      * @param \DOMNodeList $nodes
      *
-     * @return static
+     * @return $this
      */
-    public function removeElements(\DOMNodeList $nodes)
+    public function unwrapElements(\DOMNodeList $nodes): self
     {
         /** @var Element $node */
         foreach ($nodes as $node) {
@@ -291,12 +295,12 @@ class Document extends \DOMDocument
      * @param \DOMNodeList $nodes
      * @param string       $tagName
      *
-     * @return static
+     * @return $this
      */
-    public function renameElements(\DOMNodeList $nodes, string $tagName)
+    public function renameElements(\DOMNodeList $nodes, string $tagName): self
     {
         /** @var Element $node */
-        foreach ($nodes as $node) {
+        while ($node = $nodes->item(0)) {
             $node->setTagName($tagName);
         }
 
@@ -305,14 +309,18 @@ class Document extends \DOMDocument
 
     /**
      * Removes empty text nodes.
+     *
+     * @return $this
      */
-    protected function removeEmptyTextNodes()
+    protected function removeEmptyTextNodes(): self
     {
         while (($nodes = $this->query('//*[not(*) and not(@*) and not(text()[normalize-space()]) and not(self::br)]')) && $nodes->length) {
             foreach ($nodes as $node) {
                 $node->parentNode->removeChild($node);
             }
         }
+
+        return $this;
     }
 
     /**
