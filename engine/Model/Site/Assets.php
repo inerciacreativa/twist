@@ -95,7 +95,6 @@ class Assets
 		$svg = Tag::svg(['class' => "icon icon-$icon"]);
 
 		if ($title) {
-			$svg['role'] = 'presentation';
 			$svg->content(Tag::title($title));
 		} else {
 			$svg['aria-hidden'] = 'true';

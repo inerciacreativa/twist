@@ -94,25 +94,15 @@ class Theme
 		$this->scripts  = new Collection();
 		$this->sidebars = new Collection();
 
-		add_filter('after_setup_theme', [$this, 'addConfig'], PHP_INT_MIN);
-		add_filter('wp_enqueue_scripts', [$this, 'addStyles']);
-		add_filter('wp_enqueue_scripts', [$this, 'addScripts']);
-		add_filter('script_loader_tag', [$this, 'addScriptsAttributes'], 10, 2);
-		add_filter('wp_resource_hints', [$this, 'addResourceHints'], 10, 2);
-		add_filter('widgets_init', [$this, 'addSidebars'], 1);
-		add_filter('user_contactmethods', [$this, 'addContactMethods']);
-		add_filter('wp_footer', [$this, 'addWebFonts'], 20);
-	}
+		add_filter('after_setup_theme', [$this, 'setup'], PHP_INT_MIN);
 
-	/**
-	 * @param Collection $collection
-	 * @param array      $array
-	 *
-	 * @return Collection
-	 */
-	protected function addToCollection(Collection $collection, array $array): Collection
-	{
-		return (new Collection($array))->merge($collection)->unique('id');
+		add_filter('wp_enqueue_scripts', [$this, 'addStyles'], 1);
+		add_filter('wp_enqueue_scripts', [$this, 'addScripts'], 1);
+		add_filter('script_loader_tag', [$this, 'addScriptsAttributes'], 1, 2);
+		add_filter('wp_resource_hints', [$this, 'addResourceHints'], 1, 2);
+		add_filter('widgets_init', [$this, 'addSidebars'], 1);
+		add_filter('user_contactmethods', [$this, 'addContactMethods'], 1);
+		add_filter('wp_footer', [$this, 'addWebFonts'], PHP_INT_MAX);
 	}
 
 	/**
@@ -273,6 +263,19 @@ class Theme
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
+	public function setup()
+	{
+		$this->addConfig();
+		$this->addServices();
+		$this->addThemeSupport();
+		$this->addHeadCleaner();
+
+		app()->boot();
+	}
+
+	/**
+	 * Adds config options.
+	 */
 	public function addConfig()
 	{
 		config()->fill([
@@ -307,17 +310,11 @@ class Theme
 				}, [STYLESHEETPATH, TEMPLATEPATH]));
 			},
 		]);
-
-		//print_r(config()->all());
-		//exit();
-		$this->addServices();
-		$this->addThemeSupport();
-		$this->addHeadCleaner();
-
-		app()->boot();
 	}
 
 	/**
+	 * Adds service providers.
+	 *
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
@@ -330,7 +327,7 @@ class Theme
 	}
 
 	/**
-	 *
+	 * Registers theme support for several features.
 	 */
 	public function addThemeSupport()
 	{
@@ -464,6 +461,8 @@ class Theme
 	}
 
 	/**
+	 * Adds contact methods for user profiles.
+	 *
 	 * @param array $methods
 	 *
 	 * @return array
@@ -474,7 +473,7 @@ class Theme
 	}
 
 	/**
-	 * Remove unnecessary elements.
+	 * Remove unnecessary elements in the header.
 	 */
 	public function addHeadCleaner()
 	{
@@ -522,6 +521,17 @@ class Theme
 	   })(document);
    </script>
 SCRIPT;
+	}
+
+	/**
+	 * @param Collection $collection
+	 * @param array      $array
+	 *
+	 * @return Collection
+	 */
+	protected function addToCollection(Collection $collection, array $array): Collection
+	{
+		return (new Collection($array))->merge($collection)->unique('id');
 	}
 
 }
