@@ -7,4 +7,3 @@ view('post.twig', [
 	'posts'  => Query::main(),
 	'latest' => Query::latest(5),
 ]);
-
