@@ -654,6 +654,26 @@ class Arr
 	}
 
 	/**
+	 * @param array $first
+	 * @param array $second
+	 *
+	 * @return array
+	 */
+	public static function merge(array &$first, array &$second): array
+	{
+		$merged = $first;
+		foreach ($second as $key => &$value) {
+			if (\is_array($value) && isset($merged[$key]) && \is_array($merged[$key])) {
+				$merged[$key] = static::merge($merged[$key], $value);
+			} else {
+				$merged[$key] = $value;
+			}
+		}
+
+		return $merged;
+	}
+
+	/**
 	 * @param array      $array
 	 * @param string|int $key
 	 * @param array      $value
