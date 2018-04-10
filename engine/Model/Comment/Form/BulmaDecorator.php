@@ -70,7 +70,7 @@ class BulmaDecorator extends FormDecorator
 			'name'  => $id,
 			'form'  => $form,
 			'type'  => 'reset',
-			'class' => 'button is-danger is-small',
+			'class' => 'button is-warning is-small',
 		], $label);
 	}
 
