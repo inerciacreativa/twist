@@ -3,10 +3,16 @@
 include_once __DIR__ . '/vendor/autoload.php';
 include_once __DIR__ . '/engine/app.php';
 
+use Twist\Model\Post\Query;
+use Twist\Model\Site\Site;
 use Twist\Service\CoreServiceProvider;
 use function Twist\theme;
 
 theme()->services(new CoreServiceProvider())->config([
+	'view.data'    => [
+		'site'  => Site::class,
+		'posts' => Query::class,
+	],
 	'api.rest'            => false,
 	'api.oembed'          => false,
 	'filter.relative_url' => true,
