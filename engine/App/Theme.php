@@ -2,7 +2,6 @@
 
 namespace Twist\App;
 
-use Twist\Model\Site\Site;
 use Twist\View\Twig\TwigService;
 use Twist\Library\Data\Collection;
 use Twist\Library\Util\Arr;
@@ -98,7 +97,10 @@ class Theme
 
 		add_filter('wp_enqueue_scripts', [$this, 'addStyles'], 999);
 		add_filter('wp_enqueue_scripts', [$this, 'addScripts'], 999);
-		add_filter('script_loader_tag', [$this, 'addScriptsAttributes'], 999, 2);
+		add_filter('script_loader_tag', [
+			$this,
+			'addScriptsAttributes',
+		], 999, 2);
 		add_filter('wp_resource_hints', [$this, 'addResourceHints'], 999, 2);
 		add_filter('widgets_init', [$this, 'addSidebars'], 1);
 		add_filter('user_contactmethods', [$this, 'addContactMethods'], 1);
@@ -124,7 +126,7 @@ class Theme
 	 */
 	public function config(array $config): self
 	{
-		$this->config = array_merge($this->config, $config);
+		$this->config = Arr::merge($this->config, $config);
 
 		return $this;
 	}
@@ -176,7 +178,7 @@ class Theme
 	 */
 	public function resources(array $resources): self
 	{
-		$this->resources = array_merge_recursive($this->resources, $resources);
+		$this->resources = Arr::merge($this->resources, $resources);
 
 		return $this;
 	}
@@ -291,7 +293,6 @@ class Theme
 		config()->fill([
 			'view.service' => TwigService::id(),
 			'view.theme'   => '',
-			'view.data'    => ['site' => Site::class],
 		]);
 
 		do_action('ic_twist_theme', $this);
