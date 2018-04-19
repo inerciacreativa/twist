@@ -59,10 +59,14 @@ class Post extends Model
 
 	/**
 	 * @return $this
+	 *
+	 * @throws \RuntimeException
 	 */
-	public function setup()
+	public function setup(): self
 	{
-		setup_postdata($this->post);
+		if (!setup_postdata($this->post)) {
+			throw new \RuntimeException('There is no post data!');
+		}
 
 		return $this;
 	}
@@ -70,7 +74,7 @@ class Post extends Model
 	/**
 	 * @return $this
 	 */
-	public function reset()
+	public function reset(): self
 	{
 		wp_reset_postdata();
 
