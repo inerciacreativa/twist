@@ -2,9 +2,7 @@
 
 namespace Twist\Model\Site;
 
-use function Twist\asset_url;
 use Twist\Library\Util\Macro;
-use Twist\Library\Util\Tag;
 use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Pagination;
