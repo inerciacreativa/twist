@@ -268,6 +268,7 @@ class Theme
 	public function setup()
 	{
 		$this->addConfig();
+		$this->addLanguages();
 		$this->addServices();
 		$this->addThemeSupport();
 		$this->addHeadCleaner();
@@ -278,12 +279,11 @@ class Theme
 	/**
 	 * Adds config options.
 	 */
-	public function addConfig()
+	protected function addConfig()
 	{
 		config()->fill([
-			'app.debug'      => \defined('WP_DEBUG') && WP_DEBUG,
-			'dir.stylesheet' => STYLESHEETPATH,
-			'dir.template'   => TEMPLATEPATH,
+			'dir.stylesheet' => get_stylesheet_directory(),
+			'dir.template'   => get_template_directory(),
 			'dir.upload'     => wp_upload_dir()['basedir'],
 			'uri.home'       => home_url(),
 			'uri.stylesheet' => get_stylesheet_directory_uri(),
@@ -291,6 +291,8 @@ class Theme
 		]);
 
 		config()->fill([
+			'app.theme'    => Arr::last(explode('/', config('uri.stylesheet'))),
+			'app.debug'    => \defined('WP_DEBUG') && WP_DEBUG,
 			'view.service' => TwigService::id(),
 			'view.theme'   => '',
 		]);
@@ -320,7 +322,7 @@ class Theme
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
-	public function addServices()
+	protected function addServices()
 	{
 		foreach ($this->services as $service) {
 			app()->provider($service);
@@ -328,10 +330,22 @@ class Theme
 	}
 
 	/**
+	 * Load translations.
+	 */
+	protected function addLanguages()
+	{
+		load_theme_textdomain('twist', config('dir.template') . '/languages');
+		if (config('dir.template') !== config('dir.stylesheet')) {
+			load_theme_textdomain('twist', config('dir.stylesheet') . '/languages');
+		}
+	}
+
+	/**
 	 * Registers theme support for several features.
 	 */
-	public function addThemeSupport()
+	protected function addThemeSupport()
 	{
+
 		add_theme_support('customize-selective-refresh-widgets');
 		add_theme_support('title-tag');
 		add_theme_support('html5', [
@@ -476,7 +490,7 @@ class Theme
 	/**
 	 * Remove unnecessary elements in the header.
 	 */
-	public function addHeadCleaner()
+	protected function addHeadCleaner()
 	{
 		add_filter('ic_twist_metas', function ($metas) {
 			return array_filter($metas, function ($meta) {
