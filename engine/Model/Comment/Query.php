@@ -460,7 +460,7 @@ class Query
             $walker = new Walker();
             $count  = ceil($walker->get_number_of_root_elements($comments) / $arguments['per_page']);
         } else {
-            $count = ceil(count($comments) / $arguments['per_page']);
+            $count = ceil(\count($comments) / $arguments['per_page']);
         }
 
         set_query_var('cpage', $count);
