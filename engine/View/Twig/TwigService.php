@@ -15,29 +15,27 @@ class TwigService extends ViewService
 	/**
 	 * @var \Twig_Environment
 	 */
-	private $service;
+	private $environment;
 
 	/**
 	 * @inheritdoc
 	 */
 	public function boot()
 	{
-		$paths   = $this->config->get('view.paths', []);
-		$options = [
+		$loader      = new \Twig_Loader_Filesystem($this->config->get('view.paths', []));
+		$environment = new \Twig_Environment($loader, [
 			'cache' => $this->config->get('view.cache', false),
 			'debug' => $this->config->get('app.debug', false),
-		];
+		]);
 
-		$loader  = new \Twig_Loader_Filesystem($paths);
-		$service = new \Twig_Environment($loader, $options);
-		$service->addExtension(new TwigExtension());
-		$service->addExtension(new \Twig_Extension_StringLoader());
+		$environment->addExtension(new TwigExtension());
+		$environment->addExtension(new \Twig_Extension_StringLoader());
 
 		if ($this->config->get('app.debug')) {
-			$service->addExtension(new \Twig_Extension_Debug());
+			$environment->addExtension(new \Twig_Extension_Debug());
 		}
 
-		$this->service = $service;
+		$this->environment = $environment;
 
 		parent::boot();
 	}
@@ -47,7 +45,7 @@ class TwigService extends ViewService
 	 */
 	public function data(string $name, $value)
 	{
-		$this->service->addGlobal($name, $value);
+		$this->environment->addGlobal($name, $value);
 	}
 
 	/**
@@ -59,7 +57,7 @@ class TwigService extends ViewService
 	 */
 	public function render(string $template, array $data = []): string
 	{
-		return $this->service->render($template, $data);
+		return $this->environment->render($template, $data);
 	}
 
 	/**
@@ -71,7 +69,7 @@ class TwigService extends ViewService
 	 */
 	public function display(string $template, array $data = [])
 	{
-		$this->service->display($template, $data);
+		$this->environment->display($template, $data);
 	}
 
 }
