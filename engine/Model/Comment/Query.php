@@ -4,6 +4,7 @@ namespace Twist\Model\Comment;
 
 use Twist\Model\Post\Post;
 use Twist\Model\User\User;
+use function Twist\config;
 
 /**
  * Class Query
@@ -208,13 +209,11 @@ class Query
     }
 
     /**
-     * @param string $decorator
-     *
      * @return string
      */
-    public function form(string $decorator = null): string
+    public function form(): string
     {
-        $form = new Form($decorator);
+        $form = new Form(config('view.form_decorator', new FormDecorator()));
 
         return $form->show();
     }
