@@ -10,61 +10,54 @@ namespace Twist\View\Twig;
 class TwigExtension extends \Twig_Extension
 {
 
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return 'twist';
-    }
+	/**
+	 * @return string
+	 */
+	public function getName(): string
+	{
+		return 'twist';
+	}
 
-    /**
-     * @return array
-     */
-    public function getFunctions(): array
-    {
-        return [
-            new \Twig_SimpleFunction('translate', function () {
-                $arguments   = \func_get_args();
-                $arguments[] = 'twist';
+	/**
+	 * @return array
+	 */
+	public function getFunctions(): array
+	{
+		return [
+			new \Twig_SimpleFunction('__', function (string $string) {
+				$translation = __($string, 'twist');
 
-                if (\func_num_args() === 1) {
-                    return __(...$arguments);
-                }
+				if (\func_num_args() > 1) {
+					$arguments    = \func_get_args();
+					$arguments[0] = $translation;
+					$translation  = sprintf(...$arguments);
+				}
 
-                if (\func_num_args() === 3) {
-                	$translation = _n(...$arguments);
-                    return sprintf($translation, \array_slice($arguments, -2, 1)[0]);
-                }
+				return $translation;
+			}, ['is_safe' => ['html']]),
+			new \Twig_SimpleFunction('_x', function (string $string, string $context) {
+				$translation = _x($string, $context, 'twist');
 
-                if (\func_num_args() === 4) {
-                	$translation = _nx(...$arguments);
-                    return sprintf($translation, \array_slice($arguments, -3, 1)[0]);
-                }
+				if (\func_num_args() > 2) {
+					$arguments    = \func_get_args();
+					$arguments[0] = $translation;
+					\array_splice($arguments, 1, 1);
+					$translation  = sprintf(...$arguments);
+				}
 
-                return '';
-            }),
-            new \Twig_SimpleFunction('print', function () {
-                return sprintf(...\func_get_args());
-            }),
-            new \Twig_SimpleFunction('number', function () {
-                $arguments = \func_get_args();
+				return $translation;
+			}, ['is_safe' => ['html']]),
+			new \Twig_SimpleFunction('_n', function (string $single, string $plural, $number) {
+				$translation = _n($single, $plural, $number, 'twist');
 
-                return number_format_i18n(reset($arguments));
-            }),
-            new \Twig_SimpleFunction('attrs', function ($attributes) {
-                $result = '';
+				return sprintf($translation, $number);
+			}, ['is_safe' => ['html']]),
+			new \Twig_SimpleFunction('_nx', function (string $single, string $plural, $number, string $context) {
+				$translation = _nx($single, $plural, $number, $context, 'twist');
 
-                if (\is_object($attributes) || \is_array($attributes)) {
-                    foreach ($attributes as $attribute => $value) {
-                        $value = (false !== filter_var($value, FILTER_VALIDATE_URL)) ? esc_url($value) : esc_attr($value);
-                        $result .= sprintf(' %s="%s"', $attribute, $value);
-                    }
-                }
-
-                return $result;
-            }, ['is_safe' => ['html']]),
-        ];
-    }
+				return sprintf($translation, $number);
+			}, ['is_safe' => ['html']]),
+		];
+	}
 
 }
