@@ -62,7 +62,7 @@ class BootstrapDecorator extends FormDecorator
 	/**
 	 * @inheritdoc
 	 */
-	public function getCancelButton(string $id, string $label): Tag
+	public function getCancelButton(string $id, string $label, string $form): Tag
 	{
 		return Tag::button([
 			'id'    => $id,
