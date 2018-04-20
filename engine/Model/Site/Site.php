@@ -75,11 +75,13 @@ class Site
 	}
 
 	/**
+	 * @param string $path
+	 *
 	 * @return string
 	 */
-	public function url(): string
+	public function url(string $path = '/'): string
 	{
-		return home_url('/');
+		return home_url($path);
 	}
 
 	/**
