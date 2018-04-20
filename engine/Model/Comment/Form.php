@@ -92,7 +92,7 @@ class Form
 	 */
 	protected function getTextArea(): Tag
 	{
-		return $this->decorator->getTextArea('comment', _x('Comment', 'noun'), [
+		return $this->decorator->getTextArea('comment', _x('Comment', 'noun', 'twist'), [
 			'cols'      => 45,
 			'rows'      => 6,
 			'maxlength' => 65525,
@@ -108,20 +108,20 @@ class Form
 		$commenter = User::commenter();
 
 		return [
-			'author' => $this->decorator->getTextInput('author', __('Name'), [
+			'author' => $this->decorator->getTextInput('author', __('Name', 'twist'), [
 				'value'     => $commenter->name(),
 				'type'      => 'text',
 				'maxlength' => 245,
 				'required'  => true,
 			]),
-			'email'  => $this->decorator->getTextInput('email', __('Email'), [
+			'email'  => $this->decorator->getTextInput('email', __('E-mail', 'twist'), [
 				'value'            => $commenter->email(),
 				'type'             => 'email',
 				'maxlength'        => 100,
 				'required'         => true,
 				'aria-describedby' => 'email-notes',
 			]),
-			'url'    => $this->decorator->getTextInput('url', __('Website'), [
+			'url'    => $this->decorator->getTextInput('url', __('Website', 'twist'), [
 				'value'     => $commenter->url(),
 				'type'      => 'url',
 				'maxlength' => 200,
