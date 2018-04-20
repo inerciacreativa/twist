@@ -294,7 +294,6 @@ class Theme
 			'app.theme'    => Arr::last(explode('/', config('uri.stylesheet'))),
 			'app.debug'    => \defined('WP_DEBUG') && WP_DEBUG,
 			'view.service' => TwigService::id(),
-			'view.theme'   => '',
 		]);
 
 		do_action('ic_twist_theme', $this);
@@ -303,15 +302,9 @@ class Theme
 
 		config()->fill([
 			'view.cache' => config('app.debug') ? false : config('dir.upload') . '/view_cache',
-			'view.paths' => function () {
-				if ($theme = config('view.theme')) {
-					$theme = '/' . trim($theme . '/');
-				}
-
-				return array_unique(array_map(function ($path) use ($theme) {
-					return file_exists("$path/views$theme") ? "$path/views$theme" : "$path/views";
-				}, [STYLESHEETPATH, TEMPLATEPATH]));
-			},
+			'view.paths' => array_unique(array_map(function ($path) {
+				return "$path/views";
+			}, [config('dir.stylesheet'), config('dir.template')])),
 		]);
 	}
 
@@ -345,7 +338,6 @@ class Theme
 	 */
 	protected function addThemeSupport()
 	{
-
 		add_theme_support('customize-selective-refresh-widgets');
 		add_theme_support('title-tag');
 		add_theme_support('html5', [
