@@ -14,7 +14,6 @@ use Twist\Library\Util\Data;
 abstract class ViewService extends Service implements ViewInterface
 {
 
-
 	/**
 	 * @inheritdoc
 	 */
