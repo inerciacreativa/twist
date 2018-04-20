@@ -2,9 +2,6 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Model\Comment\Form\BootstrapDecorator;
-use Twist\Model\Comment\Form\BulmaDecorator;
-use Twist\Model\Comment\Form\FormDecoratorInterface;
 use Twist\Model\User\User;
 use Twist\Library\Util\Tag;
 use function Twist\capture;
@@ -16,11 +13,6 @@ use function Twist\capture;
  */
 class Form
 {
-
-	static protected $decorators = [
-		'bulma'     => BulmaDecorator::class,
-		'bootstrap' => BootstrapDecorator::class,
-	];
 
 	/**
 	 * @var string
@@ -35,11 +27,10 @@ class Form
 	/**
 	 * Form constructor.
 	 *
-	 * @param string $decorator
+	 * @param FormDecoratorInterface $decorator
 	 */
-	public function __construct(string $decorator = null)
+	public function __construct(FormDecoratorInterface $decorator)
 	{
-		$decorator       = self::$decorators[$decorator] ?? reset(self::$decorators);
 		$this->decorator = new $decorator;
 
 		$this->setup();
