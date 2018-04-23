@@ -54,17 +54,17 @@ function theme()
 /**
  * @param null|string $template
  * @param array       $data
- * @param bool        $render
+ * @param bool        $renderOnly
  *
  * @return ViewInterface|string
  */
-function view(string $template = null, array $data = [], bool $render = false)
+function view(string $template = null, array $data = [], bool $renderOnly = false)
 {
 	if ($template === null) {
 		return app('view');
 	}
 
-	if ($render) {
+	if ($renderOnly) {
 		return app('view')->render($template, $data);
 	}
 
@@ -72,15 +72,15 @@ function view(string $template = null, array $data = [], bool $render = false)
 }
 
 /**
- * @param bool $parent
+ * @param bool $fromParentTheme
  *
  * @return JsonFile
  */
-function manifest(bool $parent = false): JsonFile
+function manifest(bool $fromParentTheme = false): JsonFile
 {
 	static $manifest = [];
 
-	$base = $parent ? 'template' : 'stylesheet';
+	$base = $fromParentTheme ? 'template' : 'stylesheet';
 
 	if (!array_key_exists($base, $manifest)) {
 		$manifest[$base] = new JsonFile(config("dir.$base") . '/assets/assets.json');
@@ -91,32 +91,32 @@ function manifest(bool $parent = false): JsonFile
 
 /**
  * @param string $filename
- * @param bool   $parent
- * @param bool   $source
+ * @param bool   $fromParentTheme
+ * @param bool   $fromSource
  *
  * @return string
  */
-function asset_url(string $filename, bool $parent = false, bool $source = false): string
+function asset_url(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
 {
-	$base = $parent ? 'template' : 'stylesheet';
-	$type = $source ? 'source' : 'assets';
-	$file = $source ? $filename : manifest($parent)->get(ltrim($filename, '/'), $filename);
+	$base = $fromParentTheme ? 'template' : 'stylesheet';
+	$type = $fromSource ? 'source' : 'assets';
+	$file = $fromSource ? $filename : manifest($fromParentTheme)->get(ltrim($filename, '/'), $filename);
 
 	return config("uri.$base") . "/$type/$file";
 }
 
 /**
  * @param string $filename
- * @param bool   $parent
- * @param bool   $source
+ * @param bool   $fromParentTheme
+ * @param bool   $fromSource
  *
  * @return string
  */
-function asset_path(string $filename, bool $parent = false, bool $source = false): string
+function asset_path(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
 {
-	$base = $parent ? 'template' : 'stylesheet';
-	$type = $source ? 'source' : 'assets';
-	$file = $source ? $filename : manifest($parent)->get($filename, $filename);
+	$base = $fromParentTheme ? 'template' : 'stylesheet';
+	$type = $fromSource ? 'source' : 'assets';
+	$file = $fromSource ? $filename : manifest($fromParentTheme)->get($filename, $filename);
 
 	return config("dir.$base") . "/$type/$file";
 }
