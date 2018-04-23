@@ -31,7 +31,7 @@ interface TaxonomyInterface
 	/**
 	 * @return Term|null
 	 */
-	public function current(): Term;
+	public function current();
 
 	/**
 	 * @param array $options

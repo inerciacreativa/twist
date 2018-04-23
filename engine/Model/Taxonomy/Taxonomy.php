@@ -26,6 +26,7 @@ class Taxonomy implements TaxonomyInterface
 	 * @param string $taxonomy
 	 *
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function __construct(string $taxonomy)
 	{
@@ -85,7 +86,7 @@ class Taxonomy implements TaxonomyInterface
 	/**
 	 * @return Term|null
 	 */
-	public function current(): Term
+	public function current()
 	{
 		if ($this->current === null) {
 			$this->current = false;
