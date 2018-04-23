@@ -29,6 +29,7 @@ class Taxonomies extends ModelArray
 	 * @return Terms
 	 *
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function offsetGet($name): Terms
 	{
