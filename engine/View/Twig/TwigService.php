@@ -15,7 +15,12 @@ class TwigService extends ViewService
 	/**
 	 * @var \Twig_Environment
 	 */
-	private $environment;
+	protected $environment;
+
+	/**
+	 * @var array
+	 */
+	protected $data = [];
 
 	/**
 	 * @inheritdoc
@@ -45,7 +50,7 @@ class TwigService extends ViewService
 	 */
 	public function data(string $name, $value)
 	{
-		$this->environment->addGlobal($name, $value);
+		$this->data[$name] = $value;
 	}
 
 	/**
@@ -57,7 +62,7 @@ class TwigService extends ViewService
 	 */
 	public function render(string $template, array $data = []): string
 	{
-		return $this->environment->render($template, $data);
+		return $this->environment->render($template, array_merge($this->data, $data));
 	}
 
 	/**
@@ -69,7 +74,7 @@ class TwigService extends ViewService
 	 */
 	public function display(string $template, array $data = [])
 	{
-		$this->environment->display($template, $data);
+		$this->environment->display($template, array_merge($this->data, $data));
 	}
 
 }
