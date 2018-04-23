@@ -66,7 +66,7 @@ class Thumbnail
 	 *
 	 * @return $this
 	 */
-	public function size(string $size)
+	public function size(string $size): self
 	{
 		$size = (string) apply_filters('post_thumbnail_size', $size);
 
