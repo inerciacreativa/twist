@@ -288,7 +288,7 @@ class Site
 	 */
 	public function pager(array $arguments = []): Links
 	{
-		return $this->pagination()->get($arguments);
+		return $this->pagination()->make($arguments);
 	}
 
 	/**

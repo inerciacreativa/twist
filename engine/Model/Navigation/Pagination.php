@@ -18,7 +18,7 @@ class Pagination
 	 *
 	 * @return Links
 	 */
-	public function get(array $arguments = []): Links
+	public function make(array $arguments = []): Links
 	{
 		$links = new Links();
 
@@ -32,9 +32,7 @@ class Pagination
 			$items = paginate_links($options);
 
 			foreach ($items as $index => $item) {
-				$tag  = $this->getTag($item);
-				$link = new Link($links, $this->getItem($index, $tag));
-				$links->add($link);
+				$links->add(new Link($links, $this->getLink($index, $item)));
 			}
 		}
 
@@ -48,7 +46,7 @@ class Pagination
 	 */
 	public function numeric(array $arguments = []): Links
 	{
-		return $this->get(array_merge($arguments, ['prev_next' => false]));
+		return $this->make(array_merge($arguments, ['prev_next' => false]));
 	}
 
 	/**
@@ -58,36 +56,30 @@ class Pagination
 	{
 		$links = new Links();
 
-		if ($prevItem = get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist'))) {
-			$prevTag          = $this->getTag($prevItem);
-			$prevTag['class'] = 'prev';
-			$prevLink         = new Link($links, $this->getItem(0, $prevTag));
-
-			$links->add($prevLink);
+		if ($item = get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist'))) {
+			$links->add(new Link($links, $this->getLink(0, $item, 'prev')));
 		}
 
-		if ($nextItem = get_next_posts_link(_x('Next', 'next set of posts', 'twist'))) {
-			$nextTag          = $this->getTag($nextItem);
-			$nextTag['class'] = 'next';
-			$nextLink         = new Link($links, $this->getItem(1, $nextTag));
-
-			$links->add($nextLink);
+		if ($item = get_next_posts_link(_x('Next', 'next set of posts', 'twist'))) {
+			$links->add(new Link($links, $this->getLink(1, $item, 'next')));
 		}
 
 		return $links;
 	}
 
 	/**
-	 * @param int $index
-	 * @param Tag $tag
+	 * @param int         $index
+	 * @param string      $item
+	 * @param string|null $class
 	 *
 	 * @return array
 	 */
-	protected function getItem(int $index, Tag $tag): array
+	protected function getLink(int $index, string $item, string $class = null): array
 	{
+		$tag   = Tag::parse(Str::fromEntities($item));
+		$class = $class ?? trim(str_replace('page-numbers', '', $tag['class']));
 		$title = $tag->content();
 		$label = sprintf(__('Goto page %s', 'twist'), $title);
-		$class = trim(str_replace('page-numbers', '', $tag['class']));
 
 		if ($class === 'prev') {
 			$label = __('Goto previous page', 'twist');
@@ -100,23 +92,15 @@ class Pagination
 		}
 
 		return [
-			'id'        => $index,
-			'classes'   => [$class],
-			'is_active' => $class === 'current',
-			'label'     => $label,
-			'url'       => $tag['href'] ?? '',
-			'title'     => $title,
+			'id'          => $index,
+			'label'       => $label,
+			'title'       => $title,
+			'url'         => $tag['href'] ?? false,
+			'is_current'  => $class === 'current',
+			'is_disabled' => $class === 'dots',
+			'is_next'     => $class === 'next',
+			'is_previous' => $class === 'prev',
 		];
-	}
-
-	/**
-	 * @param string $item
-	 *
-	 * @return Tag
-	 */
-	protected function getTag(string $item): Tag
-	{
-		return Tag::parse(Str::fromEntities($item));
 	}
 
 }
