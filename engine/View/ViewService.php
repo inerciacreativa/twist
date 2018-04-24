@@ -5,7 +5,6 @@ namespace Twist\View;
 use Twist\Service\Service;
 use Twist\Library\Util\Data;
 
-
 /**
  * Class ViewService
  *
