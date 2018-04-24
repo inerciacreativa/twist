@@ -9,8 +9,10 @@ use Twist\Service\CoreServiceProvider;
 use function Twist\theme;
 
 theme()->services(new CoreServiceProvider())->config([
-	'view.data'    => [
+	'view.global' => [
 		'site'  => Site::class,
+	],
+	'view.data'    => [
 		'posts' => Query::class,
 	],
 	'api.rest'            => false,

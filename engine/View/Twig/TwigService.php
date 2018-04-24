@@ -2,6 +2,7 @@
 
 namespace Twist\View\Twig;
 
+use Twist\View\ViewInterface;
 use Twist\View\ViewService;
 
 /**
@@ -48,9 +49,21 @@ class TwigService extends ViewService
 	/**
 	 * @inheritdoc
 	 */
-	public function data(string $name, $value)
+	public function set(string $name, $value): ViewInterface
+	{
+		$this->environment->addGlobal($name, $value);
+
+		return $this;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function add(string $name, $value): ViewInterface
 	{
 		$this->data[$name] = $value;
+
+		return $this;
 	}
 
 	/**

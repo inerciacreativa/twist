@@ -19,10 +19,12 @@ abstract class ViewService extends Service implements ViewInterface
 	 */
 	public function boot()
 	{
-		$data = $this->config->get('view.data', []);
+		foreach ((array) $this->config->get('view.global', []) as $name => $value) {
+			$this->set($name, $this->getData($value));
+		}
 
-		foreach ((array) $data as $name => $value) {
-			$this->data($name, $this->getData($value));
+		foreach ((array) $this->config->get('view.data', []) as $name => $value) {
+			$this->add($name, $this->getData($value));
 		}
 	}
 
