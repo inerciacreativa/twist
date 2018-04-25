@@ -30,8 +30,9 @@ class TwigService extends ViewService
 	{
 		$loader      = new \Twig_Loader_Filesystem($this->config->get('view.paths', []));
 		$environment = new \Twig_Environment($loader, [
-			'cache' => $this->config->get('view.cache', false),
-			'debug' => $this->config->get('app.debug', false),
+			'cache'       => $this->config->get('view.cache', false),
+			'debug'       => $this->config->get('app.debug', false),
+			'auto_reload' => true,
 		]);
 
 		$environment->addExtension(new TwigExtension());
