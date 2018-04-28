@@ -22,7 +22,7 @@ class ViewServiceProvider implements ServiceProviderInterface
 	 * @throws \Pimple\Exception\InvalidServiceIdentifierException
 	 * @throws \Pimple\Exception\UnknownIdentifierException
 	 */
-	public function register(App $app)
+	public function register(App $app): void
 	{
 		$app->service(TwigService::id(), function (App $app) {
 			return new TwigService($app);

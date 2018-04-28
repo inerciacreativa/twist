@@ -17,12 +17,13 @@ class Element extends \DOMElement
      *
      * @return static
      */
-    public function setTagName(string $tagName): \DOMElement
+    public function setTagName(string $tagName): Element
     {
         if ($tagName === $this->tagName) {
             return $this;
         }
 
+        /** @var Element $element */
         $element = $this->ownerDocument->createElement($tagName);
 
         // Copy attributes
@@ -48,13 +49,12 @@ class Element extends \DOMElement
     public function getClassNames(): array
     {
         $classes = $this->hasAttribute('class') ? explode(' ', $this->getAttribute('class')) : [];
-        $classes = array_filter($classes);
 
-        return $classes;
+	    return array_filter($classes);
     }
 
     /**
-     * Adds a tagName to the class attribute.
+     * Adds a className to the class attribute.
      *
      * @param string $className
      *
@@ -101,7 +101,7 @@ class Element extends \DOMElement
      * @param array $disallowedAttributes
      * @param array $allowedStyles
      */
-    public function cleanAttributes(array $disallowedAttributes = [], array $allowedStyles = [])
+    public function cleanAttributes(array $disallowedAttributes = [], array $allowedStyles = []): void
     {
         $remove = [];
 

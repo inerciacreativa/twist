@@ -18,7 +18,7 @@ class RestService extends Service
     /**
      * @inheritdoc
      */
-    public function start()
+    public function start(): void
     {
     	if (!config('api.rest')) {
     		return;

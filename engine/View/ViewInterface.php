@@ -26,7 +26,7 @@ interface ViewInterface
      * @param string $template
      * @param array  $data
      */
-    public function display(string $template, array $data = []);
+    public function display(string $template, array $data = []): void;
 
 	/**
 	 * Adds global data (available in all templates).
@@ -36,7 +36,7 @@ interface ViewInterface
 	 *
 	 * @return $this
 	 */
-	public function set(string $name, $value): self;
+	public function addGlobalData(string $name, $value): self;
 
     /**
      * Adds local data (available only in current template).
@@ -46,6 +46,20 @@ interface ViewInterface
      *
      * @return $this
      */
-    public function add(string $name, $value): self;
+    public function addData(string $name, $value): self;
+
+	/**
+	 * Returns the possible paths where the templates may be located.
+	 *
+	 * @return array
+	 */
+    public function getPaths(): array;
+
+	/**
+	 * @param string $path
+	 *
+	 * @return $this
+	 */
+    public function addPath(string $path): self;
 
 }

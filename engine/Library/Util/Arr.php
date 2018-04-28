@@ -70,7 +70,7 @@ class Arr
 	 */
 	public static function fill(array $target, array $source): array
 	{
-		$values = self::dot($source);
+		$values = static::dot($source);
 
 		foreach ($values as $key => $value) {
 			if (static::has($target, $key, true)) {
@@ -272,7 +272,7 @@ class Arr
 	 *
 	 * @return bool
 	 */
-	public static function has(array $array, string $key, $relaxed = false): bool
+	public static function has(array $array, string $key, bool $relaxed = false): bool
 	{
 		if (!$array) {
 			return false;
@@ -426,7 +426,7 @@ class Arr
 	{
 		$results = [];
 
-		list($value, $key) = self::explodePluckParameters($value, $key);
+		[$value, $key] = static::explodePluckParameters($value, $key);
 
 		foreach ($array as $item) {
 			$itemValue = Data::get($item, $value);
@@ -618,9 +618,9 @@ class Arr
 	 */
 	public static function implode(array $array, string $glue = ''): string
 	{
-		$result = self::flatten($array);
+		$result = static::flatten($array);
 
-		return implode($glue, self::values($result));
+		return implode($glue, static::values($result));
 	}
 
 	/**
@@ -694,27 +694,27 @@ class Arr
 	}
 
 	/**
-	 * @param array $array
+	 * @param array      $array
 	 * @param string|int $key
-	 * @param array $value
+	 * @param array      $value
 	 *
 	 * @return array
 	 */
 	public static function insertBefore(array $array, $key, array $value): array
 	{
-		return self::insert($array, $key, $value, true);
+		return static::insert($array, $key, $value, true);
 	}
 
 	/**
-	 * @param array $array
+	 * @param array      $array
 	 * @param string|int $key
-	 * @param array $value
+	 * @param array      $value
 	 *
 	 * @return array
 	 */
 	public static function insertAfter(array $array, $key, array $value): array
 	{
-		return self::insert($array, $key, $value);
+		return static::insert($array, $key, $value);
 	}
 
 }

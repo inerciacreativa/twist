@@ -21,7 +21,7 @@ class CoreServiceProvider implements ServiceProviderInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function register(App $app)
+	public function register(App $app): void
 	{
 		$app->service(RestService::id(), function (App $app) {
 			return new RestService($app);

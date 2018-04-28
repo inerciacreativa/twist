@@ -17,7 +17,7 @@ class Document extends \DOMDocument
     /**
      * Root ID
      */
-    const ROOT = 'document-parser-root';
+    private const ROOT = 'document-parser-root';
 
     /**
      * @var string|null
@@ -74,7 +74,6 @@ class Document extends \DOMDocument
 
         $source  = $this->addRootNode($source);
         $success = false;
-
         $error = libxml_use_internal_errors(true);
 
         if ($this->loadHTML(Str::toEntities($source), $this->getFlags())) {
@@ -141,7 +140,7 @@ class Document extends \DOMDocument
     /**
      * Removes the root node.
      */
-    protected function removeRootNode()
+    protected function removeRootNode(): void
     {
         $root = $this->query(sprintf('//*[@id="%s"]', self::ROOT));
         $this->unwrapElements($root);

@@ -2,14 +2,14 @@
 
 namespace Twist\App;
 
-use Twist\View\Twig\TwigService;
 use Twist\Library\Data\Collection;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Library\Util\Tag;
+use Twist\View\Twig\TwigService;
 use function Twist\app;
-use function Twist\config;
 use function Twist\asset_url;
+use function Twist\config;
 
 /**
  * Class Theme
@@ -86,6 +86,10 @@ class Theme
 
 	/**
 	 * Theme constructor.
+	 *
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
+	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
 	public function __construct()
 	{
@@ -93,18 +97,31 @@ class Theme
 		$this->scripts  = new Collection();
 		$this->sidebars = new Collection();
 
-		add_filter('after_setup_theme', [$this, 'setup'], PHP_INT_MIN);
+		add_filter('after_setup_theme', function () {
+			$this->setup();
+		}, PHP_INT_MIN);
 
-		add_filter('wp_enqueue_scripts', [$this, 'addStyles'], 999);
-		add_filter('wp_enqueue_scripts', [$this, 'addScripts'], 999);
-		add_filter('script_loader_tag', [
-			$this,
-			'addScriptsAttributes',
-		], 999, 2);
-		add_filter('wp_resource_hints', [$this, 'addResourceHints'], 999, 2);
-		add_filter('widgets_init', [$this, 'addSidebars'], 1);
-		add_filter('user_contactmethods', [$this, 'addContactMethods'], 1);
-		add_filter('wp_footer', [$this, 'addWebFonts'], PHP_INT_MAX);
+		add_filter('wp_enqueue_scripts', function () {
+			$this->addStyles();
+			$this->addScripts();
+		});
+		add_filter('widgets_init', function () {
+			$this->addSidebars();
+		});
+
+		add_filter('script_loader_tag', function (string $script, string $handle) {
+			return $this->addScriptsAttributes($script, $handle);
+		}, 99, 2);
+		add_filter('wp_resource_hints', function (array $urls, string $relation) {
+			return $this->addResourceHints($urls, $relation);
+		}, 99, 2);
+		add_filter('user_contactmethods', function (array $methods) {
+			return $this->addContactMethods($methods);
+		});
+
+		add_filter('wp_footer', function () {
+			$this->addWebFonts();
+		}, PHP_INT_MAX);
 	}
 
 	/**
@@ -265,7 +282,7 @@ class Theme
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
-	public function setup()
+	protected function setup(): void
 	{
 		$this->addConfig();
 		$this->addLanguages();
@@ -279,7 +296,7 @@ class Theme
 	/**
 	 * Adds config options.
 	 */
-	protected function addConfig()
+	protected function addConfig(): void
 	{
 		config()->fill([
 			'dir.stylesheet' => get_stylesheet_directory(),
@@ -291,19 +308,21 @@ class Theme
 		]);
 
 		config()->fill([
-			'app.theme'    => Arr::last(explode('/', config('uri.stylesheet'))),
-			'app.debug'    => \defined('WP_DEBUG') && WP_DEBUG,
 			'view.service' => TwigService::id(),
+			'view.debug'   => \defined('WP_DEBUG') && WP_DEBUG,
+			'view.base'    => '/views',
 		]);
 
 		do_action('ic_twist_theme', $this);
 
 		config()->fill($this->config);
 
+		config()->set('view.base', '/' . trim(config('view.base'), '/'));
+
 		config()->fill([
-			'view.cache' => config('app.debug') ? false : config('dir.upload') . '/view_cache',
+			'view.cache' => config('view.debug') ? false : config('dir.upload') . '/view_cache',
 			'view.paths' => array_unique(array_map(function ($path) {
-				return "$path/views";
+				return $path . '/' . config('view.base');
 			}, [config('dir.stylesheet'), config('dir.template')])),
 		]);
 	}
@@ -315,7 +334,7 @@ class Theme
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
-	protected function addServices()
+	protected function addServices(): void
 	{
 		foreach ($this->services as $service) {
 			app()->provider($service);
@@ -325,7 +344,7 @@ class Theme
 	/**
 	 * Load translations.
 	 */
-	protected function addLanguages()
+	protected function addLanguages(): void
 	{
 		load_theme_textdomain('twist', config('dir.template') . '/languages');
 		if (config('dir.template') !== config('dir.stylesheet')) {
@@ -336,7 +355,7 @@ class Theme
 	/**
 	 * Registers theme support for several features.
 	 */
-	protected function addThemeSupport()
+	protected function addThemeSupport(): void
 	{
 		add_theme_support('customize-selective-refresh-widgets');
 		add_theme_support('title-tag');
@@ -372,7 +391,7 @@ class Theme
 	/**
 	 * Enqueue styles.
 	 */
-	public function addStyles()
+	protected function addStyles(): void
 	{
 		$this->styles->each(function ($style) {
 			$load = Data::value(Arr::value($style, 'load'));
@@ -392,7 +411,7 @@ class Theme
 	/**
 	 * Enqueue scripts.
 	 */
-	public function addScripts()
+	protected function addScripts(): void
 	{
 		$this->scripts->each(function ($script) {
 			$load = Data::value(Arr::value($script, 'load'));
@@ -417,7 +436,7 @@ class Theme
 	 *
 	 * @return string
 	 */
-	public function addScriptsAttributes(string $script, string $handle): string
+	protected function addScriptsAttributes(string $script, string $handle): string
 	{
 		$scripts = $this->scripts->filter(function ($script) {
 			return isset($script['attr']);
@@ -444,7 +463,7 @@ class Theme
 	 *
 	 * @return array
 	 */
-	public function addResourceHints(array $urls, string $relation): array
+	protected function addResourceHints(array $urls, string $relation): array
 	{
 		if (array_key_exists($relation, $this->resources)) {
 			$urls = array_merge($urls, $this->resources[$relation]);
@@ -456,7 +475,7 @@ class Theme
 	/**
 	 * Register sidebars.
 	 */
-	public function addSidebars()
+	protected function addSidebars(): void
 	{
 		$this->sidebars->each(function ($sidebar) {
 			if (Arr::has($sidebar, 'name')) {
@@ -474,7 +493,7 @@ class Theme
 	 *
 	 * @return array
 	 */
-	public function addContactMethods(array $methods): array
+	protected function addContactMethods(array $methods): array
 	{
 		return array_merge($methods, $this->contact);
 	}
@@ -482,7 +501,7 @@ class Theme
 	/**
 	 * Remove unnecessary elements in the header.
 	 */
-	protected function addHeadCleaner()
+	protected function addHeadCleaner(): void
 	{
 		add_filter('ic_twist_metas', function ($metas) {
 			return array_filter($metas, function ($meta) {
@@ -507,7 +526,7 @@ class Theme
 	 *
 	 * @see https://github.com/typekit/webfontloader
 	 */
-	public function addWebFonts()
+	protected function addWebFonts(): void
 	{
 		$families = implode("','", $this->fonts['families']);
 		$script   = $this->fonts['script'];
@@ -538,7 +557,7 @@ SCRIPT;
 	 */
 	protected function addToCollection(Collection $collection, array $array): Collection
 	{
-		return (new Collection($array))->merge($collection)->unique('id');
+		return Collection::make($array)->merge($collection)->unique('id');
 	}
 
 }

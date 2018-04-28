@@ -21,6 +21,6 @@ interface ServiceProviderInterface
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function register(App $app);
+    public function register(App $app): void;
 
 }

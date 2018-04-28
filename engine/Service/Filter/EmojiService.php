@@ -29,7 +29,7 @@ class EmojiService extends Service
     /**
      * @inheritdoc
      */
-    public function start()
+    public function start(): void
     {
         add_action('init', function () {
             foreach (self::$removeFilters as $filter => $function) {

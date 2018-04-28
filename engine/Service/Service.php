@@ -54,21 +54,21 @@ abstract class Service implements ServiceInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function boot()
+	public function boot(): void
 	{
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function start()
+	public function start(): void
 	{
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function stop()
+	public function stop(): void
 	{
 	}
 

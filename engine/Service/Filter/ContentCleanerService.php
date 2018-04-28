@@ -18,7 +18,7 @@ class ContentCleanerService extends Service
 	/**
 	 * @inheritdoc
 	 */
-	public function start()
+	public function start(): void
 	{
 		add_filter('the_content', [$this, 'clean'], PHP_INT_MAX);
 		add_filter('comment_text', [$this, 'clean'], PHP_INT_MAX);
@@ -27,7 +27,7 @@ class ContentCleanerService extends Service
 	/**
 	 * @inheritdoc
 	 */
-	public function stop()
+	public function stop(): void
 	{
 		remove_filter('the_content', [$this, 'clean'], PHP_INT_MAX);
 		remove_filter('comment_text', [$this, 'clean'], PHP_INT_MAX);

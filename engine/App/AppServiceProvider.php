@@ -13,7 +13,7 @@ class AppServiceProvider implements ServiceProviderInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function register(App $app)
+	public function register(App $app): void
 	{
 		$app->service('config', function () {
 			return new Config();

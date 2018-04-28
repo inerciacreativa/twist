@@ -14,6 +14,11 @@ class TwigService extends ViewService
 {
 
 	/**
+	 * @var \Twig_Loader_Filesystem
+	 */
+	protected $loader;
+
+	/**
 	 * @var \Twig_Environment
 	 */
 	protected $environment;
@@ -26,23 +31,21 @@ class TwigService extends ViewService
 	/**
 	 * @inheritdoc
 	 */
-	public function boot()
+	public function boot(): void
 	{
-		$loader      = new \Twig_Loader_Filesystem($this->config->get('view.paths', []));
-		$environment = new \Twig_Environment($loader, [
+		$this->loader      = new \Twig_Loader_Filesystem($this->config->get('view.paths', []));
+		$this->environment = new \Twig_Environment($this->loader, [
 			'cache'       => $this->config->get('view.cache', false),
-			'debug'       => $this->config->get('app.debug', false),
+			'debug'       => $this->config->get('view.debug', false),
 			'auto_reload' => true,
 		]);
 
-		$environment->addExtension(new TwigExtension());
-		$environment->addExtension(new \Twig_Extension_StringLoader());
+		$this->environment->addExtension(new TwigExtension());
+		$this->environment->addExtension(new \Twig_Extension_StringLoader());
 
-		if ($this->config->get('app.debug')) {
-			$environment->addExtension(new \Twig_Extension_Debug());
+		if ($this->config->get('view.debug')) {
+			$this->environment->addExtension(new \Twig_Extension_Debug());
 		}
-
-		$this->environment = $environment;
 
 		parent::boot();
 	}
@@ -50,7 +53,7 @@ class TwigService extends ViewService
 	/**
 	 * @inheritdoc
 	 */
-	public function set(string $name, $value): ViewInterface
+	public function addGlobalData(string $name, $value): ViewInterface
 	{
 		$this->environment->addGlobal($name, $value);
 
@@ -60,7 +63,7 @@ class TwigService extends ViewService
 	/**
 	 * @inheritdoc
 	 */
-	public function add(string $name, $value): ViewInterface
+	public function addData(string $name, $value): ViewInterface
 	{
 		$this->data[$name] = $value;
 
@@ -86,9 +89,30 @@ class TwigService extends ViewService
 	 * @throws \Twig_Error_Syntax  When an error occurred during compilation
 	 * @throws \Twig_Error_Runtime When an error occurred during rendering
 	 */
-	public function display(string $template, array $data = [])
+	public function display(string $template, array $data = []): void
 	{
 		$this->environment->display($template, array_merge($this->data, $data));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getPaths(): array
+	{
+		return $this->loader->getPaths();
+	}
+
+	/**
+	 * @inheritdoc
+	 *
+	 * @return \Twist\View\ViewInterface
+	 * @throws \Twig_Error_Loader
+	 */
+	public function addPath(string $path): ViewInterface
+	{
+		$this->loader->addPath($path);
+
+		return $this;
 	}
 
 }

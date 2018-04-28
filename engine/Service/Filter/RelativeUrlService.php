@@ -37,14 +37,10 @@ class RelativeUrlService extends Service
     /**
      * @inheritdoc
      */
-    public function start()
+    public function start(): void
     {
-        if (is_admin() || is_feed()) {
+        if (is_admin() || is_feed() || !$this->config->get('filter.relative_url')) {
             return;
-        }
-
-        if (!$this->config->get('filter.relative_url', false)) {
-        	return;
         }
 
         foreach (self::$filters as $filter) {
@@ -55,7 +51,7 @@ class RelativeUrlService extends Service
 	/**
 	 * @inheritdoc
 	 */
-	public function stop()
+	public function stop(): void
 	{
 		foreach (self::$filters as $filter) {
 			remove_filter($filter, [$this, 'relative']);
