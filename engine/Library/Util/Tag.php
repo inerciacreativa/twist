@@ -419,7 +419,7 @@ class Tag implements \ArrayAccess
 	 *
 	 * @return void
 	 */
-	public function offsetSet($attribute, $value)
+	public function offsetSet($attribute, $value): void
 	{
 		if (empty($attribute)) {
 			throw new \InvalidArgumentException('Attribute name not specified');
@@ -439,7 +439,7 @@ class Tag implements \ArrayAccess
 	 *
 	 * @return void
 	 */
-	public function offsetUnset($attribute)
+	public function offsetUnset($attribute): void
 	{
 		unset($this->attributes[$attribute]);
 	}
