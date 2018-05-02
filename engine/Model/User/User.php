@@ -50,7 +50,7 @@ class User extends Model implements UserInterface
      */
     public static function current(): User
     {
-        if (empty(static::$current)) {
+        if (static::$current === null) {
             static::$current = new static();
         }
 
@@ -62,7 +62,7 @@ class User extends Model implements UserInterface
      */
     public static function commenter(): User
     {
-        if (empty(static::$commenter)) {
+        if (static::$commenter === null) {
             $user      = new static();
             $commenter = wp_get_current_commenter();
 
@@ -116,6 +116,26 @@ class User extends Model implements UserInterface
     public function id(): int
     {
         return (int)$this->user->ID;
+    }
+
+	/**
+	 * @return string
+	 */
+    public function link(): string
+    {
+    	if ($this->exists()) {
+		    return get_author_posts_url($this->id(), $this->nice_name());
+	    }
+
+	    return '';
+    }
+
+	/**
+	 * @return string
+	 */
+    public function edit_link(): string
+    {
+    	return get_edit_user_link($this->id());
     }
 
     /**

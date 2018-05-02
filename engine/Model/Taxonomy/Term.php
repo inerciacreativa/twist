@@ -95,6 +95,14 @@ class Term extends Model
 	/**
 	 * @return string
 	 */
+	public function edit_link(): string
+	{
+		return get_edit_term_link($this->term);
+	}
+
+	/**
+	 * @return string
+	 */
 	public function feed(): string
 	{
 		return get_term_feed_link($this->id(), $this->taxonomy->name());

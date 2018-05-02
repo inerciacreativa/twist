@@ -260,14 +260,7 @@ class Comment extends Model
      */
     public function edit_link(): string
     {
-        $link = '';
-
-        if (User::current()->can('edit_comment', $this->id())) {
-            $link = admin_url('comment.php?action=editcomment&amp;c=') . $this->id();
-            $link = esc_url(apply_filters('get_edit_comment_link', $link));
-        }
-
-        return $link;
+    	return get_edit_comment_link($this->comment);
     }
 
     /**
