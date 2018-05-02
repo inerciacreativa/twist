@@ -26,7 +26,6 @@ class Taxonomy implements TaxonomyInterface
 	 * @param string $taxonomy
 	 *
 	 * @throws \InvalidArgumentException
-	 * @throws \Exception
 	 */
 	public function __construct(string $taxonomy)
 	{
