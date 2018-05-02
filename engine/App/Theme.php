@@ -97,6 +97,8 @@ class Theme
 		$this->scripts  = new Collection();
 		$this->sidebars = new Collection();
 
+		add_filter('show_admin_bar', '__return_false');
+
 		add_filter('after_setup_theme', function () {
 			$this->setup();
 		}, PHP_INT_MIN);
