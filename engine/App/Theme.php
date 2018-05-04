@@ -72,12 +72,12 @@ class Theme
 	/**
 	 * @var array
 	 */
-	protected $menus = [];
+	protected $images = [];
 
 	/**
 	 * @var array
 	 */
-	protected $thumbnail = [];
+	protected $menus = [];
 
 	/**
 	 * @var array
@@ -236,6 +236,33 @@ class Theme
 	}
 
 	/**
+	 * @param int  $width
+	 * @param int  $height
+	 * @param bool $crop
+	 *
+	 * @return $this
+	 */
+	public function thumbnail(int $width, int $height = 0, bool $crop = false): self
+	{
+		return $this->image('post-thumbnail', $width, $height, $crop);
+	}
+
+	/**
+	 * @param string $name
+	 * @param int    $width
+	 * @param int    $height
+	 * @param bool   $crop
+	 *
+	 * @return $this
+	 */
+	public function image(string $name, int $width, int $height = 0, bool $crop = false): self
+	{
+		$this->images[$name] = [$name, $width, $height, $crop];
+
+		return $this;
+	}
+
+	/**
 	 * @see \register_nav_menus()
 	 *
 	 * @param array $menus
@@ -245,22 +272,6 @@ class Theme
 	public function menus(array $menus): self
 	{
 		$this->menus = array_merge($this->menus, $menus);
-
-		return $this;
-	}
-
-	/**
-	 * @param int  $width
-	 * @param int  $height
-	 * @param bool $crop
-	 *
-	 * @return $this
-	 */
-	public function thumbnail(int $width, int $height, bool $crop = false): self
-	{
-		$this->thumbnail['width']  = $width;
-		$this->thumbnail['height'] = $height;
-		$this->thumbnail['crop']   = $crop;
 
 		return $this;
 	}
@@ -381,8 +392,8 @@ class Theme
 			add_theme_support('custom-logo', $this->logo);
 		}
 
-		if (!empty($this->thumbnail)) {
-			set_post_thumbnail_size($this->thumbnail['width'], $this->thumbnail['height'], $this->thumbnail['crop']);
+		foreach ($this->images as $image) {
+			add_image_size(...$image);
 		}
 
 		if (!empty($this->menus)) {
