@@ -179,6 +179,18 @@ class Post extends Model
 	}
 
 	/**
+	 * @return string
+	 */
+	public function type_name(): ?string
+	{
+		if ($type = get_post_type_object($this->type())) {
+			return $type->labels->singular_name;
+		}
+
+		return null;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function has_password(): bool
@@ -244,6 +256,14 @@ class Post extends Model
 	public function edit_link(): string
 	{
 		return get_edit_post_link($this->post);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function archive_link(): string
+	{
+		return get_post_type_archive_link($this->type());
 	}
 
 	/**
@@ -399,7 +419,7 @@ class Post extends Model
 	/**
 	 * @return Terms
 	 */
-	public function categories(): Terms
+	public function categories(): ?Terms
 	{
 		return $this->taxonomies()['category'];
 	}
@@ -407,7 +427,7 @@ class Post extends Model
 	/**
 	 * @return Terms
 	 */
-	public function tags(): Terms
+	public function tags(): ?Terms
 	{
 		return $this->taxonomies()['post_tag'];
 	}
@@ -437,7 +457,7 @@ class Post extends Model
 	/**
 	 * @return null|\WP_Post
 	 */
-	public function object()
+	public function object(): ?\WP_Post
 	{
 		return $this->post;
 	}
