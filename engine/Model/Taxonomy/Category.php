@@ -14,7 +14,6 @@ class Category extends Taxonomy
      * Category constructor.
      *
      * @throws \InvalidArgumentException
-     * @throws \Exception
      */
     public function __construct()
     {

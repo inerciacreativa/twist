@@ -85,7 +85,7 @@ class Taxonomy implements TaxonomyInterface
 	/**
 	 * @return Term|null
 	 */
-	public function current()
+	public function current(): ?Term
 	{
 		if ($this->current === null) {
 			$this->current = false;
@@ -95,7 +95,7 @@ class Taxonomy implements TaxonomyInterface
 			}
 		}
 
-		return $this->current ?? null;
+		return $this->current === false ? null : $this->current;
 	}
 
 	/**
