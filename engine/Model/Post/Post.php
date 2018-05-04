@@ -102,7 +102,7 @@ class Post extends Model
 	/**
 	 * @return Post|null
 	 */
-	public function parent()
+	public function parent(): ?Post
 	{
 		if ($this->parent === null && $this->has_parent()) {
 			$this->parent = new static($this->post->post_parent);
@@ -362,11 +362,11 @@ class Post extends Model
 				return $status;
 			}
 
-			if ($this->has_parent()) {
-				$status = $this->parent()->status();
+			if ($this->has_parent() && $parent = $this->parent()) {
+				$status = $parent->status();
 
 				if ($status === 'trash') {
-					return $this->parent()->metas()['_wp_trash_meta_status'];
+					return $parent->metas()['_wp_trash_meta_status'];
 				}
 
 				return $status;
