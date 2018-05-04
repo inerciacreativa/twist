@@ -246,7 +246,7 @@ class Site
 	/**
 	 * @param string $sidebar
 	 */
-	public function widgets(string $sidebar)
+	public function widgets(string $sidebar): void
 	{
 		if (is_active_sidebar($sidebar)) {
 			dynamic_sidebar($sidebar);
@@ -311,6 +311,16 @@ class Site
 	public function date(string $format): string
 	{
 		return date($format);
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return mixed
+	 */
+	public function option(string $name)
+	{
+		return get_option($name);
 	}
 
 }
