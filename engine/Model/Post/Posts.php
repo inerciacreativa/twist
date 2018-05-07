@@ -35,7 +35,7 @@ class Posts extends ModelCollection
 	/**
 	 *
 	 */
-	public function reset()
+	public function reset(): void
 	{
 		wp_reset_postdata();
 	}
@@ -43,7 +43,7 @@ class Posts extends ModelCollection
 	/**
 	 * @inheritdoc
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
 		parent::rewind();
 		$this->reset();
@@ -79,7 +79,7 @@ class Posts extends ModelCollection
 	 *
 	 * @return null|Post
 	 */
-	public function get($id)
+	public function get(int $id): ?Post
 	{
 		$post = parent::get($id);
 
