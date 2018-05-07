@@ -51,7 +51,7 @@ class ModelCollection implements \Countable, \Iterator
 	 *
 	 * @return bool
 	 */
-	public function has($id): bool
+	public function has(int $id): bool
 	{
 		return array_key_exists($id, $this->children);
 	}
@@ -61,7 +61,7 @@ class ModelCollection implements \Countable, \Iterator
 	 *
 	 * @return Model|null
 	 */
-	public function get($id)
+	public function get(int $id)
 	{
 		if ($this->has($id)) {
 			return $this->children[$id];
