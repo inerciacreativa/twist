@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Post;
 
+use Twist\Library\Util\Arr;
 use Twist\Model\ModelCollection;
 
 /**
@@ -90,7 +91,41 @@ class Query extends ModelCollection
 	/**
 	 * @inheritdoc
 	 */
-	public function rewind()
+	public function ids(): array
+	{
+		return Arr::pluck($this->query->posts, 'ID');
+	}
+
+	/**
+	 * @return array
+	 */
+	public function posts(): array
+	{
+		return array_map(function (\WP_Post $post) {
+			return new Post($post);
+		}, $this->query->posts);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function count(): int
+	{
+		return $this->query->post_count;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function total(): int
+	{
+		return $this->query->found_posts;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function rewind(): void
 	{
 		$this->query->rewind_posts();
 	}
@@ -98,7 +133,7 @@ class Query extends ModelCollection
 	/**
 	 * @inheritdoc
 	 */
-	public function next()
+	public function next(): void
 	{
 	}
 
@@ -126,22 +161,6 @@ class Query extends ModelCollection
 	public function key(): int
 	{
 		return $this->query->post->ID;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function count(): int
-	{
-		return $this->query->post_count;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function total(): int
-	{
-		return $this->query->found_posts;
 	}
 
 	/**
