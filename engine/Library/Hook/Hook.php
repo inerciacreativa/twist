@@ -40,7 +40,7 @@ class Hook extends Singleton
     {
         $hooks         = static::getInstance();
         $hooks->object = $object;
-        $hooks->class  = get_class($object);
+        $hooks->class  =\get_class($object);
 
         return $hooks;
     }
@@ -71,11 +71,11 @@ class Hook extends Singleton
     {
         $segments = explode('.', $target);
 
-        if (count($segments) === 1) {
+        if (\count($segments) === 1) {
             array_unshift($segments, '*');
         }
 
-        if (count($segments) === 2) {
+        if (\count($segments) === 2) {
             if ($this->isBounded()) {
                 array_unshift($segments, $this->class);
             } else {
@@ -85,7 +85,7 @@ class Hook extends Singleton
 
         $actions = Data::get($this->actions, $segments, []);
 
-        if (!is_array($actions)) {
+        if (!\is_array($actions)) {
             $actions = [$actions];
         } elseif (!empty($actions)) {
             $actions = array_values(array_filter($actions));
@@ -100,7 +100,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function set(ActionInterface $action, bool $overwrite = true)
+    public function set(ActionInterface $action, bool $overwrite = true): self
     {
         Data::set($this->actions, $action->getId(), $action, $overwrite);
 
@@ -114,7 +114,7 @@ class Hook extends Singleton
      *
      * @return ActionInterface|null
      */
-    public function getAction(string $hook, $callback, array $parameters = [])
+    public function getAction(string $hook, $callback, array $parameters = []): ?ActionInterface
     {
         if ($callback instanceof \Closure) {
             return new ClosureAction($hook, $callback, $parameters);
@@ -124,7 +124,7 @@ class Hook extends Singleton
             return new BoundedAction($hook, $this->object, $callback, $parameters);
         }
 
-        if (is_callable($callback)) {
+        if (\is_callable($callback)) {
             return new UnboundedAction($hook, $callback, $parameters);
         }
 
@@ -138,7 +138,7 @@ class Hook extends Singleton
      */
     protected function isBounded(string $callback = null): bool
     {
-        return $this->object !== null && ($callback === null || (is_string($callback) && method_exists($this->object, $callback)));
+        return $this->object !== null && ($callback === null || (\is_string($callback) && method_exists($this->object, $callback)));
     }
 
     /**
@@ -154,7 +154,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function on(string $hook, $callback, array $parameters = [])
+    public function on(string $hook, $callback, array $parameters = []): self
     {
         $parameters = array_merge(['enabled' => true], $parameters);
 
@@ -172,9 +172,9 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function off(string $hook, $callback, $parameters = 10)
+    public function off(string $hook, $callback, $parameters = 10): self
     {
-        if (is_int($parameters)) {
+        if (\is_int($parameters)) {
             $parameters = ['priority' => $parameters, 'enabled' => false];
         } else {
             $parameters = array_merge($parameters, ['enabled' => false]);
@@ -194,7 +194,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function before(string $hook, $callback, array $parameters = [])
+    public function before(string $hook, $callback, array $parameters = []): self
     {
         return $this->on($hook, $callback, array_merge($parameters, ['priority' => -1]));
     }
@@ -206,7 +206,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function after(string $hook, $callback, array $parameters = [])
+    public function after(string $hook, $callback, array $parameters = []): self
     {
         return $this->on($hook, $callback, array_merge($parameters, ['priority' => 999999]));
     }
@@ -217,7 +217,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function capture(string $hook, $callback)
+    public function capture(string $hook, $callback): self
     {
         if ($this->isBounded($callback) && ($action = new CaptureAction($hook, $this->object, $callback))) {
             $this->set($action);
@@ -233,7 +233,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function activation(string $file, $callback, array $parameters = [])
+    public function activation(string $file, $callback, array $parameters = []): self
     {
         $hook = 'activate_' . plugin_basename($file);
 
@@ -247,7 +247,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function deactivation(string $file, $callback, array $parameters = [])
+    public function deactivation(string $file, $callback, array $parameters = []): self
     {
         $hook = 'deactivate_' . plugin_basename($file);
 
@@ -258,10 +258,9 @@ class Hook extends Singleton
      * @param string $hook
      * @param mixed  $parameters
      */
-    public function fire(string $hook, $parameters)
+    public function fire(string $hook, $parameters): void
     {
-        do_action(...func_get_args());
-        //call_user_func_array('do_action', func_get_args());
+        do_action(...\func_get_args());
     }
 
     /**
@@ -272,8 +271,7 @@ class Hook extends Singleton
      */
     public function apply(string $hook, $parameters)
     {
-        return apply_filters(...func_get_args());
-        //return call_user_func_array('apply_filters', func_get_args());
+        return apply_filters(...\func_get_args());
     }
 
     /**
@@ -281,7 +279,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function enable($target)
+    public function enable($target): self
     {
         $actions = $this->get($target);
 
@@ -297,7 +295,7 @@ class Hook extends Singleton
      *
      * @return $this
      */
-    public function disable($target)
+    public function disable($target): self
     {
         $actions = $this->get($target);
 
