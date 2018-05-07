@@ -147,7 +147,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return void
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         if ($key === null) {
             $this->items[] = $value;
@@ -163,7 +163,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return void
      */
-    public function offsetUnset($key)
+    public function offsetUnset($key): void
     {
         unset($this->items[$key]);
     }
@@ -283,7 +283,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function forget($keys)
+    public function forget($keys): self
     {
         foreach ((array)$keys as $key) {
             $this->offsetUnset($key);
@@ -310,7 +310,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function prepend($value, $key = null)
+    public function prepend($value, $key = null): self
     {
         $this->items = Arr::prepend($this->items, $value, $key);
 
@@ -324,7 +324,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function append($value)
+    public function append($value): self
     {
         return $this->push($value);
     }
@@ -336,7 +336,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function push($value)
+    public function push($value): self
     {
         $this->offsetSet(null, $value);
 
@@ -351,7 +351,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function put($key, $value)
+    public function put($key, $value): self
     {
         $this->offsetSet($key, $value);
 
@@ -720,7 +720,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function each(callable $callback)
+    public function each(callable $callback): self
     {
         foreach ($this->items as $key => $item) {
             if ($callback($item, $key) === false) {
@@ -738,7 +738,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function transform(callable $callback)
+    public function transform(callable $callback): self
     {
         $this->items = $this->map($callback)->all();
 
@@ -752,7 +752,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return $this
      */
-    public function tap(callable $callback)
+    public function tap(callable $callback): self
     {
         $callback(new static($this->items));
 
@@ -1175,7 +1175,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
         } else {
             mt_srand($seed);
             usort($items, function () {
-                return mt_rand(-1, 1);
+                return random_int(-1, 1);
             });
         }
 
