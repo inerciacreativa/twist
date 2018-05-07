@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Post;
 
+use Twist\Library\Image\ImageSearch;
 use Twist\Library\Util\Tag;
 
 /**
@@ -46,11 +47,15 @@ class Thumbnail
 	 * Thumbnail constructor.
 	 *
 	 * @param Post $post
+	 * @param bool $generate
 	 */
-	public function __construct(Post $post)
+	public function __construct(Post $post, bool $generate = false)
 	{
 		$this->post = $post;
-		$this->id = (int) $post->metas()['_thumbnail_id'];
+		$this->id   = (int) $post->metas()['_thumbnail_id'];
+		if (!$this->id && $generate) {
+			$this->id = $this->generate();
+		}
 	}
 
 	/**
@@ -72,7 +77,7 @@ class Thumbnail
 
 		if (!empty($size) && $size !== $this->size) {
 			$this->image = null;
-			$this->size = $size;
+			$this->size  = $size;
 		}
 
 		return $this;
@@ -84,7 +89,7 @@ class Thumbnail
 	 *
 	 * @return Tag|null
 	 */
-	public function image(array $attributes = [], $filter = true)
+	public function image(array $attributes = [], $filter = true): ?Tag
 	{
 		if ($this->id === 0) {
 			return null;
@@ -142,7 +147,7 @@ class Thumbnail
 	 *
 	 * @return null|string
 	 */
-	protected function get(string $attribute)
+	protected function get(string $attribute): ?string
 	{
 		if ($this->id === 0) {
 			return null;
@@ -151,6 +156,23 @@ class Thumbnail
 		$image = $this->image();
 
 		return $image instanceof Tag ? $image[$attribute] : null;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function generate(): int
+	{
+		$content = $this->post->raw_content();
+		$images  = ImageSearch::find($content, true);
+
+		if ($images->count()) {
+			return (int) $images->sortBySize()
+			                    ->first()
+			                    ->setFeatured($this->post->id());
+		}
+
+		return 0;
 	}
 
 }
