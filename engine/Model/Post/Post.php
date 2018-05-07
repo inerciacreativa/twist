@@ -125,7 +125,7 @@ class Post extends Model
 	public function thumbnail(): Thumbnail
 	{
 		if ($this->thumbnail === null) {
-			$this->thumbnail = new Thumbnail($this);
+			$this->thumbnail = new Thumbnail($this, true);
 		}
 
 		return $this->thumbnail;
@@ -346,6 +346,14 @@ class Post extends Model
 		the_content($more);
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function raw_content(): string
+	{
+		return $this->post->post_content;
 	}
 
 	/**
