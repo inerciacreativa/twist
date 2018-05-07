@@ -38,6 +38,11 @@ interface ViewInterface
 	 */
 	public function addGlobalData(string $name, $value): self;
 
+	/**
+	 * @return array
+	 */
+	public function getGlobalData(): array;
+
     /**
      * Adds local data (available only in current template).
      *
@@ -47,6 +52,11 @@ interface ViewInterface
      * @return $this
      */
     public function addData(string $name, $value): self;
+
+	/**
+	 * @return array
+	 */
+    public function getData(): array;
 
 	/**
 	 * Returns the possible paths where the templates may be located.

@@ -63,11 +63,27 @@ class TwigService extends ViewService
 	/**
 	 * @inheritdoc
 	 */
+	public function getGlobalData(): array
+	{
+		return $this->environment->getGlobals();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function addData(string $name, $value): ViewInterface
 	{
 		$this->data[$name] = $value;
 
 		return $this;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getData(): array
+	{
+		return $this->data;
 	}
 
 	/**

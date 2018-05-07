@@ -19,11 +19,11 @@ abstract class ViewService extends Service implements ViewInterface
 	public function boot(): void
 	{
 		foreach ((array) $this->config->get('view.global', []) as $name => $value) {
-			$this->addGlobalData($name, $this->getData($value));
+			$this->addGlobalData($name, $this->resolve($value));
 		}
 
 		foreach ((array) $this->config->get('view.data', []) as $name => $value) {
-			$this->addData($name, $this->getData($value));
+			$this->addData($name, $this->resolve($value));
 		}
 	}
 
@@ -32,7 +32,7 @@ abstract class ViewService extends Service implements ViewInterface
 	 *
 	 * @return mixed
 	 */
-	protected function getData($data)
+	protected function resolve($data)
 	{
 		if (\is_string($data) && class_exists($data)) {
 			return new $data();
