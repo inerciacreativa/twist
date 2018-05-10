@@ -27,17 +27,11 @@ abstract class Finder implements FinderInterface
         if ($collection === null) {
             $collection = new ImageCollection();
         }
-	    echo '<pre>';
-	    print_r(static::class);
-	    echo '</pre>';
 
         if (!preg_match_all($this->getRegex(), $html, $patterns)) {
             return $collection;
         }
 
-        echo '<pre>';
-        print_r($patterns[1]);
-	    echo '</pre>';
         $images = array_unique($patterns[1]);
 
         foreach ($images as $id) {
