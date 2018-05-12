@@ -2,6 +2,11 @@
 
 namespace Twist\Library\Model;
 
+/**
+ * Class Enumerator
+ *
+ * @package Twist\Library\Model
+ */
 class Enumerator implements EnumeratorInterface
 {
 

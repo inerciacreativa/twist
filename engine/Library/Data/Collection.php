@@ -392,7 +392,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
     public function first(callable $callback = null, $default = null)
     {
         if ($callback === null) {
-            return\count($this->items) > 0 ? reset($this->items) : Data::value($default);
+            return \count($this->items) > 0 ? reset($this->items) : Data::value($default);
         }
 
         return Arr::first($this->items, $callback, $default);
