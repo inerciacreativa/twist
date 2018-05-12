@@ -2,30 +2,52 @@
 
 namespace Twist\Library\Model;
 
-trait Enumerator
+class Enumerator implements EnumeratorInterface
 {
+
+	/**
+	 * @var ModelInterface
+	 */
+	protected $model;
 
 	/**
 	 * @var array
 	 */
-	protected $values = [];
+	protected $values;
+
+	/**
+	 * Enumerator constructor.
+	 *
+	 * @param ModelInterface $model
+	 * @param array          $values
+	 */
+	public function __construct(ModelInterface $model, array $values = [])
+	{
+		$this->model  = $model;
+		$this->values = $values;
+	}
+
+	public function model(): ModelInterface
+	{
+		return $this->model;
+	}
+
+	public function set($id, $value): void
+	{
+		$this->values[$id] = $value;
+	}
 
 	public function get($id)
 	{
 		return $this->values[$id] ?? null;
 	}
 
-	public function exists($id): bool
+	public function has($id): bool
 	{
 		return array_key_exists($id, $this->values);
 	}
 
-	public function add($id, $value): void
-	{
-		$this->values[$id] = $value;
-	}
-
-	public function remove($id): void
+	public function unset($id): void
 	{
 		unset($this->values[$id]);
 	}
