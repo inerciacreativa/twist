@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Taxonomy;
 
+use Twist\Library\Model\ModelInterface;
 use Twist\Model\Model;
 
 /**
@@ -9,7 +10,7 @@ use Twist\Model\Model;
  *
  * @package Twist\Model\Taxonomy
  */
-class Term extends Model
+class Term extends Model implements ModelInterface
 {
 
 	/**
@@ -23,7 +24,7 @@ class Term extends Model
 	protected $term;
 
 	/**
-	 * @var Metas
+	 * @var TermMeta
 	 */
 	protected $metas;
 
@@ -162,12 +163,12 @@ class Term extends Model
 	}
 
 	/**
-	 * @return Metas
+	 * @return TermMeta
 	 */
-	public function metas(): Metas
+	public function metas(): TermMeta
 	{
 		if ($this->metas === null) {
-			$this->metas = new Metas($this);
+			$this->metas = new TermMeta($this);
 		}
 
 		return $this->metas;
