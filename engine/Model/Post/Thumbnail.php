@@ -52,7 +52,7 @@ class Thumbnail
 	public function __construct(Post $post, bool $generate = false)
 	{
 		$this->post = $post;
-		$this->id   = (int) $post->metas()['_thumbnail_id'];
+		$this->id   = (int) $post->meta()->get('_thumbnail_id');
 		if (!$this->id && $generate) {
 			$this->id = $this->generate();
 		}

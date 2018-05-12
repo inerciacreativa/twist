@@ -34,9 +34,9 @@ class Post extends Model implements ModelInterface
 	protected $author;
 
 	/**
-	 * @var Metas
+	 * @var PostMeta
 	 */
-	protected $metas;
+	protected $meta;
 
 	/**
 	 * @var Query
@@ -375,7 +375,7 @@ class Post extends Model implements ModelInterface
 				$status = $parent->status();
 
 				if ($status === 'trash') {
-					return $parent->metas()['_wp_trash_meta_status'];
+					return $parent->meta()->get('_wp_trash_meta_status');
 				}
 
 				return $status;
@@ -442,15 +442,15 @@ class Post extends Model implements ModelInterface
 	}
 
 	/**
-	 * @return Metas
+	 * @return PostMeta
 	 */
-	public function metas(): Metas
+	public function meta(): PostMeta
 	{
-		if ($this->metas === null) {
-			$this->metas = new Metas($this);
+		if ($this->meta === null) {
+			$this->meta = new PostMeta($this);
 		}
 
-		return $this->metas;
+		return $this->meta;
 	}
 
 	/**
