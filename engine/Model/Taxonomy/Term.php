@@ -26,7 +26,7 @@ class Term extends Model implements ModelInterface
 	/**
 	 * @var TermMeta
 	 */
-	protected $metas;
+	protected $meta;
 
 	/**
 	 * Term constructor.
@@ -165,13 +165,13 @@ class Term extends Model implements ModelInterface
 	/**
 	 * @return TermMeta
 	 */
-	public function metas(): TermMeta
+	public function meta(): TermMeta
 	{
-		if ($this->metas === null) {
-			$this->metas = new TermMeta($this);
+		if ($this->meta === null) {
+			$this->meta = new TermMeta($this);
 		}
 
-		return $this->metas;
+		return $this->meta;
 	}
 
 	/**
