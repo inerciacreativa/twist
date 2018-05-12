@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Post;
 
+use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Macro;
 use Twist\Model\Comment\Comments;
 use Twist\Model\Comment\Query;
@@ -12,7 +13,7 @@ use Twist\Model\Model;
  *
  * @package Twist\Model\Post
  */
-class Post extends Model
+class Post extends Model implements ModelInterface
 {
 
 	use Macro;
