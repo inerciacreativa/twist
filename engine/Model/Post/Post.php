@@ -24,7 +24,7 @@ class Post extends Model implements ModelInterface
 	protected $post;
 
 	/**
-	 * @var Taxonomies
+	 * @var PostTaxonomies
 	 */
 	protected $taxonomies;
 
@@ -414,12 +414,12 @@ class Post extends Model implements ModelInterface
 	}
 
 	/**
-	 * @return Taxonomies
+	 * @return PostTaxonomies
 	 */
-	public function taxonomies(): Taxonomies
+	public function taxonomies(): PostTaxonomies
 	{
 		if ($this->taxonomies === null) {
-			$this->taxonomies = new Taxonomies($this);
+			$this->taxonomies = new PostTaxonomies($this);
 		}
 
 		return $this->taxonomies;
@@ -430,7 +430,7 @@ class Post extends Model implements ModelInterface
 	 */
 	public function categories(): ?Terms
 	{
-		return $this->taxonomies()['category'];
+		return $this->taxonomies()->get('category');
 	}
 
 	/**
@@ -438,7 +438,7 @@ class Post extends Model implements ModelInterface
 	 */
 	public function tags(): ?Terms
 	{
-		return $this->taxonomies()['post_tag'];
+		return $this->taxonomies()->get('post_tag');
 	}
 
 	/**
