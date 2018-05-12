@@ -371,7 +371,7 @@ class Post extends Model implements ModelInterface
 				return $status;
 			}
 
-			if ($this->has_parent() && $parent = $this->parent()) {
+			if ($this->has_parent() && ($parent = $this->parent())) {
 				$status = $parent->status();
 
 				if ($status === 'trash') {
