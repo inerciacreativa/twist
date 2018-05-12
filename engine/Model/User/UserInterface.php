@@ -2,18 +2,15 @@
 
 namespace Twist\Model\User;
 
+use Twist\Library\Model\ModelInterface;
+
 /**
  * Interface UserInterface
  *
  * @package Twist\Model\User
  */
-interface UserInterface
+interface UserInterface extends ModelInterface
 {
-
-    /**
-     * @return int
-     */
-    public function id(): int;
 
     /**
      * @return string
