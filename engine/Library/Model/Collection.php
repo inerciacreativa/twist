@@ -14,17 +14,25 @@ class Collection implements CollectionInterface
 
 	use HasParent;
 
+	/**
+	 * @var ModelInterface[]
+	 */
 	protected $models = [];
 
 	/**
 	 * Collection constructor.
 	 *
 	 * @param ModelInterface|null $parent
+	 * @param ModelInterface[]
 	 */
-	public function __construct(ModelInterface $parent = null)
+	public function __construct(ModelInterface $parent = null, array $children = [])
 	{
 		if ($parent) {
 			$this->set_parent($parent);
+		}
+
+		foreach ($children as $child) {
+			$this->add($child);
 		}
 	}
 
@@ -105,11 +113,7 @@ class Collection implements CollectionInterface
 	 */
 	public function only(array $ids): CollectionInterface
 	{
-		$collection = clone $this;
-
-		$collection->models = Arr::only($this->models, $ids);
-
-		return $collection;
+		return new static($this->parent(), Arr::only($this->models, $ids));
 	}
 
 	/**
@@ -117,11 +121,15 @@ class Collection implements CollectionInterface
 	 */
 	public function except(array $ids): CollectionInterface
 	{
-		$collection = clone $this;
+		return new static($this->parent(), Arr::except($this->models, $ids));
+	}
 
-		$collection->models = Arr::except($this->models, $ids);
-
-		return $collection;
+	/**
+	 * @inheritdoc
+	 */
+	public function slice(int $offset, int $length = null): CollectionInterface
+	{
+		return new static($this->parent(), \array_slice($this->models, $offset, $length, true));
 	}
 
 	/**
@@ -129,27 +137,19 @@ class Collection implements CollectionInterface
 	 */
 	public function take(int $limit): CollectionInterface
 	{
-		$collection = clone $this;
-
 		if ($limit < 0) {
-			$offset = $limit;
-			$length = abs($limit);
-		} else {
-			$offset = 0;
-			$length = $limit;
+			return $this->slice($limit, abs($limit));
 		}
 
-		$collection->models = \array_slice($this->models, $offset, $length, true);
-
-		return $collection;
+		return $this->slice(0, $limit);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function getIterator(): \ArrayIterator
+	public function getIterator(): CollectionIteratorInterface
 	{
-		return new \ArrayIterator($this->models);
+		return new CollectionIterator($this->models);
 	}
 
 }

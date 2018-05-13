@@ -68,6 +68,14 @@ interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \C
 	public function except(array $ids): CollectionInterface;
 
 	/**
+	 * @param int      $offset
+	 * @param int|null $length
+	 *
+	 * @return CollectionInterface
+	 */
+	public function slice(int $offset, int $length = null): CollectionInterface;
+
+	/**
 	 * @param int $limit
 	 *
 	 * @return CollectionInterface
