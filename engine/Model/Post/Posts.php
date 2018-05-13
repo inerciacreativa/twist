@@ -2,14 +2,15 @@
 
 namespace Twist\Model\Post;
 
-use Twist\Model\ModelCollection;
+use Twist\Library\Model\Collection;
+use Twist\Library\Model\CollectionIteratorInterface;
 
 /**
  * Class Posts
  *
  * @package Twist\Model\Post
  */
-class Posts extends ModelCollection
+class Posts extends Collection
 {
 
 	/**
@@ -33,62 +34,11 @@ class Posts extends ModelCollection
 	}
 
 	/**
-	 *
-	 */
-	public function reset(): void
-	{
-		wp_reset_postdata();
-	}
-
-	/**
 	 * @inheritdoc
 	 */
-	public function rewind(): void
+	public function getIterator(): CollectionIteratorInterface
 	{
-		parent::rewind();
-		$this->reset();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function valid(): bool
-	{
-		$valid = parent::valid();
-
-		if (!$valid) {
-			$this->reset();
-		}
-
-		return $valid;
-	}
-
-	/**
-	 * @return Post
-	 */
-	public function current(): Post
-	{
-		/** @var Post $post */
-		$post = parent::current();
-
-		return $post->setup();
-	}
-
-	/**
-	 * @param int $id
-	 *
-	 * @return null|Post
-	 */
-	public function get(int $id): ?Post
-	{
-		$post = parent::get($id);
-
-		if ($post) {
-			/** @var Post $post */
-			$post->setup();
-		}
-
-		return $post;
+		return new PostsIterator($this->models);
 	}
 
 }
