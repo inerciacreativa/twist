@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Post;
 
-use Twist\Library\Model\Enumerator;
+use Twist\Library\Model\Enumerable;
 use Twist\Model\Taxonomy\Taxonomy;
 
 /**
@@ -12,7 +12,7 @@ use Twist\Model\Taxonomy\Taxonomy;
  *
  * @method Post model()
  */
-class PostTaxonomies extends Enumerator
+class PostTaxonomies extends Enumerable
 {
 
 	/**

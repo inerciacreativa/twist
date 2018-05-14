@@ -47,7 +47,7 @@ class PostsIterator extends CollectionIterator
 	}
 
 	/**
-	 * @return Post
+	 * @return null|Post
 	 */
 	public function current(): ?ModelInterface
 	{
@@ -57,16 +57,6 @@ class PostsIterator extends CollectionIterator
 		}
 
 		return $post;
-	}
-
-	/**
-	 * @param int $id
-	 *
-	 * @return Post
-	 */
-	public function offsetGet($id): ?ModelInterface
-	{
-		return isset($this->models[$id]) ? $this->models[$id]->setup() : null;
 	}
 
 }

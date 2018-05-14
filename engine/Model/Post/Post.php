@@ -2,18 +2,19 @@
 
 namespace Twist\Model\Post;
 
+use Twist\Library\Model\CollectionInterface;
+use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Macro;
 use Twist\Model\Comment\Comments;
 use Twist\Model\Comment\Query;
-use Twist\Model\Model;
 
 /**
  * Class Post
  *
  * @package Twist\Model\Post
  */
-class Post extends Model implements ModelInterface
+class Post extends Model
 {
 
 	use Macro;
@@ -29,7 +30,7 @@ class Post extends Model implements ModelInterface
 	protected $taxonomies;
 
 	/**
-	 * @var Author
+	 * @var PostAuthor
 	 */
 	protected $author;
 
@@ -39,7 +40,7 @@ class Post extends Model implements ModelInterface
 	protected $meta;
 
 	/**
-	 * @var Query
+	 * @var PostQuery
 	 */
 	protected $comments;
 
@@ -47,6 +48,16 @@ class Post extends Model implements ModelInterface
 	 * @var Thumbnail
 	 */
 	protected $thumbnail;
+
+	/**
+	 * @param \WP_Post|int $post
+	 *
+	 * @return Post
+	 */
+	public static function make($post): Post
+	{
+		return new static($post);
+	}
 
 	/**
 	 * Post constructor.
@@ -103,13 +114,52 @@ class Post extends Model implements ModelInterface
 	/**
 	 * @return Post|null
 	 */
-	public function parent(): ?Post
+	public function parent(): ?ModelInterface
 	{
 		if ($this->parent === null && $this->has_parent()) {
-			$this->parent = new static($this->post->post_parent);
+			$this->set_parent(static::make($this->post->post_parent));
 		}
 
 		return $this->parent;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function has_children(): bool
+	{
+		$type = get_post_type_object($this->type());
+
+		if (!$type || !$type->hierarchical) {
+			return false;
+		}
+
+		$query = PostQuery::make([
+			'post_parent'    => $this->id(),
+			'post_type'      => $this->type(),
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+		]);
+
+		if ($query->count() > 0) {
+			$this->set_children($query->posts());
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @return Posts|null
+	 */
+	public function children(): ?CollectionInterface
+	{
+		if ($this->has_children()) {
+			return $this->children;
+		}
+
+		return null;
 	}
 
 	/**
@@ -277,7 +327,7 @@ class Post extends Model implements ModelInterface
 	public function date(string $format = ''): string
 	{
 		$format = $format ?: (string) get_option('date_format');
-		$date = mysql2date($format, $this->post->post_date);
+		$date   = mysql2date($format, $this->post->post_date);
 
 		return apply_filters('get_the_date', $date, $format, $this->post);
 	}
@@ -390,19 +440,19 @@ class Post extends Model implements ModelInterface
 	}
 
 	/**
-	 * @return Author
+	 * @return PostAuthor
 	 */
-	public function author(): Author
+	public function author(): PostAuthor
 	{
 		if ($this->author === null) {
-			$this->author = new Author($this->post->post_author);
+			$this->author = new PostAuthor($this->post->post_author);
 		}
 
 		return $this->author;
 	}
 
 	/**
-	 * @return Query
+	 * @return PostQuery
 	 */
 	public function comments(): Query
 	{
@@ -480,8 +530,8 @@ class Post extends Model implements ModelInterface
 	protected function getDatetime(string $date, string $filter): string
 	{
 		$format = 'c';
-		$date = (string) date($format, strtotime($date));
-		$date = (string) apply_filters("get_$filter", $date, $format, $this->post);
+		$date   = (string) date($format, strtotime($date));
+		$date   = (string) apply_filters("get_$filter", $date, $format, $this->post);
 
 		return apply_filters($filter, $date, $format, '', '');
 	}
