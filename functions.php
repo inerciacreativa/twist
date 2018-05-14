@@ -3,7 +3,7 @@
 include_once __DIR__ . '/vendor/autoload.php';
 include_once __DIR__ . '/engine/app.php';
 
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostQuery;
 use Twist\Model\Site\Site;
 use Twist\Service\CoreServiceProvider;
 use function Twist\theme;
@@ -13,7 +13,7 @@ theme()->services(new CoreServiceProvider())->config([
 		'site'  => Site::class,
 	],
 	'view.data'    => [
-		'posts' => Query::class,
+		'posts' => PostQuery::class,
 	],
 	'api.rest'            => false,
 	'api.oembed'          => false,
