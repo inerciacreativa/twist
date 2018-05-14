@@ -18,7 +18,7 @@ trait HasParent
 	/**
 	 * @param ModelInterface $parent
 	 */
-	protected function set_parent(ModelInterface $parent): void
+	public function set_parent(ModelInterface $parent): void
 	{
 		$this->parent = $parent;
 	}

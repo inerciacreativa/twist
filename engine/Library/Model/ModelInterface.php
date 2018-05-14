@@ -2,7 +2,12 @@
 
 namespace Twist\Library\Model;
 
-interface ModelInterface
+/**
+ * Interface ModelInterface
+ *
+ * @package Twist\Library\Model
+ */
+interface ModelInterface extends HasParentInterface, HasChildrenInterface
 {
 
 	public function id(): int;

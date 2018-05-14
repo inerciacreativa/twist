@@ -18,7 +18,7 @@ trait HasChildren
 	/**
 	 * @param CollectionInterface $children
 	 */
-	protected function set_children(CollectionInterface $children): void
+	public function set_children(CollectionInterface $children): void
 	{
 		$this->children = $children;
 	}

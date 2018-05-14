@@ -75,7 +75,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function key(): int
+	public function key(): ?int
 	{
 		return key($this->models);
 	}
