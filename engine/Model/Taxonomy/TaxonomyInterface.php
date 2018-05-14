@@ -2,9 +2,8 @@
 
 namespace Twist\Model\Taxonomy;
 
-
 /**
- * Class Taxonomy
+ * Interface TaxonomyInterface
  *
  * @package Twist\Model\Taxonomy
  */
@@ -31,7 +30,7 @@ interface TaxonomyInterface
 	/**
 	 * @return Term|null
 	 */
-	public function current();
+	public function current(): ?Term;
 
 	/**
 	 * @param array $options

@@ -64,18 +64,21 @@ class Taxonomy implements TaxonomyInterface
 		$taxonomy = $this->name();
 
 		if ($function === null) {
-			if ($taxonomy === 'category') {
-				$function = function ($term) {
-					return is_category($term);
-				};
-			} elseif ($taxonomy === 'post_tag') {
-				$function = function ($term) {
-					return is_tag($term);
-				};
-			} else {
-				$function = function ($term) use ($taxonomy) {
-					return is_tax($taxonomy, $term);
-				};
+			switch ($taxonomy) {
+				case 'category':
+					$function = function ($term) {
+						return is_category($term);
+					};
+					break;
+				case 'post_tag':
+					$function = function ($term) {
+						return is_tag($term);
+					};
+					break;
+				default:
+					$function = function ($term) use ($taxonomy) {
+						return is_tax($taxonomy, $term);
+					};
 			}
 		}
 
@@ -91,7 +94,10 @@ class Taxonomy implements TaxonomyInterface
 			$this->current = false;
 
 			if ($this->is_current(get_queried_object_id())) {
-				$this->current = new Term($this, get_queried_object());
+				/** @var \WP_Term $term */
+				$term = get_queried_object();
+
+				$this->current = new Term($this, $term);
 			}
 		}
 
@@ -125,28 +131,28 @@ class Taxonomy implements TaxonomyInterface
 		}
 
 		if ((bool) $arguments['hierarchical'] === true) {
-			$exclude_tree = [];
+			$exclude = [];
 
 			if ($arguments['exclude_tree']) {
-				$exclude_tree = array_merge($exclude_tree, wp_parse_id_list($arguments['exclude_tree']));
+				$exclude = array_merge($exclude, wp_parse_id_list($arguments['exclude_tree']));
 			}
 
 			if ($arguments['exclude']) {
-				$exclude_tree = array_merge($exclude_tree, wp_parse_id_list($arguments['exclude']));
+				$exclude = array_merge($exclude, wp_parse_id_list($arguments['exclude']));
 			}
 
-			$arguments['exclude_tree'] = $exclude_tree;
+			$arguments['exclude_tree'] = $exclude;
 			$arguments['exclude']      = '';
 		}
 
-		$walker  = new Walker($this);
+		$walker  = new TermWalker($this);
 		$objects = get_terms($arguments);
 
 		if ($objects) {
 			$arguments['walker'] = $walker;
 
-			if (empty($arguments['current_category']) && $this->is_current()) {
-				$arguments['current_category'] = $this->current()->id();
+			if (empty($arguments['current_category']) && ($current = $this->current())) {
+				$arguments['current_category'] = $current->id();
 			}
 
 			if ($arguments['hierarchical']) {

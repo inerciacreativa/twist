@@ -2,15 +2,17 @@
 
 namespace Twist\Model\Taxonomy;
 
-use Twist\Library\Model\ModelInterface;
-use Twist\Model\Model;
+use Twist\Library\Model\CollectionInterface;
+use Twist\Library\Model\Model;
 
 /**
  * Class Term
  *
  * @package Twist\Model\Taxonomy
+ *
+ * @method null|Term parent()
  */
-class Term extends Model implements ModelInterface
+class Term extends Model
 {
 
 	/**
@@ -33,24 +35,25 @@ class Term extends Model implements ModelInterface
 	 *
 	 * @param TaxonomyInterface $taxonomy
 	 * @param \WP_Term          $term
-	 * @param Terms             $terms
 	 */
-	public function __construct(TaxonomyInterface $taxonomy, \WP_Term $term, Terms $terms = null)
+	public function __construct(TaxonomyInterface $taxonomy, \WP_Term $term)
 	{
 		$this->taxonomy = $taxonomy;
 		$this->term     = $term;
-
-		if ($terms && $terms->has_parent()) {
-			$this->setParent($terms->parent());
-		}
 	}
 
 	/**
+	 * @inheritdoc
+	 *
 	 * @return Terms
 	 */
-	protected function setChildren(): Terms
+	public function children(): ?CollectionInterface
 	{
-		return new Terms($this);
+		if ($this->children === null) {
+			$this->set_children(new Terms($this));
+		}
+
+		return $this->children;
 	}
 
 	/**
@@ -98,7 +101,7 @@ class Term extends Model implements ModelInterface
 	 */
 	public function edit_link(): string
 	{
-		return get_edit_term_link($this->term);
+		return get_edit_term_link($this->id());
 	}
 
 	/**
