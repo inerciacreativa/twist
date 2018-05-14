@@ -2,17 +2,18 @@
 
 namespace Twist\Model\User;
 
+use Twist\Library\Model\CollectionInterface;
+use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Str;
 use Twist\Library\Util\Tag;
-use Twist\Model\Model;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostQuery;
 
 /**
  * Class User
  *
  * @package Twist\Model\User
  */
-class User extends Model implements UserInterface
+class User implements UserInterface
 {
 
 	/**
@@ -41,7 +42,7 @@ class User extends Model implements UserInterface
 	protected $profiles;
 
 	/**
-	 * @var Query
+	 * @var PostQuery
 	 */
 	protected $posts;
 
@@ -111,11 +112,43 @@ class User extends Model implements UserInterface
 	}
 
 	/**
-	 * @return int
+	 * @inheritdoc
 	 */
 	public function id(): int
 	{
 		return (int) $this->user->ID;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function has_parent(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function parent(): ?ModelInterface
+	{
+		return null;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function has_children(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function children(): ?CollectionInterface
+	{
+		return null;
 	}
 
 	/**
@@ -277,9 +310,9 @@ class User extends Model implements UserInterface
 	/**
 	 * @param int $number
 	 *
-	 * @return Query
+	 * @return PostQuery
 	 */
-	public function posts(int $number = 5): Query
+	public function posts(int $number = 5): PostQuery
 	{
 		if ($this->posts === null) {
 			$query = [
@@ -293,7 +326,7 @@ class User extends Model implements UserInterface
 				$query['post__not_in'] = [$GLOBALS['post']->id];
 			}
 
-			$this->posts = Query::make($query);
+			$this->posts = PostQuery::make($query);
 		}
 
 		return $this->posts;

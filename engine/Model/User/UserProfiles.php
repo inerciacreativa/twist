@@ -2,7 +2,7 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Model\Enumerator;
+use Twist\Library\Model\Enumerable;
 use Twist\Library\Util\Arr;
 
 /**
@@ -10,7 +10,7 @@ use Twist\Library\Util\Arr;
  *
  * @package Twist\Model\User
  */
-class UserProfiles extends Enumerator
+class UserProfiles extends Enumerable
 {
 
 	/**
