@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Meta;
 
-use Twist\Library\Model\Enumerator;
+use Twist\Library\Model\Enumerable;
 use Twist\Library\Model\ModelInterface;
 
 /**
@@ -10,7 +10,7 @@ use Twist\Library\Model\ModelInterface;
  *
  * @package Twist\Model\Meta
  */
-class Meta extends Enumerator
+class Meta extends Enumerable
 {
 
 	/**
