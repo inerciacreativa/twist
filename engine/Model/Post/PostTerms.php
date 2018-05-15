@@ -3,7 +3,7 @@
 namespace Twist\Model\Post;
 
 use Twist\Model\Taxonomy\Taxonomy;
-use Twist\Model\Taxonomy\Terms as TermCollection;
+use Twist\Model\Taxonomy\Terms;
 use Twist\Model\Taxonomy\Term;
 
 /**
@@ -11,7 +11,7 @@ use Twist\Model\Taxonomy\Term;
  *
  * @package Twist\Model\Post
  */
-class Terms extends TermCollection
+class PostTerms extends Terms
 {
 
 	/**
