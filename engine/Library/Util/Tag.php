@@ -183,6 +183,14 @@ class Tag implements \ArrayAccess
 	];
 
 	/**
+	 * @var array
+	 */
+	protected static $emptyAttributes = [
+		'value',
+		'alt',
+	];
+
+	/**
 	 * @var string
 	 */
 	protected $tag;
@@ -400,7 +408,7 @@ class Tag implements \ArrayAccess
 	 *
 	 * @return string
 	 */
-	public function offsetGet($attribute): string
+	public function offsetGet($attribute): ?string
 	{
 		if ($this->offsetExists($attribute)) {
 			return $this->attributes[$attribute];
@@ -490,7 +498,7 @@ class Tag implements \ArrayAccess
 				return $value ? $name : '';
 			}
 
-			if ($value === '' && !\in_array($name, ['value', 'alt'], false)) {
+			if (($value  === '') && !static::canBeEmptyAttribute($name)) {
 				return $value;
 			}
 
@@ -501,7 +509,7 @@ class Tag implements \ArrayAccess
 
 		$result = trim(implode(' ', array_filter($attributes)));
 
-		if (!empty($attributes)) {
+		if (!empty($result)) {
 			$result = ' ' . $result;
 		}
 
@@ -536,6 +544,16 @@ class Tag implements \ArrayAccess
 	public static function isUrlAttribute(string $attribute): bool
 	{
 		return \in_array($attribute, static::$urlAttributes, true);
+	}
+
+	/**
+	 * @param string $attribute
+	 *
+	 * @return bool
+	 */
+	public static function canBeEmptyAttribute(string $attribute): bool
+	{
+		return \in_array($attribute, static::$emptyAttributes, true);
 	}
 
 }
