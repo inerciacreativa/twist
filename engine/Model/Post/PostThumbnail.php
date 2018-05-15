@@ -3,6 +3,7 @@
 namespace Twist\Model\Post;
 
 use Twist\Library\Image\ImageSearch;
+use Twist\Library\Util\Arr;
 use Twist\Library\Util\Tag;
 
 /**
@@ -10,7 +11,7 @@ use Twist\Library\Util\Tag;
  *
  * @package Twist\Model\Post
  */
-class Thumbnail
+class PostThumbnail
 {
 
 	/**
@@ -32,16 +33,6 @@ class Thumbnail
 	 * @var Tag
 	 */
 	protected $image;
-
-	/**
-	 * @var int
-	 */
-	protected $width;
-
-	/**
-	 * @var int
-	 */
-	protected $height;
 
 	/**
 	 * Thumbnail constructor.
@@ -67,55 +58,29 @@ class Thumbnail
 	}
 
 	/**
-	 * @param string $size
-	 *
-	 * @return $this
-	 */
-	public function size(string $size): self
-	{
-		$size = (string) apply_filters('post_thumbnail_size', $size);
-
-		if (!empty($size) && $size !== $this->size) {
-			$this->image = null;
-			$this->size  = $size;
-		}
-
-		return $this;
-	}
-
-	/**
 	 * @param array $attributes
-	 * @param bool  $filter
 	 *
 	 * @return Tag|null
 	 */
-	public function image(array $attributes = [], $filter = true): ?Tag
+	public function image(array $attributes = []): ?Tag
 	{
 		if ($this->id === 0) {
 			return null;
 		}
 
-		if (array_key_exists('size', $attributes)) {
-			$this->size($attributes['size']);
-			unset($attributes['size']);
+		$size = Arr::pull($attributes, 'size', $this->size);
+		$size = (string) apply_filters('post_thumbnail_size', $size);
+
+		$image = wp_get_attachment_image($this->id, $size, false, $attributes);
+		$image = apply_filters('post_thumbnail_html', $image, $this->post->id(), $this->id, $size, []);
+
+		if ($tag = Tag::parse($image)) {
+			$tag->attributes($attributes);
+
+			return $this->image = $tag;
 		}
 
-		if ($this->image === null) {
-			$image = wp_get_attachment_image($this->id, $this->size);
-			if ($filter) {
-				$image = apply_filters('post_thumbnail_html', $image, $this->post->id(), $this->id, $this->size, []);
-			}
-
-			$this->image = Tag::parse($image);
-		}
-
-		$tag = $this->image->attributes($attributes);
-
-		if (!isset($tag['alt'])) {
-			$tag['alt'] = '';
-		}
-
-		return $tag;
+		return null;
 	}
 
 	/**
@@ -149,13 +114,11 @@ class Thumbnail
 	 */
 	protected function get(string $attribute): ?string
 	{
-		if ($this->id === 0) {
+		if ($this->id === 0 || $this->image === null) {
 			return null;
 		}
 
-		$image = $this->image();
-
-		return $image instanceof Tag ? $image[$attribute] : null;
+		return $this->image[$attribute];
 	}
 
 	/**

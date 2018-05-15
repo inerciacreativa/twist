@@ -45,7 +45,7 @@ class Post extends Model
 	protected $comments;
 
 	/**
-	 * @var Thumbnail
+	 * @var PostThumbnail
 	 */
 	protected $thumbnail;
 
@@ -171,12 +171,12 @@ class Post extends Model
 	}
 
 	/**
-	 * @return Thumbnail
+	 * @return PostThumbnail
 	 */
-	public function thumbnail(): Thumbnail
+	public function thumbnail(): PostThumbnail
 	{
 		if ($this->thumbnail === null) {
-			$this->thumbnail = new Thumbnail($this, true);
+			$this->thumbnail = new PostThumbnail($this, true);
 		}
 
 		return $this->thumbnail;
