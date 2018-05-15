@@ -2,14 +2,14 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Model\ModelInterface;
+use Twist\Library\Model\IdentifiableInterface;
 
 /**
  * Interface UserInterface
  *
  * @package Twist\Model\User
  */
-interface UserInterface extends ModelInterface
+interface UserInterface extends IdentifiableInterface
 {
 
     /**

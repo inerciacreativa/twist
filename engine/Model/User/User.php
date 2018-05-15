@@ -120,38 +120,6 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @inheritdoc
-	 */
-	public function has_parent(): bool
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function parent(): ?ModelInterface
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function has_children(): bool
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function children(): ?CollectionInterface
-	{
-		return null;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function link(): string
