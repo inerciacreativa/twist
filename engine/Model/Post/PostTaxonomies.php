@@ -28,7 +28,7 @@ class PostTaxonomies extends Enumerable
 	/**
 	 * @inheritdoc
 	 */
-	public function get($id): ?Terms
+	public function get($id): ?PostTerms
 	{
 		$terms = parent::get($id);
 
@@ -36,8 +36,8 @@ class PostTaxonomies extends Enumerable
 			return null;
 		}
 
-		if (!($terms instanceof Terms)) {
-			$terms = new Terms($this->model(), new Taxonomy($id));
+		if (!($terms instanceof PostTerms)) {
+			$terms = new PostTerms($this->model(), new Taxonomy($id));
 
 			$this->set($id, $terms);
 		}

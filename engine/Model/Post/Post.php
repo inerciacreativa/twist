@@ -476,17 +476,17 @@ class Post extends Model
 	}
 
 	/**
-	 * @return Terms
+	 * @return PostTerms
 	 */
-	public function categories(): ?Terms
+	public function categories(): ?PostTerms
 	{
 		return $this->taxonomies()->get('category');
 	}
 
 	/**
-	 * @return Terms
+	 * @return PostTerms
 	 */
-	public function tags(): ?Terms
+	public function tags(): ?PostTerms
 	{
 		return $this->taxonomies()->get('post_tag');
 	}
