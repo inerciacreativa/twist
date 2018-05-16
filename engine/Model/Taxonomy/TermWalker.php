@@ -31,7 +31,7 @@ class TermWalker extends \Walker_Category
 	protected $term;
 
 	/**
-	 * Walker constructor.
+	 * TermWalker constructor.
 	 *
 	 * @param Taxonomy $taxonomy
 	 */

@@ -13,7 +13,7 @@ class TermMeta extends Meta
 {
 
     /**
-     * Metas constructor.
+     * TermMeta constructor.
      *
      * @param Term $term
      */
