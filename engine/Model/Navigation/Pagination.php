@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection NullPointerExceptionInspection */
 
 namespace Twist\Model\Navigation;
 
@@ -32,7 +32,7 @@ class Pagination
 			$items = paginate_links($options);
 
 			foreach ($items as $index => $item) {
-				$links->add(new Link($links, $this->getLink($index, $item)));
+				$links->add(new Link($links, $this->link($index, $item)));
 			}
 		}
 
@@ -57,11 +57,11 @@ class Pagination
 		$links = new Links();
 
 		if ($item = get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist'))) {
-			$links->add(new Link($links, $this->getLink(0, $item, 'prev')));
+			$links->add(new Link($links, $this->link(0, $item, 'prev')));
 		}
 
 		if ($item = get_next_posts_link(_x('Next', 'next set of posts', 'twist'))) {
-			$links->add(new Link($links, $this->getLink(1, $item, 'next')));
+			$links->add(new Link($links, $this->link(1, $item, 'next')));
 		}
 
 		return $links;
@@ -70,36 +70,33 @@ class Pagination
 	/**
 	 * @param int         $index
 	 * @param string      $item
-	 * @param string|null $class
+	 * @param string|null $classes
 	 *
 	 * @return array
 	 */
-	protected function getLink(int $index, string $item, string $class = null): array
+	protected function link(int $index, string $item, string $classes = null): array
 	{
-		$tag   = Tag::parse(Str::fromEntities($item));
-		$class = $class ?? trim(str_replace('page-numbers', '', $tag['class']));
-		$title = $tag->content();
-		$label = sprintf(__('Goto page %s', 'twist'), $title);
+		$tag     = Tag::parse(Str::fromEntities($item));
+		$classes = $classes ?? trim(str_replace('page-numbers', '', $tag['class']));
+		$title   = $tag->content();
+		$label   = sprintf(__('Goto page %s', 'twist'), $title);
 
-		if ($class === 'prev') {
+		if ($classes === 'prev') {
 			$label = __('Goto previous page', 'twist');
-		} else if ($class === 'next') {
+		} else if ($classes === 'next') {
 			$label = __('Goto next page', 'twist');
-		} else if ($class === 'current') {
+		} else if ($classes === 'current') {
 			$label = sprintf(__('Current page, page %s', 'twist'), $title);
-		} else if ($class === 'dots') {
+		} else if ($classes === 'dots') {
 			$label = '';
 		}
 
 		return [
-			'id'          => $index,
-			'label'       => $label,
-			'title'       => $title,
-			'url'         => $tag['href'] ?? false,
-			'is_current'  => $class === 'current',
-			'is_disabled' => $class === 'dots',
-			'is_next'     => $class === 'next',
-			'is_previous' => $class === 'prev',
+			'id'      => $index,
+			'title'   => $title,
+			'url'     => $tag['href'] ?? null,
+			'classes' => [$classes],
+			'label'   => $label,
 		];
 	}
 

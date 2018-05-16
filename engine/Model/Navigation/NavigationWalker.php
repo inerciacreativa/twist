@@ -7,16 +7,16 @@ namespace Twist\Model\Navigation;
  *
  * @package Twist\Model\Navigation
  */
-class Walker extends \Walker_Nav_Menu
+class NavigationWalker extends \Walker_Nav_Menu
 {
 
 	/**
 	 * @var array
 	 */
 	protected static $classes = [
-		'current-menu-item'     => 'active',
-		'current-menu-parent'   => 'active-parent',
-		'current-menu-ancestor' => 'active-ancestor',
+		'current-menu-item'     => 'current',
+		'current-menu-parent'   => 'current-parent',
+		'current-menu-ancestor' => 'current-ancestor',
 		'has-children'          => 'has-children',
 	];
 
@@ -42,14 +42,21 @@ class Walker extends \Walker_Nav_Menu
 	 */
 	public function __construct(Links $links)
 	{
-		$this->root  = $links;
-		$this->links = $links;
+		$this->root = $this->links = $links;
+	}
+
+	/**
+	 * @return Links
+	 */
+	public function navigation(): Links
+	{
+		return $this->root;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function start_el(&$output, $item, $depth = 0, $arguments = [], $id = 0)
+	public function start_el(&$output, $item, $depth = 0, $arguments = [], $id = 0): void
 	{
 		$classes = empty($item->classes) ? [] : (array) $item->classes;
 		// Remove unneeded classes
@@ -64,12 +71,11 @@ class Walker extends \Walker_Nav_Menu
 		$title = apply_filters('nav_menu_item_title', $title, $item, $arguments, $depth);
 
 		$this->link = new Link($this->links, [
-			'id'        => $item->ID,
-			'classes'   => $classes,
-			'is_active' => \in_array('active', $classes, false),
-			'rel'       => $item->xfn,
-			'url'       => $item->url,
-			'title'     => $title,
+			'id'      => (int) $item->ID,
+			'title'   => $title,
+			'url'     => $item->url,
+			'classes' => $classes,
+			'rel'     => $item->xfn,
 		]);
 
 		$this->links->add($this->link);
@@ -78,14 +84,14 @@ class Walker extends \Walker_Nav_Menu
 	/**
 	 * @inheritdoc
 	 */
-	public function end_el(&$output, $item, $depth = 0, $arguments = [])
+	public function end_el(&$output, $item, $depth = 0, $arguments = []): void
 	{
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function start_lvl(&$output, $depth = 0, $arguments = [])
+	public function start_lvl(&$output, $depth = 0, $arguments = []): void
 	{
 		$this->links = $this->link->children();
 	}
@@ -93,13 +99,13 @@ class Walker extends \Walker_Nav_Menu
 	/**
 	 * @inheritdoc
 	 */
-	public function end_lvl(&$output, $depth = 0, $arguments = [])
+	public function end_lvl(&$output, $depth = 0, $arguments = []): void
 	{
-		$link  = $this->links->parent();
-		$links = $link->has_parent() ? $link->parent()
-		                                    ->children() : $this->root;
+		$link = $this->links->parent();
 
-		$this->links = $links;
+		/** @noinspection NullPointerExceptionInspection */
+		$this->links = $link->has_parent() ? $link->parent()
+		                                          ->children() : $this->root;
 	}
 
 }

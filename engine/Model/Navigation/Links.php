@@ -2,14 +2,14 @@
 
 namespace Twist\Model\Navigation;
 
-use Twist\Model\ModelCollection;
+use Twist\Library\Model\Collection;
 
 /**
  * Class Links
  *
  * @package Twist\Model\Navigation
  */
-class Links extends ModelCollection
+class Links extends Collection
 {
 
 }

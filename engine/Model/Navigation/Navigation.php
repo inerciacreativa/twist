@@ -22,7 +22,7 @@ class Navigation
 		});
 
 		add_filter('pre_wp_nav_menu', function () {
-			return $this->getNavigation(func_get_arg(1));
+			return $this->navigation(func_get_arg(1));
 		}, 1, 2);
 	}
 
@@ -49,17 +49,20 @@ class Navigation
 	 *
 	 * @return Links
 	 */
-	protected function getNavigation($arguments): Links
+	protected function navigation($arguments): Links
 	{
-		$items = $this->getItems($arguments->menu, $arguments->theme_location);
+		$items = $this->items($arguments->menu, $arguments->theme_location);
 
 		if (empty($items)) {
 			return new Links();
 		}
 
-		$items = $this->sortItems($items, $arguments);
+		$items  = $this->sort($items, $arguments);
+		$walker = new NavigationWalker(new Links());
 
-		return $this->getMenu($items, $arguments);
+		$walker->walk($items, $arguments->depth, $arguments);
+
+		return $walker->navigation();
 	}
 
 	/**
@@ -70,7 +73,7 @@ class Navigation
 	 *
 	 * @return array
 	 */
-	protected function getItems($menu, string $location = null): array
+	protected function items($menu, string $location = null): array
 	{
 		$menu  = wp_get_nav_menu_object($menu);
 		$items = false;
@@ -111,7 +114,7 @@ class Navigation
 	 *
 	 * @return array
 	 */
-	protected function sortItems(array $items, $arguments): array
+	protected function sort(array $items, $arguments): array
 	{
 		_wp_menu_item_classes_by_context($items);
 
@@ -134,24 +137,6 @@ class Navigation
 		}
 
 		return apply_filters('wp_nav_menu_objects', $sortedItems, $arguments);
-	}
-
-	/**
-	 * Get the items collection ready to use in the view.
-	 *
-	 * @param array     $items
-	 * @param \stdClass $arguments
-	 *
-	 * @return Links
-	 */
-	protected function getMenu(array $items, $arguments): Links
-	{
-		$menu   = new Links();
-		$walker = new Walker($menu);
-
-		$walker->walk($items, $arguments->depth, $arguments);
-
-		return $menu;
 	}
 
 }
