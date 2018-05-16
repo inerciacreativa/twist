@@ -2,7 +2,8 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Model\ModelCollection;
+use Twist\Library\Model\Collection;
+use Twist\Library\Model\CollectionIteratorInterface;
 use Twist\Model\Post\Post;
 
 /**
@@ -10,41 +11,31 @@ use Twist\Model\Post\Post;
  *
  * @package Twist\Model\Comment
  */
-class Comments extends ModelCollection
+class Comments extends Collection
 {
 
     /**
-     * @var Query
+     * @var CommentQuery
      */
     protected $query;
 
     /**
-     * @param Post $post
-     *
-     * @return Query
-     */
-    public static function from(Post $post): Query
-    {
-        return new Query($post);
-    }
-
-    /**
      * Comments constructor.
      *
-     * @param Query   $query
-     * @param Comment $parent
+     * @param CommentQuery $query
+     * @param Comment      $parent
      */
-    public function __construct(Query $query, Comment $parent = null)
+    public function __construct(CommentQuery $query, Comment $parent = null)
     {
-        parent::__construct($parent);
+	    $this->query = $query;
 
-        $this->query = $query;
+        parent::__construct($parent);
     }
 
     /**
-     * @return Query
+     * @return CommentQuery
      */
-    public function query(): Query
+    public function query(): CommentQuery
     {
         return $this->query;
     }
@@ -57,18 +48,12 @@ class Comments extends ModelCollection
         return $this->query->post();
     }
 
-    /**
-     * @return Comment
-     */
-    public function current(): Comment
-    {
-        /** @var Comment $comment */
-        $comment = parent::current();
-
-        $GLOBALS['comment']       = &$comment;
-        $GLOBALS['comment_depth'] = $comment->depth() + 1;
-
-        return $comment;
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getIterator(): CollectionIteratorInterface
+	{
+		return new CommentsIterator($this->models);
+	}
 
 }

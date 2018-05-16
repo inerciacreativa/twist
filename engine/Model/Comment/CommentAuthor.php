@@ -5,11 +5,11 @@ namespace Twist\Model\Comment;
 use Twist\Model\User\User;
 
 /**
- * Class Author
+ * Class CommentAuthor
  *
  * @package Twist\Model\Comment
  */
-class Author extends User
+class CommentAuthor extends User
 {
 
     /**
@@ -18,7 +18,7 @@ class Author extends User
     protected $comment;
 
     /**
-     * Author constructor.
+     * CommentAuthor constructor.
      *
      * @param Comment $comment
      */
@@ -32,7 +32,7 @@ class Author extends User
     /**
      * @param Comment $comment
      */
-    protected function setup(Comment $comment)
+    protected function setup(Comment $comment): void
     {
         $this->comment = $comment;
 
@@ -40,7 +40,6 @@ class Author extends User
             'display_name' => 'comment_author',
             'user_email'   => 'comment_author_email',
             'user_url'     => 'comment_author_url',
-            'user_ip'      => 'comment_author_IP',
         ];
 
         foreach ($properties as $property => $variable) {
@@ -78,14 +77,6 @@ class Author extends User
     public function url(): string
     {
         return esc_url(apply_filters('comment_url', parent::url(), $this->comment->id()));
-    }
-
-    /**
-     * @return string
-     */
-    public function ip(): string
-    {
-        return esc_html($this->user->user_ip);
     }
 
 }
