@@ -16,7 +16,7 @@ class PostTaxonomies extends Enumerable
 {
 
 	/**
-	 * Taxonomies constructor.
+	 * PostTaxonomies constructor.
 	 *
 	 * @param Post $post
 	 */

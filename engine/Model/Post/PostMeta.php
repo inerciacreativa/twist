@@ -13,7 +13,7 @@ class PostMeta extends Meta
 {
 
     /**
-     * Meta constructor.
+     * PostMeta constructor.
      *
      * @param Post $post
      */

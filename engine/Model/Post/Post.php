@@ -7,7 +7,7 @@ use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Macro;
 use Twist\Model\Comment\Comments;
-use Twist\Model\Comment\Query;
+use Twist\Model\Comment\CommentQuery;
 
 /**
  * Class Post
@@ -333,6 +333,21 @@ class Post extends Model
 	}
 
 	/**
+	 * Retrieve the date on which the post was written.
+	 *
+	 * @param string $format
+	 *
+	 * @return string
+	 */
+	public function time(string $format = ''): string
+	{
+		$format = $format ?: (string) get_option('time_format');
+		$time   = mysql2date($format, $this->post->post_date);
+
+		return apply_filters('get_the_time', $time, $format, $this->post);
+	}
+
+	/**
 	 * Retrieve the date on which the post was written in ISO 8601 format.
 	 *
 	 * @see the_date()
@@ -341,7 +356,7 @@ class Post extends Model
 	 */
 	public function published(): string
 	{
-		return $this->getDatetime($this->post->post_date, 'the_date');
+		return $this->datetime($this->post->post_date, 'the_date');
 	}
 
 	/**
@@ -351,7 +366,7 @@ class Post extends Model
 	 */
 	public function modified(): string
 	{
-		return $this->getDatetime($this->post->post_modified, 'the_modified_date');
+		return $this->datetime($this->post->post_modified, 'the_modified_date');
 	}
 
 	public function classes()
@@ -452,12 +467,12 @@ class Post extends Model
 	}
 
 	/**
-	 * @return PostQuery
+	 * @return CommentQuery
 	 */
-	public function comments(): Query
+	public function comments(): CommentQuery
 	{
 		if ($this->comments === null) {
-			$this->comments = Comments::from($this);
+			$this->comments = new CommentQuery($this);
 		}
 
 		return $this->comments;
@@ -527,7 +542,7 @@ class Post extends Model
 	 *
 	 * @return string
 	 */
-	protected function getDatetime(string $date, string $filter): string
+	protected function datetime(string $date, string $filter): string
 	{
 		$format = 'c';
 		$date   = (string) date($format, strtotime($date));

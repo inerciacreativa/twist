@@ -5,7 +5,7 @@ namespace Twist\Model\Post;
 use Twist\Model\User\User;
 
 /**
- * Class Author
+ * Class PostAuthor
  *
  * @package Twist\Model\Post
  */
@@ -13,7 +13,7 @@ class PostAuthor extends User
 {
 
 	/**
-	 * Author constructor.
+	 * PostAuthor constructor.
 	 *
 	 * @param int       $user
 	 *

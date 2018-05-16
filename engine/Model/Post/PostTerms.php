@@ -7,7 +7,7 @@ use Twist\Model\Taxonomy\Terms;
 use Twist\Model\Taxonomy\Term;
 
 /**
- * Class Taxonomies
+ * Class PostTerms
  *
  * @package Twist\Model\Post
  */
@@ -15,7 +15,7 @@ class PostTerms extends Terms
 {
 
 	/**
-	 * Taxonomies constructor.
+	 * PostTerms constructor.
 	 *
 	 * @param Post     $post
 	 * @param Taxonomy $taxonomy

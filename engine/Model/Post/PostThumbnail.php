@@ -7,7 +7,7 @@ use Twist\Library\Util\Arr;
 use Twist\Library\Util\Tag;
 
 /**
- * Class Thumbnail
+ * Class PostThumbnail
  *
  * @package Twist\Model\Post
  */
@@ -35,7 +35,7 @@ class PostThumbnail
 	protected $image;
 
 	/**
-	 * Thumbnail constructor.
+	 * PostThumbnail constructor.
 	 *
 	 * @param Post $post
 	 * @param bool $generate

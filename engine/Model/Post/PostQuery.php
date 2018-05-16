@@ -6,7 +6,7 @@ use Twist\Library\Model\IterableInterface;
 use Twist\Library\Util\Arr;
 
 /**
- * Class Query
+ * Class PostQuery
  *
  * @package Twist\Model\Post
  */
@@ -75,7 +75,7 @@ class PostQuery implements IterableInterface
 	}
 
 	/**
-	 * Posts constructor.
+	 * PostQuery constructor.
 	 *
 	 * @param array $query
 	 */
@@ -84,6 +84,14 @@ class PostQuery implements IterableInterface
 		global $wp_query;
 
 		$this->query = $query ? new \WP_Query($query) : $wp_query;
+	}
+
+	/**
+	 * @return \WP_Query
+	 */
+	public function object(): \WP_Query
+	{
+		return $this->query;
 	}
 
 	/**
@@ -202,7 +210,7 @@ class PostQuery implements IterableInterface
 	 *
 	 * @return bool
 	 */
-	public function is_post($post = null): bool
+	public function is_single($post = null): bool
 	{
 		return $this->query->is_single($post);
 	}
