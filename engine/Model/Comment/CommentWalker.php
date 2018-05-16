@@ -50,10 +50,6 @@ class CommentWalker extends \Walker_Comment
 	{
 		$this->comment = new Comment($this->comments, $comment, $depth);
 
-		if ($this->comments->has_parent()) {
-			$this->comment->set_parent($this->comments->parent());
-		}
-
 		$this->comments->add($this->comment);
 	}
 
