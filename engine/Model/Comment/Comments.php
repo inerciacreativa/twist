@@ -40,6 +40,14 @@ class Comments extends Collection
         return $this->query;
     }
 
+	/**
+	 * @return null|CommentPagination
+	 */
+	public function pagination(): ?CommentPagination
+	{
+		return $this->query->pagination();
+	}
+
     /**
      * @return Post
      */
