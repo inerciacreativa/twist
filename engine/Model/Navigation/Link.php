@@ -18,16 +18,11 @@ class Link extends Model
 	/**
 	 * Link constructor.
 	 *
-	 * @param Links $links
 	 * @param array $properties
 	 */
-	public function __construct(Links $links, array $properties)
+	public function __construct(array $properties)
 	{
 		$this->properties = $properties;
-
-		if ($links->has_parent()) {
-			$this->set_parent($links->parent());
-		}
 	}
 
 	/**

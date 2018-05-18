@@ -70,13 +70,17 @@ class NavigationWalker extends \Walker_Nav_Menu
 		$title = apply_filters('the_title', $item->title, $item->ID);
 		$title = apply_filters('nav_menu_item_title', $title, $item, $arguments, $depth);
 
-		$this->link = new Link($this->links, [
+		$this->link = new Link([
 			'id'      => (int) $item->ID,
 			'title'   => $title,
 			'url'     => $item->url,
 			'classes' => $classes,
 			'rel'     => $item->xfn,
 		]);
+
+		if ($this->links->has_parent()) {
+			$this->link->set_parent($this->links->parent());
+		}
 
 		$this->links->add($this->link);
 	}
