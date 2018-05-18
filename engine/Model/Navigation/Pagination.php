@@ -2,8 +2,8 @@
 
 namespace Twist\Model\Navigation;
 
-use ic\Framework\Html\Tag;
 use Twist\Library\Util\Str;
+use Twist\Library\Util\Tag;
 
 /**
  * Class Pagination
@@ -14,29 +14,42 @@ class Pagination
 {
 
 	/**
+	 * @return Links
+	 */
+	public function simple(): Links
+	{
+		$links = new Links();
+		$items = array_filter($this->simple_links());
+		$index = 0;
+
+		foreach ($items as $class => $item) {
+			$link = new Link($this->link($index, $item, $class));
+			$links->add($link);
+			$index++;
+		}
+
+		return $links;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function simple_links(): array
+	{
+		return [
+			'prev' => get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist')),
+			'next' => get_next_posts_link(_x('Next', 'next set of posts', 'twist')),
+		];
+	}
+
+	/**
 	 * @param array $arguments
 	 *
 	 * @return Links
 	 */
-	public function make(array $arguments = []): Links
+	public function extended(array $arguments = []): Links
 	{
-		$links = new Links();
-
-		if ($GLOBALS['wp_query']->max_num_pages > 1) {
-			$options = array_merge([
-				'mid_size'  => 1,
-				'prev_text' => _x('Previous', 'previous set of posts', 'twist'),
-				'next_text' => _x('Next', 'next set of posts', 'twist'),
-			], $arguments, ['type' => 'array']);
-
-			$items = paginate_links($options);
-
-			foreach ($items as $index => $item) {
-				$links->add(new Link($links, $this->link($index, $item)));
-			}
-		}
-
-		return $links;
+		return $this->paginate_links($arguments);
 	}
 
 	/**
@@ -46,22 +59,26 @@ class Pagination
 	 */
 	public function numeric(array $arguments = []): Links
 	{
-		return $this->make(array_merge($arguments, ['prev_next' => false]));
+		return $this->paginate_links(array_merge($arguments, ['prev_next' => false]));
 	}
 
 	/**
+	 * @param array $arguments
+	 *
 	 * @return Links
 	 */
-	public function simple(): Links
+	protected function paginate_links(array $arguments = []): Links
 	{
 		$links = new Links();
+		$items = (array) paginate_links(array_merge([
+			'mid_size'  => 1,
+			'prev_text' => _x('Previous', 'previous set of posts', 'twist'),
+			'next_text' => _x('Next', 'next set of posts', 'twist'),
+		], $arguments, ['type' => 'array']));
 
-		if ($item = get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist'))) {
-			$links->add(new Link($links, $this->link(0, $item, 'prev')));
-		}
-
-		if ($item = get_next_posts_link(_x('Next', 'next set of posts', 'twist'))) {
-			$links->add(new Link($links, $this->link(1, $item, 'next')));
+		foreach ($items as $index => $item) {
+			$link = new Link($this->link($index, $item));
+			$links->add($link);
 		}
 
 		return $links;
