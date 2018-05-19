@@ -29,7 +29,7 @@ class CaptureAction extends BoundedAction
      */
     public function __construct($hook, $object, $method)
     {
-        if (is_string($hook)) {
+        if (\is_string($hook)) {
             $this->hooks = [$hook, $hook];
         } else {
             $this->hooks = array_values($hook);
@@ -48,7 +48,7 @@ class CaptureAction extends BoundedAction
         if ($this->buffering) {
             $this->buffering = false;
 
-            return call_user_func($this->callback, ob_get_clean());
+            return \call_user_func($this->callback, ob_get_clean());
         }
 
         $this->buffering = true;
