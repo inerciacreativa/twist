@@ -3,8 +3,8 @@
 namespace Twist\Model\Site;
 
 use Twist\Library\Util\Macro;
-use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Links;
+use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Pagination;
 
 /**
@@ -18,19 +18,14 @@ class Site
 	use Macro;
 
 	/**
-	 * @var Header
-	 */
-	protected $header;
-
-	/**
-	 * @var Footer
-	 */
-	protected $footer;
-
-	/**
 	 * @var Navigation
 	 */
 	protected $navigation;
+
+	/**
+	 * @var Pagination
+	 */
+	protected $pagination;
 
 	/**
 	 * @var Assets
@@ -42,20 +37,24 @@ class Site
 	 */
 	public function __construct()
 	{
-		$this->assets = new Assets($this);
+		$this->assets     = new Assets($this);
 		$this->navigation = new Navigation();
 	}
 
 	/**
-	 * @return Header
+	 * @return Head
 	 */
-	public function head(): Header
+	public function head(): Head
 	{
-		if ($this->header === null) {
-			$this->header = new Header();
-		}
+		return new Head();
+	}
 
-		return $this->header;
+	/**
+	 * @return Foot
+	 */
+	public function foot(): Foot
+	{
+		return new Foot();
 	}
 
 	/**
@@ -278,29 +277,11 @@ class Site
 	 */
 	public function pagination(): Pagination
 	{
-		return new Pagination();
-	}
-
-	/**
-	 * @param array $arguments
-	 *
-	 * @return Links
-	 */
-	public function pager(array $arguments = []): Links
-	{
-		return $this->pagination()->make($arguments);
-	}
-
-	/**
-	 * @return Footer
-	 */
-	public function foot(): Footer
-	{
-		if ($this->footer === null) {
-			$this->footer = new Footer();
+		if ($this->pagination === null) {
+			$this->pagination = new Pagination();
 		}
 
-		return $this->footer;
+		return $this->pagination;
 	}
 
 	/**
