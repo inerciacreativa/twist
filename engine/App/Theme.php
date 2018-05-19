@@ -7,6 +7,7 @@ use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Library\Util\Tag;
+use Twist\Service\ServiceProviderInterface;
 use Twist\View\Twig\TwigService;
 use function Twist\app;
 use function Twist\asset_url;

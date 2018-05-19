@@ -2,13 +2,11 @@
 
 namespace Twist\Service;
 
-use Twist\App\ServiceProviderInterface;
 use Twist\App\App;
-use Twist\Service\Api\RestService;
 use Twist\Service\Api\OEmbedService;
 use Twist\Service\Filter\ContentCleanerService;
-use Twist\Service\Filter\RelativeUrlService;
 use Twist\Service\Filter\EmojiService;
+use Twist\Service\Filter\RelativeUrlService;
 
 /**
  * Class ServiceProvider
@@ -23,10 +21,6 @@ class CoreServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
-		$app->service(RestService::id(), function (App $app) {
-			return new RestService($app);
-		}, true);
-
 		$app->service(OEmbedService::id(), function (App $app) {
 			return new OEmbedService($app);
 		}, true);

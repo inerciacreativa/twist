@@ -4,6 +4,7 @@ namespace Twist\App;
 
 use Pimple\Container;
 use Twist\Service\Service;
+use Twist\Service\ServiceProviderInterface;
 
 /**
  * Class Application

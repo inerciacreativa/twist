@@ -2,8 +2,8 @@
 
 namespace Twist\View;
 
-use Twist\App\ServiceProviderInterface;
 use Twist\App\App;
+use Twist\Service\ServiceProviderInterface;
 use Twist\View\Twig\TwigService;
 
 /**

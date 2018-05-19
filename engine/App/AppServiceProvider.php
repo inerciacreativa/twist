@@ -2,6 +2,8 @@
 
 namespace Twist\App;
 
+use Twist\Service\ServiceProviderInterface;
+
 /**
  * Class AppServiceProvider
  *

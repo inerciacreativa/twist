@@ -1,6 +1,8 @@
 <?php
 
-namespace Twist\App;
+namespace Twist\Service;
+
+use Twist\App\App;
 
 /**
  * Interface ServiceProviderInterface

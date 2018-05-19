@@ -4,11 +4,11 @@ namespace Twist;
 
 use Twist\App\App;
 use Twist\App\AppServiceProvider;
-use Twist\View\ViewServiceProvider;
 use Twist\App\Config;
 use Twist\App\Theme;
 use Twist\Library\Data\JsonFile;
 use Twist\View\ViewInterface;
+use Twist\View\ViewServiceProvider;
 
 /**
  * @param null|string $id
@@ -20,9 +20,8 @@ function app(string $id = null)
 	static $app;
 
 	if ($app === null) {
-		$app = (new App())
-			->provider(new AppServiceProvider())
-			->provider(new ViewServiceProvider());
+		$app = (new App())->provider(new AppServiceProvider())
+		                  ->provider(new ViewServiceProvider());
 	}
 
 	return $id === null ? $app : $app[$id];
