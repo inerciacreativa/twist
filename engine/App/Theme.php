@@ -3,6 +3,7 @@
 namespace Twist\App;
 
 use Twist\Library\Data\Collection;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Library\Util\Tag;
@@ -97,33 +98,29 @@ class Theme
 		$this->scripts  = new Collection();
 		$this->sidebars = new Collection();
 
-		add_filter('show_admin_bar', '__return_false');
-
-		add_filter('after_setup_theme', function () {
-			$this->setup();
-		}, PHP_INT_MIN);
-
-		add_filter('wp_enqueue_scripts', function () {
-			$this->addStyles();
-			$this->addScripts();
-		});
-		add_filter('widgets_init', function () {
-			$this->addSidebars();
-		});
-
-		add_filter('script_loader_tag', function (string $script, string $handle) {
-			return $this->addScriptsAttributes($script, $handle);
-		}, 99, 2);
-		add_filter('wp_resource_hints', function (array $urls, string $relation) {
-			return $this->addResourceHints($urls, $relation);
-		}, 99, 2);
-		add_filter('user_contactmethods', function (array $methods) {
-			return $this->addContactMethods($methods);
-		});
-
-		add_filter('wp_footer', function () {
-			$this->addWebFonts();
-		}, PHP_INT_MAX);
+		Hook::bind($this)
+		    ->before('after_setup_theme', 'setup')
+		    ->on('show_admin_bar', '__return_false')
+		    ->on('user_contactmethods', 'addContactMethods')
+		    ->on('wp_enqueue_scripts', 'addStyles')
+		    ->on('wp_enqueue_scripts', 'addScripts')
+		    ->on('widgets_init', 'addSidebars')
+		    ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
+		    ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
+		    ->after('wp_footer', 'addWebFonts')
+		    ->on('twist_site_metas', function (array $metas) {
+			    return array_filter($metas, function (Tag $meta) {
+				    return !(isset($meta['name']) && $meta['name'] === 'generator');
+			    });
+		    })
+		    ->on('twist_site_links', function (array $links) {
+			    return array_filter($links, function (Tag $link) {
+				    return !\in_array($link['rel'], [
+					    'EditURI',
+					    'wlwmanifest',
+				    ], false);
+			    });
+		    });
 	}
 
 	/**
@@ -301,7 +298,6 @@ class Theme
 		$this->addLanguages();
 		$this->addServices();
 		$this->addThemeSupport();
-		$this->addHeadCleaner();
 
 		app()->boot();
 	}
@@ -326,7 +322,7 @@ class Theme
 			'view.base'    => '/views',
 		]);
 
-		do_action('ic_twist_theme', $this);
+		Hook::fire('ic_twist_theme', $this);
 
 		config()->fill($this->config);
 
@@ -512,29 +508,6 @@ class Theme
 	}
 
 	/**
-	 * Remove unnecessary elements in the header.
-	 */
-	protected function addHeadCleaner(): void
-	{
-		add_filter('ic_twist_metas', function ($metas) {
-			return array_filter($metas, function ($meta) {
-				return !(isset($meta['name']) && $meta['name'] === 'generator');
-			});
-		});
-
-		add_filter('ic_twist_header_links', function ($links) {
-			return array_filter($links, function ($link) {
-				return !\in_array($link['rel'], [
-					'EditURI',
-					'wlwmanifest',
-				], false);
-			});
-		});
-
-		add_filter('wpseo_json_ld_output', '__return_null');
-	}
-
-	/**
 	 * Adds web fonts using Web Font Loader.
 	 *
 	 * @see https://github.com/typekit/webfontloader
@@ -553,7 +526,7 @@ class Theme
 	   WebFontConfig = {google: {families: ['$families']}};
 	
 	   (function(d) {
-	      var wf = d.createElement('script'), s = d.scripts[0];
+	      const wf = d.createElement('script'), s = d.scripts[0];
 	      wf.src = '$script';
 	      wf.async = true;
 	      s.parentNode.insertBefore(wf, s);
