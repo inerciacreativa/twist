@@ -3,6 +3,7 @@
 namespace Twist\Model\Site\Element;
 
 use Twist\Library\Dom\Document;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 
 /**
@@ -55,7 +56,7 @@ class Meta implements ElementInterface
 	 */
 	public function get(): array
 	{
-		return $this->metas;
+		return Hook::apply('twist_site_metas', $this->metas);
 	}
 
 }

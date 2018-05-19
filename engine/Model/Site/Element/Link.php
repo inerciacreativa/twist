@@ -3,6 +3,7 @@
 namespace Twist\Model\Site\Element;
 
 use Twist\Library\Dom\Document;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 
 /**
@@ -60,7 +61,7 @@ class Link implements ElementInterface
 	 */
 	public function get(): array
 	{
-		return array_merge($this->links, $this->styles);
+		return Hook::apply('twist_site_links', array_merge($this->links, $this->styles));
 	}
 
 }

@@ -2,13 +2,22 @@
 
 namespace Twist\Model\Site;
 
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 use function Twist\asset_path;
 use function Twist\asset_url;
 
+/**
+ * Class Assets
+ *
+ * @package Twist\Model\Site
+ */
 class Assets
 {
 
+	/**
+	 * @var Site
+	 */
 	protected $site;
 
 	/**
@@ -49,7 +58,8 @@ class Assets
 		$logo->attributes($attributes);
 		$logo['alt'] = $this->site->name();
 
-		return apply_filters('ic_twist_assets_logo', $logo);
+
+		return Hook::apply('twist_assets_logo', $logo);
 	}
 
 	/**
@@ -68,7 +78,7 @@ class Assets
 			$image['alt'] = '';
 		}
 
-		return apply_filters('ic_twist_assets_image', $image);
+		return Hook::apply('twist_assets_image', $image);
 	}
 
 	/**

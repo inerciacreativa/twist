@@ -3,6 +3,7 @@
 namespace Twist\Model\Site\Element;
 
 use Twist\Library\Dom\Document;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 
 /**
@@ -71,7 +72,7 @@ class Script implements ElementInterface
 	 */
 	public function get(): array
 	{
-		return $this->scripts;
+		return Hook::apply('twist_site_scripts', $this->scripts);
 	}
 
 }
