@@ -9,17 +9,16 @@ use Twist\Service\CoreServiceProvider;
 use function Twist\theme;
 
 theme()->services(new CoreServiceProvider())->config([
-	'view.global' => [
-		'site'  => Site::class,
+	'view.global'             => [
+		'site' => Site::class,
 	],
-	'view.data'    => [
+	'view.data'               => [
 		'posts' => PostQuery::class,
 	],
-	'api.rest'            => false,
-	'api.oembed'          => false,
-	'filter.relative_url' => true,
-	'filter.emoji'        => true,
-	'filter.content'      => [
+	'service.relative_url'    => true,
+	'service.disable_emoji'   => true,
+	'service.content_cleaner' => [
+		'enable'     => true,
 		'attributes' => [],
 		'styles'     => [],
 		'comments'   => true,
@@ -29,13 +28,13 @@ theme()->services(new CoreServiceProvider())->config([
 		'id'     => 'twist',
 		'load'   => 'scripts/main.css',
 		'parent' => true,
-	]
+	],
 ])->scripts([
 	[
 		'id'     => 'twist',
 		'load'   => 'scripts/main.js',
 		'parent' => true,
-		'deps'   => ['jquery']
+		'deps'   => ['jquery'],
 	],
 	[
 		'id'   => 'comment-reply',
