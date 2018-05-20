@@ -29,7 +29,7 @@ class BoundedAction extends Action
 
         parent::__construct($hook, $callback, $parameters);
 
-        $this->setId(get_class($object), $method);
+        $this->setId(\get_class($object), $method);
     }
 
     /**
@@ -43,7 +43,7 @@ class BoundedAction extends Action
     protected function getCallback($object, $method): callable
     {
         return \Closure::bind(function () use ($method) {
-            return call_user_func_array([$this, $method], func_get_args());
+            return \call_user_func_array([$this, $method], \func_get_args());
         }, $object, $object);
     }
 

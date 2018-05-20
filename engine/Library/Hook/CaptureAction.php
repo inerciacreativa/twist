@@ -59,29 +59,25 @@ class CaptureAction extends BoundedAction
     /**
      * @inheritdoc
      */
-    public function enable()
+    public function enable(): void
     {
         if (!$this->enabled) {
             add_filter($this->hooks[0], $this, ~PHP_INT_MAX, 1);
             add_filter($this->hooks[1], $this, PHP_INT_MAX, 1);
             $this->enabled = true;
         }
-
-        return $this;
     }
 
     /**
      * @inheritdoc
      */
-    public function disable()
+    public function disable(): void
     {
         if ($this->enabled) {
             remove_filter($this->hooks[0], $this, ~PHP_INT_MAX);
             remove_filter($this->hooks[1], $this, PHP_INT_MAX);
             $this->enabled = false;
         }
-
-        return $this;
     }
 
 }

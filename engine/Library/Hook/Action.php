@@ -75,14 +75,14 @@ abstract class Action implements ActionInterface
      */
     public function __invoke()
     {
-        return call_user_func_array($this->callback, array_slice(func_get_args(), 0, $this->arguments));
+        return \call_user_func_array($this->callback, \array_slice(\func_get_args(), 0, $this->arguments));
     }
 
     /**
      * @param string $namespace
      * @param string $id
      */
-    protected function setId(string $namespace, string $id)
+    protected function setId(string $namespace, string $id): void
     {
         $this->id = sprintf('%s.%s.%s', $namespace, $this->hook, $id);
     }
@@ -114,27 +114,23 @@ abstract class Action implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function enable()
+    public function enable(): void
     {
         if (!$this->enabled) {
             add_filter($this->hook, $this, $this->priority, $this->arguments);
             $this->enabled = true;
         }
-
-        return $this;
     }
 
     /**
      * @inheritdoc
      */
-    public function disable()
+    public function disable(): void
     {
         if ($this->enabled) {
             remove_filter($this->hook, $this, $this->priority);
             $this->enabled = false;
         }
-
-        return $this;
     }
 
 }

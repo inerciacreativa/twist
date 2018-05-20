@@ -2,7 +2,6 @@
 
 namespace Twist\Library\Hook;
 
-use Twist\Library\Data\Singleton;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 
@@ -10,11 +9,18 @@ use Twist\Library\Util\Data;
  * Class Hooks
  *
  * @package Twist\Library\Hook
- *
- * @method static Hook getInstance()
  */
-class Hook extends Singleton
+class Hook
 {
+
+	public const BEFORE = -1;
+
+	public const AFTER = 99999;
+
+	/**
+	 * @var Hook
+	 */
+	private static $instance;
 
 	/**
 	 * @var mixed
@@ -32,13 +38,25 @@ class Hook extends Singleton
 	private $actions = [];
 
 	/**
+	 * @return Hook
+	 */
+	final public static function instance(): Hook
+	{
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	/**
 	 * @param mixed $object
 	 *
 	 * @return Hook
 	 */
 	public static function bind($object): Hook
 	{
-		$hooks         = static::getInstance();
+		$hooks         = static::instance();
 		$hooks->object = $object;
 		$hooks->class  = \get_class($object);
 
@@ -50,7 +68,7 @@ class Hook extends Singleton
 	 */
 	public static function unbind(): Hook
 	{
-		$hooks         = static::getInstance();
+		$hooks         = static::instance();
 		$hooks->object = null;
 		$hooks->class  = '';
 
@@ -76,6 +94,27 @@ class Hook extends Singleton
 	}
 
 	/**
+	 * @param string $hook
+	 * @param string $callback
+	 * @param int    $priority
+	 * @param int    $parameters
+	 */
+	public static function add(string $hook, string $callback, int $priority = 10, int $parameters = 1): void
+	{
+		add_filter($hook, $callback, $priority, $parameters);
+	}
+
+	/**
+	 * @param string $hook
+	 * @param string $callback
+	 * @param int    $priority
+	 */
+	public static function remove(string $hook, string $callback, int $priority = 10): void
+	{
+		remove_filter($hook, $callback, $priority);
+	}
+
+	/**
 	 * The format of the IDs is '$namespace.$hook.$callback'.
 	 *
 	 * If only one segment is passed it's assumed to be '$callback'.
@@ -85,7 +124,7 @@ class Hook extends Singleton
 	 *
 	 * @return ActionInterface[]
 	 */
-	public function get(string $target): array
+	public function get(string $target = '*'): array
 	{
 		$segments = explode('.', $target);
 
@@ -118,7 +157,7 @@ class Hook extends Singleton
 	 *
 	 * @return $this
 	 */
-	public function set(ActionInterface $action, bool $overwrite = true): self
+	protected function set(ActionInterface $action, bool $overwrite = true): self
 	{
 		Data::set($this->actions, $action->getId(), $action, $overwrite);
 
@@ -132,7 +171,7 @@ class Hook extends Singleton
 	 *
 	 * @return ActionInterface|null
 	 */
-	public function getAction(string $hook, $callback, array $parameters = []): ?ActionInterface
+	protected function getAction(string $hook, $callback, array $parameters = []): ?ActionInterface
 	{
 		if ($callback instanceof \Closure) {
 			return new ClosureAction($hook, $callback, $parameters);
@@ -214,7 +253,7 @@ class Hook extends Singleton
 	 */
 	public function before(string $hook, $callback, array $parameters = []): self
 	{
-		return $this->on($hook, $callback, array_merge($parameters, ['priority' => -1]));
+		return $this->on($hook, $callback, array_merge($parameters, ['priority' => self::BEFORE]));
 	}
 
 	/**
@@ -226,7 +265,7 @@ class Hook extends Singleton
 	 */
 	public function after(string $hook, $callback, array $parameters = []): self
 	{
-		return $this->on($hook, $callback, array_merge($parameters, ['priority' => 999999]));
+		return $this->on($hook, $callback, array_merge($parameters, ['priority' => self::AFTER]));
 	}
 
 	/**
@@ -277,7 +316,7 @@ class Hook extends Singleton
 	 *
 	 * @return $this
 	 */
-	public function enable($target): self
+	public function enable($target = '*'): self
 	{
 		$actions = $this->get($target);
 
@@ -293,7 +332,7 @@ class Hook extends Singleton
 	 *
 	 * @return $this
 	 */
-	public function disable($target): self
+	public function disable($target = '*'): self
 	{
 		$actions = $this->get($target);
 
@@ -327,6 +366,21 @@ class Hook extends Singleton
 		}
 
 		return $report;
+	}
+
+	/**
+	 * Forbidden clone.
+	 */
+	final private function __clone()
+	{
+	}
+
+	/**
+	 * @throws \RuntimeException
+	 */
+	final public function __wakeup()
+	{
+		throw new \RuntimeException('Cannot unserialize singleton.');
 	}
 
 }
