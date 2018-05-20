@@ -4,7 +4,6 @@ namespace Twist\Model\Comment;
 
 use Twist\Library\Util\Tag;
 use Twist\Model\User\User;
-use function Twist\capture;
 
 /**
  * Class CommentForm
@@ -38,7 +37,8 @@ class CommentForm
 		}, 11);
 
 		// Gets the decorated cancel button
-		add_filter('cancel_comment_reply_link', function (/** @noinspection PhpUnusedParameterInspection */string $cancel, string $link, string $text) {
+		add_filter('cancel_comment_reply_link', function (/** @noinspection PhpUnusedParameterInspection */
+			string $cancel, string $link, string $text) {
 			return $this->cancel($text);
 		}, 1, 3);
 
@@ -53,7 +53,9 @@ class CommentForm
 	 */
 	public function show(): string
 	{
-		$form = capture('comment_form');
+		ob_start();
+		comment_form();
+		$form = ob_get_clean();
 
 		return str_replace('<!-- #respond -->', '', $form);
 	}
