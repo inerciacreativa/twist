@@ -22,17 +22,17 @@ class App extends Container
 	/**
 	 * @param string   $id
 	 * @param callable $service
-	 * @param bool     $start
+	 * @param bool     $boot
 	 *
 	 * @return $this
 	 *
 	 * @throws \RuntimeException
 	 */
-	public function service($id, $service, $start = false): self
+	public function service($id, $service, $boot = true): self
 	{
 		$this->offsetSet($id, $service);
 
-		if ($start) {
+		if ($boot) {
 			$this->boot[] = $id;
 		}
 
@@ -89,11 +89,11 @@ class App extends Container
 	/**
 	 * Start services.
 	 */
-	public function boot()
+	public function boot(): void
 	{
 		foreach ($this->boot as $service) {
 			if ($this[$service] instanceof Service) {
-				$this[$service]->start();
+				$this[$service]->boot();
 			} else if ($this[$service] instanceof \Closure) {
 				$this[$service]();
 			}
