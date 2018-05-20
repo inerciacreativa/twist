@@ -3,13 +3,12 @@
 namespace Twist\App;
 
 use Twist\Library\Data\Collection;
-use Twist\Library\Hook\Hook;
+use Twist\Library\Hook\HookDecorator;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Library\Util\Tag;
 use Twist\Service\ServiceProviderInterface;
 use Twist\View\Twig\TwigService;
-use function Twist\app;
 use function Twist\asset_url;
 use function Twist\config;
 
@@ -20,6 +19,13 @@ use function Twist\config;
  */
 class Theme
 {
+
+	use HookDecorator;
+
+	/**
+	 * @var App
+	 */
+	protected $app;
 
 	/**
 	 * @var array
@@ -89,39 +95,42 @@ class Theme
 	/**
 	 * Theme constructor.
 	 *
+	 * @param App $app
+	 *
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
-	public function __construct()
+	public function __construct(App $app)
 	{
+		$this->app      = $app;
 		$this->styles   = new Collection();
 		$this->scripts  = new Collection();
 		$this->sidebars = new Collection();
 
-		Hook::bind($this)
-		    ->before('after_setup_theme', 'setup')
-		    ->on('show_admin_bar', '__return_false')
-		    ->on('user_contactmethods', 'addContactMethods')
-		    ->on('wp_enqueue_scripts', 'addStyles')
-		    ->on('wp_enqueue_scripts', 'addScripts')
-		    ->on('widgets_init', 'addSidebars')
-		    ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
-		    ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
-		    ->after('wp_footer', 'addWebFonts')
-		    ->on('twist_site_metas', function (array $metas) {
-			    return array_filter($metas, function (Tag $meta) {
-				    return !(isset($meta['name']) && $meta['name'] === 'generator');
-			    });
-		    })
-		    ->on('twist_site_links', function (array $links) {
-			    return array_filter($links, function (Tag $link) {
-				    return !\in_array($link['rel'], [
-					    'EditURI',
-					    'wlwmanifest',
-				    ], false);
-			    });
-		    });
+		$this->hook()
+		     ->before('after_setup_theme', 'setup')
+		     ->on('show_admin_bar', '__return_false')
+		     ->on('user_contactmethods', 'addContactMethods')
+		     ->on('wp_enqueue_scripts', 'addStyles')
+		     ->on('wp_enqueue_scripts', 'addScripts')
+		     ->on('widgets_init', 'addSidebars')
+		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
+		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
+		     ->after('wp_footer', 'addWebFonts')
+		     ->on('twist_site_metas', function (array $metas) {
+			     return array_filter($metas, function (Tag $meta) {
+				     return !(isset($meta['name']) && $meta['name'] === 'generator');
+			     });
+		     })
+		     ->on('twist_site_links', function (array $links) {
+			     return array_filter($links, function (Tag $link) {
+				     return !\in_array($link['rel'], [
+					     'EditURI',
+					     'wlwmanifest',
+				     ], false);
+			     });
+		     });
 	}
 
 	/**
@@ -300,7 +309,7 @@ class Theme
 		$this->addServices();
 		$this->addThemeSupport();
 
-		app()->boot();
+		$this->app->boot();
 	}
 
 	/**
@@ -323,7 +332,7 @@ class Theme
 			'view.base'    => '/views',
 		]);
 
-		Hook::fire('ic_twist_theme', $this);
+		$this->hook()->fire('ic_twist_theme', $this);
 
 		config()->fill($this->config);
 
@@ -347,7 +356,7 @@ class Theme
 	protected function addServices(): void
 	{
 		foreach ($this->services as $service) {
-			app()->provider($service);
+			$this->app->provider($service);
 		}
 	}
 
