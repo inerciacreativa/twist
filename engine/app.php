@@ -6,7 +6,6 @@ use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Config;
 use Twist\App\Theme;
-use Twist\Library\Data\JsonFile;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
 
@@ -68,67 +67,4 @@ function view(string $template = null, array $data = [], bool $renderOnly = fals
 	}
 
 	return app('view')->display($template, $data);
-}
-
-/**
- * @param bool $fromParentTheme
- *
- * @return JsonFile
- */
-function manifest(bool $fromParentTheme = false): JsonFile
-{
-	static $manifest = [];
-
-	$base = $fromParentTheme ? 'template' : 'stylesheet';
-
-	if (!array_key_exists($base, $manifest)) {
-		$manifest[$base] = new JsonFile(config("dir.$base") . '/assets/assets.json');
-	}
-
-	return $manifest[$base];
-}
-
-/**
- * @param string $filename
- * @param bool   $fromParentTheme
- * @param bool   $fromSource
- *
- * @return string
- */
-function asset_url(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
-{
-	$base = $fromParentTheme ? 'template' : 'stylesheet';
-	$type = $fromSource ? 'source' : 'assets';
-	$file = $fromSource ? $filename : manifest($fromParentTheme)->get(ltrim($filename, '/'), $filename);
-
-	return config("uri.$base") . "/$type/$file";
-}
-
-/**
- * @param string $filename
- * @param bool   $fromParentTheme
- * @param bool   $fromSource
- *
- * @return string
- */
-function asset_path(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
-{
-	$base = $fromParentTheme ? 'template' : 'stylesheet';
-	$type = $fromSource ? 'source' : 'assets';
-	$file = $fromSource ? $filename : manifest($fromParentTheme)->get($filename, $filename);
-
-	return config("dir.$base") . "/$type/$file";
-}
-
-/**
- * @param callable $function
- *
- * @return string
- */
-function capture(callable $function): string
-{
-	ob_start();
-	$function();
-
-	return ob_get_clean();
 }
