@@ -1,13 +1,13 @@
 <?php
 
-namespace Twist\Service\Filter;
+namespace Twist\Service\Core;
 
 use Twist\Service\Service;
 
 /**
  * Class RelativeUrlService
  *
- * @package Twist\Service\Filter
+ * @package Twist\Service\Core
  */
 class RelativeUrlService extends Service
 {
@@ -34,18 +34,30 @@ class RelativeUrlService extends Service
         'get_comments_pagenum_link',
     ];
 
+	/**
+	 * @inheritdoc
+	 */
+    public function boot(): void
+    {
+	    if (is_admin() || is_feed()) {
+		    return;
+	    }
+
+	    foreach (self::$filters as $filter) {
+		    $this->hook()->off($filter, 'makeRelative');
+	    }
+
+	    if ($this->config->get('service.relative_url')) {
+	    	$this->start();
+	    }
+    }
+
     /**
      * @inheritdoc
      */
     public function start(): void
     {
-        if (is_admin() || is_feed() || !$this->config->get('filter.relative_url')) {
-            return;
-        }
-
-        foreach (self::$filters as $filter) {
-            add_filter($filter, [$this, 'relative']);
-        }
+	    $this->hook()->enable();
     }
 
 	/**
@@ -53,9 +65,7 @@ class RelativeUrlService extends Service
 	 */
 	public function stop(): void
 	{
-		foreach (self::$filters as $filter) {
-			remove_filter($filter, [$this, 'relative']);
-		}
+		$this->hook()->disable();
 	}
 
 	/**
@@ -63,7 +73,7 @@ class RelativeUrlService extends Service
 	 *
 	 * @return string|mixed
 	 */
-    public function relative($link)
+    protected function makeRelative($link)
     {
 	    if (\is_string($link) && strpos($link, $this->config->get('uri.home')) === 0) {
 		    return wp_make_link_relative($link);

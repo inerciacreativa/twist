@@ -4,6 +4,7 @@ namespace Twist\Service;
 
 use Twist\App\App;
 use Twist\App\Config;
+use Twist\Library\Hook\HookDecorator;
 use Twist\Library\Util\Str;
 
 /**
@@ -13,6 +14,8 @@ use Twist\Library\Util\Str;
  */
 abstract class Service implements ServiceInterface
 {
+
+	use HookDecorator;
 
 	/**
 	 * @var App
@@ -47,15 +50,6 @@ abstract class Service implements ServiceInterface
 	{
 		$this->app    = $app;
 		$this->config = $this->app['config'];
-
-		$this->boot();
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function boot(): void
-	{
 	}
 
 	/**

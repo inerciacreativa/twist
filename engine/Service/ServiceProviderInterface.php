@@ -7,7 +7,7 @@ use Twist\App\App;
 /**
  * Interface ServiceProviderInterface
  *
- * @package Twist\App
+ * @package Twist\Service
  */
 interface ServiceProviderInterface
 {
