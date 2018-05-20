@@ -9,8 +9,6 @@ use Twist\Library\Util\Data;
 use Twist\Library\Util\Tag;
 use Twist\Service\ServiceProviderInterface;
 use Twist\View\Twig\TwigService;
-use function Twist\asset_url;
-use function Twist\config;
 
 /**
  * Class Theme
@@ -28,6 +26,16 @@ class Theme
 	protected $app;
 
 	/**
+	 * @var Config
+	 */
+	protected $config;
+
+	/**
+	 * @var Asset
+	 */
+	protected $asset;
+
+	/**
 	 * @var array
 	 */
 	protected $services = [];
@@ -35,7 +43,7 @@ class Theme
 	/**
 	 * @var array
 	 */
-	protected $config = [];
+	protected $options = [];
 
 	/**
 	 * @var Collection
@@ -95,15 +103,20 @@ class Theme
 	/**
 	 * Theme constructor.
 	 *
-	 * @param App $app
+	 * @param App    $app
+	 * @param Config $config
+	 * @param Asset  $asset
 	 *
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
-	public function __construct(App $app)
+	public function __construct(App $app, Config $config, Asset $asset)
 	{
-		$this->app      = $app;
+		$this->app    = $app;
+		$this->config = $config;
+		$this->asset  = $asset;
+
 		$this->styles   = new Collection();
 		$this->scripts  = new Collection();
 		$this->sidebars = new Collection();
@@ -152,7 +165,7 @@ class Theme
 	 */
 	public function config(array $config): self
 	{
-		$this->config = Arr::merge($this->config, $config);
+		$this->options = Arr::merge($this->options, $config);
 
 		return $this;
 	}
@@ -317,7 +330,7 @@ class Theme
 	 */
 	protected function addConfig(): void
 	{
-		config()->fill([
+		$this->config->fill([
 			'dir.stylesheet' => get_stylesheet_directory(),
 			'dir.template'   => get_template_directory(),
 			'dir.upload'     => wp_upload_dir()['basedir'],
@@ -326,23 +339,21 @@ class Theme
 			'uri.template'   => get_template_directory_uri(),
 		]);
 
-		config()->fill([
+		$this->config->fill([
 			'view.service' => TwigService::id(),
 			'view.debug'   => \defined('WP_DEBUG') && WP_DEBUG,
-			'view.base'    => '/views',
+			'view.path'    => '/views',
 		]);
 
 		$this->hook()->fire('ic_twist_theme', $this);
 
-		config()->fill($this->config);
+		$this->config->fill($this->options);
 
-		config()->set('view.base', '/' . trim(config('view.base'), '/'));
-
-		config()->fill([
-			'view.cache' => config('view.debug') ? false : config('dir.upload') . '/view_cache',
+		$this->config->fill([
+			'view.cache' => $this->config->get('view.debug') ? false : $this->config->get('dir.upload') . '/view_cache',
 			'view.paths' => array_unique(array_map(function ($path) {
-				return $path . '/' . config('view.base');
-			}, [config('dir.stylesheet'), config('dir.template')])),
+				return $path . $this->config->get('view.path');
+			}, [$this->config->get('dir.stylesheet'), $this->config->get('dir.template')])),
 		]);
 	}
 
@@ -365,9 +376,9 @@ class Theme
 	 */
 	protected function addLanguages(): void
 	{
-		load_theme_textdomain('twist', config('dir.template') . '/languages');
-		if (config('dir.template') !== config('dir.stylesheet')) {
-			load_theme_textdomain('twist', config('dir.stylesheet') . '/languages');
+		load_theme_textdomain('twist', $this->config->get('dir.template') . '/languages');
+		if ($this->config->get('dir.template') !== $this->config->get('dir.stylesheet')) {
+			load_theme_textdomain('twist', $this->config->get('dir.stylesheet') . '/languages');
 		}
 	}
 
@@ -417,7 +428,7 @@ class Theme
 
 			if ($load) {
 				if (\is_string($load)) {
-					wp_enqueue_style($style['id'], asset_url($load, Arr::value($style, 'parent', false)), Arr::value($style, 'deps'), null);
+					wp_enqueue_style($style['id'], $this->asset->url($load, Arr::value($style, 'parent', false)), Arr::value($style, 'deps'), null);
 				} else {
 					wp_enqueue_style($style['id']);
 				}
@@ -437,7 +448,7 @@ class Theme
 
 			if ($load) {
 				if (\is_string($load)) {
-					wp_enqueue_script($script['id'], asset_url($load, Arr::value($script, 'parent', false)), Arr::value($script, 'deps'), null, true);
+					wp_enqueue_script($script['id'], $this->asset->url($load, Arr::value($script, 'parent', false)), Arr::value($script, 'deps'), null, true);
 				} else {
 					wp_enqueue_script($script['id']);
 				}

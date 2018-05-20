@@ -21,8 +21,12 @@ class AppServiceProvider implements ServiceProviderInterface
 			return new Config();
 		});
 
+		$app->service('asset', function (App $app) {
+			return new Asset($app['config']);
+		});
+
 		$app->service('theme', function (App $app) {
-			return new Theme($app);
+			return new Theme($app , $app['config'], $app['asset']);
 		});
 
 		$app->service('view', function (App $app) {
