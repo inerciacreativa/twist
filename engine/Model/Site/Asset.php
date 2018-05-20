@@ -4,16 +4,17 @@ namespace Twist\Model\Site;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
-use function Twist\asset_path;
-use function Twist\asset_url;
+use function Twist\app;
 
 /**
  * Class Assets
  *
  * @package Twist\Model\Site
  */
-class Assets
+class Asset
 {
+
+	protected $asset;
 
 	/**
 	 * @var Site
@@ -27,7 +28,8 @@ class Assets
 	 */
 	public function __construct(Site $site)
 	{
-		$this->site = $site;
+		$this->asset = app('asset');
+		$this->site  = $site;
 	}
 
 	/**
@@ -38,7 +40,7 @@ class Assets
 	 */
 	public function url(string $filename, bool $parent = false): string
 	{
-		return asset_url($filename, $parent);
+		return $this->asset->url($filename, $parent);
 	}
 
 	/**
@@ -52,14 +54,13 @@ class Assets
 		if (empty($filename) && ($id = get_theme_mod('custom_logo'))) {
 			$logo = Tag::parse(wp_get_attachment_image($id, 'full'));
 		} else {
-			$logo = Tag::img(['src' => asset_url($filename)]);
+			$logo = Tag::img(['src' => $this->asset->url($filename)]);
 		}
 
 		$logo->attributes($attributes);
 		$logo['alt'] = $this->site->name();
 
-
-		return Hook::apply('twist_assets_logo', $logo);
+		return Hook::apply('twist_asset_logo', $logo);
 	}
 
 	/**
@@ -71,14 +72,14 @@ class Assets
 	 */
 	public function image(string $filename, array $attributes = [], bool $parent = false): string
 	{
-		$image = Tag::img(['src' => asset_url($filename, $parent)]);
+		$image = Tag::img(['src' => $this->asset->url($filename, $parent)]);
 		$image->attributes($attributes);
 
 		if (!isset($image['alt'])) {
 			$image['alt'] = '';
 		}
 
-		return Hook::apply('twist_assets_image', $image);
+		return Hook::apply('twist_asset_image', $image);
 	}
 
 	/**
@@ -89,7 +90,7 @@ class Assets
 	 */
 	public function svg_inline(string $path, $source = false): string
 	{
-		$image = asset_path($path, false, $source);
+		$image = $this->asset->path($path, false, $source);
 
 		return file_get_contents($image);
 	}

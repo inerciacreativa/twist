@@ -28,7 +28,7 @@ class Site
 	protected $pagination;
 
 	/**
-	 * @var Assets
+	 * @var Asset
 	 */
 	protected $assets;
 
@@ -37,7 +37,7 @@ class Site
 	 */
 	public function __construct()
 	{
-		$this->assets     = new Assets($this);
+		$this->assets     = new Asset($this);
 		$this->navigation = new Navigation();
 	}
 
@@ -84,9 +84,9 @@ class Site
 	}
 
 	/**
-	 * @return Assets
+	 * @return Asset
 	 */
-	public function assets(): Assets
+	public function assets(): Asset
 	{
 		return $this->assets;
 	}
