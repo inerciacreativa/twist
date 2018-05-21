@@ -27,17 +27,20 @@ class PostQuery implements IterableInterface
 	}
 
 	/**
-	 * @param array $query
+	 * @param array $parameters
+	 * @param bool  $defaults
 	 *
 	 * @return PostQuery
 	 */
-	public static function make(array $query): PostQuery
+	public static function create(array $parameters, bool $defaults = true): PostQuery
 	{
-		$parameters = array_merge($query, [
-			'suppress_filters'    => true,
-			'ignore_sticky_posts' => true,
-			'no_found_rows'       => true,
-		]);
+		if ($defaults) {
+			$parameters = array_merge($parameters, [
+				'suppress_filters'    => true,
+				'ignore_sticky_posts' => true,
+				'no_found_rows'       => true,
+			]);
+		}
 
 		if (empty($parameters['post_status'])) {
 			$parameters['post_status'] = ($parameters['post_type'] === 'attachment') ? 'inherit' : 'publish';
@@ -71,7 +74,7 @@ class PostQuery implements IterableInterface
 
 		$parameters['posts_per_page'] = $number;
 
-		return self::make($parameters);
+		return self::create($parameters);
 	}
 
 	/**
@@ -111,7 +114,7 @@ class PostQuery implements IterableInterface
 	 */
 	public function posts(): Posts
 	{
-		return Posts::make($this->query->posts);
+		return Posts::create($this->query->posts);
 	}
 
 	/**
