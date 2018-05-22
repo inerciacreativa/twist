@@ -62,4 +62,28 @@ class Images extends Collection
 		return $collection;
 	}
 
+	/**
+	 * @return Images
+	 */
+	public function sort(): Images
+	{
+		$models = $this->models;
+
+		uasort($models, function (Image $image1, Image $image2) {
+			$info1 = $image1->get('large');
+			$info2 = $image2->get('large');
+
+			$test1 = ($info1['width'] * 10) + $info1['height'];
+			$test2 = ($info2['width'] * 10) + $info2['height'];
+
+			if ($test1 === $test2) {
+				return 0;
+			}
+
+			return ($test1 > $test2) ? -1 : 1;
+		});
+
+		return new static($this->parent, $models);
+	}
+
 }
