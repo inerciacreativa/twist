@@ -95,6 +95,19 @@ class Image extends Model
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function set_featured(): bool
+	{
+		if (!$this->has_parent() || $this->is_featured()) {
+			return false;
+		}
+
+		/** @noinspection NullPointerExceptionInspection */
+		return $this->parent()->meta()->set('_thumbnail_id', $this->id());
+	}
+
+	/**
 	 * @return ImageMeta
 	 */
 	public function meta(): ImageMeta
@@ -127,7 +140,13 @@ class Image extends Model
 	 */
 	public function alt(): string
 	{
-		return trim(strip_tags($this->meta()->get('_wp_attachment_image_alt')));
+		$alt = trim(strip_tags($this->meta()->get('_wp_attachment_image_alt')));
+		if (empty($alt) && $this->is_featured()) {
+			/** @noinspection NullPointerExceptionInspection */
+			$alt = trim(strip_tags($this->parent()->title()));
+		}
+
+		return $alt;
 	}
 
 	/**
@@ -165,11 +184,12 @@ class Image extends Model
 	{
 		if ($image = wp_get_attachment_image_src($this->id(), $size)) {
 			return array_combine([
-				'source',
+				'src',
 				'width',
 				'height',
-				'is_intermediate'
-			], $image);
+				'is_intermediate',
+				'alt'
+			], array_merge($image, [$this->alt()]));
 		}
 
 		return null;
