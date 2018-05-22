@@ -2,7 +2,6 @@
 
 namespace Twist\Service\Core;
 
-use Twist\Model\Image\Image;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\PostMeta;
 use Twist\Service\Core\ImageSearch\ImageSearch;
@@ -64,21 +63,7 @@ class ThumbnailGeneratorService extends Service
 	protected function check($value, string $key, $meta)
 	{
 		$this->stop();
-		if ($key !== '_thumbnail_id' || !empty($value)) {
-			$this->start();
-
-			return $value;
-		}
-
-		$images = $meta->parent()->images();
-
-		if ($images->count() > 0 && ($image = $images->sort()->first()) && $image->set_featured()) {
-			$this->start();
-
-			return $image->id();
-		}
-
-		if ($id = $this->search($meta->parent())) {
+		if ($key === '_thumbnail_id' && empty($value) && ($id = $this->search($meta->parent()))) {
 			$value = $id;
 		}
 
@@ -100,7 +85,7 @@ class ThumbnailGeneratorService extends Service
 			$classes = array_merge($classes, self::$video);
 		}
 
-		foreach ((array) $this->config->get('service.thumbnail_generator.videos', []) as $class) {
+		foreach ((array) $this->config->get('service.thumbnail_generator.extra', []) as $class) {
 			if (is_a($class, ImageSearchInterface::class, true)) {
 				$classes[] = $class;
 			}
@@ -111,9 +96,13 @@ class ThumbnailGeneratorService extends Service
 			$search = new $class;
 
 			/** @noinspection NotOptimalIfConditionsInspection */
-			if ($search->search($post->raw_content()) && ($image = $search->get()) && ($id = $image->download($post)) && (new Image($id, $post))->set_featured()) {
-				return $id;
+			if ($search->search($post->raw_content()) && ($image = $search->get()) && ($image = $image->get($post)) && $image->set_featured()) {
+				return $image->id();
 			}
+		}
+
+		if ($post->images()->count() > 0 && ($image = $post->images()->sort()->first()) && $image->set_featured()) {
+			return $image->id();
 		}
 
 		return false;
