@@ -6,8 +6,9 @@ use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Macro;
-use Twist\Model\Comment\Comments;
 use Twist\Model\Comment\CommentQuery;
+use Twist\Model\Image\Image;
+use Twist\Model\Image\Images;
 
 /**
  * Class Post
@@ -40,9 +41,14 @@ class Post extends Model
 	protected $meta;
 
 	/**
-	 * @var PostQuery
+	 * @var CommentQuery
 	 */
 	protected $comments;
+
+	/**
+	 * @var Images
+	 */
+	protected $images;
 
 	/**
 	 * @var PostThumbnail
@@ -54,7 +60,7 @@ class Post extends Model
 	 *
 	 * @return Post
 	 */
-	public static function make($post): Post
+	public static function create($post): Post
 	{
 		return new static($post);
 	}
@@ -117,7 +123,7 @@ class Post extends Model
 	public function parent(): ?ModelInterface
 	{
 		if ($this->parent === null && $this->has_parent()) {
-			$this->set_parent(static::make($this->post->post_parent));
+			$this->set_parent(static::create($this->post->post_parent));
 		}
 
 		return $this->parent;
@@ -134,7 +140,7 @@ class Post extends Model
 			return false;
 		}
 
-		$query = PostQuery::make([
+		$query = PostQuery::create([
 			'post_parent'    => $this->id(),
 			'post_type'      => $this->type(),
 			'post_status'    => 'any',
@@ -160,26 +166,6 @@ class Post extends Model
 		}
 
 		return null;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function has_thumbnail(): bool
-	{
-		return $this->thumbnail()->exists();
-	}
-
-	/**
-	 * @return PostThumbnail
-	 */
-	public function thumbnail(): PostThumbnail
-	{
-		if ($this->thumbnail === null) {
-			$this->thumbnail = new PostThumbnail($this, true);
-		}
-
-		return $this->thumbnail;
 	}
 
 	/**
@@ -452,6 +438,46 @@ class Post extends Model
 		}
 
 		return apply_filters('get_post_status', $status, $this->post);
+	}
+
+	/**
+	 * @return int
+	 */
+	public function thumbnail_id(): int
+	{
+		return (int) $this->meta()->get('_thumbnail_id');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_thumbnail(): bool
+	{
+		return $this->thumbnail_id() > 0;
+	}
+
+	/**
+	 * @return Image
+	 */
+	public function thumbnail(): Image
+	{
+		if ($this->thumbnail === null && $this->has_thumbnail()) {
+			$this->thumbnail = new Image($this->thumbnail_id(), $this);
+		}
+
+		return $this->thumbnail;
+	}
+
+	/**
+	 * @return Images
+	 */
+	public function images(): Images
+	{
+		if ($this->images === null) {
+			$this->images = Images::create($this);
+		}
+
+		return $this->images;
 	}
 
 	/**
