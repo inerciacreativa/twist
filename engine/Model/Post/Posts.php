@@ -18,7 +18,7 @@ class Posts extends Collection
 	 *
 	 * @return static
 	 */
-	public static function make(array $posts = []): Posts
+	public static function create(array $posts = []): Posts
 	{
 		$collection = new static();
 

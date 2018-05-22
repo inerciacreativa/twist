@@ -294,7 +294,7 @@ class User implements UserInterface
 				$query['post__not_in'] = [$GLOBALS['post']->id];
 			}
 
-			$this->posts = PostQuery::make($query);
+			$this->posts = PostQuery::create($query);
 		}
 
 		return $this->posts;
