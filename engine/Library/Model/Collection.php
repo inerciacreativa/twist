@@ -113,7 +113,7 @@ class Collection implements CollectionInterface
 	 */
 	public function only(array $ids): CollectionInterface
 	{
-		return new static($this->parent(), Arr::only($this->models, $ids));
+		return new static($this->parent, Arr::only($this->models, $ids));
 	}
 
 	/**
@@ -121,7 +121,7 @@ class Collection implements CollectionInterface
 	 */
 	public function except(array $ids): CollectionInterface
 	{
-		return new static($this->parent(), Arr::except($this->models, $ids));
+		return new static($this->parent, Arr::except($this->models, $ids));
 	}
 
 	/**
@@ -129,7 +129,7 @@ class Collection implements CollectionInterface
 	 */
 	public function slice(int $offset, int $length = null): CollectionInterface
 	{
-		return new static($this->parent(), \array_slice($this->models, $offset, $length, true));
+		return new static($this->parent, \array_slice($this->models, $offset, $length, true));
 	}
 
 	/**
