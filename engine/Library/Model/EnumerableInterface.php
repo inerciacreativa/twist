@@ -7,37 +7,41 @@ namespace Twist\Library\Model;
  *
  * @package Twist\Library\Model
  */
-interface EnumerableInterface extends \IteratorAggregate, \Countable
+interface EnumerableInterface extends \IteratorAggregate
 {
 
 	/**
-	 * @return ModelInterface
+	 * @return IdentifiableInterface
 	 */
-	public function model(): ModelInterface;
+	public function parent(): IdentifiableInterface;
 
 	/**
-	 * @param $id
-	 * @param $value
-	 */
-	public function set($id, $value): void;
-
-	/**
-	 * @param $id
-	 *
-	 * @return mixed
-	 */
-	public function get($id);
-
-	/**
-	 * @param $id
-	 */
-	public function unset($id): void;
-
-	/**
-	 * @param $id
+	 * @param string $key
+	 * @param        $value
 	 *
 	 * @return bool
 	 */
-	public function has($id): bool;
+	public function set(string $key, $value): bool;
+
+	/**
+	 * @param string $key
+	 *
+	 * @return mixed
+	 */
+	public function get(string $key);
+
+	/**
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public function unset(string $key): bool;
+
+	/**
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public function has(string $key): bool;
 
 }
