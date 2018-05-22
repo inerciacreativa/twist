@@ -33,8 +33,6 @@ class ImageSearch implements ImageSearchInterface
 	 */
 	public function search(string $html, int $width = 720): bool
 	{
-		self::$forbidenSources[] = Url::parse(home_url())->host;
-
 		$dom = new \DOMDocument();
 		@$dom->loadHTML($html);
 
@@ -65,7 +63,7 @@ class ImageSearch implements ImageSearchInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function get(): ?ExternalImage
+	public function get(): ?ImageFinder
 	{
 		if (empty($this->images)) {
 			return null;
@@ -84,7 +82,7 @@ class ImageSearch implements ImageSearchInterface
 			});
 		}
 
-		return new ExternalImage($this->images[0]);
+		return new ImageFinder($this->images[0]);
 	}
 
 	/**

@@ -41,13 +41,13 @@ abstract class VideoSearch implements ImageSearchInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function get(): ?ExternalImage
+	public function get(): ?ImageFinder
 	{
 		if (empty($this->image)) {
 			return null;
 		}
 
-		return new ExternalImage($this->image);
+		return new ImageFinder($this->image);
 	}
 
 	/**
