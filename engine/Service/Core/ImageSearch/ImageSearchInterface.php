@@ -19,8 +19,8 @@ interface ImageSearchInterface
 	public function search(string $html, int $width = 720): bool;
 
 	/**
-	 * @return null|ExternalImage
+	 * @return null|ImageFinder
 	 */
-	public function get(): ?ExternalImage;
+	public function get(): ?ImageFinder;
 
 }
