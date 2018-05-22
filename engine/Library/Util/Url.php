@@ -2,6 +2,20 @@
 
 namespace Twist\Library\Util;
 
+/**
+ * Class Url
+ *
+ * @package Twist\Library\Util
+ *
+ * @property string $scheme
+ * @property string $host
+ * @property int    $port
+ * @property string $user
+ * @property string $pass
+ * @property string $path
+ * @property array  $query
+ * @property string $fragment
+ */
 class Url
 {
 
@@ -10,7 +24,7 @@ class Url
 	 *
 	 * @var array
 	 */
-	static private $schemes = [
+	static protected $schemes = [
 		'http'   => '://',
 		'https'  => '://',
 		'ftp'    => '://',
@@ -21,7 +35,7 @@ class Url
 	/**
 	 * @var array
 	 */
-	static private $defaults = [
+	static protected $defaults = [
 		'scheme'   => '',
 		'host'     => '',
 		'port'     => 0,
@@ -35,7 +49,7 @@ class Url
 	/**
 	 * @var array
 	 */
-	private $components;
+	protected $components;
 
 	/**
 	 * @param string $url
@@ -81,7 +95,11 @@ class Url
 			}
 		}
 
-		$this->components = $components;
+		if (isset($components['port'])) {
+			$components['port'] = (int) $components['port'];
+		}
+
+		$this->components = array_merge(static::$defaults, $components);
 	}
 
 	/**
@@ -92,7 +110,7 @@ class Url
 	 */
 	public function __set(string $component, $value)
 	{
-		if (!array_key_exists($component, static::$defaults)) {
+		if (!array_key_exists($component, $this->components)) {
 			throw new \InvalidArgumentException('Component name not valid');
 		}
 
@@ -120,15 +138,11 @@ class Url
 	 */
 	public function __get(string $component)
 	{
-		if (!array_key_exists($component, static::$defaults)) {
+		if (!array_key_exists($component, $this->components)) {
 			throw new \InvalidArgumentException('Component name not valid');
 		}
 
-		if (!empty($this->components[$component])) {
-			return $this->components[$component];
-		}
-
-		return null;
+		return $this->components[$component];
 	}
 
 	/**
