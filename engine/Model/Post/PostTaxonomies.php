@@ -10,7 +10,7 @@ use Twist\Model\Taxonomy\Taxonomy;
  *
  * @package Twist\Model\Post
  *
- * @method Post model()
+ * @method Post parent()
  */
 class PostTaxonomies extends Enumerable
 {
@@ -28,18 +28,18 @@ class PostTaxonomies extends Enumerable
 	/**
 	 * @inheritdoc
 	 */
-	public function get($id): ?PostTerms
+	public function get(string $key): ?PostTerms
 	{
-		$terms = parent::get($id);
+		$terms = parent::get($key);
 
 		if ($terms === null) {
 			return null;
 		}
 
 		if (!($terms instanceof PostTerms)) {
-			$terms = new PostTerms($this->model(), new Taxonomy($id));
+			$terms = new PostTerms($this->parent(), new Taxonomy($key));
 
-			$this->set($id, $terms);
+			$this->set($key, $terms);
 		}
 
 		return $terms;
