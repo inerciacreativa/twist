@@ -51,7 +51,7 @@ class Post extends Model
 	protected $images;
 
 	/**
-	 * @var PostThumbnail
+	 * @var Image
 	 */
 	protected $thumbnail;
 

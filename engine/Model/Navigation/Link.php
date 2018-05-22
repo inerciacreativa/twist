@@ -9,6 +9,8 @@ use Twist\Library\Model\CollectionInterface;
  * Class Link
  *
  * @package Twist\Model\Navigation
+ *
+ * @method Link|null parent()
  */
 class Link extends Model
 {

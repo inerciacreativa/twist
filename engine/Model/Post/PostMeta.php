@@ -8,6 +8,8 @@ use Twist\Model\Meta\Meta;
  * Class PostMeta
  *
  * @package Twist\Model\Post
+ *
+ * @method Post parent()
  */
 class PostMeta extends Meta
 {

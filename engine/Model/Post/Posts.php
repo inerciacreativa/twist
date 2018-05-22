@@ -9,6 +9,15 @@ use Twist\Library\Model\CollectionIteratorInterface;
  * Class Posts
  *
  * @package Twist\Model\Post
+ *
+ * @method Post|null parent()
+ * @method Post get(int $id)
+ * @method Post|null first(callable $callback = null)
+ * @method Post|null last(callable $callback = null)
+ * @method Posts only(array $ids)
+ * @method Posts except(array $ids)
+ * @method Posts slice(int $offset, int $length = null)
+ * @method Posts take(int $limit)
  */
 class Posts extends Collection
 {
@@ -34,7 +43,7 @@ class Posts extends Collection
 	}
 
 	/**
-	 * @inheritdoc
+	 * @return PostsIterator
 	 */
 	public function getIterator(): CollectionIteratorInterface
 	{
