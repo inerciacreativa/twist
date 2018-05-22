@@ -9,15 +9,19 @@ use Twist\Service\CoreServiceProvider;
 use function Twist\theme;
 
 theme()->services(new CoreServiceProvider())->config([
-	'view.global'             => [
+	'view.global'                 => [
 		'site' => Site::class,
 	],
-	'view.data'               => [
+	'view.data'                   => [
 		'posts' => PostQuery::class,
 	],
-	'service.relative_url'    => true,
-	'service.disable_emoji'   => true,
-	'service.content_cleaner' => [
+	'service.relative_url'        => true,
+	'service.disable_emoji'       => true,
+	'service.thumbnail_generator' => [
+		'enable'   => true,
+		'videos'   => true,
+	],
+	'service.content_cleaner'     => [
 		'enable'     => true,
 		'attributes' => [],
 		'styles'     => [],

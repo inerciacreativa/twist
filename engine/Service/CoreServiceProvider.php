@@ -6,6 +6,7 @@ use Twist\App\App;
 use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\DisableEmojiService;
 use Twist\Service\Core\RelativeUrlService;
+use Twist\Service\Core\ThumbnailGeneratorService;
 
 /**
  * Class CoreServiceProvider
@@ -30,6 +31,10 @@ class CoreServiceProvider implements ServiceProviderInterface
 
 		$app->service(ContentCleanerService::id(), function (App $app) {
 			return new ContentCleanerService($app);
+		});
+
+		$app->service(ThumbnailGeneratorService::id(), function (App $app) {
+			return new ThumbnailGeneratorService($app);
 		});
 	}
 
