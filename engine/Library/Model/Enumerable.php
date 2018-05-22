@@ -11,9 +11,9 @@ class Enumerable implements EnumerableInterface
 {
 
 	/**
-	 * @var ModelInterface
+	 * @var IdentifiableInterface
 	 */
-	protected $model;
+	protected $parent;
 
 	/**
 	 * @var array
@@ -23,53 +23,57 @@ class Enumerable implements EnumerableInterface
 	/**
 	 * Enumerator constructor.
 	 *
-	 * @param ModelInterface $model
-	 * @param array          $values
+	 * @param IdentifiableInterface $parent
+	 * @param array                 $values
 	 */
-	public function __construct(ModelInterface $model, array $values = [])
+	public function __construct(IdentifiableInterface $parent, array $values = [])
 	{
-		$this->model  = $model;
+		$this->parent = $parent;
 		$this->values = $values;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function model(): ModelInterface
+	public function parent(): IdentifiableInterface
 	{
-		return $this->model;
+		return $this->parent;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function set($id, $value): void
+	public function set(string $key, $value): bool
 	{
-		$this->values[$id] = $value;
+		$this->values[$key] = $value;
+
+		return true;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function get($id)
+	public function get(string $key)
 	{
-		return $this->values[$id] ?? null;
+		return $this->values[$key] ?? null;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function has($id): bool
+	public function has(string $key): bool
 	{
-		return array_key_exists($id, $this->values);
+		return array_key_exists($key, $this->values);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function unset($id): void
+	public function unset(string $key): bool
 	{
-		unset($this->values[$id]);
+		unset($this->values[$key]);
+
+		return true;
 	}
 
 	/**
