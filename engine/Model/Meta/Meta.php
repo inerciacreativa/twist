@@ -2,40 +2,96 @@
 
 namespace Twist\Model\Meta;
 
-use Twist\Library\Model\Enumerable;
-use Twist\Library\Model\ModelInterface;
+use Twist\Library\Hook\Hook;
+use Twist\Library\Model\EnumerableInterface;
+use Twist\Library\Model\IdentifiableInterface;
 
 /**
  * Class Meta
  *
  * @package Twist\Model\Meta
  */
-class Meta extends Enumerable
+class Meta implements EnumerableInterface
 {
+
+	/**
+	 * @var IdentifiableInterface
+	 */
+	protected $parent;
+
+	/**
+	 * @var string
+	 */
+	protected $type;
 
 	/**
 	 * Meta constructor.
 	 *
-	 * @param ModelInterface $model
-	 * @param string         $type
+	 * @param IdentifiableInterface $parent
+	 * @param string                $type
 	 */
-	public function __construct(ModelInterface $model, string $type)
+	public function __construct(IdentifiableInterface $parent, string $type)
 	{
-		parent::__construct($model, get_metadata($type, $model->id()));
+		$this->parent = $parent;
+		$this->type   = $type;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function id(): int
+	{
+		return $this->parent->id();
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function get($id)
+	public function parent(): IdentifiableInterface
 	{
-		$value = parent::get($id);
+		return $this->parent;
+	}
 
-		if (!\is_array($value)) {
-			return null;
-		}
+	/**
+	 * @inheritdoc
+	 */
+	public function set(string $key, $value): bool
+	{
+		return (bool) update_metadata($this->type, $this->id(), $key, $value);
+	}
 
-		return \count($value) === 1 ? maybe_unserialize($value[0]) : array_map('maybe_unserialize', $value);
+	/**
+	 * @inheritdoc
+	 */
+	public function get(string $key, bool $single = true)
+	{
+		return Hook::apply('twist_meta_' . $this->type, get_metadata($this->type, $this->id(), $key, $single), $key, $this);
+	}
+
+	/**
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public function has(string $key): bool
+	{
+		return metadata_exists($this->type, $this->id(), $key);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function unset(string $key): bool
+	{
+		return delete_metadata($this->type, $this->id(), $key);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getIterator()
+	{
+		return new \ArrayIterator(get_metadata($this->type, $this->id()));
 	}
 
 }
