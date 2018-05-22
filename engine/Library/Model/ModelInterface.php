@@ -10,5 +10,4 @@ namespace Twist\Library\Model;
 interface ModelInterface extends IdentifiableInterface, HasParentInterface, HasChildrenInterface
 {
 
-
 }
