@@ -259,10 +259,6 @@ class CommentQuery
 	 */
 	protected function arguments(): array
 	{
-		if (!$this->is_ready) {
-			return [];
-		}
-
 		$main_query = $this->main_query();
 
 		$arguments = [
