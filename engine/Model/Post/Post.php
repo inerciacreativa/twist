@@ -185,7 +185,7 @@ class Post extends Model
 	 *
 	 * @return string
 	 */
-	public function format(string $prefix = '', string $default = 'standard'): string
+	public function format(string $prefix = 'format', string $default = 'standard'): string
 	{
 		if (!$this->has_format()) {
 			return '';
@@ -201,7 +201,7 @@ class Post extends Model
 			$format = $default;
 		}
 
-		return "$prefix$format";
+		return "$prefix-$format";
 	}
 
 	/**
@@ -374,7 +374,7 @@ class Post extends Model
 		$classes[] = $this->type();
 
 		if ($this->has_format()) {
-			$classes[] = $this->format('is-');
+			$classes[] = $this->format('is');
 		}
 
 		if ($this->has_thumbnail()) {
