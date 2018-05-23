@@ -46,8 +46,6 @@ class TwigService extends ViewService
 		if ($this->config->get('view.debug')) {
 			$this->environment->addExtension(new \Twig_Extension_Debug());
 		}
-
-		parent::boot();
 	}
 
 	/**
@@ -95,6 +93,8 @@ class TwigService extends ViewService
 	 */
 	public function render(string $template, array $data = []): string
 	{
+		$this->start();
+
 		return $this->environment->render($template, array_merge($this->data, $data));
 	}
 
@@ -107,6 +107,8 @@ class TwigService extends ViewService
 	 */
 	public function display(string $template, array $data = []): void
 	{
+		$this->start();
+
 		$this->environment->display($template, array_merge($this->data, $data));
 	}
 

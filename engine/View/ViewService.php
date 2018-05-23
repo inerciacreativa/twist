@@ -16,7 +16,7 @@ abstract class ViewService extends Service implements ViewInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function boot(): void
+	public function start(): void
 	{
 		foreach ((array) $this->config->get('view.global', []) as $name => $value) {
 			$this->addGlobalData($name, $this->resolve($value));
