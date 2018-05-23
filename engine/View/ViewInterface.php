@@ -28,21 +28,6 @@ interface ViewInterface
      */
     public function display(string $template, array $data = []): void;
 
-	/**
-	 * Adds global data (available in all templates).
-	 *
-	 * @param string $name
-	 * @param mixed  $value
-	 *
-	 * @return $this
-	 */
-	public function addGlobalData(string $name, $value): self;
-
-	/**
-	 * @return array
-	 */
-	public function getGlobalData(): array;
-
     /**
      * Adds local data (available only in current template).
      *

@@ -24,11 +24,6 @@ class TwigService extends ViewService
 	protected $environment;
 
 	/**
-	 * @var array
-	 */
-	protected $data = [];
-
-	/**
 	 * @inheritdoc
 	 */
 	public function boot(): void
@@ -46,42 +41,12 @@ class TwigService extends ViewService
 		if ($this->config->get('view.debug')) {
 			$this->environment->addExtension(new \Twig_Extension_Debug());
 		}
-	}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function addGlobalData(string $name, $value): ViewInterface
-	{
-		$this->environment->addGlobal($name, $value);
+		foreach ((array) $this->config->get('view.global', []) as $name => $value) {
+			$this->environment->addGlobal($name, $this->resolveData($value));
+		}
 
-		return $this;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getGlobalData(): array
-	{
-		return $this->environment->getGlobals();
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function addData(string $name, $value): ViewInterface
-	{
-		$this->data[$name] = $value;
-
-		return $this;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getData(): array
-	{
-		return $this->data;
+		parent::boot();
 	}
 
 	/**
@@ -93,9 +58,7 @@ class TwigService extends ViewService
 	 */
 	public function render(string $template, array $data = []): string
 	{
-		$this->start();
-
-		return $this->environment->render($template, array_merge($this->data, $data));
+		return $this->environment->render($template, $this->mergeData($data));
 	}
 
 	/**
@@ -107,9 +70,7 @@ class TwigService extends ViewService
 	 */
 	public function display(string $template, array $data = []): void
 	{
-		$this->start();
-
-		$this->environment->display($template, array_merge($this->data, $data));
+		$this->environment->display($template, $this->mergeData($data));
 	}
 
 	/**
