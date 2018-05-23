@@ -7,7 +7,12 @@ namespace Twist\Library\Dom;
  *
  * @package Twist\Library\Dom
  *
- * @property Document ownerDocument
+ * @property Element $firstChild
+ * @property Element $lastChild
+ * @property Element $nextSibling
+ * @property Element $previousSibling
+ * @property Element $parentNode
+ * @property Document $ownerDocument
  */
 class Element extends \DOMElement
 {
@@ -23,7 +28,6 @@ class Element extends \DOMElement
             return $this;
         }
 
-        /** @var Element $element */
         $element = $this->ownerDocument->createElement($tagName);
 
         // Copy attributes

@@ -10,6 +10,12 @@ use Twist\Library\Util\Text;
  * Class Document
  *
  * @package Twist\Library\Dom
+ *
+ * @property Element $documentElement
+ *
+ * @method Element createElement($name, $value = null)
+ * @method Element createElementNS($namespaceURI, $qualifiedName, $value = null)
+ * @method Element getElementById($elementId)
  */
 class Document extends \DOMDocument
 {
