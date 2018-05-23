@@ -131,7 +131,8 @@ class Data
         $segments = \is_array($key) ? $key : explode('.', $key);
 
         if (($segment = array_shift($segments)) === '*') {
-            if (!Arr::accessible($target)) {
+	        /** @noinspection NotOptimalIfConditionsInspection */
+	        if (!Arr::accessible($target)) {
                 $target = [];
             }
 
