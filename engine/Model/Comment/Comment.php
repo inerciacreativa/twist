@@ -104,7 +104,7 @@ class Comment extends Model
 	 */
 	public function depth(): int
 	{
-		return (int) $this->depth;
+		return (int) $this->depth + 1;
 	}
 
 	/**
@@ -161,25 +161,29 @@ class Comment extends Model
 		$classes = [$this->type()];
 
 		if ($this->has_children()) {
-			$classes[] = 'parent';
+			if ($this->depth() === 1) {
+				$classes[] = 'is-thread';
+			}
+
+			$classes[] = 'has-children';
 		}
 
 		if ($this->has_parent()) {
-			$classes[] = 'children';
+			$classes[] = 'has-parent';
 		}
 
 		if ($this->author()->exists()) {
 			$classes[] = 'by-user';
-			$classes[] = 'by-author-' . sanitize_html_class($this->author()
-			                                                     ->name(), $this->author()
-			                                                                    ->id());
+			$classes[] = 'by-author-' . sanitize_html_class($this->author()->name(), $this->author()->id());
 
 			if ($this->author()->id() === $this->post()->author()->id()) {
 				$classes[] = 'by-post-author';
 			}
 		}
 
-		return implode(' ', get_comment_class($classes));
+		$classes = Hook::apply('comment_class', $classes, '', $this->id(), $this->object(), $this->post()->id());
+
+		return implode(' ', $classes);
 	}
 
 	/**

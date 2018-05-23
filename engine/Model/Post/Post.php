@@ -180,30 +180,28 @@ class Post extends Model
 	/**
 	 * Retrieve the post format.
 	 *
+	 * @param string $prefix
 	 * @param string $default
 	 *
 	 * @return string
 	 */
-	public function format(string $default = 'standard'): string
+	public function format(string $prefix = '', string $default = 'standard'): string
 	{
 		if (!$this->has_format()) {
 			return '';
 		}
 
-		if (isset($this->taxonomies['post_format'])) {
-			if (\is_int($this->taxonomies['post_format'])) {
-				$format = get_the_terms($this->id(), 'post_format');
-				$format = empty($format) ? $default : array_shift($format);
-
-				$this->taxonomies['post_format'] = $format;
+		if ($this->taxonomies()->has('post_format')) {
+			if (($terms = $this->taxonomies()->get('post_format')) && ($terms->count() > 0)) {
+				$format = str_replace('post-format-', '', $terms->first()->slug());
 			} else {
-				$format = $this->taxonomies['post_format'];
+				$format = $default;
 			}
 		} else {
 			$format = $default;
 		}
 
-		return "format-$format";
+		return "$prefix$format";
 	}
 
 	/**
@@ -356,10 +354,36 @@ class Post extends Model
 		return $this->datetime($this->post->post_modified, 'the_modified_date');
 	}
 
-	public function classes()
+	/**
+	 * @param string|array $class
+	 *
+	 * @return string
+	 */
+	public function classes($class = ''): string
 	{
+		$classes = [];
 
-		return post_class();
+		if ($class) {
+			if (\is_string($class)) {
+				$class = (array) preg_split('#\s+#', $class);
+			}
+
+			$classes = (array) $class;
+		}
+
+		$classes[] = $this->type();
+
+		if ($this->has_format()) {
+			$classes[] = $this->format('is-');
+		}
+
+		if ($this->has_thumbnail()) {
+			$classes[] = 'has-thumbnail';
+		}
+
+		$classes = Hook::apply('post_class', $classes, $class, $this->id());
+
+		return implode(' ', array_unique($classes));
 	}
 
 	/**
