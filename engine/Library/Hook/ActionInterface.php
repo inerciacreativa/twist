@@ -33,15 +33,11 @@ interface ActionInterface
 
     /**
      * Enables the action.
-     *
-     * @return $this
      */
     public function enable(): void;
 
     /**
      * Disables the action.
-     *
-     * @return $this
      */
     public function disable(): void;
 
