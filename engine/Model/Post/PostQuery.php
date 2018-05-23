@@ -14,6 +14,11 @@ class PostQuery implements IterableInterface
 {
 
 	/**
+	 * @var PostQuery
+	 */
+	static protected $main;
+
+	/**
 	 * @var \WP_Query
 	 */
 	protected $query;
@@ -23,7 +28,11 @@ class PostQuery implements IterableInterface
 	 */
 	public static function main(): PostQuery
 	{
-		return new static();
+		if (static::$main === null) {
+			static::$main = new static();
+		}
+
+		return static::$main;
 	}
 
 	/**
