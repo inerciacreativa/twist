@@ -192,8 +192,8 @@ class Post extends Model
 		}
 
 		if ($this->taxonomies()->has('post_format')) {
-			if (($terms = $this->taxonomies()->get('post_format')) && ($terms->count() > 0)) {
-				$format = str_replace('post-format-', '', $terms->first()->slug());
+			if (($terms = $this->taxonomies()->get('post_format')) && ($terms->count() > 0) && ($term = $terms->first())) {
+				$format = str_replace('post-format-', '', $term->slug());
 			} else {
 				$format = $default;
 			}
