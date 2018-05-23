@@ -13,7 +13,7 @@ use Twist\Library\Util\Data;
 class Hook
 {
 
-	public const BEFORE = -1;
+	public const BEFORE = -99999;
 
 	public const AFTER = 99999;
 

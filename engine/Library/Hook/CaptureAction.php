@@ -62,8 +62,8 @@ class CaptureAction extends BoundedAction
     public function enable(): void
     {
         if (!$this->enabled) {
-            add_filter($this->hooks[0], $this, ~PHP_INT_MAX, 1);
-            add_filter($this->hooks[1], $this, PHP_INT_MAX, 1);
+            add_filter($this->hooks[0], $this, Hook::BEFORE, 1);
+            add_filter($this->hooks[1], $this, Hook::AFTER, 1);
             $this->enabled = true;
         }
     }
@@ -74,8 +74,8 @@ class CaptureAction extends BoundedAction
     public function disable(): void
     {
         if ($this->enabled) {
-            remove_filter($this->hooks[0], $this, ~PHP_INT_MAX);
-            remove_filter($this->hooks[1], $this, PHP_INT_MAX);
+            remove_filter($this->hooks[0], $this, Hook::BEFORE);
+            remove_filter($this->hooks[1], $this, Hook::AFTER);
             $this->enabled = false;
         }
     }
