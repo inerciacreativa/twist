@@ -2,8 +2,9 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Library\Model\Model;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Model\CollectionInterface;
+use Twist\Library\Model\Model;
 use Twist\Model\Post\Post;
 use Twist\Model\User\User;
 
@@ -188,8 +189,8 @@ class Comment extends Model
 	 */
 	public function content(): string
 	{
-		$content = apply_filters('get_comment_text', $this->comment->comment_content, $this->comment);
-		$content = apply_filters('comment_text', $content, $this->comment);
+		$content = Hook::apply('get_comment_text', $this->comment->comment_content, $this->comment);
+		$content = Hook::apply('comment_text', $content, $this->comment);
 
 		return $content;
 	}
@@ -206,7 +207,7 @@ class Comment extends Model
 		$format = $format ?: (string) get_option('date_format');
 		$date   = mysql2date($format, $this->comment->comment_date);
 
-		return apply_filters('get_comment_date', $date, $format, $this->comment);
+		return Hook::apply('get_comment_date', $date, $format, $this->comment);
 	}
 
 	/**
@@ -221,7 +222,7 @@ class Comment extends Model
 		$format = $format ?: (string) get_option('time_format');
 		$time   = mysql2date($format, $this->comment->comment_date);
 
-		return apply_filters('get_comment_time', $time, $format, false, true, $this->comment);
+		return Hook::apply('get_comment_time', $time, $format, false, true, $this->comment);
 	}
 
 	/**
@@ -234,7 +235,7 @@ class Comment extends Model
 		$format = 'c';
 		$date   = date($format, strtotime($this->comment->comment_date));
 
-		return apply_filters('get_the_date', $date, $format, $this->comment);
+		return Hook::apply('get_the_date', $date, $format, $this->comment);
 	}
 
 	/**
@@ -246,7 +247,7 @@ class Comment extends Model
 	{
 		$type = empty($this->comment->comment_type) ? 'comment' : $this->comment->comment_type;
 
-		return apply_filters('get_comment_type', $type);
+		return Hook::apply('get_comment_type', $type);
 	}
 
 	/**

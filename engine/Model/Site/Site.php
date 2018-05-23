@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Site;
 
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Macro;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Navigation;
@@ -227,7 +228,7 @@ class Site
 		}
 
 		$classes = array_filter($classes);
-		$classes = implode(' ', apply_filters('body_class', $classes, $options['classes']));
+		$classes = implode(' ', Hook::apply('body_class', $classes, $options['classes']));
 
 		return $classes;
 	}

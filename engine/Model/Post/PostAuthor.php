@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Post;
 
+use Twist\Library\Hook\Hook;
 use Twist\Model\User\User;
 
 /**
@@ -41,7 +42,7 @@ class PostAuthor extends User
 	 */
 	public function name(): string
 	{
-		return apply_filters('the_author', parent::name());
+		return Hook::apply('the_author', parent::name());
 	}
 
 	/**
@@ -91,9 +92,9 @@ class PostAuthor extends User
 	 */
 	protected function filter($field): string
 	{
-		$value = apply_filters("get_the_author_$field", $this->user->$field, $this->user->ID);
+		$value = Hook::apply("get_the_author_$field", $this->user->$field, $this->user->ID);
 
-		return apply_filters("the_author_$field", $value, $this->user->ID);
+		return Hook::apply("the_author_$field", $value, $this->user->ID);
 	}
 
 }

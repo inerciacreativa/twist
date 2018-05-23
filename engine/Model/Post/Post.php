@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Post;
 
+use Twist\Library\Hook\Hook;
 use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
@@ -284,7 +285,7 @@ class Post extends Model
 	 */
 	public function link(): string
 	{
-		return apply_filters('the_permalink', get_permalink($this->post));
+		return Hook::apply('the_permalink', get_permalink($this->post));
 	}
 
 	/**
@@ -315,7 +316,7 @@ class Post extends Model
 		$format = $format ?: (string) get_option('date_format');
 		$date   = mysql2date($format, $this->post->post_date);
 
-		return apply_filters('get_the_date', $date, $format, $this->post);
+		return Hook::apply('get_the_date', $date, $format, $this->post);
 	}
 
 	/**
@@ -330,7 +331,7 @@ class Post extends Model
 		$format = $format ?: (string) get_option('time_format');
 		$time   = mysql2date($format, $this->post->post_date);
 
-		return apply_filters('get_the_time', $time, $format, $this->post);
+		return Hook::apply('get_the_time', $time, $format, $this->post);
 	}
 
 	/**
@@ -378,7 +379,7 @@ class Post extends Model
 			add_filter('excerpt_length', $filter, 999);
 		}
 
-		$excerpt = apply_filters('the_excerpt', get_the_excerpt($this->post->ID));
+		$excerpt = Hook::apply('the_excerpt', get_the_excerpt($this->post->ID));
 
 		if ($filter !== null) {
 			remove_filter('excerpt_length', $filter, 999);
@@ -437,7 +438,7 @@ class Post extends Model
 			}
 		}
 
-		return apply_filters('get_post_status', $status, $this->post);
+		return Hook::apply('get_post_status', $status, $this->post);
 	}
 
 	/**
@@ -572,9 +573,9 @@ class Post extends Model
 	{
 		$format = 'c';
 		$date   = (string) date($format, strtotime($date));
-		$date   = (string) apply_filters("get_$filter", $date, $format, $this->post);
+		$date   = (string) Hook::apply("get_$filter", $date, $format, $this->post);
 
-		return apply_filters($filter, $date, $format, '', '');
+		return Hook::apply($filter, $date, $format, '', '');
 	}
 
 }

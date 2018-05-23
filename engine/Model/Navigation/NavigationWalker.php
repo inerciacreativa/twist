@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Navigation;
 
+use Twist\Library\Hook\Hook;
+
 /**
  * Class Walker
  *
@@ -62,13 +64,13 @@ class NavigationWalker extends \Walker_Nav_Menu
 		// Remove unneeded classes
 		$classes = array_intersect($classes, array_keys(static::$classes));
 		// Apply filter and convert to string
-		$classes = apply_filters('nav_menu_css_class', $classes, $item, $arguments, $depth);
+		$classes = Hook::apply('nav_menu_css_class', $classes, $item, $arguments, $depth);
 		// Replace class names
 		$classes = str_replace(array_keys(static::$classes), static::$classes, implode(' ', $classes));
 		$classes = explode(' ', $classes);
 
-		$title = apply_filters('the_title', $item->title, $item->ID);
-		$title = apply_filters('nav_menu_item_title', $title, $item, $arguments, $depth);
+		$title = Hook::apply('the_title', $item->title, $item->ID);
+		$title = Hook::apply('nav_menu_item_title', $title, $item, $arguments, $depth);
 
 		$this->link = new Link([
 			'id'      => (int) $item->ID,

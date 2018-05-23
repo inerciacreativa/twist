@@ -2,10 +2,7 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Library\Util\Arr;
-use Twist\Model\Navigation\Link;
-use Twist\Model\Navigation\Links;
-use Twist\Model\Navigation\Pagination;
+use Twist\Library\Hook\Hook;
 use Twist\Model\Post\Post;
 use Twist\Model\User\User;
 use function Twist\config;
@@ -96,7 +93,7 @@ class CommentQuery
 	public function __construct(Post $post)
 	{
 		$this->post        = $post;
-		$this->count       = (int) apply_filters('get_comments_number', $post->field('comment_count'), $post->id());
+		$this->count       = (int) Hook::apply('get_comments_number', $post->field('comment_count'), $post->id());
 		$this->is_threaded = (bool) get_option('thread_comments');
 		$this->is_paged    = (bool) get_option('page_comments');
 		$this->order       = get_option('comment_order');
@@ -208,7 +205,7 @@ class CommentQuery
 	 */
 	public function are_open(): bool
 	{
-		return apply_filters('comments_open', $this->post->field('comment_status') === 'open', $this->post->id());
+		return Hook::apply('comments_open', $this->post->field('comment_status') === 'open', $this->post->id());
 	}
 
 	/**
@@ -240,7 +237,7 @@ class CommentQuery
 		$comment_query = $this->query($arguments, false);
 		$comments      = $this->is_threaded ? $this->flatten($comment_query->comments, $arguments) : $comment_query->comments;
 
-		$main_query->comments              = apply_filters('comments_array', $comments, $this->post->id());
+		$main_query->comments              = Hook::apply('comments_array', $comments, $this->post->id());
 		$main_query->comment_count         = \count($main_query->comments);
 		$main_query->max_num_comment_pages = (int) $comment_query->max_num_pages;
 

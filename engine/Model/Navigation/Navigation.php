@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Navigation;
 
+use Twist\Library\Hook\Hook;
+
 /**
  * Class Navigation
  *
@@ -136,7 +138,7 @@ class Navigation
 			}
 		}
 
-		return apply_filters('wp_nav_menu_objects', $sortedItems, $arguments);
+		return Hook::apply('wp_nav_menu_objects', $sortedItems, $arguments);
 	}
 
 }
