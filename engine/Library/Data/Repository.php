@@ -108,7 +108,7 @@ class Repository implements RepositoryInterface
     /**
      * @inheritdoc
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         $this->set($key ?: $this->count(), $value);
     }
@@ -116,7 +116,7 @@ class Repository implements RepositoryInterface
     /**
      * @inheritdoc
      */
-    public function offsetUnset($key)
+    public function offsetUnset($key): void
     {
         $this->forget($key);
     }

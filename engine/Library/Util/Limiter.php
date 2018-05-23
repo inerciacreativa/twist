@@ -102,7 +102,7 @@ class Limiter
      * @param \DOMNode $node
      * @param int      $limit
      */
-    protected function walk(\DOMNode $node, int $limit)
+    protected function walk(\DOMNode $node, int $limit): void
     {
         if ($this->count >= $limit) {
             $this->nodes[] = $node;
