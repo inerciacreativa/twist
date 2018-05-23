@@ -12,7 +12,7 @@ use Twist\Library\Dom\Document;
 class Text
 {
 
-    const WHITESPACE = " \t\n\r\0\x0B";
+    public const WHITESPACE = " \t\n\r\0\x0B";
 
     /**
      * @var string
