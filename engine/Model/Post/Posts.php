@@ -12,8 +12,10 @@ use Twist\Library\Model\CollectionIteratorInterface;
  *
  * @method Post|null parent()
  * @method Post get(int $id)
+ * @method Post[] all()
  * @method Post|null first(callable $callback = null)
  * @method Post|null last(callable $callback = null)
+ * @method Posts merge(Posts $collection)
  * @method Posts only(array $ids)
  * @method Posts except(array $ids)
  * @method Posts slice(int $offset, int $length = null)
@@ -40,6 +42,17 @@ class Posts extends Collection
 		}
 
 		return $collection;
+	}
+
+	/**
+	 * @return Posts
+	 */
+	public function shuffle(): Posts
+	{
+		$models = $this->models;
+		shuffle($models);
+
+		return new static($this->parent, $models);
 	}
 
 	/**
