@@ -87,6 +87,14 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
+	public function all(): array
+	{
+		return $this->models;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function first(callable $callback = null): ?ModelInterface
 	{
 		if ($callback === null) {
@@ -106,6 +114,14 @@ class Collection implements CollectionInterface
 		}
 
 		return Arr::last($this->models, $callback);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function merge(Collection $collection): CollectionInterface
+	{
+		return new static($this->parent, array_merge($this->models, $collection->all()));
 	}
 
 	/**

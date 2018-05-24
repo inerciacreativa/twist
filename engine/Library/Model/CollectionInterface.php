@@ -40,6 +40,11 @@ interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \C
 	public function ids(): array;
 
 	/**
+	 * @return ModelInterface[]
+	 */
+	public function all(): array;
+
+	/**
 	 * @param callable|null $callback
 	 *
 	 * @return null|ModelInterface
@@ -52,6 +57,13 @@ interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \C
 	 * @return null|ModelInterface
 	 */
 	public function last(callable $callback = null): ?ModelInterface;
+
+	/**
+	 * @param Collection $collection
+	 *
+	 * @return CollectionInterface
+	 */
+	public function merge(Collection $collection): CollectionInterface;
 
 	/**
 	 * @param int[] $ids
