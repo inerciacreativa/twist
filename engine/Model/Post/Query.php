@@ -51,9 +51,10 @@ class Query implements IterableInterface
 			]);
 		}
 
-		if (empty($parameters['posts_per_page'])) {
-			$parameters['posts_per_page'] = get_option('posts_per_page');
-		}
+		$parameters = array_merge([
+			'post_type'      => 'post',
+			'posts_per_page' => get_option('posts_per_page'),
+		], $parameters);
 
 		if (empty($parameters['post_status'])) {
 			$parameters['post_status'] = ($parameters['post_type'] === 'attachment') ? 'inherit' : 'publish';
@@ -80,9 +81,8 @@ class Query implements IterableInterface
 	public static function latest(int $number = 3, array $query = []): Query
 	{
 		$parameters = array_merge([
-			'post_type' => 'post',
-			'orderby'   => 'post_date',
-			'order'     => 'DESC',
+			'orderby' => 'post_date',
+			'order'   => 'DESC',
 		], $query, [
 			'posts_per_page' => $number,
 		]);
