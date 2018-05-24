@@ -10,11 +10,11 @@ use Twist\Library\Util\Arr;
  *
  * @package Twist\Model\Post
  */
-class PostQuery implements IterableInterface
+class Query implements IterableInterface
 {
 
 	/**
-	 * @var PostQuery
+	 * @var Query
 	 */
 	static protected $main;
 
@@ -24,9 +24,9 @@ class PostQuery implements IterableInterface
 	protected $query;
 
 	/**
-	 * @return PostQuery
+	 * @return Query
 	 */
-	public static function main(): PostQuery
+	public static function main(): Query
 	{
 		if (static::$main === null) {
 			static::$main = new static();
@@ -39,9 +39,9 @@ class PostQuery implements IterableInterface
 	 * @param array $parameters
 	 * @param bool  $defaults
 	 *
-	 * @return PostQuery
+	 * @return Query
 	 */
-	public static function create(array $parameters, bool $defaults = true): PostQuery
+	public static function make(array $parameters, bool $defaults = true): Query
 	{
 		if ($defaults) {
 			$parameters = array_merge($parameters, [
@@ -49,6 +49,10 @@ class PostQuery implements IterableInterface
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
 			]);
+		}
+
+		if (empty($parameters['posts_per_page'])) {
+			$parameters['posts_per_page'] = get_option('posts_per_page');
 		}
 
 		if (empty($parameters['post_status'])) {
@@ -71,19 +75,45 @@ class PostQuery implements IterableInterface
 	 * @param int   $number
 	 * @param array $query
 	 *
-	 * @return PostQuery
+	 * @return Query
 	 */
-	public static function latest(int $number = 3, array $query = []): PostQuery
+	public static function latest(int $number = 3, array $query = []): Query
 	{
 		$parameters = array_merge([
+			'post_type' => 'post',
 			'orderby'   => 'post_date',
 			'order'     => 'DESC',
-			'post_type' => 'post',
-		], $query);
+		], $query, [
+			'posts_per_page' => $number,
+		]);
 
-		$parameters['posts_per_page'] = $number;
+		return self::make($parameters);
+	}
 
-		return self::create($parameters);
+	/**
+	 * @param string $search
+	 * @param array  $query
+	 *
+	 * @return Query
+	 */
+	public static function search(string $search = '', array $query = []): Query
+	{
+		global $wp;
+
+		if (empty($search)) {
+			$request = explode('/', $wp->request);
+			$search  = str_replace('-', ' ', end($request));
+		}
+
+		$parameters = array_merge([
+			'post_type' => 'any',
+			'orderby'   => 'post_date',
+			'order'     => 'DESC',
+		], $query, [
+			's' => $search,
+		]);
+
+		return self::make($parameters);
 	}
 
 	/**
@@ -123,7 +153,7 @@ class PostQuery implements IterableInterface
 	 */
 	public function posts(): Posts
 	{
-		return Posts::create($this->query->posts);
+		return Posts::make($this->query->posts);
 	}
 
 	/**

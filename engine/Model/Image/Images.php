@@ -4,7 +4,7 @@ namespace Twist\Model\Image;
 
 use Twist\Library\Model\Collection;
 use Twist\Model\Post\Post;
-use Twist\Model\Post\PostQuery;
+use Twist\Model\Post\Query;
 
 /**
  * Class Images
@@ -23,7 +23,7 @@ use Twist\Model\Post\PostQuery;
 class Images extends Collection
 {
 
-	public static function create(Post $post, array $parameters = []): Images
+	public static function make(Post $post, array $parameters = []): Images
 	{
 		$collection = new static();
 		$collection->set_parent($post);
@@ -62,7 +62,7 @@ class Images extends Collection
 			'posts_per_page' => -1,
 		]);
 
-		$query = PostQuery::create($parameters, false);
+		$query = Query::make($parameters, false);
 
 		foreach ($query->object()->posts as $image) {
 			$collection->add(new Image($image, $post));

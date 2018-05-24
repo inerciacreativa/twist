@@ -61,7 +61,7 @@ class Post extends Model
 	 *
 	 * @return Post
 	 */
-	public static function create($post): Post
+	public static function make($post): Post
 	{
 		return new static($post);
 	}
@@ -124,7 +124,7 @@ class Post extends Model
 	public function parent(): ?ModelInterface
 	{
 		if ($this->parent === null && $this->has_parent()) {
-			$this->set_parent(static::create($this->post->post_parent));
+			$this->set_parent(static::make($this->post->post_parent));
 		}
 
 		return $this->parent;
@@ -141,7 +141,7 @@ class Post extends Model
 			return false;
 		}
 
-		$query = PostQuery::create([
+		$query = Query::make([
 			'post_parent'    => $this->id(),
 			'post_type'      => $this->type(),
 			'post_status'    => 'any',
@@ -499,7 +499,7 @@ class Post extends Model
 	public function images(): Images
 	{
 		if ($this->images === null) {
-			$this->images = Images::create($this);
+			$this->images = Images::make($this);
 		}
 
 		return $this->images;

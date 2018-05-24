@@ -70,7 +70,7 @@ class Image extends Model
 	public function parent(): ?ModelInterface
 	{
 		if ($this->parent === null && $this->has_parent()) {
-			$this->set_parent(Post::create($this->post->post_parent));
+			$this->set_parent(Post::make($this->post->post_parent));
 		}
 
 		return $this->parent;

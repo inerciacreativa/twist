@@ -2,11 +2,9 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Model\CollectionInterface;
-use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Str;
 use Twist\Library\Util\Tag;
-use Twist\Model\Post\PostQuery;
+use Twist\Model\Post\Query;
 
 /**
  * Class User
@@ -42,7 +40,7 @@ class User implements UserInterface
 	protected $profiles;
 
 	/**
-	 * @var PostQuery
+	 * @var Query
 	 */
 	protected $posts;
 
@@ -90,7 +88,7 @@ class User implements UserInterface
 	 *
 	 * @return User
 	 */
-	public static function create($user): User
+	public static function make($user): User
 	{
 		return new static($user);
 	}
@@ -278,9 +276,9 @@ class User implements UserInterface
 	/**
 	 * @param int $number
 	 *
-	 * @return PostQuery
+	 * @return Query
 	 */
-	public function posts(int $number = 5): PostQuery
+	public function posts(int $number = 5): Query
 	{
 		if ($this->posts === null) {
 			$query = [
@@ -294,7 +292,7 @@ class User implements UserInterface
 				$query['post__not_in'] = [$GLOBALS['post']->id];
 			}
 
-			$this->posts = PostQuery::create($query);
+			$this->posts = Query::make($query);
 		}
 
 		return $this->posts;

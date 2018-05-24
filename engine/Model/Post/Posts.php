@@ -27,13 +27,13 @@ class Posts extends Collection
 	 *
 	 * @return static
 	 */
-	public static function create(array $posts = []): Posts
+	public static function make(array $posts = []): Posts
 	{
 		$collection = new static();
 
 		foreach ($posts as $post) {
 			if (!($post instanceof Post)) {
-				$post = new Post($post);
+				$post = Post::make($post);
 			}
 
 			$collection->add($post);
