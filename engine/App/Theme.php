@@ -340,9 +340,9 @@ class Theme
 		]);
 
 		$this->config->fill([
-			'view.service' => TwigService::id(),
-			'view.debug'   => \defined('WP_DEBUG') && WP_DEBUG,
-			'view.path'    => '/views',
+			'view.service'   => TwigService::id(),
+			'view.debug'     => \defined('WP_DEBUG') && WP_DEBUG,
+			'view.templates' => '/templates',
 		]);
 
 		$this->hook()->fire('ic_twist_theme', $this);
@@ -352,8 +352,11 @@ class Theme
 		$this->config->fill([
 			'view.cache' => $this->config->get('view.debug') ? false : $this->config->get('dir.upload') . '/view_cache',
 			'view.paths' => array_unique(array_map(function ($path) {
-				return $path . $this->config->get('view.path');
-			}, [$this->config->get('dir.stylesheet'), $this->config->get('dir.template')])),
+				return $path . $this->config->get('view.templates');
+			}, [
+				$this->config->get('dir.stylesheet'),
+				$this->config->get('dir.template'),
+			])),
 		]);
 	}
 
