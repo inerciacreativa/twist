@@ -2,4 +2,4 @@
 
 use function Twist\view;
 
-view('page.twig');
+view('page.html.twig');

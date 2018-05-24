@@ -3,6 +3,6 @@
 use function Twist\view;
 use Twist\Model\Taxonomy\Tag;
 
-view('tag.twig', [
+view('tag.html.twig', [
 	'tag' => new Tag(),
 ]);

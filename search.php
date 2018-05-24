@@ -2,4 +2,4 @@
 
 use function Twist\view;
 
-view('search.twig');
+view('search.html.twig');

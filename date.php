@@ -2,4 +2,4 @@
 
 use function Twist\view;
 
-view('date.twig');
+view('date.html.twig');
