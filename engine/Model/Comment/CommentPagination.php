@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Comment;
 
+use Twist\Library\Hook\HookDecorator;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Pagination;
 
@@ -12,6 +13,8 @@ use Twist\Model\Navigation\Pagination;
  */
 class CommentPagination extends Pagination
 {
+
+	use HookDecorator;
 
 	/**
 	 * @var int
@@ -50,7 +53,15 @@ class CommentPagination extends Pagination
 	/**
 	 * @inheritdoc
 	 */
-	protected function simple_links(): array
+	public function has_pages(): bool
+	{
+		return $this->page_count > 1;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function getLinks(): array
 	{
 		return [
 			'prev' => get_previous_comments_link(_x('Previous', 'previous set of posts', 'twist')),
@@ -61,8 +72,12 @@ class CommentPagination extends Pagination
 	/**
 	 * @inheritdoc
 	 */
-	protected function paginate_links(array $arguments = []): Links
+	protected function getPaginatedLinks(array $arguments = []): Links
 	{
+		if (!$this->has_pages()) {
+			return new Links();
+		}
+
 		$arguments = array_merge([
 			'base'         => add_query_arg('cpage', '%#%'),
 			'format'       => '',
@@ -80,9 +95,9 @@ class CommentPagination extends Pagination
 
 		$this->arguments = $arguments;
 
-		add_filter('paginate_links', [$this, 'filter']);
-		$links = parent::paginate_links($arguments);
-		remove_filter('paginate_links', [$this, 'filter']);
+		$this->hook()->on('paginate_links', 'filterLink');
+		$links = parent::getPaginatedLinks($arguments);
+		$this->hook()->disable();
 
 		return $links;
 	}
@@ -92,7 +107,7 @@ class CommentPagination extends Pagination
 	 *
 	 * @return string
 	 */
-	public function filter(string $link): string
+	protected function filterLink(string $link): string
 	{
 		if ($this->rewrite()->using_permalinks()) {
 			$search = $this->rewrite()->comments_pagination_base . '-' . $this->page_first . '/';

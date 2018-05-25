@@ -86,6 +86,11 @@ class CommentQuery
 	protected $is_page_override = false;
 
 	/**
+	 * @var CommentPagination
+	 */
+	protected $pagination;
+
+	/**
 	 * CommentQuery constructor.
 	 *
 	 * @param Post $post
@@ -149,21 +154,23 @@ class CommentQuery
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function has_pagination(): bool
+	{
+		return $this->is_ready && $this->is_paged && ($this->page_total > 1);
+	}
+
+	/**
 	 * @return null|CommentPagination
 	 */
-	public function pagination(): ?CommentPagination
+	public function pagination(): CommentPagination
 	{
-		if (!$this->is_ready || !$this->is_paged) {
-			return null;
+		if ($this->pagination === null) {
+			$this->pagination = new CommentPagination($this->page_total, $this->page_first, $this->post->link());
 		}
 
-		static $pagination;
-
-		if ($pagination === null) {
-			$pagination = new CommentPagination($this->page_total, $this->page_first, $this->post->link());
-		}
-
-		return $pagination;
+		return $this->pagination;
 	}
 
 	/**

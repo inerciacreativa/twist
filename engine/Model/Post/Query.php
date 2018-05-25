@@ -216,6 +216,14 @@ class Query implements IterableInterface
 	/**
 	 * @return bool
 	 */
+	public function is_paginated(): bool
+	{
+		return $this->query->max_num_pages > 1;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function is_main(): bool
 	{
 		return $this->query->is_main_query();

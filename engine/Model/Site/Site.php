@@ -274,6 +274,14 @@ class Site
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function has_pagination(): bool
+	{
+		return $this->pagination()->has_pages();
+	}
+
+	/**
 	 * @return Pagination
 	 */
 	public function pagination(): Pagination

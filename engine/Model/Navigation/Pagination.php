@@ -4,6 +4,7 @@ namespace Twist\Model\Navigation;
 
 use Twist\Library\Util\Str;
 use Twist\Library\Util\Tag;
+use Twist\Model\Post\Query;
 
 /**
  * Class Pagination
@@ -14,17 +15,28 @@ class Pagination
 {
 
 	/**
+	 * @return bool
+	 */
+	public function has_pages(): bool
+	{
+		return Query::main()->is_paged();
+	}
+
+	/**
 	 * @return Links
 	 */
 	public function simple(): Links
 	{
 		$links = new Links();
-		$items = array_filter($this->simple_links());
+		if (!$this->has_pages()) {
+			return $links;
+		}
+
+		$items = array_filter($this->getLinks());
 		$index = 0;
 
 		foreach ($items as $class => $item) {
-			$link = new Link($this->link($index, $item, $class));
-			$links->add($link);
+			$links->add(new Link($this->getLink($index, $item, $class)));
 			$index++;
 		}
 
@@ -32,9 +44,29 @@ class Pagination
 	}
 
 	/**
+	 * @param array $arguments
+	 *
+	 * @return Links
+	 */
+	public function extended(array $arguments = []): Links
+	{
+		return $this->getPaginatedLinks($arguments);
+	}
+
+	/**
+	 * @param array $arguments
+	 *
+	 * @return Links
+	 */
+	public function numeric(array $arguments = []): Links
+	{
+		return $this->getPaginatedLinks(array_merge($arguments, ['prev_next' => false]));
+	}
+
+	/**
 	 * @return array
 	 */
-	protected function simple_links(): array
+	protected function getLinks(): array
 	{
 		return [
 			'prev' => get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist')),
@@ -47,29 +79,13 @@ class Pagination
 	 *
 	 * @return Links
 	 */
-	public function extended(array $arguments = []): Links
-	{
-		return $this->paginate_links($arguments);
-	}
-
-	/**
-	 * @param array $arguments
-	 *
-	 * @return Links
-	 */
-	public function numeric(array $arguments = []): Links
-	{
-		return $this->paginate_links(array_merge($arguments, ['prev_next' => false]));
-	}
-
-	/**
-	 * @param array $arguments
-	 *
-	 * @return Links
-	 */
-	protected function paginate_links(array $arguments = []): Links
+	protected function getPaginatedLinks(array $arguments = []): Links
 	{
 		$links = new Links();
+		if (!$this->has_pages()) {
+			return $links;
+		}
+
 		$items = (array) paginate_links(array_merge([
 			'mid_size'  => 1,
 			'prev_text' => _x('Previous', 'previous set of posts', 'twist'),
@@ -77,8 +93,7 @@ class Pagination
 		], $arguments, ['type' => 'array']));
 
 		foreach ($items as $index => $item) {
-			$link = new Link($this->link($index, $item));
-			$links->add($link);
+			$links->add(new Link($this->getLink($index, $item)));
 		}
 
 		return $links;
@@ -91,7 +106,7 @@ class Pagination
 	 *
 	 * @return array
 	 */
-	protected function link(int $index, string $item, string $classes = null): array
+	protected function getLink(int $index, string $item, string $classes = null): array
 	{
 		$tag     = Tag::parse(Str::fromEntities($item));
 		$classes = $classes ?? trim(str_replace('page-numbers', '', $tag['class']));
