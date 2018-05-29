@@ -15,7 +15,7 @@ class WordsResolver implements LimiterResolverInterface
      */
     public function count(string $string): int
     {
-        return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_NO_EMPTY));
+        return \count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_NO_EMPTY));
     }
 
     /**
