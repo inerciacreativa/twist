@@ -157,8 +157,8 @@ class Site
 		}
 
 		if (is_singular()) {
-			$post_id   = $wp_query->get_queried_object_id();
 			$post      = $wp_query->get_queried_object();
+			$post_id   = $post->ID;
 			$post_type = $post->post_type;
 
 			if (is_page_template()) {
