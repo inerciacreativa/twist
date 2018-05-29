@@ -289,7 +289,7 @@ class Post extends Model
 	/**
 	 * @return string
 	 */
-	public function edit_link(): string
+	public function edit_link(): ?string
 	{
 		return get_edit_post_link($this->post);
 	}
