@@ -19,7 +19,7 @@ class Pagination
 	 */
 	public function has_pages(): bool
 	{
-		return Query::main()->is_paged();
+		return Query::main()->has_pages();
 	}
 
 	/**
