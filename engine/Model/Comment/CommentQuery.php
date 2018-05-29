@@ -4,6 +4,7 @@ namespace Twist\Model\Comment;
 
 use Twist\Library\Hook\Hook;
 use Twist\Model\Post\Post;
+use Twist\Model\Post\Query;
 use Twist\Model\User\User;
 use function Twist\config;
 
@@ -110,19 +111,19 @@ class CommentQuery
 		if ($this->is_paged) {
 			$this->page_default = (string) get_option('default_comments_page');
 
-			$this->per_page = (int) get_query_var('comments_per_page');
+			$this->per_page = (int) Query::main()->get('comments_per_page');
 			if ($this->per_page === 0) {
 				$this->per_page = (int) get_option('comments_per_page');
 			}
 
-			$this->page = (int) get_query_var('cpage');
+			$this->page = (int) Query::main()->get('cpage');
 		}
 
 		$this->is_ready  = $this->setup();
 		$this->arguments = $this->arguments();
 
 		if ($this->is_paged) {
-			$this->page_total = $this->page_total($this->arguments);
+			$this->page_total = $this->getPageTotal($this->arguments);
 			$this->page_first = ($this->page_default === 'newest') ? $this->page_total : 1;
 		}
 	}
@@ -134,16 +135,11 @@ class CommentQuery
 	 */
 	public function get(): ?Comments
 	{
-		if (!$this->is_ready) {
+		if (!$this->is_ready || !Query::main()->has_comments()) {
 			return null;
 		}
 
-		$main_query = $this->main_query();
-		$comments   = &$main_query->comments;
-
-		if (empty($main_query->comments)) {
-			return null;
-		}
+		$comments = Query::main()->get_comments();
 
 		wp_queue_comments_for_comment_meta_lazyload($comments);
 
@@ -222,9 +218,7 @@ class CommentQuery
 	 */
 	protected function setup(): bool
 	{
-		$main_query = $this->main_query();
-
-		if (!$this->post->id() || !($main_query->is_single() || $main_query->is_page())) {
+		if (!$this->post->id() || !(Query::main()->is_single() || Query::main()->is_page())) {
 			return false;
 		}
 
@@ -238,24 +232,23 @@ class CommentQuery
 
 		if ($this->is_paged) {
 			$arguments['number'] = $this->per_page;
-			$arguments['offset'] = $this->query_offset();
+			$arguments['offset'] = $this->getQueryOffset();
 		}
 
-		$comment_query = $this->query($arguments, false);
-		$comments      = $this->is_threaded ? $this->flatten($comment_query->comments, $arguments) : $comment_query->comments;
+		$query    = $this->query($arguments, false);
+		$comments = $this->is_threaded ? $this->getFlattenedComments($query->comments, $arguments) : $query->comments;
+		$comments = Hook::apply('comments_array', $comments, $this->post->id());
 
-		$main_query->comments              = Hook::apply('comments_array', $comments, $this->post->id());
-		$main_query->comment_count         = \count($main_query->comments);
-		$main_query->max_num_comment_pages = (int) $comment_query->max_num_pages;
+		Query::main()->set_comments($comments, $query->max_num_pages);
 
-		if ($this->page === 0 && $main_query->max_num_comment_pages > 1) {
-			$this->page             = ($this->page_default === 'newest') ? $main_query->max_num_comment_pages : 1;
+		if ($this->page === 0 && $query->max_num_pages > 1) {
+			$this->page             = (int) ($this->page_default === 'newest') ? $query->max_num_pages : 1;
 			$this->is_page_override = true;
 
-			set_query_var('cpage', $this->page);
+			Query::main()->set('cpage', $this->page);
 		}
 
-		return !empty($main_query->comments);
+		return Query::main()->has_comments();
 	}
 
 	/**
@@ -263,8 +256,6 @@ class CommentQuery
 	 */
 	protected function arguments(): array
 	{
-		$main_query = $this->main_query();
-
 		$arguments = [
 			'type'              => 'all',
 			'page'              => '',
@@ -273,7 +264,7 @@ class CommentQuery
 			'reverse_top_level' => $this->order === 'desc',
 		];
 
-		if ($main_query->max_num_comment_pages) {
+		if (Query::main()->comment_pages()) {
 			if ($this->page_default === 'newest') {
 				$arguments['cpage'] = $this->page;
 			} else if ($this->page === 1) {
@@ -297,7 +288,7 @@ class CommentQuery
 
 		if ($arguments['page'] === '') {
 			if ($this->is_page_override) {
-				$arguments['page'] = ($this->page_default === 'newest') ? $this->page_count($arguments, true) : 1;
+				$arguments['page'] = ($this->page_default === 'newest') ? $this->getPageCount($arguments, true) : 1;
 			} else {
 				$arguments['page'] = $this->page;
 			}
@@ -323,17 +314,6 @@ class CommentQuery
 	}
 
 	/**
-	 * @return \WP_Query
-	 */
-	protected function main_query(): \WP_Query
-	{
-		/** @var \WP_Query $wp_query */
-		global $wp_query;
-
-		return $wp_query;
-	}
-
-	/**
 	 * @param array $arguments
 	 * @param bool  $results
 	 *
@@ -346,7 +326,7 @@ class CommentQuery
 			'orderby'            => 'comment_date_gmt',
 			'order'              => 'ASC',
 			'status'             => 'approve',
-			'include_unapproved' => $this->user(),
+			'include_unapproved' => $this->getUser(),
 		], $arguments);
 
 		if (!$results) {
@@ -359,7 +339,7 @@ class CommentQuery
 	/**
 	 * @return int
 	 */
-	protected function query_offset(): int
+	protected function getQueryOffset(): int
 	{
 		if ($this->page) {
 			return ($this->page - 1) * $this->per_page;
@@ -384,7 +364,7 @@ class CommentQuery
 	 *
 	 * @return \WP_Comment[]
 	 */
-	protected function flatten(array $comments, array $arguments): array
+	protected function getFlattenedComments(array $comments, array $arguments): array
 	{
 		$flattened = [[]];
 
@@ -408,17 +388,15 @@ class CommentQuery
 	 *
 	 * @return int
 	 */
-	protected function page_count(array $arguments, bool $set = false): int
+	protected function getPageCount(array $arguments, bool $set = false): int
 	{
 		if (!$this->is_paged || $arguments['per_page'] === 0) {
 			return 1;
 		}
 
-		$main_query = $this->main_query();
-
 		if ($arguments['max_depth'] !== 1) {
 			// Count root comments
-			$count = array_reduce($main_query->comments, function (int $count, \WP_Comment $comment) {
+			$count = array_reduce(Query::main()->get_comments(), function (int $count, \WP_Comment $comment) {
 				if ($comment->comment_parent === 0) {
 					$count++;
 				}
@@ -427,13 +405,13 @@ class CommentQuery
 			}, 0);
 		} else {
 			// Count all comments
-			$count = \count($main_query->comments);
+			$count = Query::main()->comment_count();
 		}
 
 		$count = (int) ceil($count / $arguments['per_page']);
 
 		if ($set) {
-			set_query_var('cpage', $count);
+			Query::main()->set('cpage', $count);
 		}
 
 		return $count;
@@ -444,21 +422,19 @@ class CommentQuery
 	 *
 	 * @return int
 	 */
-	protected function page_total(array $arguments): int
+	protected function getPageTotal(array $arguments): int
 	{
-		$main_query = $this->main_query();
-
-		if (!empty($main_query->max_num_comment_pages)) {
-			return $main_query->max_num_comment_pages;
+		if ($count = Query::main()->comment_pages()) {
+			return $count;
 		}
 
-		return $this->page_count($arguments);
+		return $this->getPageCount($arguments);
 	}
 
 	/**
 	 * @return int|string
 	 */
-	protected function user()
+	protected function getUser()
 	{
 		$user = User::current();
 

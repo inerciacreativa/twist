@@ -5,6 +5,7 @@ namespace Twist\Model\Comment;
 use Twist\Library\Hook\HookDecorator;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Pagination;
+use Twist\Model\Post\Query;
 
 /**
  * Class CommentPagination
@@ -82,7 +83,7 @@ class CommentPagination extends Pagination
 			'base'         => add_query_arg('cpage', '%#%'),
 			'format'       => '',
 			'total'        => $this->page_count,
-			'current'      => get_query_var('cpage', 1),
+			'current'      => Query::main()->get('cpage', 1),
 			'add_fragment' => '#comments',
 		], $arguments);
 
