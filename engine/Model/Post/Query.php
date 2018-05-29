@@ -103,12 +103,12 @@ class Query implements IterableInterface
 		if (empty($search)) {
 			$request = explode('/', $wp->request);
 			$search  = str_replace('-', ' ', end($request));
+			$search  = preg_replace('/[^a-z ]/i', '', $search);
 		}
 
 		$parameters = array_merge([
 			'post_type' => 'any',
-			'orderby'   => 'post_date',
-			'order'     => 'DESC',
+			//'posts_per_page' => 5,
 		], $query, [
 			's' => $search,
 		]);
@@ -170,6 +170,69 @@ class Query implements IterableInterface
 	public function total(): int
 	{
 		return $this->query->found_posts;
+	}
+
+	/**
+	 * @return array|null
+	 */
+	public function get_comments(): ?array
+	{
+		return $this->query->comments;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_comments(): bool
+	{
+		return !empty($this->query->comments);
+	}
+
+	/**
+	 * @param array $comments
+	 * @param int   $pages
+	 */
+	public function set_comments(array $comments, $pages): void
+	{
+		$this->query->comments              = $comments;
+		$this->query->comment_count         = \count($comments);
+		$this->query->max_num_comment_pages = (int) $pages;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function comment_count(): int
+	{
+		return (int) $this->query->comment_count;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function comment_pages(): int
+	{
+		return (int) $this->query->max_num_comment_pages;
+	}
+
+	/**
+	 * @param string $variable
+	 * @param null   $default
+	 *
+	 * @return mixed
+	 */
+	public function get(string $variable, $default = null)
+	{
+		return $this->query->get($variable, $default);
+	}
+
+	/**
+	 * @param string $variable
+	 * @param        $value
+	 */
+	public function set(string $variable, $value): void
+	{
+		$this->query->set($variable, $value);
 	}
 
 	/**
@@ -300,14 +363,6 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function is_paged(): bool
-	{
-		return $this->query->is_paged();
-	}
-
-	/**
 	 * @param null|int|string|array $category
 	 *
 	 * @return bool
@@ -401,6 +456,32 @@ class Query implements IterableInterface
 	public function is_404(): bool
 	{
 		return $this->query->is_404();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function is_paged(): bool
+	{
+		return $this->query->is_paged();
+	}
+
+	/**
+	 * @param int $page
+	 *
+	 * @return bool
+	 */
+	public function is_current_page(int $page = 1): bool
+	{
+		return $this->has_pages() && ($page === (int) $this->query->get('paged', 1));
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_pages(): bool
+	{
+		return $this->query->max_num_pages > 1;
 	}
 
 }
