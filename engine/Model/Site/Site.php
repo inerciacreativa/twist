@@ -4,6 +4,7 @@ namespace Twist\Model\Site;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Macro;
+use Twist\Library\Util\Tag;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Pagination;
@@ -311,6 +312,18 @@ class Site
 	public function option(string $name)
 	{
 		return get_option($name);
+	}
+
+	/**
+	 * @param string $tag
+	 * @param array  $attributes
+	 * @param null   $content
+	 *
+	 * @return Tag
+	 */
+	public function tag(string $tag, array $attributes = [], $content = null): Tag
+	{
+		return Tag::make($tag, $attributes, $content);
 	}
 
 }
