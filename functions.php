@@ -1,6 +1,5 @@
 <?php
 
-include_once __DIR__ . '/vendor/autoload.php';
 include_once __DIR__ . '/engine/app.php';
 
 use Twist\Model\Post\Query;
