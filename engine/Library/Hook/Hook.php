@@ -94,22 +94,22 @@ class Hook
 	}
 
 	/**
-	 * @param string $hook
-	 * @param string $callback
-	 * @param int    $priority
-	 * @param int    $parameters
+	 * @param string                $hook
+	 * @param string|array|callable $callback
+	 * @param int                   $priority
+	 * @param int                   $parameters
 	 */
-	public static function add(string $hook, string $callback, int $priority = 10, int $parameters = 1): void
+	public static function add(string $hook, $callback, int $priority = 10, int $parameters = 1): void
 	{
 		add_filter($hook, $callback, $priority, $parameters);
 	}
 
 	/**
-	 * @param string $hook
-	 * @param string $callback
-	 * @param int    $priority
+	 * @param string                $hook
+	 * @param string|array|callable $callback
+	 * @param int                   $priority
 	 */
-	public static function remove(string $hook, string $callback, int $priority = 10): void
+	public static function remove(string $hook, $callback, int $priority = 10): void
 	{
 		remove_filter($hook, $callback, $priority);
 	}
