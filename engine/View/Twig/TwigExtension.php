@@ -21,6 +21,18 @@ class TwigExtension extends \Twig_Extension
 	/**
 	 * @return array
 	 */
+	public function getFilters(): array
+	{
+		return [
+			new \Twig_Filter('classes', function (array $classes) {
+				return implode(' ', array_filter($classes));
+			}),
+		];
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getFunctions(): array
 	{
 		return [
@@ -42,7 +54,7 @@ class TwigExtension extends \Twig_Extension
 					$arguments    = \func_get_args();
 					$arguments[0] = $translation;
 					\array_splice($arguments, 1, 1);
-					$translation  = sprintf(...$arguments);
+					$translation = sprintf(...$arguments);
 				}
 
 				return $translation;
