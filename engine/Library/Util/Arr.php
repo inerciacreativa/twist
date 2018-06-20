@@ -717,4 +717,41 @@ class Arr
 		return static::insert($array, $key, $value);
 	}
 
+	/**
+	 * @param array      $array
+	 * @param null|array $keys
+	 * @param bool       $caseless
+	 *
+	 * @return array
+	 */
+	public static function remove(array $array, $keys = null, bool $caseless = true): array
+	{
+		$result = [];
+
+		if (empty($keys)) {
+			$keys = null;
+		}
+
+		if (\is_array($keys) && $caseless) {
+			foreach ($keys as &$key) {
+				$key = strtolower($key);
+			}
+
+			unset($key);
+		}
+
+		foreach ($array as $name => $value) {
+			if ($keys === null && $value !== null) {
+				$result[$name] = $value;
+			} else {
+				$search = $caseless ? strtolower($name) : $name;
+				if (!\in_array($search, $keys, true)) {
+					$result[$name] = $value;
+				}
+			}
+		}
+
+		return $result;
+	}
+
 }
