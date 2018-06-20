@@ -36,6 +36,9 @@ class TwigExtension extends \Twig_Extension
 	public function getFunctions(): array
 	{
 		return [
+			new \Twig_SimpleFunction('kint', function ($debug) {
+				\Kint::dump($debug);
+			}, ['is_safe' => ['html']]),
 			new \Twig_SimpleFunction('__', function (string $string) {
 				$translation = __($string, 'twist');
 
