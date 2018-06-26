@@ -310,6 +310,9 @@ class Request
 		return $new;
 	}
 
+	/**
+	 *
+	 */
 	private function updateHostFromUri(): void
 	{
 		$host = $this->uri->getHost();

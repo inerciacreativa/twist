@@ -109,6 +109,9 @@ class Client
 		return $transport($request, $options);
 	}
 
+	/**
+	 * @param array $config
+	 */
 	private function setConfig(array $config): void
 	{
 		$this->config = array_merge([
@@ -119,6 +122,12 @@ class Client
 		], $config);
 	}
 
+	/**
+	 * @param Request $request
+	 * @param array   $options
+	 *
+	 * @return Request
+	 */
 	private function setOptions(Request $request, array &$options): Request
 	{
 		$modify = [

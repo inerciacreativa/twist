@@ -4,6 +4,11 @@ namespace Twist\Library\Http\Api;
 
 use Twist\Library\Http\Client;
 
+/**
+ * Class YouTubeApi
+ *
+ * @package Twist\Library\Http\Api
+ */
 class YouTubeApi
 {
 
