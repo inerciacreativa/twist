@@ -3,6 +3,7 @@ const merge = require('webpack-merge');
 const CleanPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyGlobsPlugin = require('copy-globs-webpack-plugin');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 
 const config = require('./config');
 const assetsFilenames = (config.enabled.cacheBusting) ? config.cacheBusting : '[name]';
@@ -40,7 +41,7 @@ let webpackConfig = {
       },
       {
         test: /\.js$/,
-        exclude: [/(node_modules|bower_components)(?![/|\\](bootstrap|foundation-sites))/],
+        exclude: [/(node_modules)(?![/|\\](bootstrap|foundation-sites))/],
         use: [
           {loader: 'buble', options: {objectAssign: 'Object.assign'}},
         ],
@@ -54,9 +55,9 @@ let webpackConfig = {
             {loader: 'css', options: {sourceMap: config.enabled.sourceMaps}},
             {
               loader: 'postcss', options: {
-              config: {path: __dirname, ctx: config},
-              sourceMap: config.enabled.sourceMaps,
-            },
+                config: {path: __dirname, ctx: config},
+                sourceMap: config.enabled.sourceMaps,
+              },
             },
           ],
         }),
@@ -70,9 +71,9 @@ let webpackConfig = {
             {loader: 'css', options: {sourceMap: config.enabled.sourceMaps}},
             {
               loader: 'postcss', options: {
-              config: {path: __dirname, ctx: config},
-              sourceMap: config.enabled.sourceMaps,
-            },
+                config: {path: __dirname, ctx: config},
+                sourceMap: config.enabled.sourceMaps,
+              },
             },
             {loader: 'less', options: {sourceMap: config.enabled.sourceMaps}},
           ],
@@ -87,13 +88,13 @@ let webpackConfig = {
             {loader: 'css', options: {sourceMap: config.enabled.sourceMaps}},
             {
               loader: 'postcss', options: {
-              config: {path: __dirname, ctx: config},
-              sourceMap: config.enabled.sourceMaps,
-            },
+                config: {path: __dirname, ctx: config},
+                sourceMap: config.enabled.sourceMaps,
+              },
             },
             {
               loader: 'resolve-url',
-              options: {sourceMap: config.enabled.sourceMaps}
+              options: {sourceMap: config.enabled.sourceMaps},
             },
             {loader: 'sass', options: {sourceMap: config.enabled.sourceMaps}},
           ],
@@ -110,7 +111,7 @@ let webpackConfig = {
       },
       {
         test: /\.(ttf|eot|woff2?|png|jpe?g|gif|svg|ico)$/,
-        include: /node_modules|bower_components/,
+        include: /node_modules/,
         loader: 'url',
         options: {
           limit: 4096,
@@ -124,7 +125,6 @@ let webpackConfig = {
     modules: [
       config.paths.source,
       'node_modules',
-      'bower_components',
     ],
     enforceExtension: false,
   },
@@ -171,6 +171,7 @@ let webpackConfig = {
         context: config.paths.source,
       },
     }),
+    new FriendlyErrorsWebpackPlugin(),
   ],
 };
 
@@ -189,15 +190,13 @@ if (config.env.production) {
 if (config.enabled.cacheBusting) {
   const WebpackAssetsManifest = require('webpack-assets-manifest');
 
-  webpackConfig.plugins.push(
-      new WebpackAssetsManifest({
-        output: 'assets.json',
-        space: 2,
-        writeToDisk: false,
-        assets: config.manifest,
-        replacer: require('./helpers/manifest'),
-      })
-  );
+  webpackConfig.plugins.push(new WebpackAssetsManifest({
+    output: config.manifestFile,
+    space: 2,
+    writeToDisk: false,
+    assets: config.manifest,
+    replacer: require('./helpers/manifest'),
+  }));
 }
 
 if (config.enabled.watcher) {

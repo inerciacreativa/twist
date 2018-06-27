@@ -2,6 +2,7 @@ const path = require('path');
 const {argv} = require('yargs');
 const merge = require('webpack-merge');
 const desire = require('./helpers/desire');
+const normalizePath = require('./helpers/normalize-path');
 
 const userConfig = merge(desire(`${__dirname}/../config`), desire(`${__dirname}/../config-local`));
 
@@ -20,33 +21,43 @@ const config = merge({
     target: 'assets',
     styles: 'styles',
     scripts: 'scripts',
-    images: 'images'
+    images: 'images',
   },
+  pathPrefix: '/',
   enabled: {
     lint: 'scripts',
     sourceMaps: !isProduction,
     optimize: isProduction,
     cacheBusting: isProduction,
-    watcher: !!argv.watch
+    watcher: !!argv.watch,
   },
+  manifestFile: 'assets.json',
   watch: [],
 }, userConfig);
 
+if (config.devSsl.key) {
+  config.devSsl.key = normalizePath(config.devSsl.key, config.pathPrefix);
+}
+
+if (config.devSsl.cert) {
+  config.devSsl.cert = normalizePath(config.devSsl.cert, config.pathPrefix);
+}
+
 module.exports = merge(config, {
-  open: true,
+  open: false,
   env: Object.assign({
     production: isProduction,
-    development: !isProduction
+    development: !isProduction,
   }, argv.env),
   paths: {
     root: rootPath,
     source: path.join(rootPath, config.folders.source),
     target: path.join(rootPath, config.folders.target),
-    clean: cleanPaths(config.folders)
+    clean: cleanPaths(config.folders).concat(path.join(rootPath, config.folders.target, config.manifestFile)),
   },
   copy: `${config.folders.images}/**/*`,
   publicPath: publicPath(config.publicPath, config.folders.target),
-  manifest: {}
+  manifest: {},
 });
 
 if (process.env.NODE_ENV === undefined) {
