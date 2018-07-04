@@ -45,7 +45,6 @@ class Head
 		]);
 
 		Hook::bind($this)
-		    ->on('wp_enqueue_scripts', 'register')
 		    ->capture(self::HOOK, 'parse')
 		    ->fire(self::HOOK);
 	}
@@ -72,17 +71,6 @@ class Head
 	protected function parse(string $html): void
 	{
 		$this->parser->parse($html);
-	}
-
-	/**
-	 *
-	 */
-	protected function register(): void
-	{
-		wp_deregister_script('jquery');
-		wp_register_script('jquery', false, ['jquery-core'], null, true);
-		wp_deregister_script('jquery-core');
-		wp_register_script('jquery-core', config('script.jquery', '//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'), [], null, true);
 	}
 
 }
