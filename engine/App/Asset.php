@@ -47,6 +47,12 @@ class Asset
 		return $this->manifest[$base];
 	}
 
+	/**
+	 * @param string $filename
+	 * @param bool   $fromParentTheme
+	 *
+	 * @return mixed
+	 */
 	protected function get(string $filename, bool $fromParentTheme)
 	{
 		return $this->manifest($fromParentTheme)->get(ltrim($filename, '/'), $filename);
