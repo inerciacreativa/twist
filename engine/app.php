@@ -4,6 +4,7 @@ namespace Twist;
 
 use Twist\App\App;
 use Twist\App\AppServiceProvider;
+use Twist\App\Asset;
 use Twist\App\Config;
 use Twist\App\Theme;
 use Twist\View\ViewInterface;
@@ -67,4 +68,12 @@ function view(string $template = null, array $data = [], bool $renderOnly = fals
 	}
 
 	return app('view')->display($template, $data);
+}
+
+/**
+ * @return Asset
+ */
+function asset()
+{
+	return app('asset');
 }
