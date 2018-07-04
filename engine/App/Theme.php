@@ -451,6 +451,7 @@ class Theme
 
 			if ($load) {
 				if (\is_string($load)) {
+					wp_deregister_script($script['id']);
 					wp_enqueue_script($script['id'], $this->asset->url($load, Arr::value($script, 'parent', false)), Arr::value($script, 'deps'), null, true);
 				} else {
 					wp_enqueue_script($script['id']);
