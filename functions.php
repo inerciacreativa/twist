@@ -14,11 +14,12 @@ theme()->services(new CoreServiceProvider())->config([
 	'view.data'                   => [
 		'posts' => Query::class,
 	],
-	'service.relative_url'        => true,
+	'service.relative_url'        => false,
 	'service.disable_emoji'       => true,
+	'service.lazy_load'           => true,
 	'service.thumbnail_generator' => [
-		'enable'   => true,
-		'videos'   => true,
+		'enable' => true,
+		'videos' => true,
 	],
 	'service.content_cleaner'     => [
 		'enable'     => true,
@@ -33,6 +34,11 @@ theme()->services(new CoreServiceProvider())->config([
 		'parent' => true,
 	],
 ])->scripts([
+	[
+		'id'     => 'jquery',
+		'load'   => 'scripts/jquery.js',
+		'parent' => true,
+	],
 	[
 		'id'     => 'twist',
 		'load'   => 'scripts/main.js',

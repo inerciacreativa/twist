@@ -6,20 +6,23 @@
     ],
     "customizer": [
       "./scripts/customizer.js"
+    ],
+    "lazyload-es2015": [
+      "./scripts/lib/lazyload-es2015.js"
+    ],
+    "lazyload": [
+      "./scripts/lib/lazyload.js"
+    ],
+    "jquery": [
+      "./../node_modules/jquery/dist/jquery.js"
     ]
   },
   "watch": [
     "functions.php",
     "source/config.json",
-    "engine/**/*.php",
-    "views/**/*.twig"
+    "templates/**/*.twig",
+    "theme/**/*.php"
   ],
   "devUrl": "http://twist.dev",
-  "proxyUrl": "http://localhost:3000",
-  "browsers": [
-    "> 2%",
-    "last 2 versions",
-    "android 4",
-    "opera 12"
-  ]
+  "proxyUrl": "http://localhost:3000"
 }
