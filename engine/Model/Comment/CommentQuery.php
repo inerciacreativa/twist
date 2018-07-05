@@ -91,6 +91,9 @@ class CommentQuery
 	 */
 	protected $pagination;
 
+
+	protected $form;
+
 	/**
 	 * CommentQuery constructor.
 	 *
@@ -174,9 +177,13 @@ class CommentQuery
 	 */
 	public function form(): string
 	{
-		$form = new CommentForm(config('view.form_decorator') ?? new CommentFormDecorator());
+		if ($this->form === null) {
+			$classes    = config('view.form_classes', []);
+			$decorator  = new CommentFormDecorator($classes);
+			$this->form = new CommentForm(config('view.form_decorator') ?? $decorator);
+		}
 
-		return $form->show();
+		return $this->form->show();
 	}
 
 	/**
@@ -218,7 +225,8 @@ class CommentQuery
 	 */
 	protected function setup(): bool
 	{
-		if (!$this->post->id() || !(Query::main()->is_single() || Query::main()->is_page())) {
+		if (!$this->post->id() || !(Query::main()->is_single() || Query::main()
+		                                                               ->is_page())) {
 			return false;
 		}
 
@@ -396,7 +404,8 @@ class CommentQuery
 
 		if ($arguments['max_depth'] !== 1) {
 			// Count root comments
-			$count = array_reduce(Query::main()->get_comments(), function (int $count, \WP_Comment $comment) {
+			$count = array_reduce(Query::main()
+			                           ->get_comments(), function (int $count, \WP_Comment $comment) {
 				if ($comment->comment_parent === 0) {
 					$count++;
 				}

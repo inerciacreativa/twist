@@ -12,43 +12,25 @@ use Twist\Library\Util\Tag;
 class CommentFormDecorator implements CommentFormDecoratorInterface
 {
 
-	/**
-	 * @var string Class for the field wrapper.
-	 */
-	protected $field_class = 'field';
+	protected $classes = [
+		'field'   => 'field', // Class for the field wrapper.
+		'label'   => 'label', // Class for the <label>.
+		'input'   => null, // Class for the <input> or <textarea>. If null the tag name is used.
+		'control' => 'control', // Class for the <span> wrapper of the input. If empty no wrapper will be applied.
+		'actions' => 'field actions', // Class for the submit button wrapper.
+		'submit'  => 'button is-primary is-large', // Class for the submit <input> button.
+		'cancel'  => 'button is-warning is-small', // Class for the cancel <button>.
+	];
 
 	/**
-	 * @var string Class for the <label>.
-	 */
-	protected $label_class = 'label';
-
-	/**
-	 * @var string Class for the <input> or <textarea>.
-	 *             If null the tag name is used.
-	 */
-	protected $input_class;
-
-	/**
-	 * @var string Class for the <span> wrapper of the input.
-	 *             If empty no wrapper will be applied.
-	 */
-	protected $control_class = 'control';
-
-	/**
-	 * @var string Class for the submit button wrapper.
-	 */
-	protected $actions_class = 'field actions';
-
-	/**
-	 * @var string Class for the submit <input> button.
-	 */
-	protected $submit_class = 'button is-primary is-large';
-
-	/**
-	 * @var string Class for the cancel <button>.
+	 * CommentFormDecorator constructor.
 	 *
+	 * @param array $classes
 	 */
-	protected $cancel_class = 'button is-warning is-small';
+	public function __construct(array $classes)
+	{
+		$this->classes = array_merge($this->classes, $classes);
+	}
 
 	/**
 	 * @inheritdoc
@@ -58,7 +40,7 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 		return array_merge($arguments, [
 			'title_reply_before' => '<h2 class="subtitle">',
 			'title_reply_after'  => '</h2>',
-			'submit_field'       => '<p class="' . $this->actions_class . '">%1$s%2$s</p>',
+			'submit_field'       => '<p class="' . $this->classes['actions'] . '">%1$s%2$s</p>',
 		]);
 	}
 
@@ -87,12 +69,12 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 			'id'    => $id,
 			'name'  => $id,
 			'type'  => 'submit',
-			'class' => $this->submit_class,
+			'class' => $this->classes['submit'],
 			'value' => $text,
 		]);
 
-		if ($this->control_class) {
-			$submit = Tag::span(['class' => $this->control_class], $submit);
+		if ($this->classes['control']) {
+			$submit = Tag::span(['class' => $this->classes['control']], $submit);
 		}
 
 		return $submit;
@@ -107,7 +89,7 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 			'id'    => $id,
 			'name'  => $id,
 			'type'  => 'reset',
-			'class' => $this->cancel_class,
+			'class' => $this->classes['cancel'],
 			'form'  => $form,
 		], $text);
 	}
@@ -125,14 +107,14 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 		$control = Tag::make($type, array_merge([
 			'id'    => $id,
 			'name'  => $id,
-			'class' => $this->input_class ?? $type,
+			'class' => $this->classes['input'] ?? $type,
 		], $attributes));
 
-		if ($this->control_class) {
-			$control = Tag::span(['class' => $this->control_class], $control);
+		if ($this->classes['control']) {
+			$control = Tag::span(['class' => $this->classes['control']], $control);
 		}
 
-		return Tag::p(['class' => $this->field_class], [
+		return Tag::p(['class' => $this->classes['field']], [
 			$this->label($id, $label),
 			$control,
 		]);
@@ -152,7 +134,9 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 			$label = $text;
 		}
 
-		return Tag::label(['for' => $id, 'class' => $this->label_class], $label);
+		return Tag::label(['for'   => $id,
+		                   'class' => $this->classes['label'],
+		], $label);
 	}
 
 }

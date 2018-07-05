@@ -30,7 +30,7 @@ class CommentForm
 	 */
 	public function __construct(CommentFormDecoratorInterface $decorator)
 	{
-		$this->decorator = new $decorator;
+		$this->decorator = $decorator;
 
 		add_filter('comment_form_defaults', function (array $arguments) {
 			return $this->parse($arguments);
