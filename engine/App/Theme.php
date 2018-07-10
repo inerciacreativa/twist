@@ -101,6 +101,19 @@ class Theme
 	protected $contact = [];
 
 	/**
+	 * @var array
+	 */
+	protected $formats = [
+		'aside',
+		'image',
+		'video',
+		'quote',
+		'link',
+		'gallery',
+		'audio',
+	];
+
+	/**
 	 * Theme constructor.
 	 *
 	 * @param App    $app
@@ -277,7 +290,11 @@ class Theme
 	 */
 	public function image(string $name, int $width, int $height = 0, bool $crop = false): self
 	{
-		$this->images[$name] = [$name, $width, $height, $crop];
+		if ($width === 0 && $height === 0) {
+			unset($this->images[$name]);
+		} else {
+			$this->images[$name] = [$name, $width, $height, $crop];
+		}
 
 		return $this;
 	}
@@ -306,6 +323,18 @@ class Theme
 	public function contact(array $contact): self
 	{
 		$this->contact = array_merge($this->contact, $contact);
+
+		return $this;
+	}
+
+	/**
+	 * @param array $formats
+	 *
+	 * @return $this
+	 */
+	public function formats(array $formats): self
+	{
+		$this->formats = $formats;
 
 		return $this;
 	}
@@ -397,16 +426,13 @@ class Theme
 			'caption',
 		]);
 
-		add_theme_support('post-thumbnails');
-		add_theme_support('post-formats', [
-			'aside',
-			'image',
-			'video',
-			'quote',
-			'link',
-			'gallery',
-			'audio',
-		]);
+		if (isset($this->images['post-thumbnail'])) {
+			add_theme_support('post-thumbnails');
+		}
+
+		if (!empty($this->formats)) {
+			add_theme_support('post-formats', $this->formats);
+		}
 
 		if (!empty($this->logo)) {
 			add_theme_support('custom-logo', $this->logo);
