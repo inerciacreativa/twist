@@ -3,6 +3,7 @@
 namespace Twist\App;
 
 use Twist\Library\Data\JsonFile;
+use Twist\Library\Util\Url;
 
 class Asset
 {
@@ -67,6 +68,11 @@ class Asset
 	 */
 	public function url(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
 	{
+		$url = Url::parse($filename);
+		if ($url->isValid() && $url->isAbsolute()) {
+			return $filename;
+		}
+
 		$base = $fromParentTheme ? 'template' : 'stylesheet';
 		$type = $fromSource ? 'source' : 'assets';
 		$file = $fromSource ? $filename : $this->get($filename, $fromParentTheme);
