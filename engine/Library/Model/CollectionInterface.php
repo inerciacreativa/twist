@@ -94,4 +94,13 @@ interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \C
 	 */
 	public function take(int $limit): CollectionInterface;
 
+	/**
+	 * @param string $method
+	 * @param int    $options
+	 * @param bool   $descending
+	 *
+	 * @return CollectionInterface
+	 */
+	public function sort(string $method, int $options = SORT_REGULAR, bool $descending = false): CollectionInterface;
+
 }

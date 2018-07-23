@@ -163,6 +163,27 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
+	public function sort(string $method, int $options = SORT_REGULAR, bool $descending = false): CollectionInterface
+	{
+		$models = [];
+
+		foreach ($this->models as $id => $model) {
+			$models[$id] = $model->$method();
+		}
+
+		$descending ? arsort($models, $options) : asort($models, $options);
+
+		$ids = array_keys($models);
+		foreach ($ids as $id) {
+			$models[$id] = $this->models[$id];
+		}
+
+		return new static($this->parent, $models);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function getIterator(): CollectionIteratorInterface
 	{
 		return new CollectionIterator($this->models);
