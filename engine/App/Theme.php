@@ -65,7 +65,7 @@ class Theme
 	 */
 	protected $fonts = [
 		'families' => [],
-		'script'   => '//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
+		'script'   => '//ajax.googleapis.com/ajax/libs/webfont/1.6.28/webfont.js',
 	];
 
 	/**
