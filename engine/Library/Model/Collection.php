@@ -163,8 +163,12 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function sort(string $method, int $options = SORT_REGULAR, bool $descending = false): CollectionInterface
+	public function sort(string $method = null, int $options = SORT_REGULAR, bool $descending = false): CollectionInterface
 	{
+		if ($method === null) {
+			return $this;
+		}
+
 		$models = [];
 
 		foreach ($this->models as $id => $model) {

@@ -3,6 +3,7 @@
 namespace Twist\Model\Image;
 
 use Twist\Library\Model\Collection;
+use Twist\Library\Model\CollectionInterface;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\Query;
 
@@ -20,7 +21,7 @@ use Twist\Model\Post\Query;
  * @method Images slice(int $offset, int $length = null)
  * @method Images take(int $limit)
  */
-class Images extends Collection
+class Images extends Collection implements CollectionInterface
 {
 
 	public static function make(Post $post, array $parameters = []): Images
@@ -72,21 +73,30 @@ class Images extends Collection
 	}
 
 	/**
-	 * @return Images
+	 * @inheritdoc
 	 */
-	public function sort(): Images
+	public function sort(string $method = null, int $options = SORT_REGULAR, bool $descending = false): CollectionInterface
 	{
+		$factor = 1;
+		if ($method === null || $method === 'area') {
+			$factor = 10;
+		}
+
 		$models = $this->models;
 
-		uasort($models, function (Image $image1, Image $image2) {
+		uasort($models, function (Image $image1, Image $image2) use ($factor, $descending) {
 			$info1 = $image1->get('large');
 			$info2 = $image2->get('large');
 
-			$test1 = ($info1['width'] * 10) + $info1['height'];
-			$test2 = ($info2['width'] * 10) + $info2['height'];
+			$test1 = ($info1['width'] * $factor) + $info1['height'];
+			$test2 = ($info2['width'] * $factor) + $info2['height'];
 
 			if ($test1 === $test2) {
 				return 0;
+			}
+
+			if ($descending) {
+				return ($test2 > $test1) ? -1 : 1;
 			}
 
 			return ($test1 > $test2) ? -1 : 1;
