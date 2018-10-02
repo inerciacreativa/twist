@@ -4,6 +4,7 @@ namespace Twist\Model\Site\Element;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
+use Twist\Library\Util\Str;
 use Twist\Library\Util\Tag;
 
 /**
@@ -27,21 +28,25 @@ class Meta implements ElementInterface
 		$nodes = $dom->getElementsByTagName('meta');
 
 		while ($node = $nodes->item(0)) {
-			$content = trim($node->getAttribute('content'));
-
+			$tag = null;
 			if ($node->hasAttribute('name')) {
-				$name = $node->getAttribute('name');
+				$tag = 'name';
+			} else if ($node->hasAttribute('property')) {
+				$tag = 'property';
+			}
+
+			if ($tag) {
+				$name = $node->getAttribute($tag);
+
+				if (Str::contains($name, ':title')) {
+					$content = $this->title();
+				} else {
+					$content = trim($node->getAttribute('content'));
+				}
 
 				$this->metas[$name] = Tag::meta([
 					'name'    => $name,
 					'content' => $content,
-				]);
-			} else if ($node->hasAttribute('property')) {
-				$property = $node->getAttribute('property');
-
-				$this->metas[$property] = Tag::meta([
-					'property' => $property,
-					'content'  => $content,
 				]);
 			}
 
@@ -57,6 +62,14 @@ class Meta implements ElementInterface
 	public function get(): array
 	{
 		return Hook::apply('twist_site_metas', $this->metas);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function title(): string
+	{
+		return html_entity_decode(the_title_attribute(['echo' => false]), ENT_HTML5 | ENT_QUOTES);
 	}
 
 }
