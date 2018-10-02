@@ -271,10 +271,16 @@ class Post extends Model
 	}
 
 	/**
+	 * @param bool $attribute
+	 *
 	 * @return string
 	 */
-	public function title(): string
+	public function title(bool $attribute = false): string
 	{
+		if ($attribute) {
+			return html_entity_decode(the_title_attribute(['echo' => false, 'post' => $this->post]), ENT_HTML5 | ENT_QUOTES);
+		}
+
 		return get_the_title($this->post);
 	}
 
