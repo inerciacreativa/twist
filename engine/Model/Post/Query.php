@@ -19,6 +19,11 @@ class Query implements IterableInterface
 	static protected $main;
 
 	/**
+	 * @var array
+	 */
+	static private $cache = [];
+
+	/**
 	 * @var \WP_Query
 	 */
 	protected $query;
@@ -69,7 +74,12 @@ class Query implements IterableInterface
 			$parameters['post__not_in'] = wp_parse_id_list($parameters['exclude']);
 		}
 
-		return new static($parameters);
+		$id = json_encode($parameters);
+		if (!array_key_exists($id, static::$cache)) {
+			static::$cache[$id] = new static($parameters);
+		}
+
+		return static::$cache[$id];
 	}
 
 	/**
@@ -78,7 +88,7 @@ class Query implements IterableInterface
 	 *
 	 * @return Query
 	 */
-	public static function latest(int $number = 3, array $query = []): Query
+	public static function latest(int $number = 5, array $query = []): Query
 	{
 		$parameters = array_merge([
 			'orderby' => 'post_date',
