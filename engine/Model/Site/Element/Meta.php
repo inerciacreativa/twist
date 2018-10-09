@@ -21,6 +21,11 @@ class Meta implements ElementInterface
 	protected $metas = [];
 
 	/**
+	 * @var string
+	 */
+	protected $title;
+
+	/**
 	 * @inheritdoc
 	 */
 	public function parse(Document $dom): void
@@ -28,15 +33,15 @@ class Meta implements ElementInterface
 		$nodes = $dom->getElementsByTagName('meta');
 
 		while ($node = $nodes->item(0)) {
-			$tag = null;
+			$type = null;
 			if ($node->hasAttribute('name')) {
-				$tag = 'name';
+				$type = 'name';
 			} else if ($node->hasAttribute('property')) {
-				$tag = 'property';
+				$type = 'property';
 			}
 
-			if ($tag) {
-				$name = $node->getAttribute($tag);
+			if ($type) {
+				$name = $node->getAttribute($type);
 
 				if (Str::contains($name, ':title')) {
 					$content = $this->title();
@@ -44,10 +49,7 @@ class Meta implements ElementInterface
 					$content = trim($node->getAttribute('content'));
 				}
 
-				$this->metas[$name] = Tag::meta([
-					'name'    => $name,
-					'content' => $content,
-				]);
+				$this->metas[$name] = $this->tag($type, $name, $content);
 			}
 
 			$node->parentNode->removeChild($node);
@@ -65,11 +67,33 @@ class Meta implements ElementInterface
 	}
 
 	/**
+	 * @param string $type
+	 * @param string $name
+	 * @param string $content
+	 *
+	 * @return Tag
+	 */
+	protected function tag(string $type, string $name, string $content): Tag
+	{
+		$filter = str_replace(':', '_', "twist_meta_$name");
+		$meta   = Tag::meta([
+			$type     => $name,
+			'content' => $content,
+		]);
+
+		return Hook::apply($filter, $meta);
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function title(): string
 	{
-		return html_entity_decode(the_title_attribute(['echo' => false]), ENT_HTML5 | ENT_QUOTES);
+		if ($this->title === null) {
+			$this->title = html_entity_decode(the_title_attribute(['echo' => false]), ENT_HTML5 | ENT_QUOTES);
+		}
+
+		return $this->title;
 	}
 
 }
