@@ -14,14 +14,9 @@ class Query implements IterableInterface
 {
 
 	/**
-	 * @var Query
+	 * @var Query[]
 	 */
-	static protected $main;
-
-	/**
-	 * @var array
-	 */
-	static private $cache = [];
+	static private $queries = [];
 
 	/**
 	 * @var \WP_Query
@@ -29,15 +24,27 @@ class Query implements IterableInterface
 	protected $query;
 
 	/**
+	 * @param array $parameters
+	 *
+	 * @return Query
+	 */
+	private static function query(array $parameters = []): Query
+	{
+		$id = json_encode($parameters);
+
+		if (!array_key_exists($id, static::$queries)) {
+			static::$queries[$id] = new static($parameters);
+		}
+
+		return static::$queries[$id];
+	}
+
+	/**
 	 * @return Query
 	 */
 	public static function main(): Query
 	{
-		if (static::$main === null) {
-			static::$main = new static();
-		}
-
-		return static::$main;
+		return static::query();
 	}
 
 	/**
@@ -75,11 +82,11 @@ class Query implements IterableInterface
 		}
 
 		$id = json_encode($parameters);
-		if (!array_key_exists($id, static::$cache)) {
-			static::$cache[$id] = new static($parameters);
+		if (!array_key_exists($id, static::$queries)) {
+			static::$queries[$id] = new static($parameters);
 		}
 
-		return static::$cache[$id];
+		return static::query($parameters);
 	}
 
 	/**
