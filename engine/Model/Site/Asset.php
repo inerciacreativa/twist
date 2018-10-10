@@ -57,8 +57,10 @@ class Asset
 			$logo = Tag::img(['src' => $this->asset->url($filename)]);
 		}
 
-		$logo->attributes($attributes);
-		$logo['alt'] = $this->site->name();
+		$logo->attributes(array_merge([
+			'data-lazy' => 'false',
+			'alt'       => $this->site->name(),
+		], $attributes));
 
 		return Hook::apply('twist_asset_logo', $logo);
 	}
@@ -73,11 +75,10 @@ class Asset
 	public function image(string $filename, array $attributes = [], bool $parent = false): string
 	{
 		$image = Tag::img(['src' => $this->asset->url($filename, $parent)]);
-		$image->attributes($attributes);
-
-		if (!isset($image['alt'])) {
-			$image['alt'] = '';
-		}
+		$image->attributes(array_merge([
+			'data-lazy' => 'false',
+			'alt'       => '',
+		], $attributes));
 
 		return Hook::apply('twist_asset_image', $image);
 	}
