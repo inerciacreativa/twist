@@ -40,7 +40,7 @@ class LazyLoadService extends Service
 	 */
 	public function boot(): void
 	{
-		if (is_admin() || !$this->config->get('service.lazy_load') || Query::main()->is_feed()) {
+		if (is_admin() || !$this->config->get('service.lazy_load')) {
 			return;
 		}
 
@@ -97,6 +97,10 @@ class LazyLoadService extends Service
 	 */
 	protected function replaceInDocument(Document $dom): Document
 	{
+		if (Query::main()->is_feed()) {
+			return $dom;
+		}
+
 		$images = $dom->getElementsByTagName('img');
 
 		/** @var \Twist\Library\Dom\Element $image */
