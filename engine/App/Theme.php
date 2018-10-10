@@ -137,6 +137,9 @@ class Theme
 		$this->hook()
 		     ->before('after_setup_theme', 'setup')
 		     ->on('show_admin_bar', '__return_false')
+		     ->on('get_the_generator_html', '__return_empty_string')
+		     ->on('get_the_generator_xhtml', '__return_empty_string')
+		     ->on('get_the_generator_rss2', '__return_empty_string')
 		     ->on('user_contactmethods', 'addContactMethods')
 		     ->on('wp_enqueue_scripts', 'addStyles')
 		     ->on('wp_enqueue_scripts', 'addScripts')
@@ -144,19 +147,14 @@ class Theme
 		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
 		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
 		     ->after('wp_footer', 'addWebFonts')
-		     ->on('twist_site_metas', function (array $metas) {
-			     return array_filter($metas, function (Tag $meta) {
-				     return !(isset($meta['name']) && $meta['name'] === 'generator');
-			     });
-		     })
 		     ->on('twist_site_links', function (array $links) {
-			     return array_filter($links, function (Tag $link) {
-				     return !\in_array($link['rel'], [
-					     'EditURI',
-					     'wlwmanifest',
-				     ], false);
-			     });
-		     });
+				return array_filter($links, function (Tag $link) {
+					return !\in_array($link['rel'], [
+						'EditURI',
+						'wlwmanifest',
+					], false);
+				});
+			});
 	}
 
 	/**
@@ -374,7 +372,7 @@ class Theme
 			'view.templates' => '/templates',
 		]);
 
-		$this->hook()->fire('ic_twist_theme', $this);
+		$this->hook()->fire('twist_theme', $this);
 
 		$this->config->fill($this->options);
 
