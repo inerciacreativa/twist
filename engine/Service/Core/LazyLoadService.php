@@ -5,8 +5,8 @@ namespace Twist\Service\Core;
 use Twist\App\App;
 use Twist\App\Asset;
 use Twist\Library\Dom\Document;
-use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
+use Twist\Model\Post\Query;
 use Twist\Service\Service;
 
 /**
@@ -40,25 +40,22 @@ class LazyLoadService extends Service
 	 */
 	public function boot(): void
 	{
-		if (is_admin()) {
+		if (is_admin() || !$this->config->get('service.lazy_load') || Query::main()->is_feed()) {
 			return;
 		}
 
 		$this->hook()
-		     ->off('ic_twist_assets_image', 'replace')
-		     ->off('ic_feed_show_image', 'replace')
-		     ->off('post_thumbnail_html', 'replace', Hook::AFTER)
-		     ->off('get_avatar', 'replace', Hook::AFTER)
-		     ->off('wp_footer', 'addScript', Hook::AFTER);
+		     ->on('twist_asset_image', 'replaceInTag')
+		     ->on('twist_asset_logo', 'replaceInTag')
+		     ->on('ic_feed_show_image', 'replaceInString')
+		     ->after('post_thumbnail_html', 'replaceInString')
+		     ->after('get_avatar', 'replaceInString')
+		     ->after('wp_footer', 'addScript');
 
 		if ($this->config->get('service.content_cleaner.enable')) {
-			$this->hook()->off('twist_service_content_cleaner', 'replaceInDocument');
+			$this->hook()->on('twist_service_content_cleaner', 'replaceInDocument');
 		} else {
-			$this->hook()->off('the_content', 'replaceInContent');
-		}
-
-		if ($this->config->get('service.lazy_load')) {
-			$this->start();
+			$this->hook()->on('the_content', 'replaceInText');
 		}
 	}
 
@@ -83,7 +80,7 @@ class LazyLoadService extends Service
 	 *
 	 * @return string
 	 */
-	protected function replaceInContent(string $content): string
+	protected function replaceInText(string $content): string
 	{
 		$dom = new Document(get_bloginfo('language'));
 
@@ -121,25 +118,37 @@ class LazyLoadService extends Service
 	 *
 	 * @return string
 	 */
-	protected function replace(string $image): string
+	protected function replaceInString(string $image): string
 	{
 		$tag = Tag::parse($image);
 
 		if ($tag) {
-			if ($tag['data-lazy'] === 'false') {
-				return $image;
-			}
-
-			$tag['data-src'] = $tag['src'];
-
-			if (isset($tag['srcset'])) {
-				$tag['data-srcset'] = $tag['srcset'];
-			}
-
-			unset($tag['src'], $tag['srcset']);
-
-			return (string) $tag;
+			return $this->replaceInTag($tag)->render();
 		}
+
+		return $image;
+	}
+
+	/**
+	 * @param Tag $image
+	 *
+	 * @return Tag
+	 */
+	protected function replaceInTag(Tag $image): Tag
+	{
+		if ($image['data-lazy'] === 'false') {
+			unset($image['data-lazy']);
+
+			return $image;
+		}
+
+		$image['data-src'] = $image['src'];
+
+		if (isset($image['srcset'])) {
+			$image['data-srcset'] = $image['srcset'];
+		}
+
+		unset($image['src'], $image['srcset']);
 
 		return $image;
 	}
