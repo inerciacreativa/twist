@@ -312,6 +312,14 @@ class Query implements IterableInterface
 	/**
 	 * @return bool
 	 */
+	public function is_feed(): bool
+	{
+		return $this->query->is_feed();
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function is_home(): bool
 	{
 		return $this->query->is_home();
