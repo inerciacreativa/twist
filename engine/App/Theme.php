@@ -137,24 +137,13 @@ class Theme
 		$this->hook()
 		     ->before('after_setup_theme', 'boot')
 		     ->on('show_admin_bar', '__return_false')
-		     ->on('get_the_generator_html', '__return_empty_string')
-		     ->on('get_the_generator_xhtml', '__return_empty_string')
-		     ->on('get_the_generator_rss2', '__return_empty_string')
 		     ->on('user_contactmethods', 'addContactMethods')
 		     ->on('wp_enqueue_scripts', 'addStyles')
 		     ->on('wp_enqueue_scripts', 'addScripts')
 		     ->on('widgets_init', 'addSidebars')
 		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
 		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
-		     ->after('wp_footer', 'addWebFonts')
-		     ->on('twist_site_links', function (array $links) {
-			     return array_filter($links, function (Tag $link) {
-				     return !\in_array($link['rel'], [
-					     'EditURI',
-					     'wlwmanifest',
-				     ], false);
-			     });
-		     });
+		     ->after('wp_footer', 'addWebFonts');
 	}
 
 	/**
@@ -170,13 +159,13 @@ class Theme
 	}
 
 	/**
-	 * @param array $config
+	 * @param array $options
 	 *
 	 * @return $this
 	 */
-	public function config(array $config): self
+	public function options(array $options): self
 	{
-		$this->options = Arr::merge($this->options, $config);
+		$this->options = Arr::merge($this->options, $options);
 
 		return $this;
 	}
@@ -358,6 +347,9 @@ class Theme
 	protected function addConfig(): void
 	{
 		$this->config->fill([
+			'app'  => [
+				'debug' => \defined('WP_DEBUG') && WP_DEBUG,
+			],
 			'dir'  => [
 				'stylesheet' => get_stylesheet_directory(),
 				'template'   => get_template_directory(),
@@ -370,7 +362,6 @@ class Theme
 			],
 			'view' => [
 				'service'   => TwigService::id(),
-				'debug'     => \defined('WP_DEBUG') && WP_DEBUG,
 				'templates' => '/templates',
 			],
 		]);
@@ -381,7 +372,7 @@ class Theme
 
 		$this->config->fill([
 			'view' => [
-				'cache' => $this->config->get('view.debug') ? false : $this->config->get('dir.upload') . '/view_cache',
+				'cache' => $this->config->get('app.debug') ? false : $this->config->get('dir.upload') . '/view_cache',
 				'paths' => array_unique(array_map(function ($path) {
 					return $path . $this->config->get('view.templates');
 				}, [

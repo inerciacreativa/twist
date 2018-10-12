@@ -5,33 +5,41 @@ include_once __DIR__ . '/engine/app.php';
 use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
 use Twist\Service\CoreServiceProvider;
+use Twist\View\Twig\TwigService;
 use function Twist\theme;
 
-theme()->services(new CoreServiceProvider())->config([
-	'view.global'                      => [
-		'site' => Site::class,
-	],
-	'view.data'                        => [
-		'posts' => Query::class,
-	],
-	'app.service' => [
-		'view_engine' => [
-			'enable' => true,
-			'service' => TwigService::id(),
+theme()->services(new CoreServiceProvider())->options([
+	'data'    => [
+		'global' => [
+			'site' => Site::class,
 		],
-		'relative_url.enable'  => false,
-		'disable_emoji.enable' => true,
-		'lazy_load.enable'     => true,
-		'thumbnail_generator'  => [
-			'enable' => true,
-			'videos' => true,
+		'view'   => [
+			'posts' => Query::class,
 		],
-		'content_cleaner'      => [
+	],
+	'view'    => [
+		'service'   => TwigService::id(),
+		'templates' => '/templates',
+	],
+	'service' => [
+		'relative_url.enable' => false,
+		'head_cleaner'        => [
+			'enable'    => true,
+			'generator' => true,
+			'edit'      => true,
+			'emoji'     => true,
+		],
+		'content_cleaner'     => [
 			'enable'     => true,
 			'attributes' => [],
 			'styles'     => [],
 			'comments'   => true,
 		],
+		'thumbnail_generator' => [
+			'enable' => true,
+			'videos' => true,
+		],
+		'lazy_load.enable'    => true,
 	],
 ])->styles([
 	[
@@ -89,7 +97,7 @@ theme()->services(new CoreServiceProvider())->config([
 	'primary' => __('Primary Menu', 'twist'),
 	'social'  => __('Social Links Menu', 'twist'),
 ])->contact([
-	'twitter'    => __('Twitter', 'twist'),
-	'facebook'   => __('Facebook', 'twist'),
-	'linkedin'   => __('LinkedIn', 'twist'),
+	'twitter'  => __('Twitter', 'twist'),
+	'facebook' => __('Facebook', 'twist'),
+	'linkedin' => __('LinkedIn', 'twist'),
 ])->thumbnail(850, 510, true);
