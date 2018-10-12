@@ -75,7 +75,7 @@ class Meta implements ElementInterface
 	 */
 	protected function tag(string $type, string $name, string $content): Tag
 	{
-		$filter = str_replace(':', '_', "twist_meta_$name");
+		$filter = str_replace(':', '_', "twist_site_meta_$name");
 		$meta   = Tag::meta([
 			$type     => $name,
 			'content' => $content,
