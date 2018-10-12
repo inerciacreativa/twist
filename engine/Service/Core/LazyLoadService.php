@@ -5,6 +5,7 @@ namespace Twist\Service\Core;
 use Twist\App\App;
 use Twist\App\Asset;
 use Twist\Library\Dom\Document;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 use Twist\Model\Post\Query;
 use Twist\Service\Service;
@@ -40,39 +41,37 @@ class LazyLoadService extends Service
 	 */
 	public function boot(): void
 	{
-		if (is_admin() || !$this->config->get('service.lazy_load')) {
+		if (is_admin()) {
 			return;
 		}
 
 		$this->hook()
-		     ->on('twist_asset_image', 'replaceInTag')
-		     ->on('twist_asset_logo', 'replaceInTag')
-		     ->on('ic_feed_show_image', 'replaceInString')
-		     ->after('post_thumbnail_html', 'replaceInString')
-		     ->after('get_avatar', 'replaceInString')
-		     ->after('wp_footer', 'addScript');
+		     ->off('twist_asset_image', 'replaceInTag')
+		     ->off('twist_asset_logo', 'replaceInTag')
+		     ->off('ic_feed_show_image', 'replaceInString')
+		     ->off('post_thumbnail_html', 'replaceInString', Hook::AFTER)
+		     ->off('get_avatar', 'replaceInString', Hook::AFTER)
+		     ->off('wp_footer', 'addScript', Hook::AFTER);
 
 		if ($this->config->get('service.content_cleaner.enable')) {
-			$this->hook()->on('twist_service_content_cleaner', 'replaceInDocument');
+			$this->hook()->off('twist_app_content_cleaner_service', 'replaceInDocument');
 		} else {
-			$this->hook()->on('the_content', 'replaceInText');
+			$this->hook()->off('the_content', 'replaceInText');
+		}
+
+		if ($this->config('enable')) {
+			$this->start();
 		}
 	}
 
 	/**
-	 * @inheritdoc
+	 *
 	 */
-	public function start(): void
+	protected function init(): void
 	{
-		$this->hook()->enable();
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function stop(): void
-	{
-		$this->hook()->disable();
+		if (Query::main()->is_feed()) {
+			$this->stop();
+		}
 	}
 
 	/**
@@ -97,10 +96,6 @@ class LazyLoadService extends Service
 	 */
 	protected function replaceInDocument(Document $dom): Document
 	{
-		if (Query::main()->is_feed()) {
-			return $dom;
-		}
-
 		$images = $dom->getElementsByTagName('img');
 
 		/** @var \Twist\Library\Dom\Element $image */

@@ -37,17 +37,9 @@ class DisableEmojiService extends Service
 		     ->off('tiny_mce_plugins', 'removeEditorPlugin')
 		     ->off('wp_resource_hints', 'removeResourceHints', ['arguments' => 2]);
 
-		if ($this->config->get('service.disable_emoji')) {
+		if ($this->config('enable')) {
 			$this->start();
 		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function start(): void
-	{
-		$this->hook()->enable();
 	}
 
 	/**

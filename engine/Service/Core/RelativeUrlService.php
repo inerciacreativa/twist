@@ -47,26 +47,10 @@ class RelativeUrlService extends Service
 		    $this->hook()->off($filter, 'makeRelative');
 	    }
 
-	    if ($this->config->get('service.relative_url')) {
+	    if ($this->config('enable')) {
 	    	$this->start();
 	    }
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function start(): void
-    {
-	    $this->hook()->enable();
-    }
-
-	/**
-	 * @inheritdoc
-	 */
-	public function stop(): void
-	{
-		$this->hook()->disable();
-	}
 
 	/**
 	 * @param string|mixed $link

@@ -8,24 +8,30 @@ use Twist\Service\CoreServiceProvider;
 use function Twist\theme;
 
 theme()->services(new CoreServiceProvider())->config([
-	'view.global'                 => [
+	'view.global'                      => [
 		'site' => Site::class,
 	],
-	'view.data'                   => [
+	'view.data'                        => [
 		'posts' => Query::class,
 	],
-	'service.relative_url'        => false,
-	'service.disable_emoji'       => true,
-	'service.lazy_load'           => true,
-	'service.thumbnail_generator' => [
-		'enable' => true,
-		'videos' => true,
-	],
-	'service.content_cleaner'     => [
-		'enable'     => true,
-		'attributes' => [],
-		'styles'     => [],
-		'comments'   => true,
+	'app.service' => [
+		'view_engine' => [
+			'enable' => true,
+			'service' => TwigService::id(),
+		],
+		'relative_url.enable'  => false,
+		'disable_emoji.enable' => true,
+		'lazy_load.enable'     => true,
+		'thumbnail_generator'  => [
+			'enable' => true,
+			'videos' => true,
+		],
+		'content_cleaner'      => [
+			'enable'     => true,
+			'attributes' => [],
+			'styles'     => [],
+			'comments'   => true,
+		],
 	],
 ])->styles([
 	[
@@ -83,7 +89,6 @@ theme()->services(new CoreServiceProvider())->config([
 	'primary' => __('Primary Menu', 'twist'),
 	'social'  => __('Social Links Menu', 'twist'),
 ])->contact([
-	'googleplus' => __('Google+', 'twist'),
 	'twitter'    => __('Twitter', 'twist'),
 	'facebook'   => __('Facebook', 'twist'),
 	'linkedin'   => __('LinkedIn', 'twist'),

@@ -32,25 +32,9 @@ class ThumbnailGeneratorService extends Service
 	{
 		$this->hook()->off('twist_meta_post', 'check', ['arguments' => 3]);
 
-		if ($this->config->get('service.thumbnail_generator.enable')) {
+		if ($this->config('enable')) {
 			$this->start();
 		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function start(): void
-	{
-		$this->hook()->enable();
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function stop(): void
-	{
-		$this->hook()->disable();
 	}
 
 	/**
@@ -81,11 +65,11 @@ class ThumbnailGeneratorService extends Service
 	{
 		$classes = [ImageSearch::class];
 
-		if ($this->config->get('service.thumbnail_generator.videos')) {
+		if ($this->config('videos')) {
 			$classes = array_merge($classes, self::$video);
 		}
 
-		foreach ((array) $this->config->get('service.thumbnail_generator.extra', []) as $class) {
+		foreach ($this->config('extra', []) as $class) {
 			if (is_a($class, ImageSearchInterface::class, true)) {
 				$classes[] = $class;
 			}

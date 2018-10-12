@@ -28,6 +28,11 @@ abstract class Service implements ServiceInterface
 	protected $config;
 
 	/**
+	 * @var bool
+	 */
+	private $started = false;
+
+	/**
 	 * @return string
 	 */
 	public static function id(): string
@@ -35,7 +40,7 @@ abstract class Service implements ServiceInterface
 		static $name;
 
 		if ($name === null) {
-			$name = Str::snake(basename(str_replace('\\', '/', static::class)), '.');
+			$name = Str::snake(basename(str_replace(['\\', 'Service'], ['/', ''], static::class)), '_');
 		}
 
 		return $name;
@@ -50,6 +55,8 @@ abstract class Service implements ServiceInterface
 	{
 		$this->app    = $app;
 		$this->config = $this->app['config'];
+
+		$this->hook()->on('wp', 'init');
 	}
 
 	/**
@@ -57,12 +64,42 @@ abstract class Service implements ServiceInterface
 	 */
 	public function start(): void
 	{
+		if (!$this->started) {
+			$this->hook()->enable();
+
+			$this->started = true;
+		}
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	public function stop(): void
+	{
+		if ($this->started) {
+			$this->hook()->disable();
+
+			$this->started = false;
+		}
+	}
+
+	/**
+	 * @param string $name
+	 * @param mixed  $default
+	 *
+	 * @return mixed
+	 */
+	protected function config(string $name = '', $default = null)
+	{
+		$name = $name ? ".$name" : '';
+
+		return $this->config->get('app.service.' . static::id() . $name, $default);
+	}
+
+	/**
+	 *
+	 */
+	protected function init(): void
 	{
 	}
 
