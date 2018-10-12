@@ -31,22 +31,24 @@ class TwigService extends ViewService
 		$this->loader      = new \Twig_Loader_Filesystem($this->config->get('view.paths', []));
 		$this->environment = new \Twig_Environment($this->loader, [
 			'cache'       => $this->config->get('view.cache', false),
-			'debug'       => $this->config->get('view.debug', false),
+			'debug'       => $this->config->get('app.debug', false),
 			'auto_reload' => true,
 		]);
 
 		$this->environment->addExtension(new TwigExtension());
 		$this->environment->addExtension(new \Twig_Extension_StringLoader());
 
-		if ($this->config->get('view.debug')) {
+		if ($this->config->get('app.debug')) {
 			$this->environment->addExtension(new \Twig_Extension_Debug());
 		}
 
-		foreach ((array) $this->config->get('view.global', []) as $name => $value) {
+		foreach ((array) $this->config->get('data.global', []) as $name => $value) {
 			$this->environment->addGlobal($name, $this->resolveData($value));
 		}
 
-		parent::boot();
+		foreach ((array) $this->config->get('data.view', []) as $name => $value) {
+			$this->addData($name, $value);
+		}
 	}
 
 	/**
