@@ -93,7 +93,7 @@ abstract class Service implements ServiceInterface
 	{
 		$name = $name ? ".$name" : '';
 
-		return $this->config->get('app.service.' . static::id() . $name, $default);
+		return $this->config->get('service.' . static::id() . $name, $default);
 	}
 
 	/**

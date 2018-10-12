@@ -46,7 +46,7 @@ class ContentCleanerService extends Service
 			$dom->cleanComments();
 		}
 
-		$this->hook()->apply('twist_app_content_cleaner_service', $dom);
+		$this->hook()->apply('twist_service_content_cleaner', $dom);
 
 		return $dom->saveMarkup();
 	}

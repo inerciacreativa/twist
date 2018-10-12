@@ -4,7 +4,7 @@ namespace Twist\Service;
 
 use Twist\App\App;
 use Twist\Service\Core\ContentCleanerService;
-use Twist\Service\Core\DisableEmojiService;
+use Twist\Service\Core\HeadCleanerService;
 use Twist\Service\Core\LazyLoadService;
 use Twist\Service\Core\RelativeUrlService;
 use Twist\Service\Core\ThumbnailGeneratorService;
@@ -26,20 +26,20 @@ class CoreServiceProvider implements ServiceProviderInterface
 			return new RelativeUrlService($app);
 		});
 
-		$app->service(DisableEmojiService::id(), function (App $app) {
-			return new DisableEmojiService($app);
+		$app->service(HeadCleanerService::id(), function (App $app) {
+			return new HeadCleanerService($app);
 		});
 
-		$app->service(LazyLoadService::id(), function (App $app) {
-			return new LazyLoadService($app, $app['asset']);
+		$app->service(ContentCleanerService::id(), function (App $app) {
+			return new ContentCleanerService($app);
 		});
 
 		$app->service(ThumbnailGeneratorService::id(), function (App $app) {
 			return new ThumbnailGeneratorService($app);
 		});
 
-		$app->service(ContentCleanerService::id(), function (App $app) {
-			return new ContentCleanerService($app);
+		$app->service(LazyLoadService::id(), function (App $app) {
+			return new LazyLoadService($app, $app['asset']);
 		});
 	}
 

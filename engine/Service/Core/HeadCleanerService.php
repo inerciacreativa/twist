@@ -2,16 +2,16 @@
 
 namespace Twist\Service\Core;
 
+use Twist\Library\Hook\Hook;
+use Twist\Library\Util\Tag;
 use Twist\Service\Service;
 
 /**
- * Class DisableEmojiService
+ * Class HeadCleanerService
  *
  * @package Twist\Service\Core
- *
- * @see     https://wordpress.org/plugins/disable-emojis/
  */
-class DisableEmojiService extends Service
+class HeadCleanerService extends Service
 {
 
 	/**
@@ -32,14 +32,55 @@ class DisableEmojiService extends Service
 	 */
 	public function boot(): void
 	{
-		$this->hook()
-		     ->off('init', 'removeFilters')
-		     ->off('tiny_mce_plugins', 'removeEditorPlugin')
-		     ->off('wp_resource_hints', 'removeResourceHints', ['arguments' => 2]);
-
 		if ($this->config('enable')) {
-			$this->start();
+			if ($this->config('generator')) {
+				$this->removeGenerator();
+			}
+			if ($this->config('edit')) {
+				$this->removeEditLinks();
+			}
+			if ($this->config('emoji')) {
+				$this->removeEmoji();
+			}
 		}
+	}
+
+	/**
+	 *
+	 */
+	protected function removeGenerator(): void
+	{
+		Hook::add('get_the_generator_html', '__return_empty_string');
+		Hook::add('get_the_generator_xhtml', '__return_empty_string');
+		Hook::add('get_the_generator_rss2', '__return_empty_string');
+	}
+
+	/**
+	 *
+	 */
+	protected function removeEditLinks(): void
+	{
+		$this->hook()->on('twist_site_links', function (array $links) {
+			return array_filter($links, function (Tag $link) {
+				return !\in_array($link['rel'], [
+					'EditURI',
+					'wlwmanifest',
+				], false);
+			});
+		});
+
+	}
+
+	/**
+	 *
+	 */
+	protected function removeEmoji(): void
+	{
+		$this->hook()
+		     ->on('init', 'removeFilters')
+		     ->on('tiny_mce_plugins', 'removeEditorPlugin')
+		     ->on('wp_resource_hints', 'removeResourceHints', ['arguments' => 2]);
+
 	}
 
 	/**
@@ -49,9 +90,9 @@ class DisableEmojiService extends Service
 	{
 		foreach (self::$emoji as $filter => $function) {
 			if (\is_array($function)) {
-				$this->hook()->remove($filter, $function[0], $function[1]);
+				Hook::remove($filter, $function[0], $function[1]);
 			} else {
-				$this->hook()->remove($filter, $function);
+				Hook::remove($filter, $function);
 			}
 		}
 	}

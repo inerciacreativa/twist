@@ -54,7 +54,7 @@ class LazyLoadService extends Service
 		     ->off('wp_footer', 'addScript', Hook::AFTER);
 
 		if ($this->config->get('service.content_cleaner.enable')) {
-			$this->hook()->off('twist_app_content_cleaner_service', 'replaceInDocument');
+			$this->hook()->off('twist_service_content_cleaner', 'replaceInDocument');
 		} else {
 			$this->hook()->off('the_content', 'replaceInText');
 		}
