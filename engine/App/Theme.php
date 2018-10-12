@@ -135,7 +135,7 @@ class Theme
 		$this->sidebars = new Collection();
 
 		$this->hook()
-		     ->before('after_setup_theme', 'setup')
+		     ->before('after_setup_theme', 'boot')
 		     ->on('show_admin_bar', '__return_false')
 		     ->on('get_the_generator_html', '__return_empty_string')
 		     ->on('get_the_generator_xhtml', '__return_empty_string')
@@ -148,13 +148,13 @@ class Theme
 		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
 		     ->after('wp_footer', 'addWebFonts')
 		     ->on('twist_site_links', function (array $links) {
-				return array_filter($links, function (Tag $link) {
-					return !\in_array($link['rel'], [
-						'EditURI',
-						'wlwmanifest',
-					], false);
-				});
-			});
+			     return array_filter($links, function (Tag $link) {
+				     return !\in_array($link['rel'], [
+					     'EditURI',
+					     'wlwmanifest',
+				     ], false);
+			     });
+		     });
 	}
 
 	/**
@@ -342,7 +342,7 @@ class Theme
 	 * @throws \RuntimeException
 	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
-	protected function setup(): void
+	protected function boot(): void
 	{
 		$this->addConfig();
 		$this->addLanguages();
@@ -358,18 +358,21 @@ class Theme
 	protected function addConfig(): void
 	{
 		$this->config->fill([
-			'dir.stylesheet' => get_stylesheet_directory(),
-			'dir.template'   => get_template_directory(),
-			'dir.upload'     => wp_upload_dir()['basedir'],
-			'uri.home'       => home_url(),
-			'uri.stylesheet' => get_stylesheet_directory_uri(),
-			'uri.template'   => get_template_directory_uri(),
-		]);
-
-		$this->config->fill([
-			'view.service'   => TwigService::id(),
-			'view.debug'     => \defined('WP_DEBUG') && WP_DEBUG,
-			'view.templates' => '/templates',
+			'dir'  => [
+				'stylesheet' => get_stylesheet_directory(),
+				'template'   => get_template_directory(),
+				'upload'     => wp_upload_dir()['basedir'],
+			],
+			'uri'  => [
+				'home'       => home_url(),
+				'stylesheet' => get_stylesheet_directory_uri(),
+				'template'   => get_template_directory_uri(),
+			],
+			'view' => [
+				'service'   => TwigService::id(),
+				'debug'     => \defined('WP_DEBUG') && WP_DEBUG,
+				'templates' => '/templates',
+			],
 		]);
 
 		$this->hook()->fire('twist_theme', $this);
@@ -377,13 +380,15 @@ class Theme
 		$this->config->fill($this->options);
 
 		$this->config->fill([
-			'view.cache' => $this->config->get('view.debug') ? false : $this->config->get('dir.upload') . '/view_cache',
-			'view.paths' => array_unique(array_map(function ($path) {
-				return $path . $this->config->get('view.templates');
-			}, [
-				$this->config->get('dir.stylesheet'),
-				$this->config->get('dir.template'),
-			])),
+			'view' => [
+				'cache' => $this->config->get('view.debug') ? false : $this->config->get('dir.upload') . '/view_cache',
+				'paths' => array_unique(array_map(function ($path) {
+					return $path . $this->config->get('view.templates');
+				}, [
+					$this->config->get('dir.stylesheet'),
+					$this->config->get('dir.template'),
+				])),
+			],
 		]);
 	}
 
