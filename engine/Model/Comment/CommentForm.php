@@ -4,6 +4,8 @@ namespace Twist\Model\Comment;
 
 use Twist\Library\Util\Tag;
 use Twist\Model\User\User;
+use Twist\Library\Hook\Hook;
+use function Twist\config;
 
 /**
  * Class CommentForm
@@ -25,25 +27,25 @@ class CommentForm
 
 	/**
 	 * Form constructor.
-	 *
-	 * @param CommentFormDecoratorInterface $decorator
 	 */
-	public function __construct(CommentFormDecoratorInterface $decorator)
+	public function __construct()
 	{
-		$this->decorator = $decorator;
+		if (($this->decorator = config('form.comment.decorator')) === null) {
+			$this->decorator = new CommentFormDecorator(config('form.comment.classes', []));
+		}
 
-		add_filter('comment_form_defaults', function (array $arguments) {
+		Hook::add('comment_form_defaults', function (array $arguments) {
 			return $this->parse($arguments);
 		}, 11);
 
 		// Gets the decorated cancel button
-		add_filter('cancel_comment_reply_link', function (/** @noinspection PhpUnusedParameterInspection */
+		Hook::add('cancel_comment_reply_link', function (/** @noinspection PhpUnusedParameterInspection */
 			string $cancel, string $link, string $text) {
 			return $this->cancel($text);
 		}, 1, 3);
 
 		// Normalize generated hidden fields
-		add_filter('comment_id_fields', function (string $fields) {
+		Hook::add('comment_id_fields', function (string $fields) {
 			return str_replace(["'", ' />', "\n"], ['"', '>', ''], $fields);
 		});
 	}
@@ -126,6 +128,11 @@ class CommentForm
 		];
 	}
 
+	/**
+	 * @param string $label
+	 *
+	 * @return Tag
+	 */
 	protected function submit(string $label): Tag
 	{
 		return $this->decorator->submit('submit', $label);

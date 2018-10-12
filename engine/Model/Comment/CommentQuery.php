@@ -6,7 +6,6 @@ use Twist\Library\Hook\Hook;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\Query;
 use Twist\Model\User\User;
-use function Twist\config;
 
 /**
  * Class CommentQuery
@@ -178,9 +177,7 @@ class CommentQuery
 	public function form(): string
 	{
 		if ($this->form === null) {
-			$classes    = config('view.form_classes', []);
-			$decorator  = new CommentFormDecorator($classes);
-			$this->form = new CommentForm(config('view.form_decorator') ?? $decorator);
+			$this->form = new CommentForm();
 		}
 
 		return $this->form->show();

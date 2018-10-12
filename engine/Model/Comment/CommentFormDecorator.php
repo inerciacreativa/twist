@@ -12,7 +12,10 @@ use Twist\Library\Util\Tag;
 class CommentFormDecorator implements CommentFormDecoratorInterface
 {
 
-	protected $classes = [
+	/**
+	 * @var array
+	 */
+	protected static $defaults = [
 		'field'   => 'field', // Class for the field wrapper.
 		'label'   => 'label', // Class for the <label>.
 		'input'   => null, // Class for the <input> or <textarea>. If null the tag name is used.
@@ -23,13 +26,18 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 	];
 
 	/**
+	 * @var array
+	 */
+	protected $classes;
+
+	/**
 	 * CommentFormDecorator constructor.
 	 *
 	 * @param array $classes
 	 */
-	public function __construct(array $classes)
+	public function __construct(array $classes = [])
 	{
-		$this->classes = array_merge($this->classes, $classes);
+		$this->classes = array_merge(static::$defaults, $classes);
 	}
 
 	/**
