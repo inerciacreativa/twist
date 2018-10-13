@@ -3,6 +3,7 @@
 namespace Twist\App;
 
 use Twist\Library\Data\Collection;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Hook\HookDecorator;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
@@ -366,7 +367,7 @@ class Theme
 			],
 		]);
 
-		$this->hook()->fire('twist_theme', $this);
+		Hook::fire('twist_theme', $this);
 
 		$this->config->fill($this->options);
 
