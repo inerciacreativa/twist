@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Twist\n"
-"POT-Creation-Date: 2018-04-20 14:05+0200\n"
-"PO-Revision-Date: 2018-04-20 14:06+0200\n"
+"POT-Creation-Date: 2018-10-13 11:07+0200\n"
+"PO-Revision-Date: 2018-10-13 11:07+0200\n"
 "Last-Translator: \n"
 "Language-Team: Jose Cuesta <jose.cuesta@inerciacreativa.com>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.2\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
 "_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_ex:1,2c;"
@@ -18,92 +18,80 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: engine\n"
-"X-Poedit-SearchPath-1: views\n"
+"X-Poedit-SearchPath-1: templates\n"
 
-#: engine/Model/Comment/Author.php:50
+#: engine/Model/Comment/CommentAuthor.php:50
 msgid "Anonymous"
 msgstr "Anónimo"
 
-#: engine/Model/Comment/Form.php:95
+#: engine/Model/Comment/CommentForm.php:94
 msgctxt "noun"
 msgid "Comment"
 msgstr "Comentario"
 
-#: engine/Model/Comment/Form.php:111
+#: engine/Model/Comment/CommentForm.php:110
 msgid "Name"
 msgstr "Nombre"
 
-#: engine/Model/Comment/Form.php:117
+#: engine/Model/Comment/CommentForm.php:116
 msgid "E-mail"
 msgstr "E-mail"
 
-#: engine/Model/Comment/Form.php:124
+#: engine/Model/Comment/CommentForm.php:123
 msgid "Website"
 msgstr "Sitio web"
 
-#: engine/Model/Image/Image.php:121
-#, php-format
-msgid "Not valid image ID: %s"
-msgstr "No es un ID de imagen válido: %s"
-
-#: engine/Model/Image/Image.php:145
-#, php-format
-msgid "Not valid URL: %s"
-msgstr "No es una URL válida: %s"
-
-#: engine/Model/Image/Image.php:164
-#, php-format
-msgid "Not valid local URL: %s"
-msgstr "No es una URL local válida: %s"
-
-#: engine/Model/Image/Image.php:200
-#, php-format
-msgid "Not valid slug: %s (%s)"
-msgstr "No es una ruta válida: %s (%s)"
-
-#: engine/Model/Image/Image.php:233
-msgid "Not a remote image"
-msgstr "No es una imagen remota"
-
-#: engine/Model/Image/Image.php:296 engine/Model/Image/Image.php:310
-msgid "Not a local image"
-msgstr "No es una imagen local"
-
-#: engine/Model/Navigation/Pagination.php:28
-#: engine/Model/Navigation/Pagination.php:61
+#: engine/Model/Comment/CommentPagination.php:68
+#: engine/Model/Navigation/Pagination.php:72
+#: engine/Model/Navigation/Pagination.php:91
 msgctxt "previous set of posts"
 msgid "Previous"
 msgstr "Anterior"
 
-#: engine/Model/Navigation/Pagination.php:29
-#: engine/Model/Navigation/Pagination.php:69
+#: engine/Model/Comment/CommentPagination.php:69
+#: engine/Model/Navigation/Pagination.php:73
+#: engine/Model/Navigation/Pagination.php:92
 msgctxt "next set of posts"
 msgid "Next"
 msgstr "Siguiente"
 
-#: engine/Model/Navigation/Pagination.php:89
+#: engine/Model/Navigation/Pagination.php:114
 #, php-format
 msgid "Goto page %s"
 msgstr "Ir a página %s"
 
-#: engine/Model/Navigation/Pagination.php:93
+#: engine/Model/Navigation/Pagination.php:117
 msgid "Goto previous page"
 msgstr "Ir a la página anterior"
 
-#: engine/Model/Navigation/Pagination.php:95
+#: engine/Model/Navigation/Pagination.php:119
 msgid "Goto next page"
 msgstr "Ir a la página siguiente"
 
-#: engine/Model/Navigation/Pagination.php:97
+#: engine/Model/Navigation/Pagination.php:121
 #, php-format
 msgid "Current page, page %s"
 msgstr "Página actual, página %s"
 
-#: engine/Model/User/User.php:214
+#: engine/Model/User/User.php:233
 #, php-format
 msgid "Image of %s"
 msgstr "Avatar de %s"
 
-#: engine/Service/Api/RestService.php:29
-msgid "Only authenticated users can access the REST API."
-msgstr ""
+#~ msgid "Not valid image ID: %s"
+#~ msgstr "No es un ID de imagen válido: %s"
+
+#~ msgid "Not valid URL: %s"
+#~ msgstr "No es una URL válida: %s"
+
+#~ msgid "Not valid local URL: %s"
+#~ msgstr "No es una URL local válida: %s"
+
+#~ msgid "Not valid slug: %s (%s)"
+#~ msgstr "No es una ruta válida: %s (%s)"
+
+#~ msgid "Not a remote image"
+#~ msgstr "No es una imagen remota"
+
+#~ msgid "Not a local image"
+#~ msgstr "No es una imagen local"
