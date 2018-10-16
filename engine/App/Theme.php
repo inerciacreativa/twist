@@ -37,6 +37,11 @@ class Theme
 	protected $asset;
 
 	/**
+	 * @var \Closure
+	 */
+	protected $setup;
+
+	/**
 	 * @var array
 	 */
 	protected $services = [];
@@ -145,6 +150,18 @@ class Theme
 		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
 		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
 		     ->after('wp_footer', 'addWebFonts');
+	}
+
+	/**
+	 * @param \Closure $setup
+	 *
+	 * @return $this
+	 */
+	public function setup(\Closure $setup): self
+	{
+		$this->setup = $setup;
+
+		return $this;
 	}
 
 	/**
@@ -367,7 +384,9 @@ class Theme
 			],
 		]);
 
-		Hook::fire('twist_theme', $this);
+		if ($setup = $this->setup) {
+			$setup($this);
+		}
 
 		$this->config->fill($this->options);
 

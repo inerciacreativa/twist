@@ -1,14 +1,12 @@
 <?php
 
-include_once __DIR__ . '/engine/app.php';
-
 use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
 use Twist\Service\CoreServiceProvider;
 use Twist\View\Twig\TwigService;
-use function Twist\theme;
+use Twist\Twist;
 
-theme()->services(new CoreServiceProvider())->options([
+Twist::theme()->services(new CoreServiceProvider())->options([
 	'data'    => [
 		'global' => [
 			'site' => Site::class,
