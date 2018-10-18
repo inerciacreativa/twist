@@ -682,10 +682,11 @@ SCRIPT;
 	 */
 	protected function addServiceWorker(): void
 	{
-		$script = $this->asset->url($this->sw);
-		if (empty($script)) {
+		if (empty($this->sw)) {
 			return;
 		}
+
+		$script = $this->asset->url($this->sw);
 
 		echo <<<SCRIPT
 	<script>
