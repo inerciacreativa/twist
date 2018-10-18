@@ -3,7 +3,6 @@
 namespace Twist\App;
 
 use Twist\Library\Data\Collection;
-use Twist\Library\Hook\Hook;
 use Twist\Library\Hook\HookDecorator;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
@@ -60,6 +59,16 @@ class Theme
 	 * @var Collection
 	 */
 	protected $scripts;
+
+	/**
+	 * @var array
+	 */
+	protected $links = [];
+
+	/**
+	 * @var array
+	 */
+	protected $metas = [];
 
 	/**
 	 * @var Collection
@@ -119,6 +128,8 @@ class Theme
 		'audio',
 	];
 
+	protected $sw;
+
 	/**
 	 * Theme constructor.
 	 *
@@ -146,9 +157,12 @@ class Theme
 		     ->on('user_contactmethods', 'addContactMethods')
 		     ->on('wp_enqueue_scripts', 'addStyles')
 		     ->on('wp_enqueue_scripts', 'addScripts')
+		     ->on('twist_site_links', 'addLinks')
+		     ->on('twist_site_metas', 'addMetas')
 		     ->on('widgets_init', 'addSidebars')
 		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
 		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
+		     ->after('wp_footer', 'addServiceWorker')
 		     ->after('wp_footer', 'addWebFonts');
 	}
 
@@ -208,6 +222,30 @@ class Theme
 	public function scripts(array $scripts): self
 	{
 		$this->scripts = $this->addToCollection($this->scripts, $scripts);
+
+		return $this;
+	}
+
+	/**
+	 * @param array $links
+	 *
+	 * @return $this
+	 */
+	public function links(array $links): self
+	{
+		$this->links = $links;
+
+		return $this;
+	}
+
+	/**
+	 * @param array $metas
+	 *
+	 * @return $this
+	 */
+	public function metas(array $metas): self
+	{
+		$this->metas = $metas;
 
 		return $this;
 	}
@@ -340,6 +378,13 @@ class Theme
 	public function formats(array $formats): self
 	{
 		$this->formats = $formats;
+
+		return $this;
+	}
+
+	public function sw(string $script): self
+	{
+		$this->sw = $script;
 
 		return $this;
 	}
@@ -503,6 +548,38 @@ class Theme
 	}
 
 	/**
+	 * @param array $links
+	 *
+	 * @return array
+	 */
+	protected function addLinks(array $links): array
+	{
+		foreach ($this->links as $attributes) {
+			ksort($attributes);
+
+			$links[] = Tag::link($attributes);
+		}
+
+		return $links;
+	}
+
+	/**
+	 * @param array $metas
+	 *
+	 * @return array
+	 */
+	protected function addMetas(array $metas): array
+	{
+		foreach ($this->metas as $attributes) {
+			krsort($attributes);
+
+			$metas[] = Tag::meta($attributes);
+		}
+
+		return $metas;
+	}
+
+	/**
 	 * Adds extra HTML attributes to script elements.
 	 *
 	 * @param string $script
@@ -597,6 +674,23 @@ class Theme
 	      s.parentNode.insertBefore(wf, s);
 	   })(document);
    </script>
+SCRIPT;
+	}
+
+	/**
+	 *
+	 */
+	protected function addServiceWorker(): void
+	{
+		$script = $this->asset->url($this->sw);
+		echo <<<SCRIPT
+	<script>
+		if ('serviceWorker' in navigator) {
+		  window.addEventListener('load', function() {
+			navigator.serviceWorker.register('$script');
+		  });
+		}
+  </script>
 SCRIPT;
 	}
 
