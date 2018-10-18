@@ -678,11 +678,15 @@ SCRIPT;
 	}
 
 	/**
-	 *
+	 * Adds the service worker.
 	 */
 	protected function addServiceWorker(): void
 	{
 		$script = $this->asset->url($this->sw);
+		if (empty($script)) {
+			return;
+		}
+
 		echo <<<SCRIPT
 	<script>
 		if ('serviceWorker' in navigator) {
