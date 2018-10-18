@@ -52,8 +52,6 @@ class Link implements ElementInterface
 
 			$node->parentNode->removeChild($node);
 		}
-
-		natcasesort($this->links);
 	}
 
 	/**
@@ -61,7 +59,12 @@ class Link implements ElementInterface
 	 */
 	public function get(): array
 	{
-		return Hook::apply('twist_site_links', array_merge($this->links, $this->styles));
+		$links  = Hook::apply('twist_site_links', $this->links);
+		$styles = Hook::apply('twist_site_styles', $this->styles);
+		$all    = array_merge($links, $styles);
+		natcasesort($all);
+
+		return $all;
 	}
 
 }

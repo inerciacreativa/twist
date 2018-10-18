@@ -54,8 +54,6 @@ class Meta implements ElementInterface
 
 			$node->parentNode->removeChild($node);
 		}
-
-		sort($this->metas);
 	}
 
 	/**
@@ -63,7 +61,10 @@ class Meta implements ElementInterface
 	 */
 	public function get(): array
 	{
-		return Hook::apply('twist_site_metas', $this->metas);
+		$metas = Hook::apply('twist_site_metas', $this->metas);
+		sort($this->metas);
+
+		return $metas;
 	}
 
 	/**
