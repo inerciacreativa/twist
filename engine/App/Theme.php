@@ -691,9 +691,7 @@ SCRIPT;
 		echo <<<SCRIPT
 	<script>
 		if ('serviceWorker' in navigator) {
-		  window.addEventListener('load', function() {
 			navigator.serviceWorker.register('$script');
-		  });
 		}
   </script>
 SCRIPT;
