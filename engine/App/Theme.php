@@ -691,7 +691,7 @@ SCRIPT;
 		echo <<<SCRIPT
 	<script>
 		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('$script');
+			navigator.serviceWorker.register('$script', {scope: '/'});
 		}
   </script>
 SCRIPT;
