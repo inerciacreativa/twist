@@ -30,7 +30,7 @@ class ThumbnailGeneratorService extends Service
 	 */
 	public function boot(): void
 	{
-		$this->hook()->off('twist_site_meta_post', 'check', ['arguments' => 3]);
+		$this->hook()->off('twist_meta_post', 'check', ['arguments' => 3]);
 
 		if ($this->config('enable')) {
 			$this->start();
