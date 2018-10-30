@@ -79,8 +79,8 @@ class Theme
 	 * @var array
 	 */
 	protected $fonts = [
-		'families' => [],
-		'script'   => '//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
+		'config' => [],
+		'loader' => '//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
 	];
 
 	/**
@@ -161,9 +161,7 @@ class Theme
 		     ->on('twist_site_metas', 'addMetas')
 		     ->on('widgets_init', 'addSidebars')
 		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
-		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2])
-		     ->after('wp_footer', 'addServiceWorker')
-		     ->after('wp_footer', 'addWebFonts');
+		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2]);
 	}
 
 	/**
@@ -251,16 +249,23 @@ class Theme
 	}
 
 	/**
-	 * @param array       $families
-	 * @param string|null $script
+	 * @param array       $config
+	 * @param string|bool $loader
 	 *
 	 * @return $this
 	 */
-	public function webfonts(array $families, string $script = null): self
+	public function webfonts(array $config, $loader = true): self
 	{
-		$this->fonts['families'] = $families;
-		if ($script) {
-			$this->fonts['script'] = $script;
+		$this->fonts['config'] = Arr::map($config, function ($id, $config) {
+			if ($id === 'google') {
+				$config = ['families' => $config];
+			}
+
+			return (object) $config;
+		});
+
+		if (!$loader || \is_string($loader)) {
+			$this->fonts['loader'] = $loader;
 		}
 
 		return $this;
@@ -397,6 +402,7 @@ class Theme
 	protected function boot(): void
 	{
 		$this->addConfig();
+		$this->addHooks();
 		$this->addLanguages();
 		$this->addServices();
 		$this->addThemeSupport();
@@ -448,17 +454,22 @@ class Theme
 		]);
 	}
 
-	/**
-	 * Adds service providers.
-	 *
-	 * @throws \InvalidArgumentException
-	 * @throws \RuntimeException
-	 * @throws \Pimple\Exception\FrozenServiceException
-	 */
-	protected function addServices(): void
+	protected function addHooks(): void
 	{
-		foreach ($this->services as $service) {
-			$this->app->provider($service);
+		if (!empty($this->sw)) {
+			$this->hook()->after('wp_footer', 'addServiceWorker');
+		}
+
+		if (!empty($this->fonts['config'])) {
+			if (\is_string($this->fonts['loader'])) {
+				$this->hook()->after('wp_footer', 'addWebFonts');
+			} else if (array_key_exists('google', $this->fonts['config'])) {
+				$families = implode('|', $this->fonts['config']['google']->families);
+				$this->styles([[
+					'id'   => 'fonts',
+					'load' => 'https://fonts.googleapis.com/css?family=' . $families,
+				]]);
+			}
 		}
 	}
 
@@ -470,6 +481,20 @@ class Theme
 		load_theme_textdomain('twist', $this->config->get('dir.template') . '/languages');
 		if ($this->config->get('dir.template') !== $this->config->get('dir.stylesheet')) {
 			load_theme_textdomain('twist', $this->config->get('dir.stylesheet') . '/languages');
+		}
+	}
+
+	/**
+	 * Adds service providers.
+	 *
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
+	 * @throws \Pimple\Exception\FrozenServiceException
+	 */
+	protected function addServices(): void
+	{
+		foreach ($this->services as $service) {
+			$this->app->provider($service);
 		}
 	}
 
@@ -656,16 +681,12 @@ class Theme
 	 */
 	protected function addWebFonts(): void
 	{
-		$families = implode("','", $this->fonts['families']);
-		$script   = $this->fonts['script'];
-
-		if (empty($families)) {
-			return;
-		}
+		$script = $this->fonts['loader'];
+		$config = str_replace('"', "'", json_encode($this->fonts['config']));
 
 		echo <<<SCRIPT
 	<script>
-	   WebFontConfig = {google: {families: ['$families']}};
+	   WebFontConfig = $config;
 	
 	   (function(d) {
 	      const wf = d.createElement('script'), s = d.scripts[0];
