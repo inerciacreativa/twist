@@ -190,11 +190,11 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @return array|null
+	 * @return array
 	 */
-	public function get_comments(): ?array
+	public function get_comments(): array
 	{
-		return $this->query->comments;
+		return (array) $this->query->comments;
 	}
 
 	/**
