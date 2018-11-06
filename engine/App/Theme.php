@@ -128,8 +128,6 @@ class Theme
 		'audio',
 	];
 
-	protected $sw;
-
 	/**
 	 * Theme constructor.
 	 *
@@ -387,13 +385,6 @@ class Theme
 		return $this;
 	}
 
-	public function sw(string $script): self
-	{
-		$this->sw = $script;
-
-		return $this;
-	}
-
 	/**
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
@@ -456,10 +447,6 @@ class Theme
 
 	protected function addHooks(): void
 	{
-		if (!empty($this->sw)) {
-			$this->hook()->after('wp_footer', 'addServiceWorker');
-		}
-
 		if (!empty($this->fonts['config'])) {
 			if (\is_string($this->fonts['loader'])) {
 				$this->hook()->after('wp_footer', 'addWebFonts');
@@ -695,26 +682,6 @@ class Theme
 	      s.parentNode.insertBefore(wf, s);
 	   })(document);
    </script>
-SCRIPT;
-	}
-
-	/**
-	 * Adds the service worker.
-	 */
-	protected function addServiceWorker(): void
-	{
-		if (empty($this->sw)) {
-			return;
-		}
-
-		$script = $this->asset->url($this->sw);
-
-		echo <<<SCRIPT
-	<script>
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('$script', {scope: '/'});
-		}
-  </script>
 SCRIPT;
 	}
 
