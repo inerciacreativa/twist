@@ -322,7 +322,7 @@ class Str
     public static function startsWith(string $haystack, $needles): bool
     {
         foreach ((array)$needles as $needle) {
-            if (static::search($haystack, $needle) === 0) {
+            if ($needle !== '' && substr($haystack, 0, \strlen($needle)) === (string) $needle) {
                 return true;
             }
         }
@@ -341,7 +341,7 @@ class Str
     public static function endsWith(string $haystack, $needles): bool
     {
         foreach ((array)$needles as $needle) {
-            if ((string)$needle === static::substring($haystack, -static::length($needle))) {
+            if (substr($haystack, -\strlen($needle)) === (string) $needle) {
                 return true;
             }
         }
@@ -397,39 +397,39 @@ class Str
     }
 
     /**
-     * @param string $string
+     * @param string $subject
      * @param string $search
      * @param string $replace
      *
      * @return string
      */
-    public static function replaceFirst(string $string, string $search, string $replace): string
+    public static function replaceFirst(string $subject, string $search, string $replace): string
     {
-        $position = static::search($string, $search);
+	    $position = strpos($subject, $search);
 
         if ($position !== false) {
-            return static::replace($string, $replace, $position, self::length($search));
+	        return substr_replace($subject, $replace, $position, \strlen($search));
         }
 
-        return $string;
+        return $subject;
     }
 
     /**
-     * @param string $string
+     * @param string $subject
      * @param string $search
      * @param string $replace
      *
      * @return string
      */
-    public static function replaceLast(string $string, string $search, string $replace): string
+    public static function replaceLast(string $subject, string $search, string $replace): string
     {
-        $position = static::searchLast($string, $search);
+	    $position = strrpos($subject, $search);
 
         if ($position !== false) {
-            return static::replace($string, $replace, $position, self::length($search));
+            return substr_replace($subject, $replace, $position, \strlen($search));
         }
 
-        return $string;
+        return $subject;
     }
 
     /**
