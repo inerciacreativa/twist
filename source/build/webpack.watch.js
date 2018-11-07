@@ -1,12 +1,12 @@
-const url = require('url');
 const webpack = require('webpack');
+const url = require('url');
 const BrowserSyncPlugin = require('browsersync-webpack-plugin');
 
 module.exports = (config) => {
+  const target = process.env.DEVURL || config.watch.url;
   /**
    * We do this to enable injection over SSL.
    */
-  const target = process.env.DEVURL || config.devUrl;
   if (url.parse(target).protocol === 'https:') {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
   }
@@ -14,7 +14,7 @@ module.exports = (config) => {
   return {
     output: {
       pathinfo: true,
-      publicPath: config.proxyUrl + config.publicPath,
+      publicPath: config.watch.proxy + config.path.public,
     },
     devtool: '#cheap-module-source-map',
     stats: false,
@@ -24,14 +24,14 @@ module.exports = (config) => {
       new webpack.NoEmitOnErrorsPlugin(),
       new BrowserSyncPlugin({
         target,
-        open: config.open,
-        proxyUrl: config.proxyUrl,
-        watch: config.watch,
-        delay: 500,
+        proxyUrl: config.watch.proxy,
+        watch: config.watch.files,
+        open: config.watch.open,
+        delay: config.watch.delay,
         disableHostCheck: true,
         advanced: {
           browserSync: {
-            https: config.devSsl,
+            https: config.watch.https,
           },
         },
       }),

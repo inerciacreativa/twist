@@ -4,9 +4,9 @@ const cssnanoConfig = {
 
 module.exports = ({options}) => {
   return {
-    parser: options.enabled.optimize ? 'postcss-safe-parser' : undefined,
+    parser: options.env.production ? 'postcss-safe-parser' : undefined,
     plugins: {
-      cssnano: options.enabled.optimize ? cssnanoConfig : false,
+      cssnano: options.env.production ? cssnanoConfig : false,
       autoprefixer: true,
     },
   };

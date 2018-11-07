@@ -1,32 +1,41 @@
 const webpack = require('webpack');
+const path = require('path');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 
 module.exports = (config) => {
-  let webpackConfig = {
-    module: {
+  const webpackConfig = {
+    plugins: [],
+  };
+
+  if (config.lint.styles) {
+    webpackConfig.plugins.push(new StyleLintPlugin({
+      configFile: path.join(config.path.root, '.stylelintrc'),
+      syntax: 'scss',
+      emitErrors: true,
+      failOnError: false,
+    }));
+  }
+
+  if (config.lint.scripts) {
+    webpackConfig.module = {
       rules: [
         {
           enforce: 'pre',
           test: /\.js$/,
-          include: config.paths.source,
+          include: config.path.source,
           use: 'eslint',
         },
       ],
-    },
-    plugins: [
-      new webpack.LoaderOptionsPlugin({
-        test: /\.js$/,
-        options: {
-          eslint: {failOnWarning: false, failOnError: true},
-        },
-      }),
-    ],
-  };
+    };
 
-  if (config.enabled.lint === true || config.enabled.lint === 'styles') {
-    webpackConfig.plugins.push(new StyleLintPlugin({
-      files: ['**/*.s?(a|c)ss', '**/*.less'],
-      failOnError: false,
+    webpackConfig.plugins.push(new webpack.LoaderOptionsPlugin({
+      test: /\.js$/,
+      options: {
+        eslint: {
+          failOnWarning: false,
+          failOnError: true,
+        },
+      },
     }));
   }
 

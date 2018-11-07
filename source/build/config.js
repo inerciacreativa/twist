@@ -2,62 +2,74 @@ const path = require('path');
 const {argv} = require('yargs');
 const merge = require('webpack-merge');
 const desire = require('./helpers/desire');
-const normalizePath = require('./helpers/normalize-path');
+const normalize = require('./helpers/normalize');
 
 const userConfig = merge(desire(`${__dirname}/../config`), desire(`${__dirname}/../config-local`));
-
 const isProduction = !!((argv.env && argv.env.production) || argv.p);
-const rootPath = (userConfig.paths && userConfig.paths.root) ? userConfig.paths.root : process.cwd();
-
-const publicPath = (base, folder) => (folder === '.') ? base : `${base}/${folder}/`;
-const cleanPaths = (folders) => [folders.styles, folders.scripts, folders.images].map((folder) => path.join(folders.target, folder));
 
 const config = merge({
-  proxyUrl: 'http://localhost:3000',
-  devSsl: {},
-  cacheBusting: '[name]_[hash:8]',
-  folders: {
+  path: {
+    root: process.cwd(),
+    prefix: '/',
+    public: '/app',
+  },
+  folder: {
     source: 'source',
     target: 'assets',
     styles: 'styles',
     scripts: 'scripts',
     images: 'images',
   },
-  pathPrefix: '/',
-  enabled: {
-    lint: 'scripts',
-    sourceMaps: !isProduction,
-    optimize: isProduction,
-    cacheBusting: isProduction,
-    watcher: !!argv.watch,
+  lint: {
+    styles: true,
+    scripts: true,
   },
-  manifestFile: 'assets.json',
-  watch: [],
+  watch: {
+    enabled: !!argv.watch,
+    proxy: "http://localhost:3000",
+    https: false,
+    open: false,
+    files: [],
+    delay: 250,
+  },
+  cache: {
+    enabled: isProduction,
+    manifest: 'assets.json',
+    name: '[name]_[hash:12]',
+    files: {},
+  },
+  jquery: {
+    enabled: true,
+    bundle: false,
+  },
+  workbox: {
+    enabled: false,
+    source: 'scripts/service-worker.js',
+    hash: true,
+    import: 'cdn',
+  },
 }, userConfig);
 
-if (config.devSsl.key) {
-  config.devSsl.key = normalizePath(config.devSsl.key, config.pathPrefix);
+
+if (config.watch.https.key) {
+  config.watch.https.key = normalize.absolute(config.watch.https.key, config.path.prefix);
 }
 
-if (config.devSsl.cert) {
-  config.devSsl.cert = normalizePath(config.devSsl.cert, config.pathPrefix);
+if (config.watch.https.cert) {
+  config.watch.https.cert = normalize.absolute(config.watch.https.cert, config.path.prefix);
 }
 
 module.exports = merge(config, {
-  open: false,
   env: Object.assign({
     production: isProduction,
     development: !isProduction,
   }, argv.env),
-  paths: {
-    root: rootPath,
-    source: path.join(rootPath, config.folders.source),
-    target: path.join(rootPath, config.folders.target),
-    clean: cleanPaths(config.folders).concat(path.join(rootPath, config.folders.target, config.manifestFile)),
+  path: {
+    public: normalize.relative(config.path.public, config.folder.target),
+    source: path.join(config.path.root, config.folder.source),
+    target: path.join(config.path.root, config.folder.target),
   },
-  copy: `${config.folders.images}/**/*`,
-  publicPath: publicPath(config.publicPath, config.folders.target),
-  manifest: {},
+  copy: `${config.folder.images}/**/*`,
 });
 
 if (process.env.NODE_ENV === undefined) {
@@ -69,7 +81,7 @@ if (process.env.NODE_ENV === undefined) {
  * Example: REDUKT_TARGET=/wp-content/themes/twist/dist yarn build:production
  */
 if (process.env.REDUKT_TARGET) {
-  module.exports.publicPath = process.env.REDUKT_TARGET;
+  module.exports.path.public = process.env.REDUKT_TARGET;
 }
 
 /**
