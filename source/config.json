@@ -13,6 +13,9 @@
       "scripts/lib/lazyload-v8.js"
     ]
   },
+  "lint": {
+    "scripts": false
+  },
   "watch": {
     "proxy": "http://localhost:3000",
     "url": "http://twist.dev",
