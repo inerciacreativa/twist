@@ -47,7 +47,7 @@ class LazyLoadService extends Service
 
 		$this->hook()
 		     ->off('twist_asset_image', 'replaceInTag')
-		     ->off('twist_asset_logo', 'replaceInTag')
+		     ->off('twist_post_image', 'replaceInTag')
 		     ->off('ic_feed_show_image', 'replaceInString')
 		     ->off('post_thumbnail_html', 'replaceInString', Hook::AFTER)
 		     ->off('get_avatar', 'replaceInString', Hook::AFTER)
@@ -107,6 +107,11 @@ class LazyLoadService extends Service
 				$image->setAttribute('data-srcset', $image->getAttribute('srcset'));
 				$image->removeAttribute('srcset');
 			}
+
+			if ($image->hasAttribute('sizes')) {
+				$image->setAttribute('data-sizes', $image->getAttribute('sizes'));
+				$image->removeAttribute('sizes');
+			}
 		}
 
 		return $dom;
@@ -147,7 +152,11 @@ class LazyLoadService extends Service
 			$image['data-srcset'] = $image['srcset'];
 		}
 
-		unset($image['src'], $image['srcset']);
+		if (isset($image['sizes'])) {
+			$image['data-sizes'] = $image['sizes'];
+		}
+
+		unset($image['src'], $image['srcset'], $image['sizes']);
 
 		return $image;
 	}
