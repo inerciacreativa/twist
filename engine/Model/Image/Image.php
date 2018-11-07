@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Image;
 
+use Twist\Library\Hook\Hook;
 use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Tag;
@@ -165,11 +166,10 @@ class Image extends Model
 	 */
 	public function image(string $size = 'thumbnail', array $attributes = []): ?Tag
 	{
-		if ($image = wp_get_attachment_image($this->id(), $size, false, $attributes)) {
-			$tag = Tag::parse($image);
+		if (($image = wp_get_attachment_image($this->id(), $size, false, $attributes)) && ($tag = Tag::parse($image))) {
+			$image = $tag->attributes($attributes);
 
-			/** @noinspection NullPointerExceptionInspection */
-			return $tag->attributes($attributes);
+			return Hook::apply('twist_post_image', $image);
 		}
 
 		return null;
