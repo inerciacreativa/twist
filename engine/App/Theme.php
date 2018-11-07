@@ -676,10 +676,10 @@ class Theme
 	   WebFontConfig = $config;
 	
 	   (function(d) {
-	      const wf = d.createElement('script'), s = d.scripts[0];
-	      wf.src = '$script';
-	      wf.async = true;
-	      s.parentNode.insertBefore(wf, s);
+	      var script = d.createElement('script'), scripts = d.scripts[0];
+	      script.src = '$script';
+	      script.async = true;
+	      scripts.parentNode.insertBefore(script, scripts);
 	   })(document);
    </script>
 SCRIPT;
