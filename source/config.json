@@ -1,28 +1,26 @@
 {
-  "publicPath": "/app/themes/twist",
+  "path": {
+    "public": "/app/themes/twist"
+  },
   "entry": {
-    "main": [
-      "./scripts/main.js"
+    "app": [
+      "scripts/app.js"
     ],
-    "customizer": [
-      "./scripts/customizer.js"
+    "lazyload-v10": [
+      "scripts/lib/lazyload-v10.js"
     ],
-    "lazyload-es2015": [
-      "./scripts/lib/lazyload-es2015.js"
-    ],
-    "lazyload": [
-      "./scripts/lib/lazyload.js"
-    ],
-    "jquery": [
-      "./../node_modules/jquery/dist/jquery.js"
+    "lazyload-v8": [
+      "scripts/lib/lazyload-v8.js"
     ]
   },
-  "watch": [
-    "functions.php",
-    "source/config.json",
-    "templates/**/*.twig",
-    "theme/**/*.php"
-  ],
-  "devUrl": "http://twist.dev",
-  "proxyUrl": "http://localhost:3000"
+  "watch": {
+    "proxy": "http://localhost:3000",
+    "url": "http://twist.dev",
+    "files": [
+      "functions.php",
+      "source/config.json",
+      "templates/**/*.twig",
+      "theme/**/*.php"
+    ]
+  }
 }
