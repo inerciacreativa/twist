@@ -159,17 +159,20 @@ class LazyLoadService extends Service
 	 */
 	protected function addScript(): void
 	{
-		$lazyload        = $this->asset->url('scripts/lazyload.js', true);
-		$lazyload_es2015 = $this->asset->url('scripts/lazyload-es2015.js', true);
+		$parent    = $this->config('parent', true);
+		$threshold = $this->config('threshold', 200);
+
+		$v8  = $this->asset->url('scripts/lazyload-v8.js', $parent);
+		$v10 = $this->asset->url('scripts/lazyload-v10.js', $parent);
 
 		echo <<<SCRIPT
 	<script>
 		(function(w, d){
-			const ll = d.createElement('script'), s = d.scripts[0];
-			ll.src = !('IntersectionObserver' in w) ? '$lazyload' : '$lazyload_es2015';
-			ll.async = true;
-			w.lazyLoadOptions = {};
-			s.parentNode.insertBefore(ll, s);
+			var script = d.createElement('script'), scripts = d.scripts[0];
+			script.src = !('IntersectionObserver' in w) ? '$v8' : '$v10';
+			script.async = true;
+			w.lazyLoadOptions = { 'threshold': $threshold };
+			scripts.parentNode.insertBefore(script, scripts);
 		}(window, document));
 	</script>
 SCRIPT;
