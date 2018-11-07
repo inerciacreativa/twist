@@ -58,8 +58,7 @@ class Asset
 		}
 
 		$logo->attributes(array_merge([
-			'data-lazy' => 'false',
-			'alt'       => $this->site->name(),
+			'alt' => $this->site->name(),
 		], $attributes));
 
 		return Hook::apply('twist_asset_logo', $logo);
@@ -76,8 +75,7 @@ class Asset
 	{
 		$image = Tag::img(['src' => $this->asset->url($filename, $parent)]);
 		$image->attributes(array_merge([
-			'data-lazy' => 'false',
-			'alt'       => '',
+			'alt' => '',
 		], $attributes));
 
 		return Hook::apply('twist_asset_image', $image);
