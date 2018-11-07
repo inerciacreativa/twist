@@ -1,7 +1,6 @@
 {
-  "scripts/customizer.js": "scripts/customizer_ec232089.js",
-  "scripts/jquery.js": "scripts/jquery_ec232089.js",
-  "scripts/lazyload-es2015.js": "scripts/lazyload-es2015_ec232089.js",
-  "scripts/lazyload.js": "scripts/lazyload_ec232089.js",
-  "scripts/main.js": "scripts/main_ec232089.js"
+  "scripts/jquery.js": "scripts/jquery-3.3.1.js",
+  "scripts/app.js": "scripts/app_f28fa9aeab34.js",
+  "scripts/lazyload-v10.js": "scripts/lazyload-v10_f28fa9aeab34.js",
+  "scripts/lazyload-v8.js": "scripts/lazyload-v8_f28fa9aeab34.js"
 }
