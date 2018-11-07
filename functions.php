@@ -3,8 +3,8 @@
 use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
 use Twist\Service\CoreServiceProvider;
-use Twist\View\Twig\TwigService;
 use Twist\Twist;
+use Twist\View\Twig\TwigService;
 
 Twist::theme()->services(new CoreServiceProvider())->options([
 	'data'    => [
@@ -20,7 +20,6 @@ Twist::theme()->services(new CoreServiceProvider())->options([
 		'templates' => '/templates',
 	],
 	'service' => [
-		'relative_url.enable' => false,
 		'head_cleaner'        => [
 			'enable'    => true,
 			'generator' => true,
@@ -37,25 +36,28 @@ Twist::theme()->services(new CoreServiceProvider())->options([
 			'enable' => true,
 			'videos' => true,
 		],
-		'lazy_load.enable'    => true,
+		'lazy_load'           => [
+			'enable'    => true,
+			'threshold' => 200,
+		],
 	],
 ])->styles([
 	[
 		'id'     => 'twist',
-		'load'   => 'scripts/main.css',
+		'load'   => 'scripts/app.css',
 		'parent' => true,
 	],
 ])->scripts([
 	[
-		'id'     => 'jquery',
-		'load'   => 'scripts/jquery.js',
+		'id'     => 'twist',
+		'load'   => 'scripts/app.js',
+		'deps' => ['jquery'],
 		'parent' => true,
 	],
 	[
-		'id'     => 'twist',
-		'load'   => 'scripts/main.js',
+		'id'     => 'jquery',
+		'load'   => 'scripts/jquery.js',
 		'parent' => true,
-		'deps'   => ['jquery'],
 	],
 	[
 		'id'   => 'comment-reply',
