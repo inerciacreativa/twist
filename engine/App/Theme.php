@@ -63,6 +63,11 @@ class Theme
 	/**
 	 * @var array
 	 */
+	protected $inline = [];
+
+	/**
+	 * @var array
+	 */
 	protected $links = [];
 
 	/**
@@ -155,6 +160,7 @@ class Theme
 		     ->on('user_contactmethods', 'addContactMethods')
 		     ->on('wp_enqueue_scripts', 'addStyles')
 		     ->on('wp_enqueue_scripts', 'addScripts')
+		     ->after('wp_footer', 'addInlineScripts')
 		     ->on('twist_site_links', 'addLinks')
 		     ->on('twist_site_metas', 'addMetas')
 		     ->on('widgets_init', 'addSidebars')
@@ -218,6 +224,18 @@ class Theme
 	public function scripts(array $scripts): self
 	{
 		$this->scripts = $this->addToCollection($this->scripts, $scripts);
+
+		return $this;
+	}
+
+	/**
+	 * @param string $script
+	 *
+	 * @return $this
+	 */
+	public function inline(string $script): self
+	{
+		$this->inline[] = $script;
 
 		return $this;
 	}
@@ -393,10 +411,10 @@ class Theme
 	protected function boot(): void
 	{
 		$this->addConfig();
-		$this->addHooks();
 		$this->addLanguages();
 		$this->addServices();
 		$this->addThemeSupport();
+		$this->addWebFonts();
 
 		$this->app->boot();
 	}
@@ -443,21 +461,6 @@ class Theme
 				])),
 			],
 		]);
-	}
-
-	protected function addHooks(): void
-	{
-		if (!empty($this->fonts['config'])) {
-			if (\is_string($this->fonts['loader'])) {
-				$this->hook()->after('wp_footer', 'addWebFonts');
-			} else if (array_key_exists('google', $this->fonts['config'])) {
-				$families = implode('|', $this->fonts['config']['google']->families);
-				$this->styles([[
-					'id'   => 'fonts',
-					'load' => 'https://fonts.googleapis.com/css?family=' . $families,
-				]]);
-			}
-		}
 	}
 
 	/**
@@ -515,6 +518,36 @@ class Theme
 
 		if (!empty($this->menus)) {
 			register_nav_menus($this->menus);
+		}
+	}
+
+	/**
+	 * Adds web fonts using a link to Google Fonts or Web Font Loader.
+	 *
+	 * @see https://github.com/typekit/webfontloader
+	 */
+	protected function addWebFonts(): void
+	{
+		if (!empty($this->fonts['config'])) {
+			if (\is_string($this->fonts['loader'])) {
+				$script = $this->fonts['loader'];
+				$config = str_replace('"', "'", json_encode($this->fonts['config']));
+
+				$this->inline("WebFontConfig = $config;
+				   (function(d) {
+				      var script = d.createElement('script'), scripts = d.scripts[0];
+				      script.src = '$script';
+				      script.async = true;
+				      scripts.parentNode.insertBefore(script, scripts);
+				   })(document);");
+			} else if (array_key_exists('google', $this->fonts['config'])) {
+				$families = implode('|', $this->fonts['config']['google']->families);
+
+				$this->styles([[
+					'id'   => 'fonts',
+					'load' => 'https://fonts.googleapis.com/css?family=' . $families,
+				]]);
+			}
 		}
 	}
 
@@ -662,27 +695,17 @@ class Theme
 	}
 
 	/**
-	 * Adds web fonts using Web Font Loader.
-	 *
-	 * @see https://github.com/typekit/webfontloader
+	 * Adds inline <script> in the footer.
 	 */
-	protected function addWebFonts(): void
+	protected function addInlineScripts(): void
 	{
-		$script = $this->fonts['loader'];
-		$config = str_replace('"', "'", json_encode($this->fonts['config']));
-
-		echo <<<SCRIPT
+		foreach ($this->inline as $script) {
+			echo <<<SCRIPT
 	<script>
-	   WebFontConfig = $config;
-	
-	   (function(d) {
-	      var script = d.createElement('script'), scripts = d.scripts[0];
-	      script.src = '$script';
-	      script.async = true;
-	      scripts.parentNode.insertBefore(script, scripts);
-	   })(document);
+$script
    </script>
 SCRIPT;
+		}
 	}
 
 	/**
