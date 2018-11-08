@@ -7,7 +7,6 @@ use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
 use Twist\Service\Core\LazyLoadService;
 use Twist\Service\Core\RelativeUrlService;
-use Twist\Service\Core\ServiceWorkerService;
 use Twist\Service\Core\ThumbnailGeneratorService;
 
 /**
@@ -40,11 +39,7 @@ class CoreServiceProvider implements ServiceProviderInterface
 		});
 
 		$app->service(LazyLoadService::id(), function (App $app) {
-			return new LazyLoadService($app, $app['asset']);
-		});
-
-		$app->service(ServiceWorkerService::id(), function (App $app) {
-			return new ServiceWorkerService($app, $app['asset']);
+			return new LazyLoadService($app, $app['theme'], $app['asset']);
 		});
 	}
 
