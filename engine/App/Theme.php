@@ -85,20 +85,13 @@ class Theme
 	 */
 	protected $fonts = [
 		'config' => [],
-		'loader' => '//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
+		'loader' => 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
 	];
 
 	/**
 	 * @var array
 	 */
-	protected $resources = [
-		'preconnect'   => [
-			['href' => '//fonts.gstatic.com', 'crossorigin' => true],
-		],
-		'dns-prefetch' => [
-			'//ajax.googleapis.com',
-		],
-	];
+	protected $resources = [];
 
 	/**
 	 * @var array
@@ -662,7 +655,7 @@ class Theme
 	protected function addResourceHints(array $urls, string $relation): array
 	{
 		if (array_key_exists($relation, $this->resources)) {
-			$urls = array_merge($urls, $this->resources[$relation]);
+			$urls = Arr::merge($urls, $this->resources[$relation]);
 		}
 
 		return $urls;
