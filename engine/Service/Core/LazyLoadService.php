@@ -102,7 +102,7 @@ class LazyLoadService extends Service
 			script.src = !('IntersectionObserver' in w) ? '$v8' : '$v10';
 			script.async = true;
 			scripts.parentNode.insertBefore(script, scripts);
-		}(window, document));");
+		})(window, document);");
 	}
 
 	/**
