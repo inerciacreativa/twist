@@ -4,6 +4,7 @@ namespace Twist\Service\Core;
 
 use Twist\App\App;
 use Twist\App\Asset;
+use Twist\App\Theme;
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
@@ -19,6 +20,11 @@ class LazyLoadService extends Service
 {
 
 	/**
+	 * @var Theme
+	 */
+	protected $theme;
+
+	/**
 	 * @var Asset
 	 */
 	protected $asset;
@@ -27,10 +33,12 @@ class LazyLoadService extends Service
 	 * LazyLoadService constructor.
 	 *
 	 * @param App   $app
+	 * @param Theme $theme
 	 * @param Asset $asset
 	 */
-	public function __construct(App $app, Asset $asset)
+	public function __construct(App $app, Theme $theme, Asset $asset)
 	{
+		$this->theme = $theme;
 		$this->asset = $asset;
 
 		parent::__construct($app);
@@ -50,8 +58,7 @@ class LazyLoadService extends Service
 		     ->off('twist_post_image', 'replaceInTag')
 		     ->off('ic_feed_show_image', 'replaceInString')
 		     ->off('post_thumbnail_html', 'replaceInString', Hook::AFTER)
-		     ->off('get_avatar', 'replaceInString', Hook::AFTER)
-		     ->off('wp_footer', 'addScript', Hook::AFTER);
+		     ->off('get_avatar', 'replaceInString', Hook::AFTER);
 
 		if ($this->config->get('service.content_cleaner.enable')) {
 			$this->hook()->off('twist_service_content_cleaner', 'replaceInDocument');
@@ -71,7 +78,31 @@ class LazyLoadService extends Service
 	{
 		if (Query::main()->is_feed()) {
 			$this->stop();
+		} else {
+			$this->addScript();
 		}
+	}
+
+	/**
+	 * Adds the correct script.
+	 *
+	 * @see https://github.com/verlok/lazyload
+	 */
+	protected function addScript(): void
+	{
+		$parent    = $this->config('parent', true);
+		$threshold = $this->config('threshold', 200);
+
+		$v8  = $this->asset->url('scripts/lazyload-v8.js', $parent);
+		$v10 = $this->asset->url('scripts/lazyload-v10.js', $parent);
+
+		$this->theme->inline("lazyLoadOptions = { 'threshold': $threshold };
+			(function(w, d) {
+			var script = d.createElement('script'), scripts = d.scripts[0];
+			script.src = !('IntersectionObserver' in w) ? '$v8' : '$v10';
+			script.async = true;
+			scripts.parentNode.insertBefore(script, scripts);
+		}(window, document));");
 	}
 
 	/**
@@ -161,29 +192,4 @@ class LazyLoadService extends Service
 		return $image;
 	}
 
-	/**
-	 * Adds the correct script.
-	 *
-	 * @see https://github.com/verlok/lazyload
-	 */
-	protected function addScript(): void
-	{
-		$parent    = $this->config('parent', true);
-		$threshold = $this->config('threshold', 200);
-
-		$v8  = $this->asset->url('scripts/lazyload-v8.js', $parent);
-		$v10 = $this->asset->url('scripts/lazyload-v10.js', $parent);
-
-		echo <<<SCRIPT
-	<script>
-		(function(w, d){
-			var script = d.createElement('script'), scripts = d.scripts[0];
-			script.src = !('IntersectionObserver' in w) ? '$v8' : '$v10';
-			script.async = true;
-			w.lazyLoadOptions = { 'threshold': $threshold };
-			scripts.parentNode.insertBefore(script, scripts);
-		}(window, document));
-	</script>
-SCRIPT;
-	}
 }
