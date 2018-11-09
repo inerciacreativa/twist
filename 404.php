@@ -1,8 +1,8 @@
 <?php
 
 use Twist\Model\Post\Query;
-use function Twist\view;
+use Twist\Twist;
 
-view('404.html.twig', [
-	'posts' => Query::search()
+Twist::view('404.html.twig', [
+	'posts' => Query::search(),
 ]);

@@ -1,8 +1,8 @@
 <?php
 
-use function Twist\view;
 use Twist\Model\Taxonomy\Category;
+use Twist\Twist;
 
-view('category.html.twig', [
+Twist::view('category.html.twig', [
 	'category' => new Category(),
 ]);

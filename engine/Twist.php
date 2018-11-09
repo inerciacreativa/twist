@@ -2,21 +2,28 @@
 
 namespace Twist;
 
-include_once __DIR__ . '/app.php';
+//include_once __DIR__ . '/app.php';
 
 use Twist\App\App;
+use Twist\App\AppServiceProvider;
 use Twist\App\Asset;
 use Twist\App\Config;
 use Twist\App\Theme;
 use Twist\View\ViewInterface;
+use Twist\View\ViewServiceProvider;
 
 /**
  * Class Twist
  *
  * @package Twist
  */
-class Twist
+final class Twist
 {
+
+	/**
+	 * @var App
+	 */
+	private static $app;
 
 	/**
 	 * @param null|string $id
@@ -25,7 +32,12 @@ class Twist
 	 */
 	public static function app(string $id = null)
 	{
-		return app($id);
+		if (self::$app === null) {
+			self::$app = (new App())->provider(new AppServiceProvider())
+			                        ->provider(new ViewServiceProvider());
+		}
+
+		return $id === null ? self::$app : self::$app[$id];
 	}
 
 	/**
@@ -36,7 +48,11 @@ class Twist
 	 */
 	public static function config(string $key = null, $default = null)
 	{
-		return config($key, $default);
+		if ($key === null) {
+			return self::app('config');
+		}
+
+		return self::app('config')->get($key, $default);
 	}
 
 	/**
@@ -44,7 +60,7 @@ class Twist
 	 */
 	public static function theme(): Theme
 	{
-		return theme();
+		return self::app('theme');
 	}
 
 	/**
@@ -56,7 +72,15 @@ class Twist
 	 */
 	public static function view(string $template = null, array $data = [], bool $renderOnly = false)
 	{
-		return view($template, $data, $renderOnly);
+		if ($template === null) {
+			return self::app('view');
+		}
+
+		if ($renderOnly) {
+			return self::app('view')->render($template, $data);
+		}
+
+		return self::app('view')->display($template, $data);
 	}
 
 	/**
@@ -64,7 +88,7 @@ class Twist
 	 */
 	public static function asset(): Asset
 	{
-		return asset();
+		return self::app('asset');
 	}
 
 }

@@ -9,7 +9,6 @@ use Twist\Model\Site\Element\Meta;
 use Twist\Model\Site\Element\Script;
 use Twist\Model\Site\Element\Style;
 use Twist\Model\Site\Element\Title;
-use function Twist\config;
 
 /**
  * Class Head
@@ -44,9 +43,7 @@ class Head
 			Script::class,
 		]);
 
-		Hook::bind($this)
-		    ->capture(self::HOOK, 'parse')
-		    ->fire(self::HOOK);
+		Hook::bind($this)->capture(self::HOOK, 'parse')->fire(self::HOOK);
 	}
 
 	/**

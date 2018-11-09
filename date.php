@@ -1,5 +1,5 @@
 <?php
 
-use function Twist\view;
+use Twist\Twist;
 
-view('date.html.twig');
+Twist::view('date.html.twig');

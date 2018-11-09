@@ -4,7 +4,7 @@ namespace Twist\Model\Site;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
-use function Twist\app;
+use Twist\Twist;
 
 /**
  * Class Assets
@@ -28,7 +28,7 @@ class Asset
 	 */
 	public function __construct(Site $site)
 	{
-		$this->asset = app('asset');
+		$this->asset = Twist::asset();
 		$this->site  = $site;
 	}
 

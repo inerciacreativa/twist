@@ -2,10 +2,10 @@
 
 namespace Twist\Model\Comment;
 
+use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 use Twist\Model\User\User;
-use Twist\Library\Hook\Hook;
-use function Twist\config;
+use Twist\Twist;
 
 /**
  * Class CommentForm
@@ -30,8 +30,8 @@ class CommentForm
 	 */
 	public function __construct()
 	{
-		if (($this->decorator = config('form.comment.decorator')) === null) {
-			$this->decorator = new CommentFormDecorator(config('form.comment.classes', []));
+		if (($this->decorator = Twist::config('form.comment.decorator')) === null) {
+			$this->decorator = new CommentFormDecorator(Twist::config('form.comment.classes', []));
 		}
 
 		Hook::add('comment_form_defaults', function (array $arguments) {
