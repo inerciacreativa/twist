@@ -2,8 +2,6 @@
 
 namespace Twist;
 
-//include_once __DIR__ . '/app.php';
-
 use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Asset;
