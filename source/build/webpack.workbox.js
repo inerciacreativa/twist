@@ -9,10 +9,12 @@ module.exports = (config) => {
   return {
     plugins: [
       new InjectManifest({
-        'swSrc': path.join(config.folder.source, config.workbox.source),
-        'swDest': target,
-        'precacheManifestFilename': path.join(config.folder.scripts, 'precache_[manifestHash].js'),
-        'importWorkboxFrom': config.workbox.import,
+        swSrc: path.join(config.folder.source, config.workbox.source),
+        swDest: target,
+        precacheManifestFilename: path.join(config.folder.scripts, 'precache_[manifestHash].js'),
+        templatedUrls: config.workbox.urls,
+        importWorkboxFrom: config.workbox.import,
+        globDirectory: './../../..',
       }),
     ],
   }

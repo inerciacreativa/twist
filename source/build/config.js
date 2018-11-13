@@ -47,6 +47,7 @@ const config = merge({
     source: 'scripts/service-worker.js',
     hash: true,
     import: 'cdn',
+    urls: {},
   },
 }, userConfig);
 
