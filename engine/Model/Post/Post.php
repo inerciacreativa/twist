@@ -60,6 +60,8 @@ class Post extends Model
 	 * @param \WP_Post|int $post
 	 *
 	 * @return Post
+	 *
+	 * @throws \RuntimeException
 	 */
 	public static function make($post): Post
 	{
@@ -70,10 +72,16 @@ class Post extends Model
 	 * Post constructor.
 	 *
 	 * @param \WP_Post|int|null $post
+	 *
+	 * @throws \RuntimeException
 	 */
 	public function __construct($post = null)
 	{
 		$this->post = get_post($post);
+
+		if ($this->post === null) {
+			throw new \RuntimeException('There is no post data');
+		}
 	}
 
 	/**
@@ -84,7 +92,7 @@ class Post extends Model
 	public function setup(): self
 	{
 		if (!setup_postdata($this->post)) {
-			throw new \RuntimeException('There is no post data!');
+			throw new \RuntimeException('There is no active WP_Query instance');
 		}
 
 		return $this;
@@ -191,14 +199,15 @@ class Post extends Model
 			return '';
 		}
 
-		if ($this->taxonomies()->has('post_format')) {
-			if (($terms = $this->taxonomies()->get('post_format')) && ($terms->count() > 0) && ($term = $terms->first())) {
-				$format = str_replace('post-format-', '', $term->slug());
-			} else {
-				$format = $default;
-			}
-		} else {
-			$format = $default;
+		$format = $default;
+
+		if (
+			$this->taxonomies()->has('post_format')
+		    && ($terms = $this->taxonomies()->get('post_format'))
+		    && ($terms->count() > 0)
+		    && ($term = $terms->first())
+		) {
+			$format = str_replace('post-format-', '', $term->slug());
 		}
 
 		return "$prefix-$format";
@@ -278,7 +287,10 @@ class Post extends Model
 	public function title(bool $attribute = false): string
 	{
 		if ($attribute) {
-			return html_entity_decode(the_title_attribute(['echo' => false, 'post' => $this->post]), ENT_HTML5 | ENT_QUOTES);
+			return html_entity_decode(the_title_attribute([
+				'echo' => false,
+				'post' => $this->post,
+			]), ENT_HTML5 | ENT_QUOTES);
 		}
 
 		return get_the_title($this->post);
@@ -533,6 +545,38 @@ class Post extends Model
 		}
 
 		return $this->comments;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_comments(): bool
+	{
+		return $this->comment_count() > 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function comment_count(): int
+	{
+		return (int) Hook::apply('get_comments_number', $this->post->comment_count, $this->id());
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function can_be_commented(): bool
+	{
+		return (bool) Hook::apply('comments_open', $this->post->comment_status === 'open', $this->id());
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function can_be_pinged(): bool
+	{
+		return (bool) Hook::apply('pings_open', $this->post->ping_status === 'open', $this->id());
 	}
 
 	/**

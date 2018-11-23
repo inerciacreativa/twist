@@ -33,11 +33,6 @@ class CommentQuery
 	/**
 	 * @var int
 	 */
-	protected $count = 0;
-
-	/**
-	 * @var int
-	 */
 	protected $max_depth = -1;
 
 	/**
@@ -90,7 +85,9 @@ class CommentQuery
 	 */
 	protected $pagination;
 
-
+	/**
+	 * @var CommentForm
+	 */
 	protected $form;
 
 	/**
@@ -101,7 +98,6 @@ class CommentQuery
 	public function __construct(Post $post)
 	{
 		$this->post        = $post;
-		$this->count       = (int) Hook::apply('get_comments_number', $post->field('comment_count'), $post->id());
 		$this->is_threaded = (bool) get_option('thread_comments');
 		$this->is_paged    = (bool) get_option('page_comments');
 		$this->order       = get_option('comment_order');
@@ -196,7 +192,7 @@ class CommentQuery
 	 */
 	public function count(): int
 	{
-		return $this->count;
+		return $this->post->comment_count();
 	}
 
 	/**
@@ -212,7 +208,7 @@ class CommentQuery
 	 */
 	public function are_open(): bool
 	{
-		return Hook::apply('comments_open', $this->post->field('comment_status') === 'open', $this->post->id());
+		return $this->post->can_be_commented();
 	}
 
 	/**
