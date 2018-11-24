@@ -80,9 +80,29 @@ class Site
 	 *
 	 * @return string
 	 */
-	public function url(string $path = '/'): string
+	public function home_url(string $path = '/'): string
 	{
 		return home_url($path);
+	}
+
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public function site_url(string $path = '/'): string
+	{
+		return site_url($path);
+	}
+
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public function admin_url(string $path = '/'): string
+	{
+		return admin_url($path);
 	}
 
 	/**
@@ -106,7 +126,7 @@ class Site
 	 */
 	public function id(): string
 	{
-		$url = parse_url($this->url(), PHP_URL_HOST);
+		$url = parse_url($this->home_url(), PHP_URL_HOST);
 		$url = str_replace('.', '-', $url);
 
 		return $url;
