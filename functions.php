@@ -4,7 +4,7 @@ use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
 use Twist\Service\CoreServiceProvider;
 use Twist\Twist;
-use Twist\View\Twig\TwigService;
+use Twist\View\Twig\TwigView;
 
 Twist::theme()->services(new CoreServiceProvider())->options([
 	'data'    => [
@@ -16,7 +16,7 @@ Twist::theme()->services(new CoreServiceProvider())->options([
 		],
 	],
 	'view'    => [
-		'service'   => TwigService::id(),
+		'service'   => TwigView::id(),
 		'templates' => '/templates',
 	],
 	'service' => [
