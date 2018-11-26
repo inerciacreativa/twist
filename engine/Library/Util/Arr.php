@@ -65,15 +65,16 @@ class Arr
 	 *
 	 * @param array $target
 	 * @param array $source
+	 * @param bool  $add
 	 *
 	 * @return array
 	 */
-	public static function fill(array $target, array $source): array
+	public static function fill(array $target, array $source, bool $add = false): array
 	{
 		$values = static::dot($source);
 
 		foreach ($values as $key => $value) {
-			if (static::has($target, $key, true)) {
+			if ($add || static::has($target, $key, true)) {
 				static::set($target, $key, $value);
 			}
 		}
