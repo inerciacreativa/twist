@@ -2,15 +2,14 @@
 
 namespace Twist\View\Twig;
 
-use Twist\View\ViewInterface;
-use Twist\View\ViewService;
+use Twist\View\View;
 
 /**
  * Class TwigService
  *
  * @package Twist\View\Twig
  */
-class TwigService extends ViewService
+class TwigView extends View
 {
 
 	/**
@@ -36,19 +35,10 @@ class TwigService extends ViewService
 		]);
 
 		$this->environment->addExtension(new TwigExtension());
-		$this->environment->addExtension(new \Twig_Extension_StringLoader());
 
 		if ($this->config->get('app.debug')) {
 			$this->environment->addExtension(new \Twig_Extension_Debug());
 		}
-
-		foreach ((array) $this->config->get('data.global', []) as $name => $value) {
-			$this->environment->addGlobal($name, $this->resolveData($value));
-		}
-
-		foreach ((array) $this->config->get('data.view', []) as $name => $value) {
-			$this->addData($name, $value);
-		}
 	}
 
 	/**
@@ -58,9 +48,9 @@ class TwigService extends ViewService
 	 * @throws \Twig_Error_Syntax  When an error occurred during compilation
 	 * @throws \Twig_Error_Runtime When an error occurred during rendering
 	 */
-	public function render(string $template, array $data = []): string
+	public function render(string $template, array $context = []): string
 	{
-		return $this->environment->render($template, $this->mergeData($data));
+		return $this->environment->render($template, $this->resolve($context));
 	}
 
 	/**
@@ -70,30 +60,33 @@ class TwigService extends ViewService
 	 * @throws \Twig_Error_Syntax  When an error occurred during compilation
 	 * @throws \Twig_Error_Runtime When an error occurred during rendering
 	 */
-	public function display(string $template, array $data = []): void
+	public function display(string $template, array $context = []): void
 	{
-		$this->environment->display($template, $this->mergeData($data));
+		$this->environment->display($template, $this->resolve($context));
 	}
 
 	/**
-	 * @inheritdoc
-	 */
-	public function getPaths(): array
-	{
-		return $this->loader->getPaths();
-	}
-
-	/**
-	 * @inheritdoc
+	 * @param string $path
 	 *
-	 * @return \Twist\View\ViewInterface
 	 * @throws \Twig_Error_Loader
 	 */
-	public function addPath(string $path): ViewInterface
+	public function path(string $path): void
 	{
 		$this->loader->addPath($path);
+	}
 
-		return $this;
+	/**
+	 * @param array $context
+	 *
+	 * @return array
+	 */
+	protected function resolve(array $context): array
+	{
+		foreach ($this->context->shared() as $name => $value) {
+			$this->environment->addGlobal($name, $value);
+		}
+
+		return $this->context->local($context);
 	}
 
 }

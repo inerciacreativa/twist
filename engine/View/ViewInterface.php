@@ -14,47 +14,23 @@ interface ViewInterface
      * Renders and returns the template.
      *
      * @param string $template
-     * @param array  $data
+     * @param array  $context
      *
      * @return string
      */
-    public function render(string $template, array $data = []): string;
+    public function render(string $template, array $context = []): string;
 
     /**
      * Displays the template.
      *
      * @param string $template
-     * @param array  $data
+     * @param array  $context
      */
-    public function display(string $template, array $data = []): void;
-
-    /**
-     * Adds local data (available only in current template).
-     *
-     * @param string $name
-     * @param mixed  $value
-     *
-     * @return $this
-     */
-    public function addData(string $name, $value): self;
+    public function display(string $template, array $context = []): void;
 
 	/**
-	 * @return array
+	 * @return Context
 	 */
-    public function getData(): array;
-
-	/**
-	 * Returns the possible paths where the templates may be located.
-	 *
-	 * @return array
-	 */
-    public function getPaths(): array;
-
-	/**
-	 * @param string $path
-	 *
-	 * @return $this
-	 */
-    public function addPath(string $path): self;
+    public function context(): Context;
 
 }

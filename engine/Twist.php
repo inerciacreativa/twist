@@ -7,6 +7,7 @@ use Twist\App\AppServiceProvider;
 use Twist\App\Asset;
 use Twist\App\Config;
 use Twist\App\Theme;
+use Twist\View\Context;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
 
@@ -15,7 +16,7 @@ use Twist\View\ViewServiceProvider;
  *
  * @package Twist
  */
-final class Twist
+class Twist
 {
 
 	/**
@@ -28,7 +29,7 @@ final class Twist
 	 *
 	 * @return App|mixed
 	 */
-	public static function app(string $id = null)
+	final public static function app(string $id = null)
 	{
 		if (self::$app === null) {
 			self::$app = (new App())->provider(new AppServiceProvider())
@@ -44,7 +45,7 @@ final class Twist
 	 *
 	 * @return Config|mixed
 	 */
-	public static function config(string $key = null, $default = null)
+	final public static function config(string $key = null, $default = null)
 	{
 		if ($key === null) {
 			return self::app('config');
@@ -56,7 +57,7 @@ final class Twist
 	/**
 	 * @return Theme
 	 */
-	public static function theme(): Theme
+	final public static function theme(): Theme
 	{
 		return self::app('theme');
 	}
@@ -68,7 +69,7 @@ final class Twist
 	 *
 	 * @return ViewInterface|string
 	 */
-	public static function view(string $template = null, array $data = [], bool $renderOnly = false)
+	final public static function view(string $template = null, array $data = [], bool $renderOnly = false)
 	{
 		if ($template === null) {
 			return self::app('view');
@@ -84,9 +85,17 @@ final class Twist
 	/**
 	 * @return Asset
 	 */
-	public static function asset(): Asset
+	final public static function asset(): Asset
 	{
 		return self::app('asset');
+	}
+
+	/**
+	 * @return Context
+	 */
+	final public static function context(): Context
+	{
+		return self::app(Context::id());
 	}
 
 }

@@ -8,7 +8,7 @@ use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Library\Util\Tag;
 use Twist\Service\ServiceProviderInterface;
-use Twist\View\Twig\TwigService;
+use Twist\View\Twig\TwigView;
 
 /**
  * Class Theme
@@ -432,7 +432,7 @@ class Theme
 				'template'   => get_template_directory_uri(),
 			],
 			'view' => [
-				'service'   => TwigService::id(),
+				'service'   => TwigView::id(),
 				'templates' => '/templates',
 			],
 		]);

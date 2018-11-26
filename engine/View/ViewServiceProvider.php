@@ -4,7 +4,7 @@ namespace Twist\View;
 
 use Twist\App\App;
 use Twist\Service\ServiceProviderInterface;
-use Twist\View\Twig\TwigService;
+use Twist\View\Twig\TwigView;
 
 /**
  * Class ViewProvider
@@ -24,8 +24,12 @@ class ViewServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
-		$app->service(TwigService::id(), function (App $app) {
-			return new TwigService($app);
+		$app->service(Context::id(), function (App $app) {
+			return new Context($app);
+		});
+
+		$app->service(TwigView::id(), function (App $app) {
+			return new TwigView($app, $app[Context::id()]);
 		});
 	}
 
