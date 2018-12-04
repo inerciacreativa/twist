@@ -3,7 +3,7 @@
 namespace Twist\App;
 
 use Pimple\Container;
-use Twist\Service\Service;
+use Twist\Service\ServiceInterface;
 use Twist\Service\ServiceProviderInterface;
 
 /**
@@ -13,6 +13,16 @@ use Twist\Service\ServiceProviderInterface;
  */
 class App extends Container
 {
+
+	public const BOOT = 'after_setup_theme';
+
+	public const INIT = 'init';
+
+	public const REQUEST = 'parse_request';
+
+	public const QUERY = 'parse_query';
+
+	public const SETUP = 'wp';
 
 	/**
 	 * @var array
@@ -28,7 +38,7 @@ class App extends Container
 	 *
 	 * @throws \RuntimeException
 	 */
-	public function service($id, $service, $boot = true): self
+	public function service($id, $service, $boot = false): self
 	{
 		$this->offsetSet($id, $service);
 
@@ -92,10 +102,8 @@ class App extends Container
 	public function boot(): void
 	{
 		foreach ($this->boot as $service) {
-			if ($this[$service] instanceof Service) {
-				$this[$service]->boot();
-			} else if ($this[$service] instanceof \Closure) {
-				$this[$service]();
+			if (($this[$service] instanceof ServiceInterface) && ($this[$service]->boot() === false)) {
+				unset($this[$service]);
 			}
 		}
 	}
