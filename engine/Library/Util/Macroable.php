@@ -7,7 +7,7 @@ namespace Twist\Library\Util;
  *
  * @package Twist\Library\Util
  */
-trait Macro
+trait Macroable
 {
 
     /**
