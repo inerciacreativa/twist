@@ -4,20 +4,15 @@ use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
 use Twist\Service\CoreServiceProvider;
 use Twist\Twist;
-use Twist\View\Twig\TwigView;
 
 Twist::theme()->services(new CoreServiceProvider())->options([
-	'data'    => [
-		'global' => [
+	'context'    => [
+		'shared' => [
 			'site' => Site::class,
 		],
 		'view'   => [
 			'posts' => Query::class,
 		],
-	],
-	'view'    => [
-		'service'   => TwigView::id(),
-		'templates' => '/templates',
 	],
 	'service' => [
 		'head_cleaner'        => [
