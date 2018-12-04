@@ -2,14 +2,17 @@
 
 namespace Twist\Model\Post;
 
+use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
-use Twist\Library\Util\Macro;
+use Twist\Library\Util\Macroable;
+use Twist\Library\Util\Tag;
 use Twist\Model\Comment\CommentQuery;
 use Twist\Model\Image\Image;
 use Twist\Model\Image\Images;
+use Twist\Model\Site\Site;
 
 /**
  * Class Post
@@ -19,7 +22,7 @@ use Twist\Model\Image\Images;
 class Post extends Model
 {
 
-	use Macro;
+	use Macroable;
 
 	/**
 	 * @var \WP_Post
@@ -61,7 +64,7 @@ class Post extends Model
 	 *
 	 * @return Post
 	 *
-	 * @throws \RuntimeException
+	 * @throws \Exception
 	 */
 	public static function make($post): Post
 	{
@@ -73,26 +76,26 @@ class Post extends Model
 	 *
 	 * @param \WP_Post|int|null $post
 	 *
-	 * @throws \RuntimeException
+	 * @throws \Exception
 	 */
 	public function __construct($post = null)
 	{
 		$this->post = get_post($post);
 
 		if ($this->post === null) {
-			throw new \RuntimeException('There is no post data');
+			new AppException('There is no post data');
 		}
 	}
 
 	/**
 	 * @return $this
 	 *
-	 * @throws \RuntimeException
+	 * @throws \Exception
 	 */
 	public function setup(): self
 	{
 		if (!setup_postdata($this->post)) {
-			throw new \RuntimeException('There is no active WP_Query instance');
+			new AppException('There is no active WP_Query instance');
 		}
 
 		return $this;
@@ -128,6 +131,8 @@ class Post extends Model
 
 	/**
 	 * @return Post|null
+	 *
+	 * @throws \Exception
 	 */
 	public function parent(): ?ModelInterface
 	{
@@ -201,12 +206,9 @@ class Post extends Model
 
 		$format = $default;
 
-		if (
-			$this->taxonomies()->has('post_format')
-		    && ($terms = $this->taxonomies()->get('post_format'))
-		    && ($terms->count() > 0)
-		    && ($term = $terms->first())
-		) {
+		if ($this->taxonomies()
+		         ->has('post_format') && ($terms = $this->taxonomies()
+		                                                ->get('post_format')) && ($terms->count() > 0) && ($term = $terms->first())) {
 			$format = str_replace('post-format-', '', $term->slug());
 		}
 
@@ -455,6 +457,8 @@ class Post extends Model
 	 * Retrieve the post status.
 	 *
 	 * @return string
+	 *
+	 * @throws \Exception
 	 */
 	public function status(): string
 	{
