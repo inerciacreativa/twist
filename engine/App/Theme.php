@@ -3,7 +3,7 @@
 namespace Twist\App;
 
 use Twist\Library\Data\Collection;
-use Twist\Library\Hook\HookDecorator;
+use Twist\Library\Hook\Hookable;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Library\Util\Tag;
@@ -18,7 +18,7 @@ use Twist\View\Twig\TwigView;
 class Theme
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * @var App
@@ -132,10 +132,6 @@ class Theme
 	 * @param App    $app
 	 * @param Config $config
 	 * @param Asset  $asset
-	 *
-	 * @throws \InvalidArgumentException
-	 * @throws \RuntimeException
-	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
 	public function __construct(App $app, Config $config, Asset $asset)
 	{
@@ -153,10 +149,10 @@ class Theme
 		     ->on('user_contactmethods', 'addContactMethods')
 		     ->on('wp_enqueue_scripts', 'addStyles')
 		     ->on('wp_enqueue_scripts', 'addScripts')
-		     ->after('wp_footer', 'addInlineScripts')
 		     ->on('twist_site_links', 'addLinks')
 		     ->on('twist_site_metas', 'addMetas')
 		     ->on('widgets_init', 'addSidebars')
+		     ->after('wp_footer', 'addInlineScripts')
 		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
 		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2]);
 	}
@@ -422,6 +418,7 @@ class Theme
 				'debug' => \defined('WP_DEBUG') && WP_DEBUG,
 			],
 			'dir'  => [
+				'home'       => \defined('WP_ROOT') ? WP_ROOT : ABSPATH,
 				'stylesheet' => get_stylesheet_directory(),
 				'template'   => get_template_directory(),
 				'upload'     => wp_upload_dir()['basedir'],
@@ -536,10 +533,12 @@ class Theme
 			} else if (array_key_exists('google', $this->fonts['config'])) {
 				$families = implode('|', $this->fonts['config']['google']->families);
 
-				$this->styles([[
-					'id'   => 'fonts',
-					'load' => 'https://fonts.googleapis.com/css?family=' . $families,
-				]]);
+				$this->styles([
+					[
+						'id'   => 'fonts',
+						'load' => 'https://fonts.googleapis.com/css?family=' . $families,
+					],
+				]);
 			}
 		}
 	}
