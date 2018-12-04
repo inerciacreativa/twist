@@ -10,22 +10,14 @@ namespace Twist\Model\Taxonomy;
 class Category extends Taxonomy
 {
 
-    /**
-     * Category constructor.
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function __construct()
-    {
-        parent::__construct('category');
-    }
-
-    /**
-     * @inheritdoc
-     */
-	public function is_current($term = null): bool
+	/**
+	 * Category constructor.
+	 *
+	 * @throws \Exception
+	 */
+	public function __construct()
 	{
-		return is_category($term);
+		parent::__construct('category');
 	}
 
 }

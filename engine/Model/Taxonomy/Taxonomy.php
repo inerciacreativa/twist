@@ -2,6 +2,9 @@
 
 namespace Twist\Model\Taxonomy;
 
+use Twist\App\AppException;
+use Twist\Model\Post\Query;
+
 /**
  * Class Taxonomy
  *
@@ -25,12 +28,12 @@ class Taxonomy implements TaxonomyInterface
 	 *
 	 * @param string $taxonomy
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function __construct(string $taxonomy)
 	{
 		if (!taxonomy_exists($taxonomy)) {
-			throw new \InvalidArgumentException("The taxonomy '$taxonomy' does not exists");
+			new AppException("The taxonomy '$taxonomy' does not exists");
 		}
 
 		$this->taxonomy = get_taxonomy($taxonomy);
@@ -62,40 +65,43 @@ class Taxonomy implements TaxonomyInterface
 		static $function;
 
 		$taxonomy = $this->name();
+		$id       = $term instanceof Term ? $term->id() : $term;
 
 		if ($function === null) {
 			switch ($taxonomy) {
 				case 'category':
-					$function = function ($term) {
-						return is_category($term);
+					$function = function ($id) {
+						return Query::main()->is_category($id);
 					};
 					break;
 				case 'post_tag':
-					$function = function ($term) {
-						return is_tag($term);
+					$function = function ($id) {
+						return Query::main()->is_tag($id);
 					};
 					break;
 				default:
-					$function = function ($term) use ($taxonomy) {
-						return is_tax($taxonomy, $term);
+					$function = function ($id) use ($taxonomy) {
+						return Query::main()->is_taxonomy($taxonomy, $id);
 					};
 			}
 		}
 
-		return $function($term);
+		return $function($id);
 	}
 
 	/**
 	 * @return Term|null
+	 *
+	 * @throws \Exception
 	 */
 	public function current(): ?Term
 	{
 		if ($this->current === null) {
 			$this->current = false;
 
-			if ($this->is_current(get_queried_object_id())) {
+			if ($this->is_current(Query::main()->queried_id())) {
 				/** @var \WP_Term $term */
-				$term = get_queried_object();
+				$term = Query::main()->queried_object();
 
 				$this->current = new Term($this, $term);
 			}
@@ -108,6 +114,8 @@ class Taxonomy implements TaxonomyInterface
 	 * @param array $options
 	 *
 	 * @return Terms
+	 *
+	 * @throws \Exception
 	 */
 	public function terms(array $options = []): Terms
 	{

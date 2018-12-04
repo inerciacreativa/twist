@@ -100,7 +100,6 @@ class TermWalker extends \Walker_Category
 	{
 		$term = $this->terms->parent();
 
-		/** @noinspection NullPointerExceptionInspection */
 		$this->terms = $term->has_parent() ? $term->parent()
 		                                    ->children() : $this->root;
 	}
