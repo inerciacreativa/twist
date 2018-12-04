@@ -8,6 +8,7 @@ use Twist\App\Theme;
 use Twist\Library\Dom\Document;
 use Twist\Library\Util\Tag;
 use Twist\Model\Post\Query;
+use Twist\Model\Site\Site;
 use Twist\Service\Controllable;
 use Twist\Service\Service;
 
@@ -111,7 +112,7 @@ class LazyLoadService extends Service
 	 */
 	protected function replaceInText(string $content): string
 	{
-		$dom = new Document(get_bloginfo('language'));
+		$dom = new Document(Site::language());
 
 		$dom->loadMarkup($content);
 		$this->replaceInDocument($dom);

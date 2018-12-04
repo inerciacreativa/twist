@@ -5,6 +5,7 @@ namespace Twist\Service\Core;
 use Twist\Library\Dom\Document;
 use Twist\Library\Util\Str;
 use Twist\Model\Post\Query;
+use Twist\Model\Site\Site;
 use Twist\Service\Controllable;
 use Twist\Service\Service;
 
@@ -43,7 +44,7 @@ class ContentCleanerService extends Service
 	 */
 	protected function clean(string $content): string
 	{
-		$dom = new Document(get_bloginfo('language'));
+		$dom = new Document(Site::language());
 
 		$dom->loadMarkup(Str::whitespace($content));
 		$dom->cleanAttributes($this->config('attributes', []), $this->config('styles', []));

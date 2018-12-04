@@ -3,6 +3,7 @@
 namespace Twist\Service\Core\ImageSearch;
 
 use ic\Framework\Api\Api;
+use Twist\Model\Site\Site;
 
 /**
  * Class TedSearch
@@ -38,7 +39,7 @@ class TedSearch extends VideoSearch
 		$data = (new Api('Ted', 'http://www.ted.com/'))->get('services/v1/oembed.json', [
 			'url'      => 'http://embed.ted.com/talks/' . $id,
 			'maxwidth' => $width,
-			'language' => explode('-', get_bloginfo('language'))[0],
+			'language' => explode('-', Site::language())[0],
 		]);
 
 		if (!\is_object($data)) {
