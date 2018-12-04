@@ -6,8 +6,8 @@ use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Asset;
 use Twist\App\Config;
+use Twist\App\Context;
 use Twist\App\Theme;
-use Twist\View\Context;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
 
@@ -63,6 +63,22 @@ class Twist
 	}
 
 	/**
+	 * @return Asset
+	 */
+	final public static function asset(): Asset
+	{
+		return self::app('asset');
+	}
+
+	/**
+	 * @return Context
+	 */
+	final public static function context(): Context
+	{
+		return self::app('context');
+	}
+
+	/**
 	 * @param null|string $template
 	 * @param array       $data
 	 * @param bool        $renderOnly
@@ -80,22 +96,6 @@ class Twist
 		}
 
 		return self::app('view')->display($template, $data);
-	}
-
-	/**
-	 * @return Asset
-	 */
-	final public static function asset(): Asset
-	{
-		return self::app('asset');
-	}
-
-	/**
-	 * @return Context
-	 */
-	final public static function context(): Context
-	{
-		return self::app(Context::id());
 	}
 
 }
