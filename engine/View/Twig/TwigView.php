@@ -25,7 +25,7 @@ class TwigView extends View
 	/**
 	 * @inheritdoc
 	 */
-	public function boot(): void
+	protected function init(): void
 	{
 		$this->loader      = new \Twig_Loader_Filesystem($this->config->get('view.paths', []));
 		$this->environment = new \Twig_Environment($this->loader, [
@@ -42,11 +42,28 @@ class TwigView extends View
 	}
 
 	/**
+	 * @param array $context
+	 *
+	 * @return array
+	 *
+	 * @throws \Exception
+	 */
+	protected function resolve(array $context): array
+	{
+		foreach ($this->context->shared() as $name => $value) {
+			$this->environment->addGlobal($name, $value);
+		}
+
+		return $this->context->resolve($context);
+	}
+
+	/**
 	 * @inheritdoc
 	 *
 	 * @throws \Twig_Error_Loader  When the template cannot be found
 	 * @throws \Twig_Error_Syntax  When an error occurred during compilation
 	 * @throws \Twig_Error_Runtime When an error occurred during rendering
+	 * @throws \Exception
 	 */
 	public function render(string $template, array $context = []): string
 	{
@@ -59,6 +76,7 @@ class TwigView extends View
 	 * @throws \Twig_Error_Loader  When the template cannot be found
 	 * @throws \Twig_Error_Syntax  When an error occurred during compilation
 	 * @throws \Twig_Error_Runtime When an error occurred during rendering
+	 * @throws \Exception
 	 */
 	public function display(string $template, array $context = []): void
 	{
@@ -73,20 +91,6 @@ class TwigView extends View
 	public function path(string $path): void
 	{
 		$this->loader->addPath($path);
-	}
-
-	/**
-	 * @param array $context
-	 *
-	 * @return array
-	 */
-	protected function resolve(array $context): array
-	{
-		foreach ($this->context->shared() as $name => $value) {
-			$this->environment->addGlobal($name, $value);
-		}
-
-		return $this->context->local($context);
 	}
 
 }

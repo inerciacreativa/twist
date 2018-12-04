@@ -28,9 +28,4 @@ interface ViewInterface
      */
     public function display(string $template, array $context = []): void;
 
-	/**
-	 * @return Context
-	 */
-    public function context(): Context;
-
 }

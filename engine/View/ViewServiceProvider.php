@@ -24,13 +24,9 @@ class ViewServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
-		$app->service(Context::id(), function (App $app) {
-			return new Context($app);
-		});
-
 		$app->service(TwigView::id(), function (App $app) {
-			return new TwigView($app, $app[Context::id()]);
-		});
+			return new TwigView($app, $app['config'], $app['context']);
+		}, true);
 	}
 
 }

@@ -2,11 +2,13 @@
 
 namespace Twist\View;
 
-use Twist\Service\Service;
 use Twist\App\App;
+use Twist\App\Config;
+use Twist\App\Context;
+use Twist\Service\Service;
 
 /**
- * Class ViewService
+ * Class View
  *
  * @package Twist\View
  */
@@ -22,18 +24,23 @@ abstract class View extends Service implements ViewInterface
 	 * View constructor.
 	 *
 	 * @param App     $app
+	 * @param Config  $config
 	 * @param Context $context
 	 */
-	public function __construct(App $app, Context $context)
+	public function __construct(App $app, Config $config, Context $context)
 	{
-		parent::__construct($app);
+		parent::__construct($app, App::INIT);
 
+		$this->config  = $config;
 		$this->context = $context;
 	}
 
-	public function context(): Context
+	/**
+	 * @inheritdoc
+	 */
+	public function boot(): bool
 	{
-		return $this->context;
+		return $this->config->get('view.service') === static::id();
 	}
 
 }
