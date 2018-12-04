@@ -2,6 +2,9 @@
 
 namespace Twist\Model\Post;
 
+use Twist\App\App;
+use Twist\App\AppException;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Model\IterableInterface;
 use Twist\Library\Util\Arr;
 
@@ -41,9 +44,15 @@ class Query implements IterableInterface
 
 	/**
 	 * @return Query
+	 *
+	 * @throws \Exception
 	 */
 	public static function main(): Query
 	{
+		if (!Hook::fired(App::QUERY)) {
+			new AppException('The main query has not been parsed yet.');
+		}
+
 		return static::query();
 	}
 
@@ -143,6 +152,16 @@ class Query implements IterableInterface
 		global $wp_query;
 
 		$this->query = $query ? new \WP_Query($query) : $wp_query;
+	}
+
+	public function queried_object()
+	{
+		return $this->query->get_queried_object();
+	}
+
+	public function queried_id(): int
+	{
+		return (int) $this->query->get_queried_object_id();
 	}
 
 	/**
@@ -328,7 +347,7 @@ class Query implements IterableInterface
 	/**
 	 * @return bool
 	 */
-	public function is_front(): bool
+	public function is_front_page(): bool
 	{
 		return $this->query->is_front_page();
 	}
@@ -419,12 +438,13 @@ class Query implements IterableInterface
 
 	/**
 	 * @param null|int|string|array $taxonomy
+	 * @param null|int|string|array $term
 	 *
 	 * @return bool
 	 */
-	public function is_taxonomy($taxonomy = null): bool
+	public function is_taxonomy($taxonomy = null, $term = null): bool
 	{
-		return $this->query->is_tax($taxonomy);
+		return $this->query->is_tax($taxonomy, $term);
 	}
 
 	/**
@@ -507,6 +527,14 @@ class Query implements IterableInterface
 	public function has_pages(): bool
 	{
 		return $this->query->max_num_pages > 1;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function is_admin(): bool
+	{
+		return is_admin();
 	}
 
 }
