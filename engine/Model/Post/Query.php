@@ -9,7 +9,7 @@ use Twist\Library\Model\IterableInterface;
 use Twist\Library\Util\Arr;
 
 /**
- * Class PostQuery
+ * Class Query
  *
  * @package Twist\Model\Post
  */
@@ -129,7 +129,7 @@ class Query implements IterableInterface
 		if (empty($search)) {
 			$request = explode('/', $wp->request);
 			$search  = str_replace('-', ' ', end($request));
-			$search  = preg_replace('/[^a-z ]/i', '', $search);
+			$search  = (string) preg_replace('/[^a-z ]/i', '', $search);
 		}
 
 		$parameters = array_merge([
@@ -296,6 +296,8 @@ class Query implements IterableInterface
 
 	/**
 	 * @return Post
+	 *
+	 * @throws \Exception
 	 */
 	public function current(): Post
 	{
