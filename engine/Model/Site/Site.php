@@ -3,8 +3,7 @@
 namespace Twist\Model\Site;
 
 use Twist\Library\Hook\Hook;
-use Twist\Library\Util\Macro;
-use Twist\Library\Util\Tag;
+use Twist\Library\Util\Macroable;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Pagination;
@@ -17,38 +16,43 @@ use Twist\Model\Navigation\Pagination;
 class Site
 {
 
-	use Macro;
+	use Macroable;
+
+	/**
+	 * @var Head
+	 */
+	private $head;
+
+	/**
+	 * @var Foot
+	 */
+	private $foot;
 
 	/**
 	 * @var Navigation
 	 */
-	protected $navigation;
+	private $navigation;
 
 	/**
 	 * @var Pagination
 	 */
-	protected $pagination;
+	private $pagination;
 
 	/**
 	 * @var Asset
 	 */
-	protected $assets;
-
-	/**
-	 * Site constructor.
-	 */
-	public function __construct()
-	{
-		$this->assets     = new Asset($this);
-		$this->navigation = new Navigation();
-	}
+	private $assets;
 
 	/**
 	 * @return Head
 	 */
 	public function head(): Head
 	{
-		return new Head();
+		if ($this->head === null) {
+			$this->head = new Head();
+		}
+
+		return $this->head;
 	}
 
 	/**
@@ -56,13 +60,84 @@ class Site
 	 */
 	public function foot(): Foot
 	{
-		return new Foot();
+		if ($this->foot === null) {
+			$this->foot = new Foot();
+		}
+
+		return $this->foot;
+	}
+
+	/**
+	 * @return Asset
+	 */
+	public function assets(): Asset
+	{
+		if ($this->assets === null) {
+			$this->assets = new Asset();
+		}
+
+		return $this->assets;
+	}
+
+	/**
+	 * @param string $menu
+	 * @param string $location
+	 * @param int    $depth
+	 *
+	 * @return Links
+	 */
+	public function navigation(string $menu, $location = null, $depth = 0): Links
+	{
+		if ($this->navigation === null) {
+			$this->navigation = new Navigation();
+		}
+
+		return $this->navigation->get($menu, $location, $depth);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_pagination(): bool
+	{
+		return $this->pagination()->has_pages();
+	}
+
+	/**
+	 * @return Pagination
+	 */
+	public function pagination(): Pagination
+	{
+		if ($this->pagination === null) {
+			$this->pagination = new Pagination();
+		}
+
+		return $this->pagination;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function charset(): string
+	public static function id(): string
+	{
+		$url = parse_url(self::home_url(), PHP_URL_HOST);
+		$url = str_replace('.', '-', $url);
+
+		return $url;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function name(): string
+	{
+		return get_bloginfo('name');
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function charset(): string
 	{
 		return get_bloginfo('charset');
 	}
@@ -70,7 +145,7 @@ class Site
 	/**
 	 * @return string
 	 */
-	public function language(): string
+	public static function language(): string
 	{
 		return get_bloginfo('language');
 	}
@@ -80,7 +155,7 @@ class Site
 	 *
 	 * @return string
 	 */
-	public function home_url(string $path = '/'): string
+	public static function home_url(string $path = '/'): string
 	{
 		return home_url($path);
 	}
@@ -90,7 +165,7 @@ class Site
 	 *
 	 * @return string
 	 */
-	public function site_url(string $path = '/'): string
+	public static function site_url(string $path = '/'): string
 	{
 		return site_url($path);
 	}
@@ -100,36 +175,9 @@ class Site
 	 *
 	 * @return string
 	 */
-	public function admin_url(string $path = '/'): string
+	public static function admin_url(string $path = '/'): string
 	{
 		return admin_url($path);
-	}
-
-	/**
-	 * @return Asset
-	 */
-	public function assets(): Asset
-	{
-		return $this->assets;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function name(): string
-	{
-		return get_bloginfo('name');
-	}
-
-	/**
-	 * @return string
-	 */
-	public function id(): string
-	{
-		$url = parse_url($this->home_url(), PHP_URL_HOST);
-		$url = str_replace('.', '-', $url);
-
-		return $url;
 	}
 
 	/**
@@ -240,12 +288,12 @@ class Site
 			$classes[] = 'admin-bar';
 		}
 
-		if (!empty($options->class)) {
-			if (!\is_array($options->class)) {
-				$options->class = preg_split('#\s+#', $options->class);
+		if (!empty($options->classes)) {
+			if (!\is_array($options->classes)) {
+				$options->classes = preg_split('#\s+#', $options->classes);
 			}
 
-			$classes = array_merge($classes, $options->class);
+			$classes = array_merge($classes, $options->classes);
 		}
 
 		$classes = array_filter($classes);
@@ -280,70 +328,6 @@ class Site
 	public function search(): string
 	{
 		return get_search_query();
-	}
-
-	/**
-	 * @param string $menu
-	 * @param string $location
-	 * @param int    $depth
-	 *
-	 * @return Links
-	 */
-	public function navigation(string $menu, $location = null, $depth = 0): Links
-	{
-		return $this->navigation->get($menu, $location, $depth);
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function has_pagination(): bool
-	{
-		return $this->pagination()->has_pages();
-	}
-
-	/**
-	 * @return Pagination
-	 */
-	public function pagination(): Pagination
-	{
-		if ($this->pagination === null) {
-			$this->pagination = new Pagination();
-		}
-
-		return $this->pagination;
-	}
-
-	/**
-	 * @param string $format
-	 *
-	 * @return string
-	 */
-	public function date(string $format): string
-	{
-		return date($format);
-	}
-
-	/**
-	 * @param string $name
-	 *
-	 * @return mixed
-	 */
-	public function option(string $name)
-	{
-		return get_option($name);
-	}
-
-	/**
-	 * @param string $tag
-	 * @param array  $attributes
-	 * @param null   $content
-	 *
-	 * @return Tag
-	 */
-	public function tag(string $tag, array $attributes = [], $content = null): Tag
-	{
-		return Tag::make($tag, $attributes, $content);
 	}
 
 }

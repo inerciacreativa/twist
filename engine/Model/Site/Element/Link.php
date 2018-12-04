@@ -11,23 +11,23 @@ use Twist\Library\Util\Tag;
  *
  * @package Twist\Model\Site\Element
  */
-class Link implements ElementInterface
+class Link implements ElementsInterface
 {
 
 	/**
 	 * @var array
 	 */
-	protected $links = [];
+	private $links = [];
 
 	/**
 	 * @var array
 	 */
-	protected $styles = [];
+	private $styles = [];
 
 	/**
 	 * @inheritdoc
 	 */
-	public function parse(Document $dom): void
+	public function extract(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('link');
 

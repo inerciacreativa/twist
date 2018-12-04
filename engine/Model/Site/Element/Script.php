@@ -11,33 +11,18 @@ use Twist\Library\Util\Tag;
  *
  * @package Twist\Model\Site\Element
  */
-class Script implements ElementInterface
+class Script implements ElementsInterface
 {
-
-	/**
-	 * @var ElementParser
-	 */
-	protected $parser;
 
 	/**
 	 * @var array
 	 */
-	protected $scripts = [];
-
-	/**
-	 * Style constructor.
-	 *
-	 * @param ElementParser $parser
-	 */
-	public function __construct(ElementParser $parser)
-	{
-		$this->parser = $parser;
-	}
+	private $scripts = [];
 
 	/**
 	 * @inheritdoc
 	 */
-	public function parse(Document $dom): void
+	public function extract(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('script');
 
@@ -56,7 +41,7 @@ class Script implements ElementInterface
 				$attributes['src'] = htmlspecialchars($attributes['src']);
 				$this->scripts[]   = Tag::make('script', $attributes);
 			} else {
-				$content = empty($node->nodeValue) ? null : $this->parser->clean($node->nodeValue);
+				$content = empty($node->nodeValue) ? null : ElementsParser::clean($node->nodeValue);
 
 				if ($content) {
 					$this->scripts[] = Tag::make('script', $attributes, $content);

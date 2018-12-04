@@ -14,22 +14,14 @@ use Twist\Twist;
 class Asset
 {
 
-	protected $asset;
-
-	/**
-	 * @var Site
-	 */
-	protected $site;
+	private $asset;
 
 	/**
 	 * Asset constructor.
-	 *
-	 * @param \Twist\Model\Site\Site $site
 	 */
-	public function __construct(Site $site)
+	public function __construct()
 	{
 		$this->asset = Twist::asset();
-		$this->site  = $site;
 	}
 
 	/**
@@ -58,7 +50,7 @@ class Asset
 		}
 
 		$logo->attributes(array_merge([
-			'alt' => $this->site->name(),
+			'alt' => Site::name(),
 		], $attributes));
 
 		return Hook::apply('twist_asset_logo', $logo);

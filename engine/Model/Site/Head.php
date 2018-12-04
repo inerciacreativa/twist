@@ -2,8 +2,9 @@
 
 namespace Twist\Model\Site;
 
-use Twist\Library\Hook\Hook;
-use Twist\Model\Site\Element\ElementParser;
+use Twist\App\App;
+use Twist\Model\Site\Element\ElementsParser;
+use Twist\Model\Site\Element\ElementsRenderer;
 use Twist\Model\Site\Element\Link;
 use Twist\Model\Site\Element\Meta;
 use Twist\Model\Site\Element\Script;
@@ -15,59 +16,21 @@ use Twist\Model\Site\Element\Title;
  *
  * @package Twist\Model\Site
  */
-class Head
+class Head extends ElementsRenderer
 {
-
-	public const HOOK = 'wp_head';
-
-	/**
-	 * @var ElementParser
-	 */
-	protected $parser;
-
-	/**
-	 * @var string
-	 */
-	protected $html;
 
 	/**
 	 * Head constructor.
 	 */
 	public function __construct()
 	{
-		$this->parser = new ElementParser([
+		parent::__construct(App::HEAD, new ElementsParser([
 			Title::class,
 			Meta::class,
 			Link::class,
 			Style::class,
 			Script::class,
-		]);
-
-		Hook::bind($this)->capture(self::HOOK, 'parse')->fire(self::HOOK);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function __toString(): string
-	{
-		return $this->render();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function render(): string
-	{
-		return $this->parser->render();
-	}
-
-	/**
-	 * @param string $html
-	 */
-	protected function parse(string $html): void
-	{
-		$this->parser->parse($html);
+		]));
 	}
 
 }

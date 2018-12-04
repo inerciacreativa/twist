@@ -12,23 +12,23 @@ use Twist\Library\Util\Tag;
  *
  * @package Twist\Model\Site\Element
  */
-class Meta implements ElementInterface
+class Meta implements ElementsInterface
 {
 
 	/**
 	 * @var array
 	 */
-	protected $metas = [];
+	private $metas = [];
 
 	/**
 	 * @var string
 	 */
-	protected $title;
+	private $title;
 
 	/**
 	 * @inheritdoc
 	 */
-	public function parse(Document $dom): void
+	public function extract(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('meta');
 

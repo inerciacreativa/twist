@@ -11,38 +11,23 @@ use Twist\Library\Util\Tag;
  *
  * @package Twist\Model\Site\Element
  */
-class Style implements ElementInterface
+class Style implements ElementsInterface
 {
-
-	/**
-	 * @var ElementParser
-	 */
-	protected $parser;
 
 	/**
 	 * @var array
 	 */
-	protected $styles = [];
-
-	/**
-	 * Style constructor.
-	 *
-	 * @param ElementParser $parser
-	 */
-	public function __construct(ElementParser $parser)
-	{
-		$this->parser = $parser;
-	}
+	private $styles = [];
 
 	/**
 	 * @inheritdoc
 	 */
-	public function parse(Document $dom): void
+	public function extract(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('style');
 
 		while ($node = $nodes->item(0)) {
-			$content = empty($node->nodeValue) ? null : $this->parser->clean($node->nodeValue);
+			$content = empty($node->nodeValue) ? null : ElementsParser::clean($node->nodeValue);
 
 			if ($content) {
 				$attributes = [];
