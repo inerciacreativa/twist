@@ -77,6 +77,16 @@ class Hook
 
 	/**
 	 * @param string $hook
+	 *
+	 * @return mixed
+	 */
+	public static function apply(string $hook)
+	{
+		return apply_filters(...\func_get_args());
+	}
+
+	/**
+	 * @param string $hook
 	 */
 	public static function fire(string $hook): void
 	{
@@ -86,11 +96,11 @@ class Hook
 	/**
 	 * @param string $hook
 	 *
-	 * @return mixed
+	 * @return bool
 	 */
-	public static function apply(string $hook)
+	public static function fired(string $hook): bool
 	{
-		return apply_filters(...\func_get_args());
+		return (bool) did_action($hook);
 	}
 
 	/**
