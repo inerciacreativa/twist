@@ -6,9 +6,9 @@ use Twist\App\App;
 use Twist\App\Asset;
 use Twist\App\Theme;
 use Twist\Library\Dom\Document;
-use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 use Twist\Model\Post\Query;
+use Twist\Service\Controllable;
 use Twist\Service\Service;
 
 /**
@@ -18,6 +18,8 @@ use Twist\Service\Service;
  */
 class LazyLoadService extends Service
 {
+
+	use Controllable;
 
 	/**
 	 * @var Theme
@@ -38,49 +40,46 @@ class LazyLoadService extends Service
 	 */
 	public function __construct(App $app, Theme $theme, Asset $asset)
 	{
+		parent::__construct($app);
+
 		$this->theme = $theme;
 		$this->asset = $asset;
-
-		parent::__construct($app);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function boot(): void
+	public function boot(): bool
 	{
-		if (is_admin()) {
-			return;
-		}
-
-		$this->hook()
-		     ->off('twist_asset_image', 'replaceInTag')
-		     ->off('twist_post_image', 'replaceInTag')
-		     ->off('ic_feed_show_image', 'replaceInString')
-		     ->off('post_thumbnail_html', 'replaceInString', Hook::AFTER)
-		     ->off('get_avatar', 'replaceInString', Hook::AFTER);
-
-		if ($this->config->get('service.content_cleaner.enable')) {
-			$this->hook()->off('twist_service_content_cleaner', 'replaceInDocument');
-		} else {
-			$this->hook()->off('the_content', 'replaceInText');
-		}
-
-		if ($this->config('enable')) {
-			$this->start();
-		}
+		return $this->config('enable') && !Query::is_admin();
 	}
 
 	/**
+	 * @inheritdoc
 	 *
+	 * @throws \Exception
 	 */
 	protected function init(): void
 	{
 		if (Query::main()->is_feed()) {
-			$this->stop();
-		} else {
-			$this->addScript();
+			return;
 		}
+
+		$this->hook()
+		     ->on('twist_asset_image', 'replaceInTag')
+		     ->on('twist_post_image', 'replaceInTag')
+		     ->on('ic_feed_show_image', 'replaceInString')
+		     ->after('post_thumbnail_html', 'replaceInString')
+		     ->after('get_avatar', 'replaceInString');
+
+		if ($this->config->get('service.content_cleaner.enable')) {
+			$this->hook()
+			     ->on('twist_service_content_cleaner', 'replaceInDocument');
+		} else {
+			$this->hook()->on('the_content', 'replaceInText');
+		}
+
+		$this->addScript();
 	}
 
 	/**

@@ -3,8 +3,9 @@
 namespace Twist\Service\Core;
 
 use Twist\Library\Dom\Document;
-use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Str;
+use Twist\Model\Post\Query;
+use Twist\Service\Controllable;
 use Twist\Service\Service;
 
 /**
@@ -15,18 +16,24 @@ use Twist\Service\Service;
 class ContentCleanerService extends Service
 {
 
+	use Controllable;
+
 	/**
 	 * @inheritdoc
 	 */
-	public function boot(): void
+	public function boot(): bool
+	{
+		return $this->config('enable') && !Query::is_admin();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function init(): void
 	{
 		$this->hook()
-		     ->off('the_content', 'clean', Hook::AFTER)
-		     ->off('comment_text', 'clean', Hook::AFTER);
-
-		if ($this->config('enable')) {
-			$this->start();
-		}
+		     ->after('the_content', 'clean')
+		     ->after('comment_text', 'clean');
 	}
 
 	/**

@@ -4,7 +4,7 @@ namespace Twist\Service;
 
 use Twist\App\App;
 use Twist\App\Config;
-use Twist\Library\Hook\HookDecorator;
+use Twist\Library\Hook\Hookable;
 use Twist\Library\Util\Str;
 
 /**
@@ -15,7 +15,7 @@ use Twist\Library\Util\Str;
 abstract class Service implements ServiceInterface
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * @var App
@@ -26,11 +26,6 @@ abstract class Service implements ServiceInterface
 	 * @var Config
 	 */
 	protected $config;
-
-	/**
-	 * @var bool
-	 */
-	private $started = false;
 
 	/**
 	 * @return string
@@ -50,39 +45,26 @@ abstract class Service implements ServiceInterface
 	/**
 	 * Service constructor.
 	 *
-	 * @param App $app
+	 * @param App    $app
+	 * @param string $init
 	 */
-	public function __construct(App $app)
+	public function __construct(App $app, string $init = App::SETUP)
 	{
 		$this->app    = $app;
 		$this->config = $this->app['config'];
 
-		$this->hook()->on('wp', 'init');
+		$this->hook()->before($init, 'init');
 	}
 
 	/**
-	 * @inheritdoc
+	 * @return bool
 	 */
-	public function start(): void
-	{
-		if (!$this->started) {
-			$this->hook()->enable();
-
-			$this->started = true;
-		}
-	}
+	abstract public function boot(): bool;
 
 	/**
-	 * @inheritdoc
+	 *
 	 */
-	public function stop(): void
-	{
-		if ($this->started) {
-			$this->hook()->disable();
-
-			$this->started = false;
-		}
-	}
+	abstract protected function init(): void;
 
 	/**
 	 * @param string $name
@@ -90,18 +72,11 @@ abstract class Service implements ServiceInterface
 	 *
 	 * @return mixed
 	 */
-	protected function config(string $name = '', $default = null)
+	protected function config(string $name = '', $default = false)
 	{
 		$name = $name ? ".$name" : '';
 
 		return $this->config->get('service.' . static::id() . $name, $default);
-	}
-
-	/**
-	 *
-	 */
-	protected function init(): void
-	{
 	}
 
 }

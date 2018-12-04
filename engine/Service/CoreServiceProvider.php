@@ -24,23 +24,23 @@ class CoreServiceProvider implements ServiceProviderInterface
 	{
 		$app->service(RelativeUrlService::id(), function (App $app) {
 			return new RelativeUrlService($app);
-		});
+		}, true);
 
 		$app->service(HeadCleanerService::id(), function (App $app) {
 			return new HeadCleanerService($app);
-		});
+		}, true);
 
 		$app->service(ContentCleanerService::id(), function (App $app) {
 			return new ContentCleanerService($app);
-		});
+		}, true);
 
 		$app->service(ThumbnailGeneratorService::id(), function (App $app) {
 			return new ThumbnailGeneratorService($app);
-		});
+		}, true);
 
 		$app->service(LazyLoadService::id(), function (App $app) {
 			return new LazyLoadService($app, $app['theme'], $app['asset']);
-		});
+		}, true);
 	}
 
 }

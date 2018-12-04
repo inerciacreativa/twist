@@ -4,6 +4,7 @@ namespace Twist\Service\Core;
 
 use Twist\Model\Post\Post;
 use Twist\Model\Post\PostMeta;
+use Twist\Model\Post\Query;
 use Twist\Service\Core\ImageSearch\ImageSearch;
 use Twist\Service\Core\ImageSearch\ImageSearchInterface;
 use Twist\Service\Core\ImageSearch\TedSearch;
@@ -28,13 +29,17 @@ class ThumbnailGeneratorService extends Service
 	/**
 	 * @inheritdoc
 	 */
-	public function boot(): void
+	public function boot(): bool
 	{
-		$this->hook()->off('twist_meta_post', 'check', ['arguments' => 3]);
+		return $this->config('enable') && !Query::is_admin();
+	}
 
-		if ($this->config('enable')) {
-			$this->start();
-		}
+	/**
+	 * @inheritdoc
+	 */
+	protected function init(): void
+	{
+		$this->hook()->on('twist_meta_post', 'check', ['arguments' => 3]);
 	}
 
 	/**
@@ -46,12 +51,13 @@ class ThumbnailGeneratorService extends Service
 	 */
 	protected function check($value, string $key, $meta)
 	{
-		$this->stop();
+		$this->hook()->disable();
+
 		if ($key === '_thumbnail_id' && empty($value) && ($id = $this->search($meta->parent()))) {
 			$value = $id;
 		}
 
-		$this->start();
+		$this->hook()->enable();
 
 		return $value;
 	}
@@ -85,7 +91,9 @@ class ThumbnailGeneratorService extends Service
 			}
 		}
 
-		if ($post->images()->count() > 0 && ($image = $post->images()->sort()->first()) && $image->set_featured()) {
+		if ($post->images()->count() > 0 && ($image = $post->images()
+		                                                   ->sort()
+		                                                   ->first()) && $image->set_featured()) {
 			return $image->id();
 		}
 

@@ -4,6 +4,7 @@ namespace Twist\Service\Core;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
+use Twist\Model\Post\Query;
 use Twist\Service\Service;
 
 /**
@@ -30,18 +31,26 @@ class HeadCleanerService extends Service
 	/**
 	 * @inheritdoc
 	 */
-	public function boot(): void
+	public function boot(): bool
 	{
-		if ($this->config('enable')) {
-			if ($this->config('generator')) {
-				$this->removeGenerator();
-			}
-			if ($this->config('edit')) {
-				$this->removeEditLinks();
-			}
-			if ($this->config('emoji')) {
-				$this->removeEmoji();
-			}
+		return $this->config('enable') && !Query::is_admin();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function init(): void
+	{
+		if ($this->config('generator')) {
+			$this->removeGenerator();
+		}
+
+		if ($this->config('edit')) {
+			$this->removeEditLinks();
+		}
+
+		if ($this->config('emoji')) {
+			$this->removeEmoji();
 		}
 	}
 

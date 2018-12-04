@@ -10,10 +10,9 @@ namespace Twist\Service;
 interface ServiceInterface
 {
 
-	public function boot(): void;
-
-	public function start(): void;
-
-	public function stop(): void;
+	/**
+	 * @return bool
+	 */
+	public function boot(): bool;
 
 }
