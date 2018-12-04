@@ -26,11 +26,17 @@ class AppServiceProvider implements ServiceProviderInterface
 		});
 
 		$app->service('theme', function (App $app) {
-			return new Theme($app , $app['config'], $app['asset']);
+			return new Theme($app, $app['config'], $app['asset']);
+		});
+
+		$app->service('context', function (App $app) {
+			return new Context($app);
 		});
 
 		$app->service('view', function (App $app) {
-			return $app[$app['config']->get('view.service')];
+			$view = $app['config']->get('view.service');
+
+			return $app[$view];
 		});
 	}
 
