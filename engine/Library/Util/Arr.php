@@ -12,7 +12,7 @@ use Twist\Library\Data\Collection;
 class Arr
 {
 
-	use Macro;
+	use Macroable;
 
 	/**
 	 * Determine whether the given value is array accessible.

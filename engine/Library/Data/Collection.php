@@ -4,7 +4,7 @@ namespace Twist\Library\Data;
 
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
-use Twist\Library\Util\Macro;
+use Twist\Library\Util\Macroable;
 
 /**
  * Class Collection
@@ -14,7 +14,7 @@ use Twist\Library\Util\Macro;
 class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 {
 
-    use Macro;
+    use Macroable;
 
     /**
      * @var array

@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Library\Hook\HookDecorator;
+use Twist\Library\Hook\Hookable;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Pagination;
 use Twist\Model\Post\Query;
@@ -15,7 +15,7 @@ use Twist\Model\Post\Query;
 class CommentPagination extends Pagination
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * @var int
