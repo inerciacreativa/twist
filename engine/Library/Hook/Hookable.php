@@ -7,7 +7,7 @@ namespace Twist\Library\Hook;
  *
  * @package Twist\Library\Hook
  */
-trait HookDecorator
+trait Hookable
 {
 
     /**
