@@ -24,6 +24,10 @@ class App extends Container
 
 	public const SETUP = 'wp';
 
+	public const HEAD = 'wp_head';
+
+	public const FOOT = 'wp_footer';
+
 	/**
 	 * @var array
 	 */
