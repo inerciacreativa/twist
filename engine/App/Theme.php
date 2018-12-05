@@ -401,9 +401,9 @@ class Theme
 	{
 		$this->addConfig();
 		$this->addLanguages();
-		$this->addServices();
 		$this->addThemeSupport();
 		$this->addWebFonts();
+		$this->addServices();
 
 		$this->app->boot();
 	}
