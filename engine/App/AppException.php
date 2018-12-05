@@ -20,26 +20,26 @@ class AppException extends \Exception implements AppExceptionInterface
 
 	/**
 	 * @param \Exception|string $message
-	 * @param bool              $return
+	 * @param bool              $throw
 	 *
 	 * @return AppException
 	 *
 	 * @throws \Exception
 	 */
-	public static function make($message, bool $return = false): AppException
+	public static function make($message, bool $throw = true): AppException
 	{
-		return new static($message, $return);
+		return new static($message, $throw);
 	}
 
 	/**
 	 * Error constructor.
 	 *
 	 * @param \Exception|string $message
-	 * @param bool              $return
+	 * @param bool              $throw
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct($message, bool $return = false)
+	public function __construct($message, bool $throw = true)
 	{
 		if ($message instanceof \Exception) {
 			$exception = $message;
@@ -51,7 +51,7 @@ class AppException extends \Exception implements AppExceptionInterface
 
 		parent::__construct($message, $exception->getCode(), $exception);
 
-		if (!$return) {
+		if ($throw) {
 			$this->trigger(!$this->error);
 		}
 	}
@@ -102,10 +102,6 @@ class AppException extends \Exception implements AppExceptionInterface
 		}
 
 		foreach ($trace as $index => $info) {
-			if (isset($info['class']) && $info['class'] === static::class) {
-				continue;
-			}
-
 			$call = isset($info['class']) ? sprintf('%s%s%s', $info['class'], $info['type'], $info['function']) : $info['function'];
 			$call = str_replace('{closure}', '{Closure}', $call);
 			$args = empty($info['args']) ? '' : self::getArguments($info['args']);
@@ -162,11 +158,11 @@ class AppException extends \Exception implements AppExceptionInterface
 	{
 		static $style;
 
-		if ($style === true) {
+		if ($style === null) {
+			$style = true;
+		} else {
 			return null;
 		}
-
-		$style = true;
 
 		return Tag::style([
 			'.table {
