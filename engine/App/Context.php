@@ -3,7 +3,6 @@
 namespace Twist\App;
 
 use Twist\Library\Util\Data;
-use Twist\Library\Util\Macroable;
 use Twist\Service\Service;
 
 /**
@@ -13,8 +12,6 @@ use Twist\Service\Service;
  */
 class Context extends Service
 {
-
-	use Macroable;
 
 	/**
 	 * @var array
@@ -27,14 +24,9 @@ class Context extends Service
 	private $shared = [];
 
 	/**
-	 * @var array
+	 * @var AppException[]
 	 */
 	private $errors = [];
-
-	/**
-	 * @var bool
-	 */
-	private $throw = false;
 
 	/**
 	 * @inheritdoc
@@ -51,8 +43,6 @@ class Context extends Service
 	 */
 	protected function init(): void
 	{
-		$this->throw = !$this->config->get('app.debug', false);
-
 		$this->add((array) $this->config->get('context.view', []));
 
 		foreach ((array) $this->config->get('context.shared', []) as $name => $value) {
@@ -63,44 +53,38 @@ class Context extends Service
 	/**
 	 * @param string $message
 	 *
-	 * @return bool
+	 * @return $this
 	 *
 	 * @throws \Exception
 	 */
-	protected function error(string $message): bool
+	public function error(string $message): self
 	{
-		$this->errors[] = new AppException($message, $this->throw);
+		$this->errors[] = new AppException($message, $this->config->get('app.debug', true));
 
-		return false;
+		return $this;
 	}
 
 	/**
 	 * @param string $key
 	 * @param mixed  $value
 	 *
-	 * @return bool
+	 * @return $this
 	 *
 	 * @throws \Exception
 	 */
-	public function share(string $key, $value): bool
+	public function share(string $key, $value): self
 	{
-		if ($this->has($key, true)) {
-			return $this->error("The key '$key' is already shared.'");
+		if ($this->is_shared($key)) {
+			return $this->error("The key '$key' is already shared.");
 		}
 
-		if ($this->has($key)) {
-			return $this->error("The key '$key' is already defined in the context.'");
+		if ($this->is_view($key)) {
+			return $this->error("The key '$key' is already defined in the context.");
 		}
 
-		$this->shared[$key] = $this->value($value);
+		$this->shared[$key] = $value;
 
-		if (is_callable($this->shared[$key])) {
-			self::macro($key, function () use ($key) {
-				return $this->shared[$key];
-			});
-		}
-
-		return true;
+		return $this;
 	}
 
 	/**
@@ -125,53 +109,54 @@ class Context extends Service
 	 * @param mixed  $value
 	 * @param bool   $overwrite
 	 *
-	 * @return bool
+	 * @return $this
 	 *
 	 * @throws \Exception
 	 */
-	public function set(string $key, $value, bool $overwrite = false): bool
+	public function set(string $key, $value, bool $overwrite = false): self
 	{
-		if ($this->has($key, true)) {
-			return $this->error("The key '$key' is already shared.'");
+		if ($this->is_shared($key)) {
+			return $this->error("The key '$key' is already shared.");
 		}
 
-		if ($overwrite || !$this->has($key)) {
+		if ($overwrite || !$this->is_view($key)) {
 			$this->view[$key] = $value;
-
-			return true;
 		}
 
-		return false;
+		return $this;
 	}
 
 	/**
 	 * @param string $key
 	 *
-	 * @return mixed|bool
-	 *
-	 * @throws \Exception
+	 * @return $this
 	 */
-	public function get(string $key)
+	public function forget(string $key): self
 	{
-		if ($this->has($key)) {
-			return $this->view[$key];
+		if ($this->is_view($key)) {
+			unset($this->view[$key]);
 		}
 
-		return $this->error("The key '$key' is not defined in the context.'");
+		return $this;
 	}
 
 	/**
 	 * @param string $key
-	 * @param bool   $inShared
 	 *
 	 * @return bool
 	 */
-	public function has(string $key, bool $inShared = false): bool
+	public function has(string $key): bool
 	{
-		if ($inShared) {
-			return array_key_exists($key, $this->shared);
-		}
+		return $this->is_view($key) || $this->is_shared($key);
+	}
 
+	/**
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public function is_view(string $key): bool
+	{
 		return array_key_exists($key, $this->view);
 	}
 
@@ -180,15 +165,17 @@ class Context extends Service
 	 *
 	 * @return bool
 	 */
-	public function forget(string $key): bool
+	public function is_shared(string $key): bool
 	{
-		if ($this->has($key)) {
-			unset($this->view[$key]);
+		return array_key_exists($key, $this->shared);
+	}
 
-			return true;
-		}
-
-		return false;
+	/**
+	 * @return AppException[]
+	 */
+	public function errors(): array
+	{
+		return $this->errors;
 	}
 
 	/**
@@ -196,7 +183,10 @@ class Context extends Service
 	 */
 	public function shared(): array
 	{
-		return $this->shared;
+		return array_map([
+			$this,
+			'value',
+		], $this->shared);
 	}
 
 	/**
