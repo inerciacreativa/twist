@@ -23,11 +23,11 @@ class CoreServiceProvider implements ServiceProviderInterface
 	public function register(App $app): void
 	{
 		$app->service(RelativeUrlService::id(), function (App $app) {
-			return new RelativeUrlService($app);
+			return new RelativeUrlService($app, App::INIT);
 		}, true);
 
 		$app->service(HeadCleanerService::id(), function (App $app) {
-			return new HeadCleanerService($app);
+			return new HeadCleanerService($app, App::INIT);
 		}, true);
 
 		$app->service(ContentCleanerService::id(), function (App $app) {
