@@ -28,6 +28,8 @@ class Posts extends Collection
 	 * @param array $posts
 	 *
 	 * @return static
+	 *
+	 * @throws \Exception
 	 */
 	public static function make(array $posts = []): Posts
 	{
