@@ -9,7 +9,6 @@ use Twist\Library\Dom\Document;
 use Twist\Library\Util\Tag;
 use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
-use Twist\Service\Controllable;
 use Twist\Service\Service;
 
 /**
@@ -19,8 +18,6 @@ use Twist\Service\Service;
  */
 class LazyLoadService extends Service
 {
-
-	use Controllable;
 
 	/**
 	 * @var Theme

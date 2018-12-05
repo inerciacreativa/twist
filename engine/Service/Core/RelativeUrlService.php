@@ -3,7 +3,6 @@
 namespace Twist\Service\Core;
 
 use Twist\Model\Post\Query;
-use Twist\Service\Controllable;
 use Twist\Service\Service;
 
 /**
@@ -13,8 +12,6 @@ use Twist\Service\Service;
  */
 class RelativeUrlService extends Service
 {
-
-	use Controllable;
 
 	/**
 	 * @var array

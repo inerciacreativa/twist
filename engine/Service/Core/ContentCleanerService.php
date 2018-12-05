@@ -6,7 +6,6 @@ use Twist\Library\Dom\Document;
 use Twist\Library\Util\Str;
 use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
-use Twist\Service\Controllable;
 use Twist\Service\Service;
 
 /**
@@ -16,8 +15,6 @@ use Twist\Service\Service;
  */
 class ContentCleanerService extends Service
 {
-
-	use Controllable;
 
 	/**
 	 * @inheritdoc

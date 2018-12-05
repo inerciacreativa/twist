@@ -28,6 +28,11 @@ abstract class Service implements ServiceInterface
 	protected $config;
 
 	/**
+	 * @var bool
+	 */
+	private $enabled = true;
+
+	/**
 	 * @return string
 	 */
 	public static function id(): string
@@ -53,7 +58,34 @@ abstract class Service implements ServiceInterface
 		$this->app    = $app;
 		$this->config = $this->app['config'];
 
-		$this->hook()->before($init, 'init');
+		$this->hook()
+		     ->before($init, 'init');
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function enable(): void
+	{
+		if (!$this->enabled) {
+			$this->hook()
+			     ->enable();
+
+			$this->enabled = true;
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function disable(): void
+	{
+		if ($this->enabled) {
+			$this->hook()
+			     ->disable();
+
+			$this->enabled = false;
+		}
 	}
 
 	/**
