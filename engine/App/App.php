@@ -107,6 +107,7 @@ class App extends Container
 	{
 		foreach ($this->boot as $service) {
 			if (($this[$service] instanceof ServiceInterface) && ($this[$service]->boot() === false)) {
+				$this[$service]->disable();
 				unset($this[$service]);
 			}
 		}
