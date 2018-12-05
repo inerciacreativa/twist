@@ -89,7 +89,7 @@ abstract class Service implements ServiceInterface
 	}
 
 	/**
-	 * @return bool
+	 * @inheritdoc
 	 */
 	abstract public function boot(): bool;
 

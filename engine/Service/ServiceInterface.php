@@ -15,4 +15,14 @@ interface ServiceInterface
 	 */
 	public function boot(): bool;
 
+	/**
+	 *
+	 */
+	public function enable(): void;
+
+	/**
+	 *
+	 */
+	public function disable(): void;
+
 }
