@@ -381,7 +381,7 @@ class Query implements IterableInterface
 	 */
 	public function is_singular($post_type = null): bool
 	{
-		return $this->query->is_single($post_type);
+		return $this->query->is_singular($post_type);
 	}
 
 	/**
