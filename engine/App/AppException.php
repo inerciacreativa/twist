@@ -24,7 +24,7 @@ class AppException extends \Exception implements AppExceptionInterface
 	 *
 	 * @return AppException
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public static function make($message, bool $throw = true): AppException
 	{
@@ -37,7 +37,7 @@ class AppException extends \Exception implements AppExceptionInterface
 	 * @param \Exception|string $message
 	 * @param bool              $throw
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function __construct($message, bool $throw = true)
 	{
@@ -75,12 +75,12 @@ class AppException extends \Exception implements AppExceptionInterface
 	/**
 	 * @param bool $throw
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function trigger(bool $throw = false): void
 	{
 		if ($throw) {
-			throw $this->getPrevious();
+			throw $this;
 		}
 
 		echo static::toHtml($this);
