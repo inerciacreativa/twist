@@ -2,14 +2,14 @@
 
 namespace Twist\Model\Image;
 
-use Twist\Model\Meta\Meta;
+use Twist\Model\Meta\Meta as BaseMeta;
 
 /**
  * Class ImageMeta
  *
  * @package Twist\Model\Image
  */
-class ImageMeta extends Meta
+class Meta extends BaseMeta
 {
 
 	/**

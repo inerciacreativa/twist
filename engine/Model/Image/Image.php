@@ -23,7 +23,7 @@ class Image extends Model
 	protected $post;
 
 	/**
-	 * @var ImageMeta
+	 * @var Meta
 	 */
 	protected $meta;
 
@@ -120,12 +120,12 @@ class Image extends Model
 	}
 
 	/**
-	 * @return ImageMeta
+	 * @return Meta
 	 */
-	public function meta(): ImageMeta
+	public function meta(): Meta
 	{
 		if ($this->meta === null) {
-			$this->meta = new ImageMeta($this);
+			$this->meta = new Meta($this);
 		}
 
 		return $this->meta;
