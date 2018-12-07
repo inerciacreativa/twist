@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Image;
 
+use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
@@ -17,7 +18,7 @@ class Image extends Model
 {
 
 	/**
-	 * @var \WP_Post
+	 * @var Post
 	 */
 	protected $post;
 
@@ -29,24 +30,31 @@ class Image extends Model
 	/**
 	 * Image constructor.
 	 *
-	 * @param \WP_Post|int $post
-	 * @param Post         $parent
+	 * @param Post|\WP_Post|int $post
+	 * @param Post              $parent
+	 *
+	 * @throws AppException
 	 */
 	public function __construct($post, Post $parent = null)
 	{
-		if ($post instanceof \WP_Post) {
-			$this->post = $post;
-		} else if (\is_int($post)) {
-			$this->post = get_post($post);
+		if (!($post instanceof Post)) {
+			$post = Post::make($post);
 		}
 
-		if (!($this->post instanceof \WP_Post)) {
-			throw new \InvalidArgumentException(sprintf('Not valid ID "%s"', $post));
+		if ($post->type() !== 'attachment') {
+			new AppException(sprintf('The post (ID %d) is not an attachment (type %s).', $this->id(), $this->post->type()));
 		}
 
 		if ($parent) {
-			$this->set_parent($parent);
+			if ($parent->id() === $post->parent_id()) {
+				$this->set_parent($parent);
+				$post->set_parent($parent);
+			} else {
+				new AppException(sprintf('The parent passed (ID %d) is not the same as the post (ID %d) parent (ID %d)', $parent->id(), $this->post->id(), $this->post->parent_id()));
+			}
 		}
+
+		$this->post = $post;
 	}
 
 	/**
@@ -54,7 +62,7 @@ class Image extends Model
 	 */
 	public function id(): int
 	{
-		return (int) $this->post->ID;
+		return $this->post->id();
 	}
 
 	/**
@@ -62,16 +70,17 @@ class Image extends Model
 	 */
 	public function has_parent(): bool
 	{
-		return $this->parent || $this->post->post_parent > 0;
+		return $this->parent || $this->post->has_parent();
 	}
 
 	/**
 	 * @return Post|null
+	 * @throws AppException
 	 */
 	public function parent(): ?ModelInterface
 	{
 		if ($this->parent === null && $this->has_parent()) {
-			$this->set_parent(Post::make($this->post->post_parent));
+			$this->set_parent($this->post->parent());
 		}
 
 		return $this->parent;
@@ -87,6 +96,7 @@ class Image extends Model
 
 	/**
 	 * @return bool
+	 * @throws AppException
 	 */
 	public function is_featured(): bool
 	{
@@ -97,6 +107,7 @@ class Image extends Model
 
 	/**
 	 * @return bool
+	 * @throws AppException
 	 */
 	public function set_featured(): bool
 	{
@@ -125,7 +136,7 @@ class Image extends Model
 	 */
 	public function title(): string
 	{
-		return $this->post->post_title;
+		return $this->post->title();
 	}
 
 	/**
@@ -133,11 +144,12 @@ class Image extends Model
 	 */
 	public function caption(): string
 	{
-		return wptexturize($this->post->post_excerpt);
+		return wptexturize($this->post->excerpt());
 	}
 
 	/**
 	 * @return string
+	 * @throws AppException
 	 */
 	public function alt(): string
 	{
@@ -155,7 +167,7 @@ class Image extends Model
 	 */
 	public function link(): string
 	{
-		return get_attachment_link($this->post);
+		return get_attachment_link($this->post->object());
 	}
 
 	/**
@@ -179,6 +191,7 @@ class Image extends Model
 	 * @param string $size
 	 *
 	 * @return array|null
+	 * @throws AppException
 	 */
 	public function get(string $size = 'thumbnail'): ?array
 	{
@@ -188,7 +201,7 @@ class Image extends Model
 				'width',
 				'height',
 				'is_intermediate',
-				'alt'
+				'alt',
 			], array_merge($image, [$this->alt()]));
 		}
 
