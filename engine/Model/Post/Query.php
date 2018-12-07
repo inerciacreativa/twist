@@ -44,8 +44,7 @@ class Query implements IterableInterface
 
 	/**
 	 * @return Query
-	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public static function main(): Query
 	{
@@ -186,6 +185,7 @@ class Query implements IterableInterface
 
 	/**
 	 * @return Posts
+	 * @throws AppException
 	 */
 	public function posts(): Posts
 	{
@@ -296,8 +296,7 @@ class Query implements IterableInterface
 
 	/**
 	 * @return Post
-	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function current(): Post
 	{
