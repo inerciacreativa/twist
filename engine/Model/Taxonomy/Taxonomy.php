@@ -28,7 +28,7 @@ class Taxonomy implements TaxonomyInterface
 	 *
 	 * @param string $taxonomy
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function __construct(string $taxonomy)
 	{
