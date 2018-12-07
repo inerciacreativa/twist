@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Image;
 
+use Twist\App\AppException;
 use Twist\Library\Model\Collection;
 use Twist\Library\Model\CollectionInterface;
 use Twist\Model\Post\Post;
@@ -21,9 +22,16 @@ use Twist\Model\Post\Query;
  * @method Images slice(int $offset, int $length = null)
  * @method Images take(int $limit)
  */
-class Images extends Collection implements CollectionInterface
+class Images extends Collection
 {
 
+	/**
+	 * @param Post  $post
+	 * @param array $parameters
+	 *
+	 * @return Images
+	 * @throws AppException
+	 */
 	public static function make(Post $post, array $parameters = []): Images
 	{
 		$collection = new static();
@@ -65,7 +73,7 @@ class Images extends Collection implements CollectionInterface
 
 		$query = Query::make($parameters, false);
 
-		foreach ($query->object()->posts as $image) {
+		foreach ($query->posts() as $image) {
 			$collection->add(new Image($image, $post));
 		}
 
