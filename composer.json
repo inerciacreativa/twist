@@ -19,6 +19,9 @@
   ],
   "require": {
     "php": ">=7.0",
+    "ext-dom": "*",
+    "ext-libxml": "*",
+    "ext-simplexml": "*",
     "roave/security-advisories": "dev-master",
     "composer/installers": "^1.5",
     "twig/twig": "^2.0",
