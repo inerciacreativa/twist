@@ -51,7 +51,7 @@ class ThumbnailGeneratorService extends Service
 	 * @return mixed
 	 * @throws AppException
 	 */
-	protected function check($value, string $key, Meta $meta)
+	protected function check($value, string $key, $meta)
 	{
 		$this->hook()->disable();
 
