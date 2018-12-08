@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Library\Util\Tag;
+use Twist\Library\Html\Tag;
 
 /**
  * Class FormDecorator

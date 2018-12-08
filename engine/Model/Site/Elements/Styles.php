@@ -4,7 +4,7 @@ namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
-use Twist\Library\Util\Tag;
+use Twist\Library\Html\Tag;
 
 /**
  * Class Styles

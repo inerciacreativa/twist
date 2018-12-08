@@ -3,7 +3,7 @@
 namespace Twist\Model\User;
 
 use Twist\Library\Util\Str;
-use Twist\Library\Util\Tag;
+use Twist\Library\Html\Tag;
 use Twist\Model\Post\Query;
 
 /**

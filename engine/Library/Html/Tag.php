@@ -1,6 +1,8 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Html;
+
+use Twist\Library\Util\Arr;
 
 /**
  * Class Tag

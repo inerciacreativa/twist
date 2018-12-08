@@ -6,7 +6,7 @@ use Twist\App\App;
 use Twist\App\Asset;
 use Twist\App\Theme;
 use Twist\Library\Dom\Document;
-use Twist\Library\Util\Tag;
+use Twist\Library\Html\Tag;
 use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
 use Twist\Service\Service;

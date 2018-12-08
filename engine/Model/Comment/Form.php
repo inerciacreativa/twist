@@ -3,7 +3,7 @@
 namespace Twist\Model\Comment;
 
 use Twist\Library\Hook\Hook;
-use Twist\Library\Util\Tag;
+use Twist\Library\Html\Tag;
 use Twist\Model\User\User;
 use Twist\Twist;
 

@@ -3,7 +3,7 @@
 namespace Twist\Service\Core;
 
 use Twist\Library\Hook\Hook;
-use Twist\Library\Util\Tag;
+use Twist\Library\Html\Tag;
 use Twist\Model\Post\Query;
 use Twist\Service\Service;
 
@@ -77,7 +77,6 @@ class HeadCleanerService extends Service
 				], false);
 			});
 		});
-
 	}
 
 	/**

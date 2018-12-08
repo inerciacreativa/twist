@@ -2,7 +2,7 @@
 
 namespace Twist\App;
 
-use Twist\Library\Util\Tag;
+use Twist\Library\Html\Tag;
 use Twist\Twist;
 
 /**
