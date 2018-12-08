@@ -37,20 +37,20 @@ class Images extends Collection
 		$collection = new static();
 		$collection->set_parent($post);
 
-		if (!empty($parameters['ids'])) {
-			if (empty($parameters['orderby'])) {
-				$parameters['orderby'] = 'post__in';
-			}
-
-			$parameters['include'] = $parameters['ids'];
-		}
-
 		if (isset($parameters['orderby'])) {
 			$parameters['orderby'] = sanitize_sql_orderby($parameters['orderby']);
 
 			if (!$parameters['orderby']) {
 				unset($parameters['orderby']);
 			}
+		}
+
+		if (!empty($parameters['ids'])) {
+			if (empty($parameters['orderby'])) {
+				$parameters['orderby'] = 'post__in';
+			}
+
+			$parameters['include'] = $parameters['ids'];
 		}
 
 		if (!isset($parameters['order'])) {
