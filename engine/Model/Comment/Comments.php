@@ -24,17 +24,17 @@ class Comments extends Collection
 {
 
 	/**
-	 * @var CommentQuery
+	 * @var Query
 	 */
 	protected $query;
 
 	/**
 	 * Comments constructor.
 	 *
-	 * @param CommentQuery $query
-	 * @param Comment      $parent
+	 * @param Query   $query
+	 * @param Comment $parent
 	 */
-	public function __construct(CommentQuery $query, Comment $parent = null)
+	public function __construct(Query $query, Comment $parent = null)
 	{
 		$this->query = $query;
 
@@ -42,17 +42,17 @@ class Comments extends Collection
 	}
 
 	/**
-	 * @return CommentQuery
+	 * @return Query
 	 */
-	public function query(): CommentQuery
+	public function query(): Query
 	{
 		return $this->query;
 	}
 
 	/**
-	 * @return CommentPagination|null
+	 * @return Pagination|null
 	 */
-	public function pagination(): ?CommentPagination
+	public function pagination(): ?Pagination
 	{
 		return $this->query->pagination();
 	}
@@ -70,7 +70,7 @@ class Comments extends Collection
 	 */
 	public function getIterator(): CollectionIteratorInterface
 	{
-		return new CommentsIterator($this->models);
+		return new Iterator($this->models);
 	}
 
 }

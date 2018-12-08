@@ -5,15 +5,19 @@ namespace Twist\Model\Site;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 use Twist\Twist;
+use Twist\App\Asset;
 
 /**
- * Class Assets
+ * Class Asset
  *
  * @package Twist\Model\Site
  */
-class Asset
+class Assets
 {
 
+	/**
+	 * @var Asset
+	 */
 	private $asset;
 
 	/**

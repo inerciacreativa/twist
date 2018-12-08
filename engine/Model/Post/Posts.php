@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Post;
 
+use Twist\App\AppException;
 use Twist\Library\Model\Collection;
 use Twist\Library\Model\CollectionIteratorInterface;
 
@@ -28,8 +29,7 @@ class Posts extends Collection
 	 * @param array $posts
 	 *
 	 * @return static
-	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public static function make(array $posts = []): Posts
 	{
@@ -58,11 +58,11 @@ class Posts extends Collection
 	}
 
 	/**
-	 * @return PostsIterator
+	 * @return Iterator
 	 */
 	public function getIterator(): CollectionIteratorInterface
 	{
-		return new PostsIterator($this->models);
+		return new Iterator($this->models);
 	}
 
 }

@@ -7,11 +7,11 @@ use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 
 /**
- * Class Script
+ * Class Scripts
  *
  * @package Twist\Model\Site\Element
  */
-class Script implements ElementsInterface
+class Scripts implements ElementsInterface
 {
 
 	/**
@@ -22,11 +22,12 @@ class Script implements ElementsInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function extract(Document $dom): void
+	public function get(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('script');
 
 		while ($node = $nodes->item(0)) {
+			$content    = empty($node->nodeValue) ? null : ElementsParser::clean($node->nodeValue);
 			$attributes = [];
 
 			if ($node->hasAttributes()) {
@@ -35,27 +36,23 @@ class Script implements ElementsInterface
 				}
 			}
 
+			$node->parentNode->removeChild($node);
+
 			ksort($attributes);
 
 			if (isset($attributes['src'])) {
 				$attributes['src'] = htmlspecialchars($attributes['src']);
 				$this->scripts[]   = Tag::make('script', $attributes);
-			} else {
-				$content = empty($node->nodeValue) ? null : ElementsParser::clean($node->nodeValue);
-
-				if ($content) {
-					$this->scripts[] = Tag::make('script', $attributes, $content);
-				}
+			} else if ($content) {
+				$this->scripts[] = Tag::make('script', $attributes, $content);
 			}
-
-			$node->parentNode->removeChild($node);
 		}
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function get(): array
+	public function all(): array
 	{
 		return Hook::apply('twist_site_scripts', $this->scripts);
 	}

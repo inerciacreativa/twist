@@ -2,17 +2,18 @@
 
 namespace Twist\Model\Post;
 
+use Twist\App\AppException;
 use Twist\Library\Model\CollectionIterator;
 use Twist\Library\Model\ModelInterface;
 
 /**
- * Class PostsIterator
+ * Class Iterator
  *
  * @package Twist\Model\Post
  *
  * @property Post[] $models
  */
-class PostsIterator extends CollectionIterator
+class Iterator extends CollectionIterator
 {
 
 	/**
@@ -48,6 +49,7 @@ class PostsIterator extends CollectionIterator
 
 	/**
 	 * @return null|Post
+	 * @throws AppException
 	 */
 	public function current(): ?ModelInterface
 	{

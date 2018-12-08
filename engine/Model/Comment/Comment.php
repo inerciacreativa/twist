@@ -17,7 +17,7 @@ class Comment extends Model
 {
 
 	/**
-	 * @var CommentQuery
+	 * @var Query
 	 */
 	protected $query;
 
@@ -32,7 +32,7 @@ class Comment extends Model
 	protected $depth;
 
 	/**
-	 * @var CommentAuthor
+	 * @var Author
 	 */
 	protected $author;
 
@@ -316,12 +316,12 @@ class Comment extends Model
 	/**
 	 * Returns the author of this comment.
 	 *
-	 * @return CommentAuthor
+	 * @return Author
 	 */
-	public function author(): CommentAuthor
+	public function author(): Author
 	{
 		if ($this->author === null) {
-			$this->author = new CommentAuthor($this);
+			$this->author = new Author($this);
 		}
 
 		return $this->author;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Model\Site\Element;
+namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
@@ -8,22 +8,17 @@ use Twist\Library\Util\Str;
 use Twist\Library\Util\Tag;
 
 /**
- * Class Meta
+ * Class Metas
  *
  * @package Twist\Model\Site\Element
  */
-class Meta implements ElementsInterface
+class Metas implements ElementsInterface
 {
 
 	/**
 	 * @var array
 	 */
 	private $metas = [];
-
-	/**
-	 * @var string
-	 */
-	private $title;
 
 	/**
 	 * @inheritdoc
@@ -41,15 +36,14 @@ class Meta implements ElementsInterface
 			}
 
 			if ($type) {
-				$name = $node->getAttribute($type);
+				$name    = $node->getAttribute($type);
+				$content = trim($node->getAttribute('content'));
 
 				if (Str::contains($name, ':title')) {
-					$content = $this->title();
-				} else {
-					$content = trim($node->getAttribute('content'));
+					$content = $this->getTitle();
 				}
 
-				$this->metas[$name] = $this->tag($type, $name, $content);
+				$this->metas[$name] = $this->getTag($type, $name, $content);
 			}
 
 			$node->parentNode->removeChild($node);
@@ -74,7 +68,7 @@ class Meta implements ElementsInterface
 	 *
 	 * @return Tag
 	 */
-	protected function tag(string $type, string $name, string $content): Tag
+	protected function getTag(string $type, string $name, string $content): Tag
 	{
 		$filter = str_replace(':', '_', "twist_site_meta_$name");
 		$meta   = Tag::meta([
@@ -88,13 +82,15 @@ class Meta implements ElementsInterface
 	/**
 	 * @return string
 	 */
-	protected function title(): string
+	protected function getTitle(): string
 	{
-		if ($this->title === null) {
-			$this->title = html_entity_decode(the_title_attribute(['echo' => false]), ENT_HTML5 | ENT_QUOTES);
+		static $title;
+
+		if ($title === null) {
+			$title = html_entity_decode(the_title_attribute(['echo' => false]), ENT_HTML5 | ENT_QUOTES);
 		}
 
-		return $this->title;
+		return $title;
 	}
 
 }

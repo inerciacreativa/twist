@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Model\Site\Element;
+namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
@@ -11,7 +11,7 @@ use Twist\Library\Util\Tag;
  *
  * @package Twist\Model\Site\Element
  */
-class Link implements ElementsInterface
+class Links implements ElementsInterface
 {
 
 	/**
@@ -40,6 +40,12 @@ class Link implements ElementsInterface
 				}
 			}
 
+			$node->parentNode->removeChild($node);
+
+			if (empty($attributes)) {
+				continue;
+			}
+
 			ksort($attributes);
 
 			$link = Tag::link($attributes);
@@ -50,7 +56,6 @@ class Link implements ElementsInterface
 				$this->links[] = $link;
 			}
 
-			$node->parentNode->removeChild($node);
 		}
 	}
 

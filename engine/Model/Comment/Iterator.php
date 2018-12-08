@@ -6,13 +6,13 @@ use Twist\Library\Model\CollectionIterator;
 use Twist\Library\Model\ModelInterface;
 
 /**
- * Class CommentsIterator
+ * Class Iterator
  *
  * @package Twist\Model\Comment
  *
  * @property Comment[] $models
  */
-class CommentsIterator extends CollectionIterator
+class Iterator extends CollectionIterator
 {
 
 	/**

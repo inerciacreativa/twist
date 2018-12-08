@@ -8,11 +8,9 @@ use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
 use Twist\Library\Util\Macroable;
-use Twist\Library\Util\Tag;
-use Twist\Model\Comment\CommentQuery;
+use Twist\Model\Comment\Query as CommentQuery;
 use Twist\Model\Image\Image;
 use Twist\Model\Image\Images;
-use Twist\Model\Site\Site;
 
 /**
  * Class Post
@@ -30,17 +28,17 @@ class Post extends Model
 	protected $post;
 
 	/**
-	 * @var PostTaxonomies
+	 * @var Taxonomies
 	 */
 	protected $taxonomies;
 
 	/**
-	 * @var PostAuthor
+	 * @var Author
 	 */
 	protected $author;
 
 	/**
-	 * @var PostMeta
+	 * @var Meta
 	 */
 	protected $meta;
 
@@ -63,8 +61,7 @@ class Post extends Model
 	 * @param \WP_Post|int $post
 	 *
 	 * @return Post
-	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public static function make($post): Post
 	{
@@ -75,22 +72,20 @@ class Post extends Model
 	 * Post constructor.
 	 *
 	 * @param \WP_Post|int|null $post
-	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function __construct($post = null)
 	{
 		$this->post = get_post($post);
 
 		if ($this->post === null) {
-			new AppException('There is no post data');
+			new AppException(sprintf('<p>Not valid post data.</p><pre>%s</pre>', print_r($post, true)));
 		}
 	}
 
 	/**
 	 * @return $this
-	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function setup(): self
 	{
@@ -130,9 +125,16 @@ class Post extends Model
 	}
 
 	/**
+	 * @return int
+	 */
+	public function parent_id(): int
+	{
+		return (int) $this->post->post_parent;
+	}
+
+	/**
 	 * @return Post|null
-	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function parent(): ?ModelInterface
 	{
@@ -145,6 +147,7 @@ class Post extends Model
 
 	/**
 	 * @inheritdoc
+	 * @throws AppException
 	 */
 	public function has_children(): bool
 	{
@@ -172,6 +175,7 @@ class Post extends Model
 
 	/**
 	 * @return Posts|null
+	 * @throws AppException
 	 */
 	public function children(): ?CollectionInterface
 	{
@@ -197,6 +201,7 @@ class Post extends Model
 	 * @param string $default
 	 *
 	 * @return string
+	 * @throws AppException
 	 */
 	public function format(string $prefix = 'format', string $default = 'standard'): string
 	{
@@ -378,6 +383,7 @@ class Post extends Model
 	 * @param string|array $class
 	 *
 	 * @return string
+	 * @throws AppException
 	 */
 	public function classes($class = ''): string
 	{
@@ -458,7 +464,7 @@ class Post extends Model
 	 *
 	 * @return string
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function status(): string
 	{
@@ -505,6 +511,7 @@ class Post extends Model
 
 	/**
 	 * @return Image
+	 * @throws AppException
 	 */
 	public function thumbnail(): Image
 	{
@@ -517,6 +524,7 @@ class Post extends Model
 
 	/**
 	 * @return Images
+	 * @throws AppException
 	 */
 	public function images(): Images
 	{
@@ -528,12 +536,12 @@ class Post extends Model
 	}
 
 	/**
-	 * @return PostAuthor
+	 * @return Author
 	 */
-	public function author(): PostAuthor
+	public function author(): Author
 	{
 		if ($this->author === null) {
-			$this->author = new PostAuthor($this->post->post_author);
+			$this->author = new Author($this->post->post_author);
 		}
 
 		return $this->author;
@@ -541,6 +549,7 @@ class Post extends Model
 
 	/**
 	 * @return CommentQuery
+	 * @throws AppException
 	 */
 	public function comments(): CommentQuery
 	{
@@ -584,40 +593,42 @@ class Post extends Model
 	}
 
 	/**
-	 * @return PostTaxonomies
+	 * @return Taxonomies
 	 */
-	public function taxonomies(): PostTaxonomies
+	public function taxonomies(): Taxonomies
 	{
 		if ($this->taxonomies === null) {
-			$this->taxonomies = new PostTaxonomies($this);
+			$this->taxonomies = new Taxonomies($this);
 		}
 
 		return $this->taxonomies;
 	}
 
 	/**
-	 * @return PostTerms
+	 * @return Terms
+	 * @throws AppException
 	 */
-	public function categories(): ?PostTerms
+	public function categories(): ?Terms
 	{
 		return $this->taxonomies()->get('category');
 	}
 
 	/**
-	 * @return PostTerms
+	 * @return Terms
+	 * @throws AppException
 	 */
-	public function tags(): ?PostTerms
+	public function tags(): ?Terms
 	{
 		return $this->taxonomies()->get('post_tag');
 	}
 
 	/**
-	 * @return PostMeta
+	 * @return Meta
 	 */
-	public function meta(): PostMeta
+	public function meta(): Meta
 	{
 		if ($this->meta === null) {
-			$this->meta = new PostMeta($this);
+			$this->meta = new Meta($this);
 		}
 
 		return $this->meta;

@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Navigation;
 
+use Twist\App\AppException;
 use Twist\Library\Util\Str;
 use Twist\Library\Util\Tag;
 use Twist\Model\Post\Query;
@@ -16,6 +17,7 @@ class Pagination
 
 	/**
 	 * @return bool
+	 * @throws AppException
 	 */
 	public function has_pages(): bool
 	{
@@ -24,6 +26,7 @@ class Pagination
 
 	/**
 	 * @return Links
+	 * @throws AppException
 	 */
 	public function simple(): Links
 	{
@@ -32,8 +35,8 @@ class Pagination
 			return $links;
 		}
 
-		$items = array_filter($this->getLinks());
-		$index = 0;
+		$items = $this->getLinks();
+		$index = 1;
 
 		foreach ($items as $class => $item) {
 			$links->add(new Link($this->getLink($index, $item, $class)));
@@ -47,6 +50,7 @@ class Pagination
 	 * @param array $arguments
 	 *
 	 * @return Links
+	 * @throws AppException
 	 */
 	public function extended(array $arguments = []): Links
 	{
@@ -57,6 +61,7 @@ class Pagination
 	 * @param array $arguments
 	 *
 	 * @return Links
+	 * @throws AppException
 	 */
 	public function numeric(array $arguments = []): Links
 	{
@@ -68,16 +73,17 @@ class Pagination
 	 */
 	protected function getLinks(): array
 	{
-		return [
+		return array_filter([
 			'prev' => get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist')),
 			'next' => get_next_posts_link(_x('Next', 'next set of posts', 'twist')),
-		];
+		]);
 	}
 
 	/**
 	 * @param array $arguments
 	 *
 	 * @return Links
+	 * @throws AppException
 	 */
 	protected function getPaginatedLinks(array $arguments = []): Links
 	{
@@ -86,14 +92,14 @@ class Pagination
 			return $links;
 		}
 
-		$items = (array) paginate_links(array_merge([
+		$items = paginate_links(array_merge([
 			'mid_size'  => 1,
 			'prev_text' => _x('Previous', 'previous set of posts', 'twist'),
 			'next_text' => _x('Next', 'next set of posts', 'twist'),
 		], $arguments, ['type' => 'array']));
 
 		foreach ($items as $index => $item) {
-			$links->add(new Link($this->getLink($index, $item)));
+			$links->add(new Link($this->getLink($index + 1, $item)));
 		}
 
 		return $links;
@@ -102,24 +108,24 @@ class Pagination
 	/**
 	 * @param int         $index
 	 * @param string      $item
-	 * @param string|null $classes
+	 * @param string|null $class
 	 *
 	 * @return array
 	 */
-	protected function getLink(int $index, string $item, string $classes = null): array
+	protected function getLink(int $index, string $item, string $class = null): array
 	{
-		$tag     = Tag::parse(Str::fromEntities($item));
-		$classes = $classes ?? trim(str_replace('page-numbers', '', $tag['class']));
-		$title   = $tag->content();
-		$label   = sprintf(__('Goto page %s', 'twist'), $title);
+		$tag   = Tag::parse(Str::fromEntities($item));
+		$class = $class ?? trim(str_replace('page-numbers', '', $tag['class']));
+		$title = $tag->content();
+		$label = sprintf(__('Goto page %s', 'twist'), $title);
 
-		if ($classes === 'prev') {
+		if ($class === 'prev') {
 			$label = __('Goto previous page', 'twist');
-		} else if ($classes === 'next') {
+		} else if ($class === 'next') {
 			$label = __('Goto next page', 'twist');
-		} else if ($classes === 'current') {
+		} else if ($class === 'current') {
 			$label = sprintf(__('Current page, page %s', 'twist'), $title);
-		} else if ($classes === 'dots') {
+		} else if ($class === 'dots') {
 			$label = '';
 		}
 
@@ -127,7 +133,7 @@ class Pagination
 			'id'      => $index,
 			'title'   => $title,
 			'url'     => $tag['href'] ?? null,
-			'classes' => [$classes],
+			'classes' => $class,
 			'label'   => $label,
 		];
 	}

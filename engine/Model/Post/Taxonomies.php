@@ -2,21 +2,22 @@
 
 namespace Twist\Model\Post;
 
+use Twist\App\AppException;
 use Twist\Library\Model\Enumerable;
 use Twist\Model\Taxonomy\Taxonomy;
 
 /**
- * Class PostTaxonomies
+ * Class Taxonomies
  *
  * @package Twist\Model\Post
  *
  * @method Post parent()
  */
-class PostTaxonomies extends Enumerable
+class Taxonomies extends Enumerable
 {
 
 	/**
-	 * PostTaxonomies constructor.
+	 * Taxonomies constructor.
 	 *
 	 * @param Post $post
 	 */
@@ -27,8 +28,9 @@ class PostTaxonomies extends Enumerable
 
 	/**
 	 * @inheritdoc
+	 * @throws AppException
 	 */
-	public function get(string $key): ?PostTerms
+	public function get(string $key): ?Terms
 	{
 		$terms = parent::get($key);
 
@@ -36,8 +38,8 @@ class PostTaxonomies extends Enumerable
 			return null;
 		}
 
-		if (!($terms instanceof PostTerms)) {
-			$terms = new PostTerms($this->parent(), new Taxonomy($key));
+		if (!($terms instanceof Terms)) {
+			$terms = new Terms($this->parent(), new Taxonomy($key));
 
 			$this->set($key, $terms);
 		}

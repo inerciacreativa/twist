@@ -2,18 +2,18 @@
 
 namespace Twist\Model\Taxonomy;
 
-use Twist\Model\Meta\Meta;
+use Twist\Model\Meta\Meta as BaseMeta;
 
 /**
- * Class TermMeta
+ * Class Meta
  *
  * @package Twist\Model\Taxonomy
  */
-class TermMeta extends Meta
+class Meta extends BaseMeta
 {
 
     /**
-     * TermMeta constructor.
+     * Meta constructor.
      *
      * @param Term $term
      */

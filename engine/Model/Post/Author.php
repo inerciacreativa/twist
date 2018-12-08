@@ -6,15 +6,15 @@ use Twist\Library\Hook\Hook;
 use Twist\Model\User\User;
 
 /**
- * Class PostAuthor
+ * Class Author
  *
  * @package Twist\Model\Post
  */
-class PostAuthor extends User
+class Author extends User
 {
 
 	/**
-	 * PostAuthor constructor.
+	 * Author constructor.
 	 *
 	 * @param int       $user
 	 *

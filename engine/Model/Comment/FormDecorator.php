@@ -5,25 +5,12 @@ namespace Twist\Model\Comment;
 use Twist\Library\Util\Tag;
 
 /**
- * Class CommentFormDecorator
+ * Class FormDecorator
  *
  * @package Twist\Model\Comment
  */
-class CommentFormDecorator implements CommentFormDecoratorInterface
+class FormDecorator implements FormDecoratorInterface
 {
-
-	/**
-	 * @var array
-	 */
-	protected static $defaults = [
-		'field'   => 'field', // Class for the field wrapper.
-		'label'   => 'label', // Class for the <label>.
-		'input'   => null, // Class for the <input> or <textarea>. If null the tag name is used.
-		'control' => 'control', // Class for the <span> wrapper of the input. If empty no wrapper will be applied.
-		'actions' => 'field actions', // Class for the submit button wrapper.
-		'submit'  => 'button is-primary is-large', // Class for the submit <input> button.
-		'cancel'  => 'button is-warning is-small', // Class for the cancel <button>.
-	];
 
 	/**
 	 * @var array
@@ -31,19 +18,42 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 	protected $classes;
 
 	/**
-	 * CommentFormDecorator constructor.
+	 * FormDecorator constructor.
 	 *
 	 * @param array $classes
 	 */
 	public function __construct(array $classes = [])
 	{
-		$this->classes = array_merge(static::$defaults, $classes);
+		$this->classes = array_merge($this->getClasses(), $classes);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getClasses(): array
+	{
+		return [
+			'field'   => 'field',
+			// Class for the field wrapper.
+			'label'   => 'label',
+			// Class for the <label>.
+			'input'   => null,
+			// Class for the <input> or <textarea>. If null the tag name is used.
+			'control' => 'control',
+			// Class for the <span> wrapper of the input. If empty no wrapper will be applied.
+			'actions' => 'field actions',
+			// Class for the submit button wrapper.
+			'submit'  => 'button is-primary is-large',
+			// Class for the submit <input> button.
+			'cancel'  => 'button is-warning is-small',
+			// Class for the cancel <button>.
+		];
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function defaults(array $arguments): array
+	public function getDefaults(array $arguments): array
 	{
 		return array_merge($arguments, [
 			'title_reply_before' => '<h2 class="subtitle">',
@@ -55,23 +65,23 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function text(string $id, string $label, array $attributes): Tag
+	public function getTextField(string $id, string $label, array $attributes): Tag
 	{
-		return $this->field('input', $id, $label, $attributes);
+		return $this->getField('input', $id, $label, $attributes);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function textarea(string $id, string $label, array $attributes): Tag
+	public function getTextareaField(string $id, string $label, array $attributes): Tag
 	{
-		return $this->field('textarea', $id, $label, $attributes);
+		return $this->getField('textarea', $id, $label, $attributes);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function submit(string $id, string $text): Tag
+	public function getSubmitButton(string $id, string $text): Tag
 	{
 		$submit = Tag::input([
 			'id'    => $id,
@@ -91,7 +101,7 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function cancel(string $id, string $text, string $form): Tag
+	public function getCancelButton(string $id, string $text, string $form): Tag
 	{
 		return Tag::button([
 			'id'    => $id,
@@ -110,7 +120,7 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 	 *
 	 * @return Tag
 	 */
-	protected function field(string $type, string $id, string $label, array $attributes): Tag
+	protected function getField(string $type, string $id, string $label, array $attributes): Tag
 	{
 		$control = Tag::make($type, array_merge([
 			'id'    => $id,
@@ -123,7 +133,7 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 		}
 
 		return Tag::p(['class' => $this->classes['field']], [
-			$this->label($id, $label),
+			$this->getLabel($id, $label),
 			$control,
 		]);
 	}
@@ -134,7 +144,7 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 	 *
 	 * @return Tag
 	 */
-	protected function label(string $id, string $text): Tag
+	protected function getLabel(string $id, string $text): Tag
 	{
 		if (isset($attributes['required'])) {
 			$label = [$text, ' ', Tag::span(['class' => 'required'], '*')];
@@ -142,8 +152,9 @@ class CommentFormDecorator implements CommentFormDecoratorInterface
 			$label = $text;
 		}
 
-		return Tag::label(['for'   => $id,
-		                   'class' => $this->classes['label'],
+		return Tag::label([
+			'for'   => $id,
+			'class' => $this->classes['label'],
 		], $label);
 	}
 

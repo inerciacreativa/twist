@@ -3,6 +3,7 @@
 namespace Twist\Model\Site\Element;
 
 use Twist\Library\Dom\Document;
+use Twist\Library\Hook\Hookable;
 use Twist\Library\Util\Str;
 use Twist\Model\Site\Site;
 
@@ -13,6 +14,8 @@ use Twist\Model\Site\Site;
  */
 class ElementsParser
 {
+
+	use Hookable;
 
 	/**
 	 * @var ElementsInterface[]
@@ -27,45 +30,24 @@ class ElementsParser
 	/**
 	 * ElementParser constructor.
 	 *
+	 * @param string         $hook
 	 * @param array $elements
 	 */
-	public function __construct(array $elements)
+	public function __construct(string $hook, array $elements)
 	{
 		foreach ($elements as $element) {
 			$this->add(new $element());
 		}
+
+		$this->hook()->capture($hook, 'parse')->fire($hook);
 	}
 
 	/**
-	 * @param ElementsInterface $elements
-	 *
-	 * @return $this
+	 * @return string
 	 */
-	public function add(ElementsInterface $elements): self
+	public function __toString(): string
 	{
-		$this->elements[] = $elements;
-
-		return $this;
-	}
-
-	/**
-	 * @param string $html
-	 */
-	public function parse(string $html): void
-	{
-		if (empty($html)) {
-			return;
-		}
-
-		$dom = new Document(Site::language());
-		$dom->loadMarkup($html);
-		$dom->cleanComments();
-
-		foreach ($this->elements as $element) {
-			$element->extract($dom);
-		}
-
-		$this->html = trim($dom->saveMarkup());
+		return $this->render();
 	}
 
 	/**
@@ -82,6 +64,48 @@ class ElementsParser
 	public function html(): string
 	{
 		return $this->html;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
+	{
+		$html = [[]];
+
+		foreach ($this->elements as $elements) {
+			$html[] = $elements->all();
+		}
+
+		return "\n\t" . implode("\n\t", array_merge(...$html)) . $this->html;
+	}
+
+	/**
+	 * @param ElementsInterface $elements
+	 */
+	protected function add(ElementsInterface $elements): void
+	{
+		$this->elements[] = $elements;
+	}
+
+	/**
+	 * @param string $html
+	 */
+	protected function parse(string $html): void
+	{
+		if (empty($html)) {
+			return;
+		}
+
+		$dom = new Document(Site::language());
+		$dom->loadMarkup($html);
+		$dom->cleanComments();
+
+		foreach ($this->elements as $elements) {
+			$elements->get($dom);
+		}
+
+		$this->html = trim($dom->saveMarkup());
 	}
 
 	/**

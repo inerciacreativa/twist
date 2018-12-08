@@ -3,19 +3,19 @@
 namespace Twist\Model\Post;
 
 use Twist\Model\Taxonomy\Taxonomy;
-use Twist\Model\Taxonomy\Terms;
+use Twist\Model\Taxonomy\Terms as BaseTerms;
 use Twist\Model\Taxonomy\Term;
 
 /**
- * Class PostTerms
+ * Class Terms
  *
  * @package Twist\Model\Post
  */
-class PostTerms extends Terms
+class Terms extends BaseTerms
 {
 
 	/**
-	 * PostTerms constructor.
+	 * Terms constructor.
 	 *
 	 * @param Post     $post
 	 * @param Taxonomy $taxonomy

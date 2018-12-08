@@ -5,11 +5,11 @@ namespace Twist\Model\Comment;
 use Twist\Library\Util\Tag;
 
 /**
- * Interface CommentFormDecoratorInterface
+ * Interface FormDecoratorInterface
  *
  * @package Twist\Model\Comment
  */
-interface CommentFormDecoratorInterface
+interface FormDecoratorInterface
 {
 
 	/**
@@ -17,7 +17,7 @@ interface CommentFormDecoratorInterface
 	 *
 	 * @return array
 	 */
-	public function defaults(array $arguments): array;
+	public function getDefaults(array $arguments): array;
 
 	/**
 	 * @param string $id
@@ -26,7 +26,7 @@ interface CommentFormDecoratorInterface
 	 *
 	 * @return \Twist\Library\Util\Tag
 	 */
-	public function text(string $id, string $label, array $attributes): Tag;
+	public function getTextField(string $id, string $label, array $attributes): Tag;
 
 	/**
 	 * @param string $id
@@ -35,7 +35,7 @@ interface CommentFormDecoratorInterface
 	 *
 	 * @return \Twist\Library\Util\Tag
 	 */
-	public function textarea(string $id, string $label, array $attributes): Tag;
+	public function getTextareaField(string $id, string $label, array $attributes): Tag;
 
 	/**
 	 * @param string $id
@@ -43,7 +43,7 @@ interface CommentFormDecoratorInterface
 	 *
 	 * @return \Twist\Library\Util\Tag
 	 */
-	public function submit(string $id, string $text): Tag;
+	public function getSubmitButton(string $id, string $text): Tag;
 
 	/**
 	 * @param string $id
@@ -52,6 +52,6 @@ interface CommentFormDecoratorInterface
 	 *
 	 * @return \Twist\Library\Util\Tag
 	 */
-	public function cancel(string $id, string $text, string $form): Tag;
+	public function getCancelButton(string $id, string $text, string $form): Tag;
 
 }

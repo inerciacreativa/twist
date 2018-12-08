@@ -153,7 +153,7 @@ class Taxonomy implements TaxonomyInterface
 			$arguments['exclude']      = '';
 		}
 
-		$walker  = new TermWalker($this);
+		$walker  = new Walker($this);
 		$objects = get_terms($arguments);
 
 		if ($objects) {
@@ -172,7 +172,7 @@ class Taxonomy implements TaxonomyInterface
 			walk_category_tree($objects, $depth, $arguments);
 		}
 
-		return $walker->terms();
+		return $walker->getTerms();
 	}
 
 	/**

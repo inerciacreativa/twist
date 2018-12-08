@@ -2,8 +2,9 @@
 
 namespace Twist\Service\Core;
 
+use Twist\App\AppException;
+use Twist\Model\Post\Meta;
 use Twist\Model\Post\Post;
-use Twist\Model\Post\PostMeta;
 use Twist\Model\Post\Query;
 use Twist\Service\Core\ImageSearch\ImageSearch;
 use Twist\Service\Core\ImageSearch\ImageSearchInterface;
@@ -43,13 +44,14 @@ class ThumbnailGeneratorService extends Service
 	}
 
 	/**
-	 * @param mixed    $value
-	 * @param string   $key
-	 * @param PostMeta $meta
+	 * @param mixed  $value
+	 * @param string $key
+	 * @param Meta   $meta
 	 *
 	 * @return mixed
+	 * @throws AppException
 	 */
-	protected function check($value, string $key, $meta)
+	protected function check($value, string $key, Meta $meta)
 	{
 		$this->hook()->disable();
 
@@ -65,9 +67,10 @@ class ThumbnailGeneratorService extends Service
 	/**
 	 * @param Post $post
 	 *
-	 * @return bool|int
+	 * @return int
+	 * @throws AppException
 	 */
-	protected function search(Post $post)
+	protected function search(Post $post): int
 	{
 		$classes = [ImageSearch::class];
 
@@ -97,7 +100,7 @@ class ThumbnailGeneratorService extends Service
 			return $image->id();
 		}
 
-		return false;
+		return 0;
 	}
 
 }

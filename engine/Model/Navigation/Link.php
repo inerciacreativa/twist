@@ -2,8 +2,8 @@
 
 namespace Twist\Model\Navigation;
 
-use Twist\Library\Model\Model;
 use Twist\Library\Model\CollectionInterface;
+use Twist\Library\Model\Model;
 
 /**
  * Class Link
@@ -15,6 +15,9 @@ use Twist\Library\Model\CollectionInterface;
 class Link extends Model
 {
 
+	/**
+	 * @var array
+	 */
 	protected $properties;
 
 	/**
@@ -24,6 +27,19 @@ class Link extends Model
 	 */
 	public function __construct(array $properties)
 	{
+		$properties = array_merge([
+			'id'      => 0,
+			'title'   => '',
+			'url'     => null,
+			'classes' => [],
+			'label'   => null,
+			'rel'     => null,
+		], $properties);
+
+		if (\is_string($properties['classes'])) {
+			$properties['classes'] = (array) preg_split('#\s+#', $properties['classes']);
+		}
+
 		$this->properties = $properties;
 	}
 
@@ -46,7 +62,7 @@ class Link extends Model
 	 */
 	public function id(): int
 	{
-		return $this->properties['id'];
+		return (int) $this->properties['id'];
 	}
 
 	/**
@@ -70,7 +86,7 @@ class Link extends Model
 	 */
 	public function classes(): string
 	{
-		return trim(implode(' ', $this->properties['classes']));
+		return trim(implode(' ', (array) $this->properties['classes']));
 	}
 
 	/**
@@ -78,7 +94,7 @@ class Link extends Model
 	 */
 	public function label(): ?string
 	{
-		return $this->properties['label'] ?? null;
+		return $this->properties['label'];
 	}
 
 	/**
@@ -86,7 +102,7 @@ class Link extends Model
 	 */
 	public function rel(): ?string
 	{
-		return $this->properties['rel'] ?? null;
+		return $this->properties['rel'];
 	}
 
 	/**

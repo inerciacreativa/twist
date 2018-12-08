@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Site;
 
+use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Macroable;
 use Twist\Model\Navigation\Links;
@@ -39,7 +40,7 @@ class Site
 	private $pagination;
 
 	/**
-	 * @var Asset
+	 * @var Assets
 	 */
 	private $assets;
 
@@ -68,12 +69,12 @@ class Site
 	}
 
 	/**
-	 * @return Asset
+	 * @return Assets
 	 */
-	public function assets(): Asset
+	public function assets(): Assets
 	{
 		if ($this->assets === null) {
-			$this->assets = new Asset();
+			$this->assets = new Assets();
 		}
 
 		return $this->assets;
@@ -97,6 +98,7 @@ class Site
 
 	/**
 	 * @return bool
+	 * @throws AppException
 	 */
 	public function has_pagination(): bool
 	{

@@ -3,20 +3,19 @@
 namespace Twist\Model\Site;
 
 use Twist\App\App;
-use Twist\Model\Site\Element\ElementsParser;
-use Twist\Model\Site\Element\ElementsRenderer;
-use Twist\Model\Site\Element\Link;
-use Twist\Model\Site\Element\Meta;
-use Twist\Model\Site\Element\Script;
-use Twist\Model\Site\Element\Style;
-use Twist\Model\Site\Element\Title;
+use Twist\Model\Site\Elements\ElementsParser;
+use Twist\Model\Site\Elements\Links;
+use Twist\Model\Site\Elements\Metas;
+use Twist\Model\Site\Elements\Scripts;
+use Twist\Model\Site\Elements\Styles;
+use Twist\Model\Site\Elements\Title;
 
 /**
  * Class Head
  *
  * @package Twist\Model\Site
  */
-class Head extends ElementsRenderer
+class Head extends ElementsParser
 {
 
 	/**
@@ -24,13 +23,13 @@ class Head extends ElementsRenderer
 	 */
 	public function __construct()
 	{
-		parent::__construct(App::HEAD, new ElementsParser([
+		parent::__construct(App::HEAD, [
 			Title::class,
-			Meta::class,
-			Link::class,
-			Style::class,
-			Script::class,
-		]));
+			Metas::class,
+			Links::class,
+			Styles::class,
+			Scripts::class,
+		]);
 	}
 
 }

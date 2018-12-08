@@ -3,11 +3,11 @@
 namespace Twist\Model\Comment;
 
 /**
- * Class CommentWalker
+ * Class Walker
  *
  * @package Twist\Model\Comment
  */
-class CommentWalker extends \Walker_Comment
+class Walker extends \Walker_Comment
 {
 
 	/**
@@ -26,7 +26,7 @@ class CommentWalker extends \Walker_Comment
 	protected $comment;
 
 	/**
-	 * CommentWalker constructor.
+	 * Walker constructor.
 	 *
 	 * @param Comments $comments
 	 */
@@ -38,7 +38,7 @@ class CommentWalker extends \Walker_Comment
 	/**
 	 * @return Comments
 	 */
-	public function comments(): Comments
+	public function getComments(): Comments
 	{
 		return $this->root;
 	}

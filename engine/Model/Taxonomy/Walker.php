@@ -3,11 +3,11 @@
 namespace Twist\Model\Taxonomy;
 
 /**
- * Class TermWalker
+ * Class Walker
  *
  * @package Twist\Model\Taxonomy
  */
-class TermWalker extends \Walker_Category
+class Walker extends \Walker_Category
 {
 
 	/**
@@ -31,7 +31,7 @@ class TermWalker extends \Walker_Category
 	protected $term;
 
 	/**
-	 * TermWalker constructor.
+	 * Walker constructor.
 	 *
 	 * @param Taxonomy $taxonomy
 	 */
@@ -45,7 +45,7 @@ class TermWalker extends \Walker_Category
 	/**
 	 * @return Terms
 	 */
-	public function terms(): Terms
+	public function getTerms(): Terms
 	{
 		return $this->root;
 	}

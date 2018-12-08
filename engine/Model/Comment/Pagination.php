@@ -2,17 +2,18 @@
 
 namespace Twist\Model\Comment;
 
+use Twist\App\AppException;
 use Twist\Library\Hook\Hookable;
 use Twist\Model\Navigation\Links;
-use Twist\Model\Navigation\Pagination;
+use Twist\Model\Navigation\Pagination as BasePagination;
 use Twist\Model\Post\Query;
 
 /**
- * Class CommentPagination
+ * Class Pagination
  *
  * @package Twist\Model\Comment
  */
-class CommentPagination extends Pagination
+class Pagination extends BasePagination
 {
 
 	use Hookable;
@@ -38,7 +39,7 @@ class CommentPagination extends Pagination
 	protected $arguments;
 
 	/**
-	 * CommentPagination constructor.
+	 * Pagination constructor.
 	 *
 	 * @param int    $page_count
 	 * @param int    $page_first
@@ -64,14 +65,15 @@ class CommentPagination extends Pagination
 	 */
 	protected function getLinks(): array
 	{
-		return [
+		return array_filter([
 			'prev' => get_previous_comments_link(_x('Previous', 'previous set of posts', 'twist')),
 			'next' => get_next_comments_link(_x('Next', 'next set of posts', 'twist'), $this->page_count),
-		];
+		]);
 	}
 
 	/**
 	 * @inheritdoc
+	 * @throws AppException
 	 */
 	protected function getPaginatedLinks(array $arguments = []): Links
 	{

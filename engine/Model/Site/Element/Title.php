@@ -21,7 +21,7 @@ class Title implements ElementsInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function extract(Document $dom): void
+	public function get(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('title');
 
@@ -35,7 +35,7 @@ class Title implements ElementsInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function get(): array
+	public function all(): array
 	{
 		return $this->title;
 	}

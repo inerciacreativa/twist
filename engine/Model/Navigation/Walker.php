@@ -9,7 +9,7 @@ use Twist\Library\Hook\Hook;
  *
  * @package Twist\Model\Navigation
  */
-class NavigationWalker extends \Walker_Nav_Menu
+class Walker extends \Walker_Nav_Menu
 {
 
 	/**
@@ -39,18 +39,16 @@ class NavigationWalker extends \Walker_Nav_Menu
 
 	/**
 	 * Walker constructor.
-	 *
-	 * @param Links $links
 	 */
-	public function __construct(Links $links)
+	public function __construct()
 	{
-		$this->root = $this->links = $links;
+		$this->root = $this->links = new Links();
 	}
 
 	/**
 	 * @return Links
 	 */
-	public function navigation(): Links
+	public function getLinks(): Links
 	{
 		return $this->root;
 	}
@@ -67,13 +65,12 @@ class NavigationWalker extends \Walker_Nav_Menu
 		$classes = Hook::apply('nav_menu_css_class', $classes, $item, $arguments, $depth);
 		// Replace class names
 		$classes = str_replace(array_keys(static::$classes), static::$classes, implode(' ', $classes));
-		$classes = explode(' ', $classes);
 
 		$title = Hook::apply('the_title', $item->title, $item->ID);
 		$title = Hook::apply('nav_menu_item_title', $title, $item, $arguments, $depth);
 
 		$this->link = new Link([
-			'id'      => (int) $item->ID,
+			'id'      => $item->ID,
 			'title'   => $title,
 			'url'     => $item->url,
 			'classes' => $classes,

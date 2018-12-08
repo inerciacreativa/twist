@@ -17,14 +17,15 @@ class Navigation
 	 */
 	public function __construct()
 	{
-		add_filter('wp_nav_menu_args', function (array $arguments) {
+		Hook::add('wp_nav_menu_args', function (array $arguments) {
 			$arguments['echo'] = false;
 
 			return $arguments;
 		});
 
-		add_filter('pre_wp_nav_menu', function () {
-			return $this->navigation(func_get_arg(1));
+
+		Hook::add('pre_wp_nav_menu', function () {
+			return $this->getLinks(func_get_arg(1));
 		}, 1, 2);
 	}
 
@@ -51,20 +52,20 @@ class Navigation
 	 *
 	 * @return Links
 	 */
-	protected function navigation($arguments): Links
+	protected function getLinks($arguments): Links
 	{
-		$items = $this->items($arguments->menu, $arguments->theme_location);
+		$items = $this->getItems($arguments->menu, $arguments->theme_location);
 
 		if (empty($items)) {
 			return new Links();
 		}
 
-		$items  = $this->sort($items, $arguments);
-		$walker = new NavigationWalker(new Links());
+		$items  = $this->sortItems($items, $arguments);
+		$walker = new Walker();
 
 		$walker->walk($items, $arguments->depth, $arguments);
 
-		return $walker->navigation();
+		return $walker->getLinks();
 	}
 
 	/**
@@ -75,7 +76,7 @@ class Navigation
 	 *
 	 * @return array
 	 */
-	protected function items($menu, string $location = null): array
+	protected function getItems($menu, string $location = null): array
 	{
 		$menu  = wp_get_nav_menu_object($menu);
 		$items = false;
@@ -116,7 +117,7 @@ class Navigation
 	 *
 	 * @return array
 	 */
-	protected function sort(array $items, $arguments): array
+	protected function sortItems(array $items, $arguments): array
 	{
 		_wp_menu_item_classes_by_context($items);
 

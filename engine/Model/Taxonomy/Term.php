@@ -26,7 +26,7 @@ class Term extends Model
 	protected $term;
 
 	/**
-	 * @var TermMeta
+	 * @var Meta
 	 */
 	protected $meta;
 
@@ -166,12 +166,12 @@ class Term extends Model
 	}
 
 	/**
-	 * @return TermMeta
+	 * @return Meta
 	 */
-	public function meta(): TermMeta
+	public function meta(): Meta
 	{
 		if ($this->meta === null) {
-			$this->meta = new TermMeta($this);
+			$this->meta = new Meta($this);
 		}
 
 		return $this->meta;

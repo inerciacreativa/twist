@@ -8,11 +8,11 @@ use Twist\Model\User\User;
 use Twist\Twist;
 
 /**
- * Class CommentForm
+ * Class Form
  *
  * @package Twist\Model\Comment
  */
-class CommentForm
+class Form
 {
 
 	/**
@@ -21,7 +21,7 @@ class CommentForm
 	protected $id = 'comment-form';
 
 	/**
-	 * @var CommentFormDecoratorInterface
+	 * @var FormDecoratorInterface
 	 */
 	protected $decorator;
 
@@ -31,17 +31,16 @@ class CommentForm
 	public function __construct()
 	{
 		if (($this->decorator = Twist::config('form.comment.decorator')) === null) {
-			$this->decorator = new CommentFormDecorator(Twist::config('form.comment.classes', []));
+			$this->decorator = new FormDecorator(Twist::config('form.comment.classes', []));
 		}
 
 		Hook::add('comment_form_defaults', function (array $arguments) {
-			return $this->parse($arguments);
+			return $this->getDefaults($arguments);
 		}, 11);
 
 		// Gets the decorated cancel button
-		Hook::add('cancel_comment_reply_link', function (/** @noinspection PhpUnusedParameterInspection */
-			string $cancel, string $link, string $text) {
-			return $this->cancel($text);
+		Hook::add('cancel_comment_reply_link', function () {
+			return $this->getCancelButton(func_get_arg(2));
 		}, 1, 3);
 
 		// Normalize generated hidden fields
@@ -53,7 +52,15 @@ class CommentForm
 	/**
 	 * @return string
 	 */
-	public function show(): string
+	public function __toString(): string
+	{
+		return $this->render();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
 	{
 		ob_start();
 		comment_form();
@@ -67,9 +74,9 @@ class CommentForm
 	 *
 	 * @return array
 	 */
-	protected function parse(array $arguments): array
+	protected function getDefaults(array $arguments): array
 	{
-		$arguments = $this->decorator->defaults($arguments);
+		$arguments = $this->decorator->getDefaults($arguments);
 
 		$arguments['id_form'] = $this->id;
 
@@ -79,9 +86,9 @@ class CommentForm
 		$arguments['cancel_reply_before'] = ' ';
 		$arguments['cancel_reply_after']  = '';
 
-		$arguments['fields']        = $this->fields();
-		$arguments['comment_field'] = $this->textarea();
-		$arguments['submit_button'] = $this->submit($arguments['label_submit']);
+		$arguments['fields']        = $this->getFields();
+		$arguments['comment_field'] = $this->getTextarea();
+		$arguments['submit_button'] = $this->getSubmitButton($arguments['label_submit']);
 
 		return $arguments;
 	}
@@ -89,9 +96,9 @@ class CommentForm
 	/**
 	 * @return Tag
 	 */
-	protected function textarea(): Tag
+	protected function getTextarea(): Tag
 	{
-		return $this->decorator->textarea('comment', _x('Comment', 'noun', 'twist'), [
+		return $this->decorator->getTextareaField('comment', _x('Comment', 'noun', 'twist'), [
 			'cols'      => 45,
 			'rows'      => 6,
 			'maxlength' => 65525,
@@ -102,25 +109,25 @@ class CommentForm
 	/**
 	 * @return array
 	 */
-	protected function fields(): array
+	protected function getFields(): array
 	{
 		$commenter = User::commenter();
 
 		return [
-			'author' => $this->decorator->text('author', __('Name', 'twist'), [
+			'author' => $this->decorator->getTextField('author', __('Name', 'twist'), [
 				'value'     => $commenter->name(),
 				'type'      => 'text',
 				'maxlength' => 245,
 				'required'  => true,
 			]),
-			'email'  => $this->decorator->text('email', __('E-mail', 'twist'), [
+			'email'  => $this->decorator->getTextField('email', __('E-mail', 'twist'), [
 				'value'            => $commenter->email(),
 				'type'             => 'email',
 				'maxlength'        => 100,
 				'required'         => true,
 				'aria-describedby' => 'email-notes',
 			]),
-			'url'    => $this->decorator->text('url', __('Website', 'twist'), [
+			'url'    => $this->decorator->getTextField('url', __('Website', 'twist'), [
 				'value'     => $commenter->url(),
 				'type'      => 'url',
 				'maxlength' => 200,
@@ -133,9 +140,9 @@ class CommentForm
 	 *
 	 * @return Tag
 	 */
-	protected function submit(string $label): Tag
+	protected function getSubmitButton(string $label): Tag
 	{
-		return $this->decorator->submit('submit', $label);
+		return $this->decorator->getSubmitButton('submit', $label);
 	}
 
 	/**
@@ -143,9 +150,9 @@ class CommentForm
 	 *
 	 * @return Tag
 	 */
-	protected function cancel(string $label): Tag
+	protected function getCancelButton(string $label): Tag
 	{
-		return $this->decorator->cancel('cancel-reply', $label, $this->id);
+		return $this->decorator->getCancelButton('cancel-reply', $label, $this->id);
 	}
 
 }

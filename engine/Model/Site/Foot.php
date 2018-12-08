@@ -3,16 +3,15 @@
 namespace Twist\Model\Site;
 
 use Twist\App\App;
-use Twist\Model\Site\Element\ElementsParser;
-use Twist\Model\Site\Element\ElementsRenderer;
-use Twist\Model\Site\Element\Script;
+use Twist\Model\Site\Elements\ElementsParser;
+use Twist\Model\Site\Elements\Scripts;
 
 /**
  * Class Foot
  *
  * @package Twist\Model\Site
  */
-class Foot extends ElementsRenderer
+class Foot extends ElementsParser
 {
 
 	/**
@@ -20,9 +19,9 @@ class Foot extends ElementsRenderer
 	 */
 	public function __construct()
 	{
-		parent::__construct(App::FOOT, new ElementsParser([
-			Script::class,
-		]));
+		parent::__construct(App::FOOT, [
+			Scripts::class,
+		]);
 	}
 
 }
