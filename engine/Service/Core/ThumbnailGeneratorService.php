@@ -2,15 +2,15 @@
 
 namespace Twist\Service\Core;
 
-use Twist\App\AppException;
 use Twist\Model\Post\Meta;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\Query;
+use Twist\Service\Core\ImageSearch\AttachmentModule;
+use Twist\Service\Core\ImageSearch\ContentModule;
 use Twist\Service\Core\ImageSearch\ImageSearch;
-use Twist\Service\Core\ImageSearch\ImageSearchInterface;
-use Twist\Service\Core\ImageSearch\TedSearch;
-use Twist\Service\Core\ImageSearch\VimeoSearch;
-use Twist\Service\Core\ImageSearch\YouTubeSearch;
+use Twist\Service\Core\ImageSearch\TedModule;
+use Twist\Service\Core\ImageSearch\VimeoModule;
+use Twist\Service\Core\ImageSearch\YouTubeModule;
 use Twist\Service\Service;
 
 /**
@@ -20,12 +20,6 @@ use Twist\Service\Service;
  */
 class ThumbnailGeneratorService extends Service
 {
-
-	protected static $video = [
-		YouTubeSearch::class,
-		VimeoSearch::class,
-		TedSearch::class,
-	];
 
 	/**
 	 * @inheritdoc
@@ -49,7 +43,6 @@ class ThumbnailGeneratorService extends Service
 	 * @param Meta   $meta
 	 *
 	 * @return mixed
-	 * @throws AppException
 	 */
 	protected function check($value, string $key, $meta)
 	{
@@ -68,35 +61,20 @@ class ThumbnailGeneratorService extends Service
 	 * @param Post $post
 	 *
 	 * @return int
-	 * @throws AppException
 	 */
 	protected function search(Post $post): int
 	{
-		$classes = [ImageSearch::class];
+		$modules = array_merge([
+			ContentModule::class,
+		], $this->config('modules', []), [
+			YouTubeModule::class,
+			VimeoModule::class,
+			TedModule::class,
+			AttachmentModule::class,
+		]);
 
-		if ($this->config('videos')) {
-			$classes = array_merge($classes, self::$video);
-		}
-
-		foreach ($this->config('extra', []) as $class) {
-			if (is_a($class, ImageSearchInterface::class, true)) {
-				$classes[] = $class;
-			}
-		}
-
-		foreach ($classes as $class) {
-			/** @var ImageSearchInterface $search */
-			$search = new $class;
-
-			/** @noinspection NotOptimalIfConditionsInspection */
-			if ($search->search($post->raw_content()) && ($image = $search->get()) && ($image = $image->get($post)) && $image->set_featured()) {
-				return $image->id();
-			}
-		}
-
-		if ($post->images()->count() > 0 && ($image = $post->images()
-		                                                   ->sort()
-		                                                   ->first()) && $image->set_featured()) {
+		$search = new ImageSearch($modules);
+		if (($image = $search->parse($post)->get()) && $image->set_featured()) {
 			return $image->id();
 		}
 

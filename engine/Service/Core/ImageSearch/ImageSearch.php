@@ -2,124 +2,65 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
-use Twist\Library\Util\Url;
+use Twist\Model\Post\Post;
 
 /**
  * Class ImageSearch
  *
  * @package Twist\Service\Core\ImageSearch
  */
-class ImageSearch implements ImageSearchInterface
+class ImageSearch
 {
 
 	/**
 	 * @var array
 	 */
-	protected static $forbidenSources = [
-		'feeds.feedburner.com',
-		'blogger.googleusercontent.com',
-		'feedads.g.doubleclick.net',
-		'stats.wordpress.com',
-		'feeds.wordpress.com',
-	];
+	private $modules = [];
 
 	/**
-	 * @var array
-	 */
-	protected $images = [];
-
-	/**
-	 * @inheritdoc
-	 */
-	public function search(string $html, int $width = 720): bool
-	{
-		$dom = new \DOMDocument();
-		@$dom->loadHTML($html);
-
-		/** @var $image \DOMElement */
-		foreach ($dom->getElementsByTagName('img') as $image) {
-			if (!$image->hasAttribute('src')) {
-				continue;
-			}
-
-			$source = Url::parse($image->getAttribute('src'));
-
-			if (empty($source->host) || \in_array($source->host, static::$forbidenSources, true)) {
-				continue;
-			}
-
-			$this->images[] = [
-				'src'    => $source->get(),
-				'id'     => $this->id($image),
-				'alt'    => $this->attribute($image, 'alt', ''),
-				'width'  => $this->attribute($image, 'width', 0),
-				'height' => $this->attribute($image, 'height', 0),
-			];
-		}
-
-		return !empty($this->images);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function get(): ?ImageFinder
-	{
-		if (empty($this->images)) {
-			return null;
-		}
-
-		if (\count($this->images) > 1) {
-			uasort($this->images, function ($a, $b) {
-				$a = ($a['width'] * 10) + $a['height'];
-				$b = ($b['width'] * 10) + $b['height'];
-
-				if ($a === $b) {
-					return 0;
-				}
-
-				return ($a > $b) ? -1 : 1;
-			});
-		}
-
-		return new ImageFinder($this->images[0]);
-	}
-
-	/**
-	 * @param \DOMElement $image
+	 * ImageFinder constructor.
 	 *
-	 * @return int
+	 * @param ModuleInterface[] $modules
 	 */
-	protected function id(\DOMElement $image): int
+	public function __construct(array $modules = [])
 	{
-		if (!$image->hasAttribute('class')) {
-			return 0;
+		foreach ($modules as $module) {
+			$this->add($module);
 		}
-
-		if (preg_match('/wp-image-([\d]*)/i', $image->getAttribute('class'), $id)) {
-			return (int) $id[1];
-		}
-
-		return 0;
 	}
 
 	/**
-	 * @param \DOMElement $image
-	 * @param string      $attribute
-	 * @param mixed       $default
+	 * @param string $module
 	 *
-	 * @return mixed
+	 * @return $this
 	 */
-	protected function attribute(\DOMElement $image, string $attribute, $default)
+	public function add(string $module): self
 	{
-		$result = $default;
-
-		if ($image->hasAttribute($attribute)) {
-			$result = $image->getAttribute($attribute);
-			settype($result, \gettype($default));
+		if (is_a($module, ModuleInterface::class, true)) {
+			$this->modules[] = $module;
 		}
 
-		return $result;
+		return $this;
+	}
+
+	/**
+	 * @param Post $post
+	 * @param bool $allModules
+	 * @param bool $allImages
+	 *
+	 * @return ImageResolver
+	 */
+	public function parse(Post $post, bool $allModules = false, bool $allImages = false): ImageResolver
+	{
+		$resolver = new ImageResolver($post);
+
+		foreach ($this->modules as $module) {
+			if ((new $module())->search($resolver, $allImages) && !$allModules) {
+				break;
+			}
+		}
+
+		return $resolver;
 	}
 
 }

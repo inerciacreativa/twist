@@ -6,11 +6,11 @@ use ic\Framework\Api\Client\YouTubeClient;
 use Twist\Library\Util\Arr;
 
 /**
- * Class YouTubeSearch
+ * Class YouTubeModule
  *
  * @package Twist\Service\Core\ImageSearch
  */
-class YouTubeSearch extends VideoSearch
+class YouTubeModule extends VideoModule
 {
 
 	/**
@@ -18,7 +18,7 @@ class YouTubeSearch extends VideoSearch
 	 *
 	 * @see http://stackoverflow.com/questions/5830387/php-regex-find-all-youtube-video-ids-in-string
 	 */
-	protected function regex(): string
+	protected function getRegexp(): string
 	{
 		return '@
         (?:https?://)?
@@ -33,19 +33,19 @@ class YouTubeSearch extends VideoSearch
 	/**
 	 * @inheritdoc
 	 */
-	protected function retrieve(string $id, int $width): array
+	protected function getImage(string $id, int $width): ?array
 	{
 		$data = (new YouTubeClient())->getVideo($id);
 
 		if ($data === null || !isset($data->items[0]->snippet)) {
-			return [];
+			return null;
 		}
 
 		$video      = $data->items[0]->snippet;
 		$thumbnails = (array) $video->thumbnails;
 		$urls       = Arr::pluck($thumbnails, 'url', 'width');
 		$heights    = Arr::pluck($thumbnails, 'height', 'width');
-		$width      = $this->closest(array_keys($heights), $width);
+		$width      = $this->getClosestValue(array_keys($heights), $width);
 
 		return [
 			'src'    => $urls[$width],

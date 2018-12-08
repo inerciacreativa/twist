@@ -6,17 +6,17 @@ use ic\Framework\Api\Api;
 use Twist\Model\Site\Site;
 
 /**
- * Class TedSearch
+ * Class TedModule
  *
  * @package Twist\Service\Core\ImageSearch
  */
-class TedSearch extends VideoSearch
+class TedModule extends VideoModule
 {
 
 	/**
 	 * @inheritdoc
 	 */
-	protected function regex(): string
+	protected function getRegexp(): string
 	{
 		return '@
         (?:https?://)?
@@ -34,7 +34,7 @@ class TedSearch extends VideoSearch
 	 *
 	 * @throws \Exception
 	 */
-	protected function retrieve(string $id, int $width): array
+	protected function getImage(string $id, int $width): ?array
 	{
 		$data = (new Api('Ted', 'http://www.ted.com/'))->get('services/v1/oembed.json', [
 			'url'      => 'http://embed.ted.com/talks/' . $id,
@@ -43,7 +43,7 @@ class TedSearch extends VideoSearch
 		]);
 
 		if (!\is_object($data)) {
-			return [];
+			return null;
 		}
 
 		return [

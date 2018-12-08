@@ -6,11 +6,11 @@ use ic\Framework\Api\Client\VimeoClient;
 use Twist\Library\Util\Arr;
 
 /**
- * Class VimeoSearch
+ * Class VimeoModule
  *
  * @package Twist\Service\Core\ImageSearch
  */
-class VimeoSearch extends VideoSearch
+class VimeoModule extends VideoModule
 {
 
 	/**
@@ -18,7 +18,7 @@ class VimeoSearch extends VideoSearch
 	 *
 	 * @see https://stackoverflow.com/questions/5316973/simple-regular-expression-for-vimeo-videos
 	 */
-	protected function regex(): string
+	protected function getRegexp(): string
 	{
 		return '@
         (?:https?://)?
@@ -32,18 +32,18 @@ class VimeoSearch extends VideoSearch
 	/**
 	 * @inheritdoc
 	 */
-	protected function retrieve(string $id, int $width): array
+	protected function getImage(string $id, int $width): ?array
 	{
 		$video = (new VimeoClient())->getVideo($id);
 
 		if ($video === null || !isset($video->pictures->sizes)) {
-			return [];
+			return null;
 		}
 
 		$sizes   = $video->pictures->sizes;
 		$urls    = Arr::pluck($sizes, 'link', 'width');
 		$heights = Arr::pluck($sizes, 'height', 'width');
-		$width   = $this->closest(array_keys($heights), $width);
+		$width   = $this->getClosestValue(array_keys($heights), $width);
 
 		return [
 			'src'    => $urls[$width],

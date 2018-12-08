@@ -31,7 +31,6 @@ Twist::theme()
 		     ],
 		     ThumbnailGeneratorService::id() => [
 			     'enable' => true,
-			     'videos' => true,
 		     ],
 		     LazyLoadService::id()           => [
 			     'enable'    => true,
