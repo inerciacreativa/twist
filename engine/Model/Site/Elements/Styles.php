@@ -1,15 +1,15 @@
 <?php
 
-namespace Twist\Model\Site\Element;
+namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 
 /**
- * Class Style
+ * Class Styles
  *
- * @package Twist\Model\Site\Element
+ * @package Twist\Model\Site\Elements
  */
 class Styles implements ElementsInterface
 {

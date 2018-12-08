@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Model\Site\Element;
+namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Util\Tag;

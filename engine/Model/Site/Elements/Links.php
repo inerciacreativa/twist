@@ -7,9 +7,9 @@ use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Tag;
 
 /**
- * Class Link
+ * Class Links
  *
- * @package Twist\Model\Site\Element
+ * @package Twist\Model\Site\Elements
  */
 class Links implements ElementsInterface
 {
@@ -27,7 +27,7 @@ class Links implements ElementsInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function extract(Document $dom): void
+	public function get(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('link');
 
@@ -62,7 +62,7 @@ class Links implements ElementsInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function get(): array
+	public function all(): array
 	{
 		$links  = Hook::apply('twist_site_links', $this->links);
 		$styles = Hook::apply('twist_site_styles', $this->styles);

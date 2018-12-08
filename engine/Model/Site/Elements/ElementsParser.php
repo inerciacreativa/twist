@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Model\Site\Element;
+namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hookable;
@@ -10,7 +10,7 @@ use Twist\Model\Site\Site;
 /**
  * Class ElementsParser
  *
- * @package Twist\Model\Site\Element
+ * @package Twist\Model\Site\Elements
  */
 class ElementsParser
 {

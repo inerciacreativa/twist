@@ -1,13 +1,13 @@
 <?php
 
-namespace Twist\Model\Site\Element;
+namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 
 /**
  * Interface ElementInterface
  *
- * @package Twist\Model\Site\Element
+ * @package Twist\Model\Site\Elements
  */
 interface ElementsInterface
 {

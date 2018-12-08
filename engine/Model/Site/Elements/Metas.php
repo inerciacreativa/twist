@@ -10,7 +10,7 @@ use Twist\Library\Util\Tag;
 /**
  * Class Metas
  *
- * @package Twist\Model\Site\Element
+ * @package Twist\Model\Site\Elements
  */
 class Metas implements ElementsInterface
 {
@@ -23,7 +23,7 @@ class Metas implements ElementsInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function extract(Document $dom): void
+	public function get(Document $dom): void
 	{
 		$nodes = $dom->getElementsByTagName('meta');
 
@@ -53,7 +53,7 @@ class Metas implements ElementsInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function get(): array
+	public function all(): array
 	{
 		$metas = Hook::apply('twist_site_metas', $this->metas);
 		sort($this->metas);
