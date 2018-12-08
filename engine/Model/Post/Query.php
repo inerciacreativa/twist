@@ -24,7 +24,7 @@ class Query implements IterableInterface
 	/**
 	 * @var \WP_Query
 	 */
-	protected $query;
+	private $query;
 
 	/**
 	 * @param array $parameters
