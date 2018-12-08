@@ -511,7 +511,7 @@ class Post extends Model
 	 * @return Image
 	 * @throws AppException
 	 */
-	public function thumbnail(): Image
+	public function thumbnail(): ?Image
 	{
 		if ($this->thumbnail === null && $this->has_thumbnail()) {
 			$this->thumbnail = new Image($this->thumbnail_id(), $this);
