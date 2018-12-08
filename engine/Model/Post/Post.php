@@ -197,6 +197,325 @@ class Post extends Model
 	}
 
 	/**
+	 * @return string
+	 */
+	public function link(): string
+	{
+		return Hook::apply('the_permalink', get_permalink($this->post));
+	}
+
+	/**
+	 * @return string
+	 */
+	public function edit_link(): ?string
+	{
+		return get_edit_post_link($this->post);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function archive_link(): string
+	{
+		return get_post_type_archive_link($this->type());
+	}
+
+	/**
+	 * Retrieve the date on which the post was written.
+	 *
+	 * @param string|null $format
+	 *
+	 * @return string
+	 */
+	public function date(string $format = null): string
+	{
+		return $this->getDatetime($format, 'date');
+	}
+
+	/**
+	 * Retrieve the date on which the post was written.
+	 *
+	 * @param string|null $format
+	 *
+	 * @return string
+	 */
+	public function time(string $format = null): string
+	{
+		return $this->getDatetime($format, 'time');
+	}
+
+	/**
+	 * Retrieve the date on which the post was written in ISO 8601 format.
+	 *
+	 * @see the_date()
+	 *
+	 * @return string
+	 */
+	public function published(): string
+	{
+		return $this->getISO8601Datetime($this->post->post_date, 'the_date');
+	}
+
+	/**
+	 * @see the_modified_date()
+	 *
+	 * @return string
+	 */
+	public function modified(): string
+	{
+		return $this->getISO8601Datetime($this->post->post_modified, 'the_modified_date');
+	}
+
+	/**
+	 * @param bool $attribute
+	 *
+	 * @return string
+	 */
+	public function title(bool $attribute = false): string
+	{
+		if ($attribute) {
+			return html_entity_decode(the_title_attribute([
+				'echo' => false,
+				'post' => $this->post,
+			]), ENT_HTML5 | ENT_QUOTES);
+		}
+
+		return get_the_title($this->post);
+	}
+
+	/**
+	 * @param int $words
+	 *
+	 * @return string
+	 */
+	public function excerpt(int $words = 0): string
+	{
+		$filter = null;
+
+		if ($words) {
+			$filter = function () use ($words) {
+				return $words;
+			};
+
+			Hook::add('excerpt_length', $filter, 999);
+		}
+
+		$excerpt = Hook::apply('the_excerpt', get_the_excerpt($this->post->ID));
+
+		if ($filter !== null) {
+			Hook::remove('excerpt_length', $filter, 999);
+		}
+
+		return $excerpt;
+	}
+
+	/**
+	 * @param string|null $more
+	 * @param bool        $teaser
+	 * @param bool        $raw
+	 *
+	 * @return string
+	 */
+	public function content(string $more = null, bool $teaser = true, bool $raw = false): string
+	{
+		if ($raw) {
+			return $this->post->post_content;
+		}
+
+		ob_start();
+		the_content($more, !$teaser);
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * @return Meta
+	 */
+	public function meta(): Meta
+	{
+		return $this->meta ?? $this->meta = new Meta($this);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_thumbnail(): bool
+	{
+		return $this->thumbnail_id() > 0;
+	}
+
+	/**
+	 * @return Image
+	 * @throws AppException
+	 */
+	public function thumbnail(): ?Image
+	{
+		if ($this->thumbnail === null && $this->has_thumbnail()) {
+			$this->thumbnail = new Image($this->thumbnail_id(), $this);
+		}
+
+		return $this->thumbnail;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function thumbnail_id(): int
+	{
+		return (int) $this->meta()->get('_thumbnail_id');
+	}
+
+	/**
+	 * @return Images
+	 * @throws AppException
+	 */
+	public function images(): Images
+	{
+		return $this->images ?? $this->images = Images::make($this);
+	}
+
+	/**
+	 * @return Author
+	 */
+	public function author(): Author
+	{
+		return $this->author ?? $this->author = new Author($this->post->post_author);
+	}
+
+	/**
+	 * @return Taxonomies
+	 */
+	public function taxonomies(): Taxonomies
+	{
+		return $this->taxonomies ?? $this->taxonomies = new Taxonomies($this);
+	}
+
+	/**
+	 * @return Terms
+	 */
+	public function categories(): ?Terms
+	{
+		return $this->taxonomies()->get('category');
+	}
+
+	/**
+	 * @return Terms
+	 */
+	public function tags(): ?Terms
+	{
+		return $this->taxonomies()->get('post_tag');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_comments(): bool
+	{
+		return $this->comment_count() > 0;
+	}
+
+	/**
+	 * @return CommentQuery
+	 * @throws AppException
+	 */
+	public function comments(): CommentQuery
+	{
+		return $this->comments ?? $this->comments = new CommentQuery($this);
+	}
+
+	/**
+	 * @return int
+	 */
+	public function comment_count(): int
+	{
+		return (int) Hook::apply('get_comments_number', $this->post->comment_count, $this->id());
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function can_be_commented(): bool
+	{
+		return (bool) Hook::apply('comments_open', $this->post->comment_status === 'open', $this->id());
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function can_be_pinged(): bool
+	{
+		return (bool) Hook::apply('pings_open', $this->post->ping_status === 'open', $this->id());
+	}
+
+	/**
+	 * @param string|array $class
+	 *
+	 * @return string
+	 */
+	public function classes($class = ''): string
+	{
+		$classes = [];
+
+		if ($class) {
+			if (\is_string($class)) {
+				$class = (array) preg_split('#\s+#', $class);
+			}
+
+			$classes = (array) $class;
+		}
+
+		$classes[] = $this->type();
+
+		if ($this->has_format()) {
+			$classes[] = $this->format('is');
+		}
+
+		if ($this->has_thumbnail()) {
+			$classes[] = 'has-thumbnail';
+		}
+
+		$classes = Hook::apply('post_class', $classes, $class, $this->id());
+
+		return implode(' ', array_unique($classes));
+	}
+
+	/**
+	 * Retrieve the post status.
+	 *
+	 * @return string
+	 */
+	public function status(): string
+	{
+		$status = $this->post->post_status;
+
+		if ($this->type() === 'attachment') {
+			if ($status === 'private') {
+				return $status;
+			}
+
+			try {
+				if ($this->has_parent() && ($parent = $this->parent())) {
+					$status = $parent->status();
+
+					if ($status === 'trash') {
+						return $parent->meta()->get('_wp_trash_meta_status');
+					}
+
+					return $status;
+				}
+			} catch (AppException $exception) {
+				$status = 'unknown';
+			}
+
+			if ($status === 'inherit') {
+				return 'publish';
+			}
+		}
+
+		return Hook::apply('get_post_status', $status, $this->post);
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function has_format(): bool
@@ -220,9 +539,8 @@ class Post extends Model
 
 		$format = $default;
 
-		if ($this->taxonomies()
-		         ->has('post_format') && ($terms = $this->taxonomies()
-		                                                ->get('post_format')) && ($terms->count() > 0) && ($term = $terms->first())) {
+		if (($terms = $this->taxonomies()
+		                   ->get('post_format')) && ($term = $terms->first())) {
 			$format = str_replace('post-format-', '', $term->slug());
 		}
 
@@ -286,351 +604,6 @@ class Post extends Model
 	}
 
 	/**
-	 * @param bool $attribute
-	 *
-	 * @return string
-	 */
-	public function title(bool $attribute = false): string
-	{
-		if ($attribute) {
-			return html_entity_decode(the_title_attribute([
-				'echo' => false,
-				'post' => $this->post,
-			]), ENT_HTML5 | ENT_QUOTES);
-		}
-
-		return get_the_title($this->post);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function link(): string
-	{
-		return Hook::apply('the_permalink', get_permalink($this->post));
-	}
-
-	/**
-	 * @return string
-	 */
-	public function edit_link(): ?string
-	{
-		return get_edit_post_link($this->post);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function archive_link(): string
-	{
-		return get_post_type_archive_link($this->type());
-	}
-
-	/**
-	 * Retrieve the date on which the post was written.
-	 *
-	 * @param string $format
-	 *
-	 * @return string
-	 */
-	public function date(string $format = ''): string
-	{
-		$format = $format ?: (string) get_option('date_format');
-		$date   = mysql2date($format, $this->post->post_date);
-
-		return Hook::apply('get_the_date', $date, $format, $this->post);
-	}
-
-	/**
-	 * Retrieve the date on which the post was written.
-	 *
-	 * @param string $format
-	 *
-	 * @return string
-	 */
-	public function time(string $format = ''): string
-	{
-		$format = $format ?: (string) get_option('time_format');
-		$time   = mysql2date($format, $this->post->post_date);
-
-		return Hook::apply('get_the_time', $time, $format, $this->post);
-	}
-
-	/**
-	 * Retrieve the date on which the post was written in ISO 8601 format.
-	 *
-	 * @see the_date()
-	 *
-	 * @return string
-	 */
-	public function published(): string
-	{
-		return $this->getDatetime($this->post->post_date, 'the_date');
-	}
-
-	/**
-	 * @see the_modified_date()
-	 *
-	 * @return string
-	 */
-	public function modified(): string
-	{
-		return $this->getDatetime($this->post->post_modified, 'the_modified_date');
-	}
-
-	/**
-	 * @param string|array $class
-	 *
-	 * @return string
-	 */
-	public function classes($class = ''): string
-	{
-		$classes = [];
-
-		if ($class) {
-			if (\is_string($class)) {
-				$class = (array) preg_split('#\s+#', $class);
-			}
-
-			$classes = (array) $class;
-		}
-
-		$classes[] = $this->type();
-
-		if ($this->has_format()) {
-			$classes[] = $this->format('is');
-		}
-
-		if ($this->has_thumbnail()) {
-			$classes[] = 'has-thumbnail';
-		}
-
-		$classes = Hook::apply('post_class', $classes, $class, $this->id());
-
-		return implode(' ', array_unique($classes));
-	}
-
-	/**
-	 * @param int $words
-	 *
-	 * @return string
-	 */
-	public function excerpt(int $words = 0): string
-	{
-		$filter = null;
-
-		if ($words) {
-			$filter = function () use ($words) {
-				return $words;
-			};
-
-			add_filter('excerpt_length', $filter, 999);
-		}
-
-		$excerpt = Hook::apply('the_excerpt', get_the_excerpt($this->post->ID));
-
-		if ($filter !== null) {
-			remove_filter('excerpt_length', $filter, 999);
-		}
-
-		return $excerpt;
-	}
-
-	/**
-	 * @param string|null $more
-	 * @param bool        $teaser
-	 * @param bool        $raw
-	 *
-	 * @return string
-	 */
-	public function content(string $more = null, bool $teaser = true, bool $raw = false): string
-	{
-		if ($raw) {
-			return $this->post->post_content;
-		}
-
-		ob_start();
-		the_content($more, !$teaser);
-
-		return ob_get_clean();
-	}
-
-	/**
-	 * Retrieve the post status.
-	 *
-	 * @return string
-	 */
-	public function status(): string
-	{
-		$status = $this->post->post_status;
-
-		if ($this->type() === 'attachment') {
-			if ($status === 'private') {
-				return $status;
-			}
-
-			try {
-				if ($this->has_parent() && ($parent = $this->parent())) {
-					$status = $parent->status();
-
-					if ($status === 'trash') {
-						return $parent->meta()->get('_wp_trash_meta_status');
-					}
-
-					return $status;
-				}
-			} catch (AppException $exception) {
-				$status = 'unknown';
-			}
-
-			if ($status === 'inherit') {
-				return 'publish';
-			}
-		}
-
-		return Hook::apply('get_post_status', $status, $this->post);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function thumbnail_id(): int
-	{
-		return (int) $this->meta()->get('_thumbnail_id');
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function has_thumbnail(): bool
-	{
-		return $this->thumbnail_id() > 0;
-	}
-
-	/**
-	 * @return Image
-	 * @throws AppException
-	 */
-	public function thumbnail(): ?Image
-	{
-		if ($this->thumbnail === null && $this->has_thumbnail()) {
-			$this->thumbnail = new Image($this->thumbnail_id(), $this);
-		}
-
-		return $this->thumbnail;
-	}
-
-	/**
-	 * @return Images
-	 * @throws AppException
-	 */
-	public function images(): Images
-	{
-		if ($this->images === null) {
-			$this->images = Images::make($this);
-		}
-
-		return $this->images;
-	}
-
-	/**
-	 * @return Author
-	 */
-	public function author(): Author
-	{
-		if ($this->author === null) {
-			$this->author = new Author($this->post->post_author);
-		}
-
-		return $this->author;
-	}
-
-	/**
-	 * @return CommentQuery
-	 * @throws AppException
-	 */
-	public function comments(): CommentQuery
-	{
-		if ($this->comments === null) {
-			$this->comments = new CommentQuery($this);
-		}
-
-		return $this->comments;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function has_comments(): bool
-	{
-		return $this->comment_count() > 0;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function comment_count(): int
-	{
-		return (int) Hook::apply('get_comments_number', $this->post->comment_count, $this->id());
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function can_be_commented(): bool
-	{
-		return (bool) Hook::apply('comments_open', $this->post->comment_status === 'open', $this->id());
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function can_be_pinged(): bool
-	{
-		return (bool) Hook::apply('pings_open', $this->post->ping_status === 'open', $this->id());
-	}
-
-	/**
-	 * @return Taxonomies
-	 */
-	public function taxonomies(): Taxonomies
-	{
-		if ($this->taxonomies === null) {
-			$this->taxonomies = new Taxonomies($this);
-		}
-
-		return $this->taxonomies;
-	}
-
-	/**
-	 * @return Terms
-	 */
-	public function categories(): ?Terms
-	{
-		return $this->taxonomies()->get('category');
-	}
-
-	/**
-	 * @return Terms
-	 */
-	public function tags(): ?Terms
-	{
-		return $this->taxonomies()->get('post_tag');
-	}
-
-	/**
-	 * @return Meta
-	 */
-	public function meta(): Meta
-	{
-		if ($this->meta === null) {
-			$this->meta = new Meta($this);
-		}
-
-		return $this->meta;
-	}
-
-	/**
 	 * @return \WP_Post
 	 */
 	public function object(): \WP_Post
@@ -639,16 +612,30 @@ class Post extends Model
 	}
 
 	/**
+	 * @param string|null $format
+	 * @param string      $option
+	 *
+	 * @return string
+	 */
+	private function getDatetime(string $format = null, string $option = 'date'): string
+	{
+		$format = $format ?: (string) get_option("{$option}_format");
+		$result = mysql2date($format, $this->post->post_date);
+
+		return Hook::apply("get_the_{$option}", $result, $format, $this->post);
+	}
+
+	/**
 	 * @param string $date
 	 * @param string $filter
 	 *
 	 * @return string
 	 */
-	protected function getDatetime(string $date, string $filter): string
+	private function getISO8601Datetime(string $date, string $filter): string
 	{
 		$format = 'c';
 		$date   = (string) date($format, strtotime($date));
-		$date   = (string) Hook::apply("get_$filter", $date, $format, $this->post);
+		$date   = (string) Hook::apply("get_{$filter}", $date, $format, $this->post);
 
 		return Hook::apply($filter, $date, $format, '', '');
 	}
