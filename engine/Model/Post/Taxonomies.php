@@ -28,20 +28,23 @@ class Taxonomies extends Enumerable
 
 	/**
 	 * @inheritdoc
-	 * @throws AppException
 	 */
 	public function get(string $key): ?Terms
 	{
-		$terms = parent::get($key);
-
-		if ($terms === null) {
+		if (!$this->has($key)) {
 			return null;
 		}
 
-		if (!($terms instanceof Terms)) {
-			$terms = new Terms($this->parent(), new Taxonomy($key));
+		$terms = parent::get($key);
 
-			$this->set($key, $terms);
+		if (!($terms instanceof Terms)) {
+			try {
+				$terms = new Terms($this->parent(), new Taxonomy($key));
+
+				$this->set($key, $terms);
+			} catch (AppException $exception) {
+				$terms = null;
+			}
 		}
 
 		return $terms;
