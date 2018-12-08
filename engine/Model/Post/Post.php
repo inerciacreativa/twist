@@ -25,37 +25,42 @@ class Post extends Model
 	/**
 	 * @var \WP_Post
 	 */
-	protected $post;
+	private $post;
 
 	/**
 	 * @var Taxonomies
 	 */
-	protected $taxonomies;
+	private $taxonomies;
 
 	/**
 	 * @var Author
 	 */
-	protected $author;
+	private $author;
 
 	/**
 	 * @var Meta
 	 */
-	protected $meta;
+	private $meta;
 
 	/**
 	 * @var CommentQuery
 	 */
-	protected $comments;
+	private $comments;
 
 	/**
 	 * @var Images
 	 */
-	protected $images;
+	private $images;
 
 	/**
 	 * @var Image
 	 */
-	protected $thumbnail;
+	private $thumbnail;
+
+	/**
+	 * @var bool
+	 */
+	private $has_children;
 
 	/**
 	 * @param \WP_Post|int $post
@@ -72,6 +77,7 @@ class Post extends Model
 	 * Post constructor.
 	 *
 	 * @param \WP_Post|int|null $post
+	 *
 	 * @throws AppException
 	 */
 	public function __construct($post = null)
@@ -151,10 +157,14 @@ class Post extends Model
 	 */
 	public function has_children(): bool
 	{
-		$type = get_post_type_object($this->type());
+		if ($this->has_children !== null) {
+			return $this->has_children;
+		}
+
+		$type = $this->type(true);
 
 		if (!$type || !$type->hierarchical) {
-			return false;
+			return $this->has_children = false;
 		}
 
 		$query = Query::make([
@@ -167,10 +177,10 @@ class Post extends Model
 		if ($query->count() > 0) {
 			$this->set_children($query->posts());
 
-			return true;
+			return $this->has_children = true;
 		}
 
-		return false;
+		return $this->has_children = false;
 	}
 
 	/**
@@ -201,7 +211,6 @@ class Post extends Model
 	 * @param string $default
 	 *
 	 * @return string
-	 * @throws AppException
 	 */
 	public function format(string $prefix = 'format', string $default = 'standard'): string
 	{
@@ -223,23 +232,13 @@ class Post extends Model
 	/**
 	 * Retrieve the post type.
 	 *
-	 * @return string
+	 * @param bool $object
+	 *
+	 * @return string|\stdClass
 	 */
-	public function type(): string
+	public function type(bool $object = false)
 	{
-		return $this->post->post_type;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function type_name(): ?string
-	{
-		if ($type = get_post_type_object($this->type())) {
-			return $type->labels->singular_name;
-		}
-
-		return null;
+		return $object ? get_post_type_object($this->post->post_type) : $this->post->post_type;
 	}
 
 	/**
@@ -366,7 +365,7 @@ class Post extends Model
 	 */
 	public function published(): string
 	{
-		return $this->datetime($this->post->post_date, 'the_date');
+		return $this->getDatetime($this->post->post_date, 'the_date');
 	}
 
 	/**
@@ -376,14 +375,13 @@ class Post extends Model
 	 */
 	public function modified(): string
 	{
-		return $this->datetime($this->post->post_modified, 'the_modified_date');
+		return $this->getDatetime($this->post->post_modified, 'the_modified_date');
 	}
 
 	/**
 	 * @param string|array $class
 	 *
 	 * @return string
-	 * @throws AppException
 	 */
 	public function classes($class = ''): string
 	{
@@ -439,32 +437,28 @@ class Post extends Model
 	}
 
 	/**
-	 * @param string $more
+	 * @param string|null $more
+	 * @param bool        $teaser
+	 * @param bool        $raw
 	 *
 	 * @return string
 	 */
-	public function content(string $more = null): string
+	public function content(string $more = null, bool $teaser = true, bool $raw = false): string
 	{
+		if ($raw) {
+			return $this->post->post_content;
+		}
+
 		ob_start();
-		the_content($more);
+		the_content($more, !$teaser);
 
 		return ob_get_clean();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function raw_content(): string
-	{
-		return $this->post->post_content;
 	}
 
 	/**
 	 * Retrieve the post status.
 	 *
 	 * @return string
-	 *
-	 * @throws AppException
 	 */
 	public function status(): string
 	{
@@ -475,14 +469,18 @@ class Post extends Model
 				return $status;
 			}
 
-			if ($this->has_parent() && ($parent = $this->parent())) {
-				$status = $parent->status();
+			try {
+				if ($this->has_parent() && ($parent = $this->parent())) {
+					$status = $parent->status();
 
-				if ($status === 'trash') {
-					return $parent->meta()->get('_wp_trash_meta_status');
+					if ($status === 'trash') {
+						return $parent->meta()->get('_wp_trash_meta_status');
+					}
+
+					return $status;
 				}
-
-				return $status;
+			} catch (AppException $exception) {
+				$status = 'unknown';
 			}
 
 			if ($status === 'inherit') {
@@ -606,7 +604,6 @@ class Post extends Model
 
 	/**
 	 * @return Terms
-	 * @throws AppException
 	 */
 	public function categories(): ?Terms
 	{
@@ -615,7 +612,6 @@ class Post extends Model
 
 	/**
 	 * @return Terms
-	 * @throws AppException
 	 */
 	public function tags(): ?Terms
 	{
@@ -635,19 +631,9 @@ class Post extends Model
 	}
 
 	/**
-	 * @param string $field
-	 *
-	 * @return mixed|null
+	 * @return \WP_Post
 	 */
-	public function field(string $field)
-	{
-		return $this->post->$field ?? null;
-	}
-
-	/**
-	 * @return null|\WP_Post
-	 */
-	public function object(): ?\WP_Post
+	public function object(): \WP_Post
 	{
 		return $this->post;
 	}
@@ -658,7 +644,7 @@ class Post extends Model
 	 *
 	 * @return string
 	 */
-	protected function datetime(string $date, string $filter): string
+	protected function getDatetime(string $date, string $filter): string
 	{
 		$format = 'c';
 		$date   = (string) date($format, strtotime($date));
