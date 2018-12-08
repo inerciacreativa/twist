@@ -28,6 +28,11 @@ class Image extends Model
 	protected $meta;
 
 	/**
+	 * @var array
+	 */
+	protected $sizes = [];
+
+	/**
 	 * Image constructor.
 	 *
 	 * @param Post|\WP_Post|int $post
@@ -46,11 +51,10 @@ class Image extends Model
 		}
 
 		if ($parent) {
+			$this->set_parent($parent);
+
 			if ($parent->id() === $post->parent_id()) {
-				$this->set_parent($parent);
 				$post->set_parent($parent);
-			} else {
-				new AppException(sprintf('The parent passed (ID %d) is not the same as the post (ID %d) parent (ID %d)', $parent->id(), $this->post->id(), $this->post->parent_id()));
 			}
 		}
 
@@ -96,18 +100,20 @@ class Image extends Model
 
 	/**
 	 * @return bool
-	 * @throws AppException
 	 */
 	public function is_featured(): bool
 	{
-		/** @noinspection NullPointerExceptionInspection */
-		return $this->has_parent() && ($this->parent()
-		                                    ->thumbnail_id() === $this->id());
+		try {
+			/** @noinspection NullPointerExceptionInspection */
+			return $this->has_parent() && ($this->parent()
+			                                    ->thumbnail_id() === $this->id());
+		} catch (AppException $exception) {
+			return false;
+		}
 	}
 
 	/**
 	 * @return bool
-	 * @throws AppException
 	 */
 	public function set_featured(): bool
 	{
@@ -115,8 +121,12 @@ class Image extends Model
 			return false;
 		}
 
-		/** @noinspection NullPointerExceptionInspection */
-		return $this->parent()->meta()->set('_thumbnail_id', $this->id());
+		try {
+			/** @noinspection NullPointerExceptionInspection */
+			return $this->parent()->meta()->set('_thumbnail_id', $this->id());
+		} catch (AppException $exception) {
+			return false;
+		}
 	}
 
 	/**
@@ -149,14 +159,17 @@ class Image extends Model
 
 	/**
 	 * @return string
-	 * @throws AppException
 	 */
 	public function alt(): string
 	{
 		$alt = trim(strip_tags($this->meta()->get('_wp_attachment_image_alt')));
 		if (empty($alt) && $this->is_featured()) {
-			/** @noinspection NullPointerExceptionInspection */
-			$alt = trim(strip_tags($this->parent()->title()));
+			try {
+				/** @noinspection NullPointerExceptionInspection */
+				$alt = trim(strip_tags($this->parent()->title()));
+			} catch (AppException $exception) {
+				$alt = '';
+			}
 		}
 
 		return $alt;
@@ -191,18 +204,22 @@ class Image extends Model
 	 * @param string $size
 	 *
 	 * @return array|null
-	 * @throws AppException
 	 */
 	public function get(string $size = 'thumbnail'): ?array
 	{
+		if (array_key_exists($size, $this->sizes)) {
+			return $this->sizes[$size];
+		}
+
 		if ($image = wp_get_attachment_image_src($this->id(), $size)) {
-			return array_combine([
+			return $this->sizes[$size] = array_combine([
 				'src',
 				'width',
 				'height',
 				'is_intermediate',
 				'alt',
-			], array_merge($image, [$this->alt()]));
+				'id',
+			], array_merge($image, [$this->alt(), $this->id()]));
 		}
 
 		return null;
