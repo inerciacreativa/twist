@@ -337,9 +337,9 @@ class Post extends Model
 	 * @param bool            $strip_teaser
 	 * @param bool            $raw
 	 *
-	 * @return string
+	 * @return null|string
 	 */
-	public function content(string $more_link = null, bool $strip_teaser = false, bool $raw = false): string
+	public function content(string $more_link = null, bool $strip_teaser = false, bool $raw = false): ?string
 	{
 		if ($raw) {
 			return $this->post->post_content;
