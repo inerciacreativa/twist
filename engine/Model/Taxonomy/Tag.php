@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Taxonomy;
 
+use Twist\App\AppException;
+
 /**
  * Class Tag
  *
@@ -13,7 +15,7 @@ class Tag extends Taxonomy
 	/**
 	 * Category constructor.
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function __construct()
 	{

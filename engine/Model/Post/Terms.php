@@ -2,9 +2,10 @@
 
 namespace Twist\Model\Post;
 
+use Twist\App\AppException;
 use Twist\Model\Taxonomy\Taxonomy;
-use Twist\Model\Taxonomy\Terms as BaseTerms;
 use Twist\Model\Taxonomy\Term;
+use Twist\Model\Taxonomy\Terms as BaseTerms;
 
 /**
  * Class Terms
@@ -19,6 +20,8 @@ class Terms extends BaseTerms
 	 *
 	 * @param Post     $post
 	 * @param Taxonomy $taxonomy
+	 *
+	 * @throws AppException
 	 */
 	public function __construct(Post $post, Taxonomy $taxonomy)
 	{
@@ -28,7 +31,7 @@ class Terms extends BaseTerms
 
 		if (\is_array($terms)) {
 			foreach ($terms as $term) {
-				$this->add(new Term($taxonomy, $term));
+				$this->add(new Term($term, $taxonomy));
 			}
 		}
 	}

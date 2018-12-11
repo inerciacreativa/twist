@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Taxonomy;
 
+use Twist\App\AppException;
+
 /**
  * Class Walker
  *
@@ -59,10 +61,12 @@ class Walker extends \Walker_Category
 	 * @param array    $arguments Optional. An array of arguments. See
 	 *                            wp_list_categories(). Default empty array.
 	 * @param int      $id        Unused.
+	 *
+	 * @throws AppException
 	 */
 	public function start_el(&$output, $term, $depth = 0, $arguments = [], $id = 0): void
 	{
-		$this->term = new Term($this->taxonomy, $term);
+		$this->term = new Term($term, $this->taxonomy);
 
 		if ($this->terms->has_parent()) {
 			$this->term->set_parent($this->terms->parent());

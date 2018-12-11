@@ -91,19 +91,21 @@ class Taxonomy implements TaxonomyInterface
 
 	/**
 	 * @return Term|null
-	 *
-	 * @throws \Exception
 	 */
 	public function current(): ?Term
 	{
 		if ($this->current === null) {
 			$this->current = false;
 
-			if ($this->is_current(Query::main()->queried_id())) {
-				/** @var \WP_Term $term */
-				$term = Query::main()->queried_object();
+			try {
+				if ($this->is_current(Query::main()->queried_id())) {
+					/** @var \WP_Term $term */
+					$term = Query::main()->queried_object();
 
-				$this->current = new Term($this, $term);
+					$this->current = new Term($term, $this);
+				}
+			} catch (AppException $exception) {
+
 			}
 		}
 
@@ -114,8 +116,6 @@ class Taxonomy implements TaxonomyInterface
 	 * @param array $options
 	 *
 	 * @return Terms
-	 *
-	 * @throws \Exception
 	 */
 	public function terms(array $options = []): Terms
 	{
