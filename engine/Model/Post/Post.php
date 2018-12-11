@@ -87,7 +87,7 @@ class Post extends Model
 	{
 		$this->post = get_post($post);
 
-		if ($this->post === null) {
+		if (!($this->post instanceof \WP_Post)) {
 			new AppException(sprintf('<p>Not valid post data.</p><pre>%s</pre>', print_r($post, true)));
 		}
 	}
