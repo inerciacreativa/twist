@@ -153,11 +153,17 @@ class Query implements IterableInterface
 		$this->query = $query ? new \WP_Query($query) : $wp_query;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function queried_object()
 	{
 		return $this->query->get_queried_object();
 	}
 
+	/**
+	 * @return int
+	 */
 	public function queried_id(): int
 	{
 		return (int) $this->query->get_queried_object_id();
@@ -394,17 +400,21 @@ class Query implements IterableInterface
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function is_archive(): bool
+	{
+		return $this->query->is_archive();
+	}
+
+	/**
 	 * @param null|string|array $post_type
 	 *
 	 * @return bool
 	 */
-	public function is_archive($post_type = null): bool
+	public function is_post_type_archive($post_type = null): bool
 	{
-		if ($post_type) {
-			return $this->query->is_post_type_archive($post_type);
-		}
-
-		return $this->query->is_archive();
+		return $this->query->is_post_type_archive($post_type);
 	}
 
 	/**
