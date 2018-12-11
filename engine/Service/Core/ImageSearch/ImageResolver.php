@@ -49,11 +49,11 @@ class ImageResolver
 	}
 
 	/**
-	 * @return string
+	 * @return null|string
 	 */
-	public function content(): string
+	public function content(): ?string
 	{
-		return $this->post->content(null, true, true);
+		return $this->post->content(null, false, true);
 	}
 
 	/**
