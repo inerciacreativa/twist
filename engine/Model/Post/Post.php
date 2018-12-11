@@ -4,6 +4,8 @@ namespace Twist\Model\Post;
 
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
+use Twist\Library\Html\Classes;
+use Twist\Library\Html\Tag;
 use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 use Twist\Library\Model\ModelInterface;
@@ -11,6 +13,7 @@ use Twist\Library\Util\Macroable;
 use Twist\Model\Comment\Query as CommentQuery;
 use Twist\Model\Image\Image;
 use Twist\Model\Image\Images;
+use Twist\Model\Site\Site;
 
 /**
  * Class Post
@@ -120,6 +123,14 @@ class Post extends Model
 	public function id(): int
 	{
 		return (int) $this->post->ID;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function name(): string
+	{
+		return $this->post->post_name;
 	}
 
 	/**
@@ -284,48 +295,60 @@ class Post extends Model
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function has_excerpt(): bool
+	{
+		return !empty($this->post->post_excerpt);
+	}
+
+	/**
 	 * @param int $words
 	 *
 	 * @return string
 	 */
-	public function excerpt(int $words = 0): string
+	public function excerpt(int $words = 55): string
 	{
-		$filter = null;
-
-		if ($words) {
-			$filter = function () use ($words) {
-				return $words;
-			};
-
-			Hook::add('excerpt_length', $filter, 999);
+		if ($this->is_password_required()) {
+			return __('There is no excerpt because this is a protected post.');
 		}
 
-		$excerpt = Hook::apply('the_excerpt', get_the_excerpt($this->post->ID));
+		if ($this->has_excerpt()) {
+			$excerpt = $this->post->post_excerpt;
+		} else {
+			$words = Hook::apply('excerpt_length', $words);
+			$more  = Hook::apply('excerpt_more', ' ' . '[&hellip;]');
 
-		if ($filter !== null) {
-			Hook::remove('excerpt_length', $filter, 999);
+			$excerpt = $this->getContent('');
+			$excerpt = strip_shortcodes($excerpt);
+			$excerpt = Hook::apply('the_content', $excerpt);
+			$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
+			$excerpt = wp_trim_words($excerpt, $words, $more);
 		}
+
+		$excerpt = Hook::apply('wp_trim_excerpt', $excerpt, $this->post->post_excerpt);
+		$excerpt = Hook::apply('the_excerpt', $excerpt);
 
 		return $excerpt;
 	}
 
 	/**
-	 * @param string|null $more
-	 * @param bool        $teaser
-	 * @param bool        $raw
+	 * @param Tag|string|null $more_link
+	 * @param bool            $strip_teaser
+	 * @param bool            $raw
 	 *
 	 * @return string
 	 */
-	public function content(string $more = null, bool $teaser = true, bool $raw = false): string
+	public function content(string $more_link = null, bool $strip_teaser = false, bool $raw = false): string
 	{
 		if ($raw) {
 			return $this->post->post_content;
 		}
 
-		ob_start();
-		the_content($more, !$teaser);
+		$content = Hook::apply('the_content', $this->getContent($more_link, $strip_teaser));
+		$content = str_replace(']]>', ']]&gt;', $content);
 
-		return ob_get_clean();
+		return $content;
 	}
 
 	/**
@@ -450,33 +473,35 @@ class Post extends Model
 	/**
 	 * @param string|array $class
 	 *
-	 * @return string
+	 * @return Classes
 	 */
-	public function classes($class = ''): string
+	public function classes($class = []): Classes
 	{
-		$classes = [];
-
-		if ($class) {
-			if (\is_string($class)) {
-				$class = (array) preg_split('#\s+#', $class);
-			}
-
-			$classes = (array) $class;
-		}
-
-		$classes[] = $this->type();
+		$classes = Classes::make($class)->add($this->type());
 
 		if ($this->has_format()) {
-			$classes[] = $this->format('is');
+			$classes->add($this->format('is'));
 		}
 
 		if ($this->has_thumbnail()) {
-			$classes[] = 'has-thumbnail';
+			$classes->add('has-thumbnail');
 		}
 
-		$classes = Hook::apply('post_class', $classes, $class, $this->id());
+		$classes->set(Hook::apply('post_class', $classes->all(), $class, $this->id()));
 
-		return implode(' ', array_unique($classes));
+		return $classes;
+	}
+
+	/**
+	 * Retrieve the post type.
+	 *
+	 * @param bool $object
+	 *
+	 * @return string|\stdClass
+	 */
+	public function type(bool $object = false)
+	{
+		return $object ? get_post_type_object($this->post->post_type) : $this->post->post_type;
 	}
 
 	/**
@@ -516,6 +541,33 @@ class Post extends Model
 	}
 
 	/**
+	 * @param bool $prefix
+	 *
+	 * @return string|null
+	 */
+	public function mime_type(bool $prefix = false): ?string
+	{
+		$mime = $this->post->post_mime_type;
+
+		if (empty($mime)) {
+			return null;
+		}
+
+		if (!$prefix) {
+			$mime = str_replace([
+				'application/',
+				'image/',
+				'text/',
+				'audio/',
+				'video/',
+				'music/',
+			], '', $mime);
+		}
+
+		return $mime;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function has_format(): bool
@@ -548,15 +600,21 @@ class Post extends Model
 	}
 
 	/**
-	 * Retrieve the post type.
-	 *
-	 * @param bool $object
-	 *
-	 * @return string|\stdClass
+	 * @return bool
 	 */
-	public function type(bool $object = false)
+	public function has_template(): bool
 	{
-		return $object ? get_post_type_object($this->post->post_type) : $this->post->post_type;
+		return (bool) $this->template();
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function template(): ?string
+	{
+		$template = $this->meta()->get('_wp_page_template');
+
+		return (!$template || $template === 'default') ? null : $template;
 	}
 
 	/**
@@ -609,6 +667,114 @@ class Post extends Model
 	public function object(): \WP_Post
 	{
 		return $this->post;
+	}
+
+	/**
+	 * @param string|null $more_link
+	 * @param bool        $strip_teaser
+	 *
+	 * @return string
+	 */
+	private function getContent(string $more_link = null, bool $strip_teaser = false): string
+	{
+		global $page, $more, $preview, $pages, $multipage;
+
+		if ($this->is_password_required()) {
+			return $this->getPasswordForm();
+		}
+
+		if ($more_link === null) {
+			$more = Tag::span([
+				'aria-label' => sprintf(__('Continue reading %s'), $this->title(true)),
+			], __('(more&hellip;)'));
+		}
+
+		$output     = '';
+		$has_teaser = false;
+
+		if ($page > count($pages)) {
+			$page = count($pages);
+		}
+
+		$content = $pages[$page - 1];
+		if (preg_match('/<!--more(.*?)?-->/', $content, $matches)) {
+			$content = explode($matches[0], $content, 2);
+			if ($more_link && !empty($matches[1])) {
+				$more_link = strip_tags(wp_kses_no_null(trim($matches[1])));
+			}
+
+			$has_teaser = true;
+		} else {
+			$content = [$content];
+		}
+
+		if ((!$multipage || $page === 1) && strpos($this->post->post_content, '<!--noteaser-->') !== false) {
+			$strip_teaser = true;
+		}
+
+		$teaser = $content[0];
+
+		if ($more && $strip_teaser && $has_teaser) {
+			$teaser = '';
+		}
+
+		$output .= $teaser;
+
+		if (count($content) > 1) {
+			$id = 'more-' . $this->id();
+
+			if ($more) {
+				$output .= Tag::span(['id' => $id]) . $content[1];
+			} else {
+				if ($more_link) {
+					Hook::apply('the_content_more_link', Tag::a([
+						'href'  => $this->link() . "#{$id}",
+						'class' => 'more-link',
+					], $more_link), $more_link);
+				}
+
+				$output = force_balance_tags($output);
+			}
+		}
+
+		if ($preview) {
+			$output = preg_replace_callback('/\%u([0-9A-F]{4})/', function ($match) {
+				return '&#' . base_convert($match[1], 16, 10) . ';';
+			}, $output);
+		}
+
+		return $output;
+	}
+
+	/**
+	 * @return Tag
+	 */
+	private function getPasswordForm(): Tag
+	{
+		$label = 'password-' . $this->id();
+
+		return Tag::form([
+			'method' => 'post',
+			'class'  => 'password-form',
+			'action' => Site::site_url('wp-login.php?action=postpass', 'login_post'),
+		], [
+			Tag::p(sprintf(__('This content is password protected. To view it <label for="%">please enter your password</label> below:'), $label)),
+			Tag::p(['class' => 'field has-addons'], [
+				Tag::div(['class' => 'control'], Tag::input([
+					'id'   => $label,
+					'name' => 'post_password',
+					'type' => 'password',
+					'size' => 20,
+				])),
+				Tag::div(['class' => 'control'], Tag::input([
+					'id'    => 'submit',
+					'name'  => 'submit',
+					'type'  => 'submit',
+					'class' => 'button is-primary is-medium',
+					'value' => esc_attr_x('Enter', 'post password form'),
+				])),
+			]),
+		]);
 	}
 
 	/**
