@@ -220,6 +220,8 @@ class AppException extends \Exception implements AppExceptionInterface
 				$result[] = empty($arg) && $count === 1 ? '' : "'$arg'";
 			} else if ($arg instanceof \Closure) {
 				$result[] = 'Closure';
+			} else if (\is_object($arg)) {
+				$result[] = get_class($arg);
 			} else {
 				$result[] = $arg;
 			}
