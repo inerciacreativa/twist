@@ -1,13 +1,16 @@
-<?php
+<?php /** @noinspection NullPointerExceptionInspection */
 
 namespace Twist\Model\Site;
 
 use Twist\App\AppException;
-use Twist\Library\Hook\Hook;
+use Twist\Library\Html\Classes;
 use Twist\Library\Util\Macroable;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Pagination;
+use Twist\Model\Post\Query;
+use Twist\Model\Taxonomy\Term;
+use Twist\Model\User\User;
 
 /**
  * Class Site
@@ -49,11 +52,7 @@ class Site
 	 */
 	public function head(): Head
 	{
-		if ($this->head === null) {
-			$this->head = new Head();
-		}
-
-		return $this->head;
+		return $this->head ?? $this->head = new Head();
 	}
 
 	/**
@@ -61,11 +60,7 @@ class Site
 	 */
 	public function foot(): Foot
 	{
-		if ($this->foot === null) {
-			$this->foot = new Foot();
-		}
-
-		return $this->foot;
+		return $this->foot ?? $this->foot = new Foot();
 	}
 
 	/**
@@ -73,11 +68,7 @@ class Site
 	 */
 	public function assets(): Assets
 	{
-		if ($this->assets === null) {
-			$this->assets = new Assets();
-		}
-
-		return $this->assets;
+		return $this->assets ?? $this->assets = new Assets();
 	}
 
 	/**
@@ -110,11 +101,7 @@ class Site
 	 */
 	public function pagination(): Pagination
 	{
-		if ($this->pagination === null) {
-			$this->pagination = new Pagination();
-		}
-
-		return $this->pagination;
+		return $this->pagination ?? $this->pagination = new Pagination();
 	}
 
 	/**
@@ -122,10 +109,7 @@ class Site
 	 */
 	public static function id(): string
 	{
-		$url = parse_url(self::home_url(), PHP_URL_HOST);
-		$url = str_replace('.', '-', $url);
-
-		return $url;
+		return str_replace('.', '-', parse_url(self::home_url(), PHP_URL_HOST));
 	}
 
 	/**
@@ -163,13 +147,14 @@ class Site
 	}
 
 	/**
-	 * @param string $path
+	 * @param string      $path
+	 * @param string|null $scheme
 	 *
 	 * @return string
 	 */
-	public static function site_url(string $path = '/'): string
+	public static function site_url(string $path = '/', string $scheme = null): string
 	{
-		return site_url($path);
+		return site_url($path, $scheme);
 	}
 
 	/**
@@ -185,121 +170,100 @@ class Site
 	/**
 	 * @see body_class()
 	 *
-	 * @param array $options
+	 * @param string|array $class
 	 *
-	 * @return string
+	 * @return Classes
+	 * @throws AppException
 	 */
-	public function classes(array $options = []): string
+	public function classes($class = []): Classes
 	{
-		/**
-		 * @var $wp_query \WP_Query
-		 */
-		global $wp_query;
+		$classes = Classes::make($class);
 
-		$options = wp_parse_args($options, [
-			'classes' => '',
-			'front'   => 'home',
-			'index'   => 'blog',
-		]);
-
-		$classes = [];
-
-		if (is_front_page()) {
-			$classes[] = $options['front'];
-		}
-		if (is_home()) {
-			$classes[] = $options['index'];
-		}
-		if (is_archive()) {
-			$classes[] = 'archive';
-		}
-		if (is_date()) {
-			$classes[] = 'date';
-		}
-		if (is_search()) {
-			$classes[] = 'search';
-			$classes[] = $wp_query->posts ? 'search-results' : 'search-no-results';
-		}
-		if (is_attachment()) {
-			$classes[] = 'attachment';
-		}
-		if (is_404()) {
-			$classes[] = 'not-found';
+		if (Query::main()->is_front_page()) {
+			$classes->add('home');
 		}
 
-		if (is_singular()) {
-			$post      = $wp_query->get_queried_object();
-			$post_id   = $post->ID;
-			$post_type = $post->post_type;
+		if (Query::main()->is_home()) {
+			$classes->add('blog');
+		}
 
-			if (is_page_template()) {
-				$classes[] = "{$post_type}-template";
+		if (Query::main()->is_archive()) {
+			$classes->add('archive');
+		}
 
-				$template_slug  = get_page_template_slug($post_id);
-				$template_parts = explode('/', $template_slug);
+		if (Query::main()->is_date()) {
+			$classes->add('date');
+		}
 
-				foreach ($template_parts as $part) {
-					$classes[] = "{$post_type}-template-" . sanitize_html_class(str_replace([
-							'.',
-							'/',
-						], '-', basename($part, '.php')));
-				}
+		if (Query::main()->is_search()) {
+			$classes->add('search');
+			$classes->add(Query::main()
+			                   ->total() > 0 ? 'search-has-results' : 'search-has-no-results');
+		}
 
-				$classes[] = "{$post_type}-template-" . sanitize_html_class(str_replace('.', '-', $template_slug));
-			}
+		if (Query::main()->is_404()) {
+			$classes->add('not-found');
+		}
 
-			if (is_single()) {
-				$classes[] = 'single';
-				if (isset($post->post_type)) {
-					$classes[] = 'single-' . sanitize_html_class($post->post_type, $post_id);
+		if (Query::main()->is_paged()) {
+			$classes->add('paged');
+		}
 
-					// Post Format
-					if ($post_format = get_post_format($post->ID)) {
-						$classes[] = 'format-' . sanitize_html_class($post_format);
-					}
+		if (Query::main()->is_singular()) {
+			$post = Query::main()->posts()->first();
+
+			if (Query::main()->is_single()) {
+				$classes->add('single single-' . $classes->sanitize($post->type(), $post->id()));
+
+				if ($post->has_format()) {
+					$classes->add($post->format('single-format'));
 				}
 			}
 
-			if (is_page()) {
-				$classes[] = 'page';
+			if (Query::main()->is_attachment()) {
+				$classes->add('attachment attachment-' . $post->mime_type());
 			}
-		} else if (is_archive()) {
-			if (is_post_type_archive()) {
-				$post_type = get_query_var('post_type');
-				if (\is_array($post_type)) {
-					$post_type = reset($post_type);
+
+			if (Query::main()->is_page()) {
+				$classes->add('page page-' . $classes->sanitize($post->name()));
+				if ($post->has_parent()) {
+					$classes->add('page-has-parent');
 				}
-				$classes[] = 'archive-' . sanitize_html_class($post_type);
-			} else if (is_author()) {
-				$classes[] = 'archive-author';
-			} else if (is_category()) {
-				$classes[] = 'archive-category';
-			} else if (is_tag()) {
-				$classes[] = 'archive-tag';
-			} else if (is_tax()) {
-				$term      = $wp_query->get_queried_object();
-				$classes[] = 'archive-' . sanitize_html_class($term->taxonomy);
+				if ($post->has_children()) {
+					$classes->add('page-has-children');
+				}
+			}
+		} else if (Query::main()->is_archive()) {
+			if (Query::main()->is_post_type_archive()) {
+				$type = Query::main()->get('post_type');
+				if (is_array($type)) {
+					$type = reset($type);
+				}
+
+				$classes->add('archive-' . $classes->sanitize($type));
+			} else if (Query::main()->is_author()) {
+				$author = new User(Query::main()->queried_object());
+
+				$classes->add('archive-author author-' . $classes->sanitize($author->nice_name(), $author->id()));
+			} else if (Query::main()->is_category()) {
+				$term = new Term(Query::main()->queried_object());
+
+				$classes->add('archive-category category-' . $classes->sanitize($term->slug(), $term->id()));
+			} else if (Query::main()->is_tag()) {
+				$term = new Term(Query::main()->queried_object());
+
+				$classes->add('archive-tag tag-' . $classes->sanitize($term->slug(), $term->id()));
+			} else if (Query::main()->is_taxonomy()) {
+				$term     = new Term(Query::main()->queried_object());
+				$taxonomy = $classes->sanitize($term->taxonomy());
+
+				$classes->add("$taxonomy $taxonomy-" . $classes->sanitize($term->slug(), $term->id()));
 			}
 		}
 
-		if (is_user_logged_in()) {
-			$classes[] = 'user-logged-in';
+		if (User::current()->is_logged()) {
+			$classes->add('user-logged-in');
 		}
-
-		if (is_admin_bar_showing()) {
-			$classes[] = 'admin-bar';
-		}
-
-		if (!empty($options->classes)) {
-			if (!\is_array($options->classes)) {
-				$options->classes = preg_split('#\s+#', $options->classes);
-			}
-
-			$classes = array_merge($classes, $options->classes);
-		}
-
-		$classes = array_filter($classes);
-		$classes = implode(' ', Hook::apply('body_class', $classes, $options['classes']));
 
 		return $classes;
 	}
