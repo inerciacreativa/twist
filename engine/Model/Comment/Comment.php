@@ -3,6 +3,7 @@
 namespace Twist\Model\Comment;
 
 use Twist\Library\Hook\Hook;
+use Twist\Library\Html\Classes;
 use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 use Twist\Model\Post\Post;
@@ -154,36 +155,39 @@ class Comment extends Model
 	/**
 	 * Returns the HTML classes.
 	 *
-	 * @return string
+	 * @param string|array $class
+	 *
+	 * @return Classes
 	 */
-	public function classes(): string
+	public function classes($class = []): Classes
 	{
-		$classes = [$this->type()];
-
-		if ($this->has_children()) {
-			if ($this->depth() === 1) {
-				$classes[] = 'is-thread';
-			}
-
-			$classes[] = 'has-children';
-		}
+		$classes = new Classes($class);
+		$classes->add($this->type());
 
 		if ($this->has_parent()) {
-			$classes[] = 'has-parent';
+			$classes->add('has-parent');
+		}
+
+		if ($this->has_children()) {
+			$classes->add('has-children');
+
+			if ($this->depth() === 1) {
+				$classes->add('is-thread');
+			}
 		}
 
 		if ($this->author()->exists()) {
-			$classes[] = 'by-user';
-			$classes[] = 'by-author-' . sanitize_html_class($this->author()->name(), $this->author()->id());
+			$classes->add('by-user');
+			$classes->add('by-author-' . sanitize_html_class($this->author()->name(), $this->author()->id()));
 
 			if ($this->author()->id() === $this->post()->author()->id()) {
-				$classes[] = 'by-post-author';
+				$classes->add('by-post-author');
 			}
 		}
 
-		$classes = Hook::apply('comment_class', $classes, '', $this->id(), $this->object(), $this->post()->id());
+		$classes->set(Hook::apply('comment_class', $classes->all(), '', $this->id(), $this->object(), $this->post()->id()));
 
-		return implode(' ', $classes);
+		return $classes;
 	}
 
 	/**

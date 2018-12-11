@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Navigation;
 
+use Twist\Library\Html\Classes;
 use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 
@@ -36,8 +37,8 @@ class Link extends Model
 			'rel'     => null,
 		], $properties);
 
-		if (\is_string($properties['classes'])) {
-			$properties['classes'] = (array) preg_split('#\s+#', $properties['classes']);
+		if (!($properties['classes'] instanceof Classes)) {
+			$properties['classes'] = new Classes($properties['classes']);
 		}
 
 		$this->properties = $properties;
@@ -82,11 +83,13 @@ class Link extends Model
 	}
 
 	/**
-	 * @return string
+	 * @param string|array $class
+	 *
+	 * @return Classes
 	 */
-	public function classes(): string
+	public function classes($class = []): Classes
 	{
-		return trim(implode(' ', (array) $this->properties['classes']));
+		return $this->properties['classes']->add($class);
 	}
 
 	/**
@@ -108,14 +111,6 @@ class Link extends Model
 	/**
 	 * @return bool
 	 */
-	public function is_current(): bool
-	{
-		return \in_array('current', $this->properties['classes'], true);
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function is_disabled(): bool
 	{
 		return $this->properties['url'] === null;
@@ -124,9 +119,17 @@ class Link extends Model
 	/**
 	 * @return bool
 	 */
+	public function is_current(): bool
+	{
+		return $this->properties['classes']->has('current');
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function is_next(): bool
 	{
-		return \in_array('next', $this->properties['classes'], true);
+		return $this->properties['classes']->has('next');
 	}
 
 	/**
@@ -134,7 +137,7 @@ class Link extends Model
 	 */
 	public function is_previous(): bool
 	{
-		return \in_array('prev', $this->properties['classes'], true);
+		return $this->properties['classes']->has('prev');
 	}
 
 	/**

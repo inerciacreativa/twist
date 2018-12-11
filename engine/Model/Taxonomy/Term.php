@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Taxonomy;
 
+use Twist\App\AppException;
+use Twist\Library\Html\Classes;
 use Twist\Library\Model\CollectionInterface;
 use Twist\Library\Model\Model;
 
@@ -33,13 +35,15 @@ class Term extends Model
 	/**
 	 * Term constructor.
 	 *
-	 * @param TaxonomyInterface $taxonomy
 	 * @param \WP_Term          $term
+	 * @param TaxonomyInterface $taxonomy
+	 *
+	 * @throws AppException
 	 */
-	public function __construct(TaxonomyInterface $taxonomy, \WP_Term $term)
+	public function __construct(\WP_Term $term, TaxonomyInterface $taxonomy = null)
 	{
-		$this->taxonomy = $taxonomy;
 		$this->term     = $term;
+		$this->taxonomy = $taxonomy ?? new Taxonomy($term->taxonomy);
 	}
 
 	/**
@@ -141,28 +145,23 @@ class Term extends Model
 	/**
 	 * @param string $prefix
 	 *
-	 * @return string
+	 * @return Classes
 	 */
-	public function classes(string $prefix = ''): string
+	public function classes(string $prefix = ''): Classes
 	{
-		if ($prefix) {
-			$classes = [
-				$prefix . '-item',
-				$prefix . '-' . $this->taxonomy->name(),
-			];
-		} else {
-			$prefix  = $this->taxonomy->name();
-			$classes = [
-				$prefix,
-				$prefix . '-' . $this->term->slug,
-			];
-		}
+		$classes = Classes::make()
+		                  ->prefix($prefix ?: $this->taxonomy->name())
+		                  ->add([
+			                  $this->taxonomy->name(),
+			                  'item',
+			                  $this->term->slug,
+		                  ]);
 
 		if ($this->is_current()) {
-			$classes[] = $prefix . '-current';
+			$classes->add('current');
 		}
 
-		return implode(' ', $classes);
+		return $classes;
 	}
 
 	/**
