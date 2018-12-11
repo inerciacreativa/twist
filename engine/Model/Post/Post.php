@@ -667,7 +667,7 @@ class Post extends Model
 	public function object(): \WP_Post
 	{
 		if (!($this->post instanceof \WP_Post)) {
-			new AppException(sprintf('<p>Not valid post data.</p><pre>%s</pre>', print_r($this, true)));
+			new AppException(sprintf('<p>Not valid post data.</p><pre>%s</pre>', print_r($this->post, true)));
 		}
 
 		return $this->post;
