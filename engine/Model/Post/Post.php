@@ -337,9 +337,9 @@ class Post extends Model
 	 * @param bool            $strip_teaser
 	 * @param bool            $raw
 	 *
-	 * @return null|string
+	 * @return string
 	 */
-	public function content(string $more_link = null, bool $strip_teaser = false, bool $raw = false): ?string
+	public function content(string $more_link = null, bool $strip_teaser = false, bool $raw = false): string
 	{
 		if ($raw) {
 			return $this->post->post_content;
@@ -666,10 +666,6 @@ class Post extends Model
 	 */
 	public function object(): \WP_Post
 	{
-		if (!($this->post instanceof \WP_Post)) {
-			new AppException(sprintf('<p>Not valid post data.</p><pre>%s</pre>', print_r($this->post, true)));
-		}
-
 		return $this->post;
 	}
 
