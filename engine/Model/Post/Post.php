@@ -256,6 +256,14 @@ class Post extends Model
 	}
 
 	/**
+	 * @return string
+	 */
+	public function datetime(): string
+	{
+		return $this->getDatetime('U', 'date');
+	}
+
+	/**
 	 * Retrieve the date on which the post was written in ISO 8601 format.
 	 *
 	 * @see the_date()
