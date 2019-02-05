@@ -172,14 +172,14 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function where(string $key, string $operator, $value = null): CollectionInterface
+	public function where(string $method, string $operator, $value = null): CollectionInterface
 	{
 		if (\func_num_args() === 2) {
 			$value    = $operator;
 			$operator = '=';
 		}
 
-		return $this->filter(DataCollection::operatorForWhere($key, $operator, $value));
+		return $this->filter(DataCollection::operatorForWhere($method, $operator, $value));
 	}
 
 	/**
