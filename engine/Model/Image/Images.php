@@ -12,15 +12,6 @@ use Twist\Model\Post\Query;
  * Class Images
  *
  * @package Twist\Model\Image
- *
- * @method Post|null parent()
- * @method Image get(int $id)
- * @method Image|null first(callable $callback = null)
- * @method Image|null last(callable $callback = null)
- * @method Images only(array $ids)
- * @method Images except(array $ids)
- * @method Images slice(int $offset, int $length = null)
- * @method Images take(int $limit)
  */
 class Images extends Collection
 {

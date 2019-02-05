@@ -10,15 +10,6 @@ use Twist\Model\Post\Post;
  * Class Comments
  *
  * @package Twist\Model\Comment
- *
- * @method Comment|null parent()
- * @method Comment get(int $id)
- * @method Comment|null first(callable $callback = null)
- * @method Comment|null last(callable $callback = null)
- * @method Comments only(array $ids)
- * @method Comments except(array $ids)
- * @method Comments slice(int $offset, int $length = null)
- * @method Comments take(int $limit)
  */
 class Comments extends Collection
 {
