@@ -128,7 +128,7 @@ class Query implements IterableInterface
 		if (empty($search)) {
 			$request = explode('/', $wp->request);
 			$search  = str_replace('-', ' ', end($request));
-			$search  = (string) preg_replace('/[^a-z ]/i', '', $search);
+			$search  = preg_replace('/[^a-z ]/i', '', $search);
 		}
 
 		$parameters = array_merge([
