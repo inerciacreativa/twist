@@ -228,7 +228,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
     public function contains($key, $operator = null, $value = null): bool
     {
         if (\func_num_args() === 1) {
-            if ($this->useAsCallable($key)) {
+            if (self::useAsCallable($key)) {
                 return $this->first($key) !== null;
             }
 
@@ -240,7 +240,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
             $operator = '=';
         }
 
-        return $this->contains($this->operatorForWhere($key, $operator, $value));
+        return $this->contains(self::operatorForWhere($key, $operator, $value));
     }
 
     /**
@@ -259,7 +259,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
             });
         }
 
-        if ($this->useAsCallable($key)) {
+        if (self::useAsCallable($key)) {
             return $this->first($key) !== null;
         }
 
@@ -438,7 +438,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      */
     public function search($value, bool $strict = false)
     {
-        if (!$this->useAsCallable($value)) {
+        if (!self::useAsCallable($value)) {
             return array_search($value, $this->items, $strict);
         }
 
@@ -463,7 +463,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
     public function every($key, string $operator = null, $value = null): bool
     {
         if (\func_num_args() === 1) {
-            $callback = $this->valueRetriever($key);
+            $callback = self::valueRetriever($key);
 
             foreach ($this->items as $k => $v) {
                 if (!$callback($v, $k)) {
@@ -479,7 +479,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
             $operator = '=';
         }
 
-        return $this->every($this->operatorForWhere($key, $operator, $value));
+        return $this->every(self::operatorForWhere($key, $operator, $value));
     }
 
     /**
@@ -610,7 +610,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
     public function sortBy($callback, int $options = SORT_REGULAR, bool $descending = false): Collection
     {
         $results  = [];
-        $callback = $this->valueRetriever($callback);
+        $callback = self::valueRetriever($callback);
         // First we will loop through the items and get the comparator from a callback
         // function which we were given. Then, we will sort the returned values and
         // and grab the corresponding values for the sorted keys from this array.
@@ -654,7 +654,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      */
     public function groupBy($groupBy, bool $preserveKeys = false): Collection
     {
-        $groupBy = $this->valueRetriever($groupBy);
+        $groupBy = self::valueRetriever($groupBy);
         $results = [];
 
         foreach ($this->items as $key => $value) {
@@ -685,7 +685,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      */
     public function keyBy($keyBy): Collection
     {
-        $keyBy   = $this->valueRetriever($keyBy);
+        $keyBy   = self::valueRetriever($keyBy);
         $results = [];
 
         foreach ($this->items as $key => $item) {
@@ -806,7 +806,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
             $operator = '=';
         }
 
-        return $this->filter($this->operatorForWhere($key, $operator, $value));
+        return $this->filter(self::operatorForWhere($key, $operator, $value));
     }
 
     /**
@@ -862,7 +862,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      */
     public function reject($callback): Collection
     {
-        if ($this->useAsCallable($callback)) {
+        if (self::useAsCallable($callback)) {
             return $this->filter(function ($value, $key) use ($callback) {
                 return !$callback($value, $key);
             });
@@ -899,7 +899,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
             return new static(array_unique($this->items, SORT_REGULAR));
         }
 
-        $callback = $this->valueRetriever($key);
+        $callback = self::valueRetriever($key);
         $exists   = [];
 
         return $this->reject(function ($item, $key) use ($callback, $strict, &$exists) {
@@ -1023,7 +1023,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
             return array_sum($this->items);
         }
 
-        $callback = $this->valueRetriever($callback);
+        $callback = self::valueRetriever($callback);
 
         return $this->reduce(function ($result, $item) use ($callback) {
             return $result + $callback($item);
@@ -1281,9 +1281,9 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return callable
      */
-    protected function valueRetriever($value): callable
+	public static function valueRetriever($value): callable
     {
-        if ($this->useAsCallable($value)) {
+        if (self::useAsCallable($value)) {
             return $value;
         }
 
@@ -1299,7 +1299,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return bool
      */
-    protected function useAsCallable($value): bool
+	public static function useAsCallable($value): bool
     {
         return !\is_string($value) && \is_callable($value);
     }
@@ -1313,7 +1313,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return callable
      */
-    protected function operatorForWhere(string $key, string $operator, $value): callable
+	public static function operatorForWhere(string $key, string $operator, $value): callable
     {
         return function ($item) use ($key, $operator, $value) {
             $retrieved = Data::get($item, $key);
