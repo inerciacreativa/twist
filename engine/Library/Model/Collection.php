@@ -3,6 +3,7 @@
 namespace Twist\Library\Model;
 
 use Twist\Library\Util\Arr;
+use Twist\Library\Data\Collection as DataCollection;
 
 /**
  * Class Collection
@@ -158,6 +159,27 @@ class Collection implements CollectionInterface
 		}
 
 		return $this->slice(0, $limit);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function filter(callable $callback): CollectionInterface
+	{
+		return new static($this->parent, Arr::where($this->models, $callback));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function where(string $key, string $operator, $value = null): CollectionInterface
+	{
+		if (\func_num_args() === 2) {
+			$value    = $operator;
+			$operator = '=';
+		}
+
+		return $this->filter(DataCollection::operatorForWhere($key, $operator, $value));
 	}
 
 	/**

@@ -95,6 +95,22 @@ interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \C
 	public function take(int $limit): CollectionInterface;
 
 	/**
+	 * @param callable $callback
+	 *
+	 * @return CollectionInterface
+	 */
+	public function filter(callable $callback): CollectionInterface;
+
+	/**
+	 * @param string $key
+	 * @param string $operator
+	 * @param mixed  $value
+	 *
+	 * @return CollectionInterface
+	 */
+	public function where(string $key, string $operator, $value = null): CollectionInterface;
+
+	/**
 	 * @param string $method
 	 * @param int    $options
 	 * @param bool   $descending
