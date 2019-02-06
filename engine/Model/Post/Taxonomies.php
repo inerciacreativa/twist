@@ -3,7 +3,7 @@
 namespace Twist\Model\Post;
 
 use Twist\App\AppException;
-use Twist\Library\Model\Enumerable;
+use Twist\Model\Base\Enumerable;
 use Twist\Model\Taxonomy\Taxonomy;
 
 /**

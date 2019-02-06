@@ -2,7 +2,7 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Model\IdentifiableInterface;
+use Twist\Model\Base\IdentifiableInterface;
 
 /**
  * Interface UserInterface

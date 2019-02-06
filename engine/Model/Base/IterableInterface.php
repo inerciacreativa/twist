@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 /**
  * Interface IterableInterface
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 interface IterableInterface extends \Iterator, \Countable
 {

@@ -4,8 +4,8 @@ namespace Twist\Model\Image;
 
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
-use Twist\Library\Model\Model;
-use Twist\Library\Model\ModelInterface;
+use Twist\Model\Base\Model;
+use Twist\Model\Base\ModelInterface;
 use Twist\Library\Html\Tag;
 use Twist\Model\Post\Post;
 

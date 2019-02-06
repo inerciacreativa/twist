@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Navigation;
 
-use Twist\Library\Model\Collection;
+use Twist\Model\Base\Collection;
 
 /**
  * Class Links

@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 /**
  * Class CollectionIterator
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 class CollectionIterator implements CollectionIteratorInterface
 {

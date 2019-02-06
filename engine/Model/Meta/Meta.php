@@ -3,8 +3,8 @@
 namespace Twist\Model\Meta;
 
 use Twist\Library\Hook\Hook;
-use Twist\Library\Model\EnumerableInterface;
-use Twist\Library\Model\IdentifiableInterface;
+use Twist\Model\Base\EnumerableInterface;
+use Twist\Model\Base\IdentifiableInterface;
 
 /**
  * Class Meta

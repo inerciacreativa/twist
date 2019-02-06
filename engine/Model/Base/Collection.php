@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 use Twist\Library\Util\Arr;
 use Twist\Library\Data\Collection as DataCollection;
@@ -8,7 +8,7 @@ use Twist\Library\Data\Collection as DataCollection;
 /**
  * Class Collection
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 class Collection implements CollectionInterface
 {
@@ -120,7 +120,7 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function merge(Collection $collection): CollectionInterface
+	public function merge(CollectionInterface $collection): CollectionInterface
 	{
 		return new static($this->parent, array_merge($this->models, $collection->all()));
 	}

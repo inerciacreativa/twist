@@ -2,7 +2,7 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Model\Enumerable;
+use Twist\Model\Base\Enumerable;
 use Twist\Library\Util\Arr;
 
 /**

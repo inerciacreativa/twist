@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 /**
  * Interface HasParentInterface
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 interface HasParentInterface
 {

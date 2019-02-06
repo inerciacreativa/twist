@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 /**
  * Interface CollectionInterface
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \Countable
 {
@@ -59,11 +59,11 @@ interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \C
 	public function last(callable $callback = null): ?ModelInterface;
 
 	/**
-	 * @param Collection $collection
+	 * @param CollectionInterface $collection
 	 *
 	 * @return CollectionInterface
 	 */
-	public function merge(Collection $collection): CollectionInterface;
+	public function merge(CollectionInterface $collection): CollectionInterface;
 
 	/**
 	 * @param int[] $ids

@@ -2,8 +2,8 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Library\Model\Collection;
-use Twist\Library\Model\CollectionIteratorInterface;
+use Twist\Model\Base\Collection;
+use Twist\Model\Base\CollectionIteratorInterface;
 use Twist\Model\Post\Post;
 
 /**

@@ -3,8 +3,8 @@
 namespace Twist\Model\Navigation;
 
 use Twist\Library\Html\Classes;
-use Twist\Library\Model\CollectionInterface;
-use Twist\Library\Model\Model;
+use Twist\Model\Base\CollectionInterface;
+use Twist\Model\Base\Model;
 
 /**
  * Class Link

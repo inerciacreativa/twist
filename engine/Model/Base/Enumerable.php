@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 /**
  * Class Enumerator
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 class Enumerable implements EnumerableInterface
 {

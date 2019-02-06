@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 /**
  * Interface CollectionIteratorInterface
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 interface CollectionIteratorInterface extends \SeekableIterator, \ArrayAccess, \Countable
 {

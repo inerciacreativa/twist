@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Model;
+namespace Twist\Model\Base;
 
 /**
  * Class Model
  *
- * @package Twist\Library\Model
+ * @package Twist\Model\Base
  */
 abstract class Model implements ModelInterface
 {

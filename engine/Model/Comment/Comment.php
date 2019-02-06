@@ -4,8 +4,8 @@ namespace Twist\Model\Comment;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
-use Twist\Library\Model\CollectionInterface;
-use Twist\Library\Model\Model;
+use Twist\Model\Base\CollectionInterface;
+use Twist\Model\Base\Model;
 use Twist\Model\Post\Post;
 use Twist\Model\User\User;
 

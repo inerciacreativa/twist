@@ -5,8 +5,8 @@ namespace Twist\Model\Post;
 use Twist\App\App;
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
-use Twist\Library\Model\IterableInterface;
 use Twist\Library\Util\Arr;
+use Twist\Model\Base\IterableInterface;
 
 /**
  * Class Query
@@ -128,7 +128,7 @@ class Query implements IterableInterface
 		if (empty($search)) {
 			$request = explode('/', $wp->request);
 			$search  = str_replace('-', ' ', end($request));
-			$search  = preg_replace('/[^a-z ]/i', '', $search);
+			$search  = (string) preg_replace('/[^a-z ]/i', '', $search);
 		}
 
 		$parameters = array_merge([
