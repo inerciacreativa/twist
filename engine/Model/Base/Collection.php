@@ -2,8 +2,9 @@
 
 namespace Twist\Model\Base;
 
-use Twist\Library\Util\Arr;
 use Twist\Library\Data\Collection as DataCollection;
+use Twist\Library\Util\Arr;
+use Twist\Library\Util\Data;
 
 /**
  * Class Collection
@@ -56,7 +57,7 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function remove(int $id): void
+	public function forget(int $id): void
 	{
 		unset($this->models[$id]);
 	}
@@ -96,33 +97,33 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function first(callable $callback = null): ?ModelInterface
+	public function first(callable $callback = null, $default = null): ?ModelInterface
 	{
 		if ($callback === null) {
-			return \count($this->models) > 0 ? reset($this->models) : null;
+			return \count($this->models) > 0 ? reset($this->models) : Data::value($default);
 		}
 
-		return Arr::first($this->models, $callback);
+		return Arr::first($this->models, $callback, $default);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function last(callable $callback = null): ?ModelInterface
+	public function last(callable $callback = null, $default = null): ?ModelInterface
 	{
 		if ($callback === null) {
-			return \count($this->models) > 0 ? end($this->models) : null;
+			return \count($this->models) > 0 ? end($this->models) : Data::value($default);
 		}
 
-		return Arr::last($this->models, $callback);
+		return Arr::last($this->models, $callback, $default);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function merge(CollectionInterface $collection): CollectionInterface
+	public function merge($models): CollectionInterface
 	{
-		return new static($this->parent, array_merge($this->models, $collection->all()));
+		return new static($this->parent, array_merge($this->models, Arr::items($models)));
 	}
 
 	/**
@@ -185,7 +186,7 @@ class Collection implements CollectionInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function sort(string $method = null, int $options = SORT_REGULAR, bool $descending = false): CollectionInterface
+	public function sort(string $method = null, bool $descending = false, int $options = SORT_REGULAR): CollectionInterface
 	{
 		if ($method === null) {
 			return $this;
