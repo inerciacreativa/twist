@@ -69,7 +69,7 @@ class Enumerable implements EnumerableInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function unset(string $key): bool
+	public function forget(string $key): bool
 	{
 		unset($this->values[$key]);
 

@@ -69,6 +69,14 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public function forget(string $key): bool
+	{
+		return delete_metadata($this->type, $this->id(), $key);
+	}
+
+	/**
 	 * @param string $key
 	 *
 	 * @return bool
@@ -76,14 +84,6 @@ class Meta implements EnumerableInterface
 	public function has(string $key): bool
 	{
 		return metadata_exists($this->type, $this->id(), $key);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function unset(string $key): bool
-	{
-		return delete_metadata($this->type, $this->id(), $key);
 	}
 
 	/**

@@ -35,7 +35,7 @@ interface EnumerableInterface extends \IteratorAggregate
 	 *
 	 * @return bool
 	 */
-	public function unset(string $key): bool;
+	public function forget(string $key): bool;
 
 	/**
 	 * @param string $key
