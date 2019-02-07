@@ -20,22 +20,27 @@ class Comment extends Model
 	/**
 	 * @var Query
 	 */
-	protected $query;
+	private $query;
 
 	/**
 	 * @var \WP_Comment
 	 */
-	protected $comment;
+	private $comment;
 
 	/**
 	 * @var int
 	 */
-	protected $depth;
+	private $depth;
 
 	/**
 	 * @var Author
 	 */
-	protected $author;
+	private $author;
+
+	/**
+	 * @var Meta
+	 */
+	private $meta;
 
 	/**
 	 * Comment constructor.
@@ -55,6 +60,9 @@ class Comment extends Model
 		}
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function children(): ?CollectionInterface
 	{
 		if ($this->children === null) {
@@ -324,11 +332,15 @@ class Comment extends Model
 	 */
 	public function author(): Author
 	{
-		if ($this->author === null) {
-			$this->author = new Author($this);
-		}
+		return $this->author ?? $this->author = new Author($this);
+	}
 
-		return $this->author;
+	/**
+	 * @return Meta
+	 */
+	public function meta(): Meta
+	{
+		return $this->meta ?? $this->meta = new Meta($this);
 	}
 
 	/**
