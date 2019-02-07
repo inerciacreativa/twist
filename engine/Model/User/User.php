@@ -2,8 +2,8 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Util\Str;
 use Twist\Library\Html\Tag;
+use Twist\Library\Util\Str;
 use Twist\Model\Post\Query;
 
 /**
@@ -17,37 +17,42 @@ class User implements UserInterface
 	/**
 	 * @var static
 	 */
-	protected static $current;
+	private static $current;
 
 	/**
 	 * @var static
 	 */
-	protected static $commenter;
+	private static $commenter;
 
 	/**
 	 * @var \WP_User
 	 */
-	protected $user;
+	private $user;
 
 	/**
 	 * @var Tag[]
 	 */
-	protected $avatar = [];
+	private $avatar = [];
 
 	/**
-	 * @var UserProfiles
+	 * @var Meta
 	 */
-	protected $profiles;
+	private $meta;
+
+	/**
+	 * @var Profiles
+	 */
+	private $profiles;
 
 	/**
 	 * @var Query
 	 */
-	protected $posts;
+	private $posts;
 
 	/**
 	 * @return User
 	 */
-	public static function current(): User
+	final public static function current(): User
 	{
 		if (static::$current === null) {
 			static::$current = new static();
@@ -59,7 +64,7 @@ class User implements UserInterface
 	/**
 	 * @return User
 	 */
-	public static function commenter(): User
+	final public static function commenter(): User
 	{
 		if (static::$commenter === null) {
 			$user      = new static();
@@ -88,7 +93,7 @@ class User implements UserInterface
 	 *
 	 * @return User
 	 */
-	public static function make($user): User
+	final public static function make($user): User
 	{
 		return new static($user);
 	}
@@ -104,7 +109,7 @@ class User implements UserInterface
 			$this->user = wp_get_current_user();
 		} else if ($user instanceof \WP_User) {
 			$this->user = $user;
-		} else if (\is_object($user) || is_numeric($user) || \is_string($user)) {
+		} else if (\is_object($user) || \is_int($user) || \is_string($user)) {
 			$this->user = new \WP_User($user);
 		}
 	}
@@ -241,15 +246,19 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @return UserProfiles
+	 * @return Meta
 	 */
-	public function profiles(): UserProfiles
+	public function meta(): Meta
 	{
-		if ($this->profiles === null) {
-			$this->profiles = new UserProfiles($this);
-		}
+		return $this->meta ?? $this->meta = new Meta($this);
+	}
 
-		return $this->profiles;
+	/**
+	 * @return Profiles
+	 */
+	public function profiles(): Profiles
+	{
+		return $this->profiles ?? $this->profiles = new Profiles($this);
 	}
 
 	/**
