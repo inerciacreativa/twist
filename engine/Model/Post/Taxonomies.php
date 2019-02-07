@@ -10,11 +10,14 @@ use Twist\Model\Taxonomy\Taxonomy;
  * Class Taxonomies
  *
  * @package Twist\Model\Post
- *
- * @method Post parent()
  */
 class Taxonomies extends Enumerable
 {
+
+	/**
+	 * @var Post
+	 */
+	private $post;
 
 	/**
 	 * Taxonomies constructor.
@@ -23,13 +26,14 @@ class Taxonomies extends Enumerable
 	 */
 	public function __construct(Post $post)
 	{
-		parent::__construct($post, array_flip(get_object_taxonomies($post->type())));
+		$this->post = $post;
+		$this->reset(array_flip(get_object_taxonomies($post->type())));
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function get(string $key): ?Terms
+	public function get(string $key, $default = null): ?Terms
 	{
 		if (!$this->has($key)) {
 			return null;
@@ -39,7 +43,7 @@ class Taxonomies extends Enumerable
 
 		if (!($terms instanceof Terms)) {
 			try {
-				$terms = new Terms($this->parent(), new Taxonomy($key));
+				$terms = new Terms($this->post, new Taxonomy($key));
 
 				$this->set($key, $terms);
 			} catch (AppException $exception) {

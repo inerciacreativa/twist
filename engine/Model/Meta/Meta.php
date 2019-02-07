@@ -17,12 +17,12 @@ class Meta implements EnumerableInterface
 	/**
 	 * @var IdentifiableInterface
 	 */
-	protected $parent;
+	private $parent;
 
 	/**
-	 * @var string
+	 * @var string Type of object metadata is for (e.g., comment, post, term, or user).
 	 */
-	protected $type;
+	private $type;
 
 	/**
 	 * Meta constructor.
@@ -37,43 +37,31 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
-	 * @return int
+	 * @inheritdoc
 	 */
-	public function id(): int
+	public function set(string $key, $value): EnumerableInterface
 	{
-		return $this->parent->id();
+		update_metadata($this->type, $this->parent->id(), $key, $value);
+
+		return $this;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function parent(): IdentifiableInterface
+	public function get(string $key, bool $all = false)
 	{
-		return $this->parent;
+		return Hook::apply('twist_meta_' . $this->type, get_metadata($this->type, $this->parent->id(), $key, !$all), $key, $this);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function set(string $key, $value): bool
+	public function forget(string $key): EnumerableInterface
 	{
-		return (bool) update_metadata($this->type, $this->id(), $key, $value);
-	}
+		delete_metadata($this->type, $this->parent->id(), $key);
 
-	/**
-	 * @inheritdoc
-	 */
-	public function get(string $key, bool $single = true)
-	{
-		return Hook::apply('twist_meta_' . $this->type, get_metadata($this->type, $this->id(), $key, $single), $key, $this);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function forget(string $key): bool
-	{
-		return delete_metadata($this->type, $this->id(), $key);
+		return $this;
 	}
 
 	/**
@@ -83,7 +71,15 @@ class Meta implements EnumerableInterface
 	 */
 	public function has(string $key): bool
 	{
-		return metadata_exists($this->type, $this->id(), $key);
+		return metadata_exists($this->type, $this->parent->id(), $key);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function all(): array
+	{
+		return get_metadata($this->type, $this->parent->id());
 	}
 
 	/**
@@ -91,7 +87,7 @@ class Meta implements EnumerableInterface
 	 */
 	public function getIterator()
 	{
-		return new \ArrayIterator(get_metadata($this->type, $this->id()));
+		return new \ArrayIterator($this->all());
 	}
 
 }
