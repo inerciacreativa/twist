@@ -11,19 +11,18 @@ interface EnumerableInterface extends \IteratorAggregate
 {
 
 	/**
-	 * @return IdentifiableInterface
-	 */
-	public function parent(): IdentifiableInterface;
-
-	/**
-	 * @param string $key
-	 * @param        $value
+	 * Set a key value pair in the set.
 	 *
-	 * @return bool
+	 * @param string $key
+	 * @param mixed  $value
+	 *
+	 * @return EnumerableInterface
 	 */
-	public function set(string $key, $value): bool;
+	public function set(string $key, $value): EnumerableInterface;
 
 	/**
+	 * Get a value from the set.
+	 *
 	 * @param string $key
 	 *
 	 * @return mixed
@@ -31,17 +30,28 @@ interface EnumerableInterface extends \IteratorAggregate
 	public function get(string $key);
 
 	/**
+	 * Remove a value from the set.
+	 *
 	 * @param string $key
 	 *
-	 * @return bool
+	 * @return EnumerableInterface
 	 */
-	public function forget(string $key): bool;
+	public function forget(string $key): EnumerableInterface;
 
 	/**
+	 * Check if a key exists in the set.
+	 *
 	 * @param string $key
 	 *
 	 * @return bool
 	 */
 	public function has(string $key): bool;
+
+	/**
+	 * Return the set.
+	 *
+	 * @return array
+	 */
+	public function all(): array;
 
 }

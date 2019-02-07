@@ -2,60 +2,51 @@
 
 namespace Twist\Model\Base;
 
+use Twist\Library\Util\Data;
+
 /**
  * Class Enumerator
  *
  * @package Twist\Model\Base
  */
-class Enumerable implements EnumerableInterface
+class Enumerable implements EnumerableInterface, \Countable
 {
-
-	/**
-	 * @var IdentifiableInterface
-	 */
-	protected $parent;
 
 	/**
 	 * @var array
 	 */
-	protected $values;
+	private $values = [];
 
 	/**
-	 * Enumerator constructor.
+	 * @param array $values
 	 *
-	 * @param IdentifiableInterface $parent
-	 * @param array                 $values
+	 * @return $this
 	 */
-	public function __construct(IdentifiableInterface $parent, array $values = [])
+	public function reset(array $values = []): EnumerableInterface
 	{
-		$this->parent = $parent;
 		$this->values = $values;
+
+		return $this;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function parent(): IdentifiableInterface
-	{
-		return $this->parent;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function set(string $key, $value): bool
+	public function set(string $key, $value): EnumerableInterface
 	{
 		$this->values[$key] = $value;
 
-		return true;
+		return $this;
 	}
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param mixed $default
 	 */
-	public function get(string $key)
+	public function get(string $key, $default = null)
 	{
-		return $this->values[$key] ?? null;
+		return $this->values[$key] ?? Data::value($default);
 	}
 
 	/**
@@ -69,11 +60,19 @@ class Enumerable implements EnumerableInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function forget(string $key): bool
+	public function forget(string $key): EnumerableInterface
 	{
 		unset($this->values[$key]);
 
-		return true;
+		return $this;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function all(): array
+	{
+		return $this->values;
 	}
 
 	/**
