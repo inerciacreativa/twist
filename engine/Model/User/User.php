@@ -307,4 +307,21 @@ class User implements UserInterface
 		return $this->posts;
 	}
 
+	/**
+	 * @param string      $field
+	 * @param string|null $value
+	 *
+	 * @return string
+	 */
+	protected function field(string $field, string $value = null): ?string
+	{
+		if ($value === null) {
+			return $this->user->$field;
+		}
+
+		$this->user->$field = $value;
+
+		return null;
+	}
+
 }

@@ -34,7 +34,7 @@ class Author extends User
 	 */
 	public function link(): string
 	{
-		return get_author_posts_url($this->user->ID, parent::nice_name());
+		return get_author_posts_url($this->id(), $this->nice_name());
 	}
 
 	/**
@@ -90,11 +90,11 @@ class Author extends User
 	 *
 	 * @return string
 	 */
-	protected function filter($field): string
+	protected function filter(string $field): string
 	{
-		$value = Hook::apply("get_the_author_$field", $this->user->$field, $this->user->ID);
+		$value = Hook::apply("get_the_author_$field", $this->field($field), $this->id());
 
-		return Hook::apply("the_author_$field", $value, $this->user->ID);
+		return Hook::apply("the_author_$field", $value, $this->id());
 	}
 
 }

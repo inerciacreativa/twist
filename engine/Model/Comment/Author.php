@@ -47,7 +47,7 @@ class Author extends User
 			$value = $comment->object()->$variable;
 
 			if ($property === 'display_name' && empty($value)) {
-				$value = $this->exists() ? $this->user->display_name : __('Anonymous');
+				$value = $this->exists() ? $this->field('display_name') : __('Anonymous');
 			} else if ($property === 'user_url') {
 				$value = ('http://' === $value) ? '' : esc_url($value, [
 					'http',
@@ -55,7 +55,7 @@ class Author extends User
 				]);
 			}
 
-			$this->user->$property = Hook::apply('get_' . $variable, $value, $comment->id(), $comment->object());
+			$this->field($property, Hook::apply('get_' . $variable, $value, $comment->id(), $comment->object()));
 		}
 	}
 
