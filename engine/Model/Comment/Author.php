@@ -16,7 +16,7 @@ class Author extends User
 	/**
 	 * @var Comment
 	 */
-	protected $comment;
+	private $comment;
 
 	/**
 	 * Author constructor.
@@ -33,7 +33,7 @@ class Author extends User
 	/**
 	 * @param Comment $comment
 	 */
-	protected function setup(Comment $comment): void
+	private function setup(Comment $comment): void
 	{
 		$this->comment = $comment;
 
