@@ -74,7 +74,7 @@ class Images extends Collection
 	/**
 	 * @inheritdoc
 	 */
-	public function sort(string $method = null, int $options = SORT_REGULAR, bool $descending = false): CollectionInterface
+	public function sort(string $method = null, bool $descending = false, int $options = SORT_REGULAR): CollectionInterface
 	{
 		$factor = 1;
 		if ($method === null || $method === 'area') {

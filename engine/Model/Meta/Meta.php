@@ -37,6 +37,14 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
+	 * @return IdentifiableInterface
+	 */
+	public function parent(): IdentifiableInterface
+	{
+		return $this->parent;
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function set(string $key, $value): EnumerableInterface
