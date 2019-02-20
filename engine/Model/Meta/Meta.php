@@ -37,6 +37,8 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
+	 * Return the model.
+	 *
 	 * @return IdentifiableInterface
 	 */
 	public function parent(): IdentifiableInterface

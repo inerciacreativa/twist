@@ -50,6 +50,8 @@ class User implements UserInterface
 	private $posts;
 
 	/**
+	 * Get the current user.
+	 *
 	 * @return User
 	 */
 	final public static function current(): User
@@ -62,6 +64,8 @@ class User implements UserInterface
 	}
 
 	/**
+	 * Get the current commenter.
+	 *
 	 * @return User
 	 */
 	final public static function commenter(): User

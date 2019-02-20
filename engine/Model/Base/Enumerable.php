@@ -18,6 +18,8 @@ class Enumerable implements EnumerableInterface, \Countable
 	private $values = [];
 
 	/**
+	 * Reset the values in the set, optionally fill with the new values passed.
+	 *
 	 * @param array $values
 	 *
 	 * @return $this
