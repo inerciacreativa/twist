@@ -4,9 +4,9 @@ namespace Twist\Model\Image;
 
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
+use Twist\Library\Html\Tag;
 use Twist\Model\Base\Model;
 use Twist\Model\Base\ModelInterface;
-use Twist\Library\Html\Tag;
 use Twist\Model\Post\Post;
 
 /**
@@ -79,12 +79,15 @@ class Image extends Model
 
 	/**
 	 * @return Post|null
-	 * @throws AppException
 	 */
 	public function parent(): ?ModelInterface
 	{
 		if ($this->parent === null && $this->has_parent()) {
-			$this->set_parent($this->post->parent());
+			try {
+				$this->set_parent($this->post->parent());
+			} catch (AppException $exception) {
+				return null;
+			}
 		}
 
 		return $this->parent;
@@ -103,13 +106,9 @@ class Image extends Model
 	 */
 	public function is_featured(): bool
 	{
-		try {
-			/** @noinspection NullPointerExceptionInspection */
-			return $this->has_parent() && ($this->parent()
-			                                    ->thumbnail_id() === $this->id());
-		} catch (AppException $exception) {
-			return false;
-		}
+		/** @noinspection NullPointerExceptionInspection */
+		return $this->has_parent() && ($this->parent()
+		                                    ->thumbnail_id() === $this->id());
 	}
 
 	/**
@@ -117,16 +116,16 @@ class Image extends Model
 	 */
 	public function set_featured(): bool
 	{
-		if (!$this->has_parent() || $this->is_featured()) {
+		/** @noinspection NullPointerExceptionInspection */
+		if (!$this->has_parent() || $this->is_featured() || $this->parent()
+		                                                         ->is_preview()) {
 			return false;
 		}
 
-		try {
-			/** @noinspection NullPointerExceptionInspection */
-			return $this->parent()->meta()->set('_thumbnail_id', $this->id());
-		} catch (AppException $exception) {
-			return false;
-		}
+		/** @noinspection NullPointerExceptionInspection */
+		$this->parent()->meta()->set('_thumbnail_id', $this->id());
+
+		return true;
 	}
 
 	/**
@@ -164,12 +163,8 @@ class Image extends Model
 	{
 		$alt = trim(strip_tags($this->meta()->get('_wp_attachment_image_alt')));
 		if (empty($alt) && $this->is_featured()) {
-			try {
-				/** @noinspection NullPointerExceptionInspection */
-				$alt = trim(strip_tags($this->parent()->title()));
-			} catch (AppException $exception) {
-				$alt = '';
-			}
+			/** @noinspection NullPointerExceptionInspection */
+			$alt = trim(strip_tags($this->parent()->title()));
 		}
 
 		return $alt;
