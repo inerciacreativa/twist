@@ -670,6 +670,18 @@ class Post extends Model
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function is_preview(): bool
+	{
+		try {
+			return Query::main()->is_preview();
+		} catch (AppException $exception) {
+			return false;
+		}
+	}
+
+	/**
 	 * @return \WP_Post
 	 */
 	public function object(): \WP_Post
