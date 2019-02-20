@@ -517,6 +517,14 @@ class Query implements IterableInterface
 	/**
 	 * @return bool
 	 */
+	public function is_preview(): bool
+	{
+		return $this->query->is_preview();
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function is_paged(): bool
 	{
 		return $this->query->is_paged();
