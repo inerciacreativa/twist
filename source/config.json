@@ -6,11 +6,11 @@
     "app": [
       "scripts/app.js"
     ],
-    "lazyload-v10": [
-      "scripts/lib/lazyload-v10.js"
+    "lazyload-10": [
+      "scripts/lib/lazyload-10.js"
     ],
-    "lazyload-v8": [
-      "scripts/lib/lazyload-v8.js"
+    "lazyload-8": [
+      "scripts/lib/lazyload-8.js"
     ]
   },
   "lint": {
