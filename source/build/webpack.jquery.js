@@ -7,7 +7,7 @@ module.exports = (config) => {
   };
 
   if (!config.jquery.bundle) {
-    const version = config.env.production ? '-' + require(`jquery/package.json`).version : '';
+    const version = config.env.production ? '.' + require(`jquery/package.json`).version.replace(/\./g, '') : '';
     const folder = config.folder.scripts;
     const source = '../node_modules/jquery/dist/jquery.min.js';
     const target = `${folder}/jquery${version}.js`;

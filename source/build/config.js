@@ -35,7 +35,7 @@ const config = merge({
   cache: {
     enabled: isProduction,
     manifest: 'assets.json',
-    name: '[name]_[hash:12]',
+    name: '[name].[hash:12]',
     files: {},
   },
   jquery: {
@@ -45,7 +45,8 @@ const config = merge({
   workbox: {
     enabled: false,
     source: 'scripts/service-worker.js',
-    hash: true,
+    manifest: 'cache.[manifestHash].js',
+    hash: false,
     import: 'cdn',
     urls: {},
   },

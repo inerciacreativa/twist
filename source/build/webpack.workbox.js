@@ -11,7 +11,7 @@ module.exports = (config) => {
       new InjectManifest({
         swSrc: path.join(config.folder.source, config.workbox.source),
         swDest: target,
-        precacheManifestFilename: path.join(config.folder.scripts, 'precache_[manifestHash].js'),
+        precacheManifestFilename: path.join(config.folder.scripts, config.workbox.manifest),
         templatedUrls: config.workbox.urls,
         importWorkboxFrom: config.workbox.import,
         globDirectory: './../../..',
