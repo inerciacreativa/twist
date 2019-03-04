@@ -90,8 +90,8 @@ class LazyLoadService extends Service
 		$parent    = $this->config('parent', true);
 		$threshold = $this->config('threshold', 200);
 
-		$v8  = $this->asset->url('scripts/lazyload-v8.js', $parent);
-		$v10 = $this->asset->url('scripts/lazyload-v10.js', $parent);
+		$v8  = $this->asset->url('scripts/lazyload-8.js', $parent);
+		$v10 = $this->asset->url('scripts/lazyload-10.js', $parent);
 
 		$this->theme->inline("lazyLoadOptions = { 'threshold': $threshold };
 			(function(w, d) {
