@@ -481,6 +481,25 @@ class Arr
 	}
 
 	/**
+	 * Append one or more items to the array.
+	 *
+	 * @param array $array
+	 * @param mixed ...$values
+	 *
+	 * @return array
+	 */
+	public static function push(array &$array, ...$values): array
+	{
+		if (count($values) > 1) {
+			array_push($array, ...$values);
+		} else if (count($values) > 0) {
+			$array[] = $values[0];
+		}
+
+		return $array;
+	}
+
+	/**
 	 * Get a value from the array, and remove it.
 	 *
 	 * @param array  $array
