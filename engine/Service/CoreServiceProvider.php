@@ -7,6 +7,7 @@ use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
 use Twist\Service\Core\LazyLoadService;
 use Twist\Service\Core\RelativeUrlService;
+use Twist\Service\Core\SubresourceIntegrityService;
 use Twist\Service\Core\ThumbnailGeneratorService;
 
 /**
@@ -24,6 +25,10 @@ class CoreServiceProvider implements ServiceProviderInterface
 	{
 		$app->service(HeadCleanerService::id(), function (App $app) {
 			return new HeadCleanerService($app, App::INIT);
+		}, true);
+
+		$app->service(SubresourceIntegrityService::id(), function (App $app) {
+			return new SubresourceIntegrityService($app, App::INIT);
 		}, true);
 
 		$app->service(ContentCleanerService::id(), function (App $app) {
