@@ -5,6 +5,11 @@ namespace Twist\App;
 use Twist\Library\Data\JsonFile;
 use Twist\Library\Util\Url;
 
+/**
+ * Class Asset
+ *
+ * @package Twist\App
+ */
 class Asset
 {
 
@@ -56,7 +61,24 @@ class Asset
 	 */
 	protected function get(string $filename, bool $fromParentTheme)
 	{
-		return $this->manifest($fromParentTheme)->get(ltrim($filename, '/'), $filename);
+		return $this->manifest($fromParentTheme)
+		            ->get(ltrim($filename, '/'), $filename);
+	}
+
+	/**
+	 * @param string $filename
+	 * @param bool   $fromParentTheme
+	 * @param bool   $fromSource
+	 *
+	 * @return array
+	 */
+	protected function resolve(string $filename, bool $fromParentTheme = false, bool $fromSource = false): array
+	{
+		return [
+			$fromParentTheme ? 'template' : 'stylesheet',
+			$fromSource ? 'source' : 'assets',
+			$fromSource ? $filename : $this->get($filename, $fromParentTheme),
+		];
 	}
 
 	/**
@@ -73,9 +95,11 @@ class Asset
 			return $filename;
 		}
 
-		$base = $fromParentTheme ? 'template' : 'stylesheet';
-		$type = $fromSource ? 'source' : 'assets';
-		$file = $fromSource ? $filename : $this->get($filename, $fromParentTheme);
+		[
+			$base,
+			$type,
+			$file,
+		] = $this->resolve($filename, $fromParentTheme, $fromSource);
 
 		return $this->config->get("uri.$base") . "/$type/$file";
 	}
@@ -89,9 +113,11 @@ class Asset
 	 */
 	public function path(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
 	{
-		$base = $fromParentTheme ? 'template' : 'stylesheet';
-		$type = $fromSource ? 'source' : 'assets';
-		$file = $fromSource ? $filename : $this->get($filename, $fromParentTheme);
+		[
+			$base,
+			$type,
+			$file,
+		] = $this->resolve($filename, $fromParentTheme, $fromSource);
 
 		return $this->config->get("dir.$base") . "/$type/$file";
 	}
