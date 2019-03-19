@@ -41,7 +41,7 @@ abstract class Service implements ServiceInterface
 
 		if ($name === null) {
 			$name = basename(str_replace('\\', '/', static::class));
-			$name = Str::snake(Str::replaceLast($name, 'Service', ''), '_');
+			$name = Str::snake(Str::replaceLast($name, 'Service', ''));
 		}
 
 		return $name;
