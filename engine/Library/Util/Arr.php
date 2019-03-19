@@ -23,7 +23,7 @@ class Arr
 	 */
 	public static function accessible($value): bool
 	{
-		return \is_array($value) || $value instanceof \ArrayAccess;
+		return is_array($value) || $value instanceof \ArrayAccess;
 	}
 
 	/**
@@ -49,8 +49,9 @@ class Arr
 	public static function dot(array $array, string $prepend = ''): array
 	{
 		$results = [];
+
 		foreach ($array as $key => $value) {
-			if (\is_array($value) && static::isAssoc($value)) {
+			if (is_array($value) && !empty($value)) {
 				$results = array_merge($results, static::dot($value, $prepend . $key . '.'));
 			} else {
 				$results[$prepend . $key] = $value;
@@ -74,7 +75,7 @@ class Arr
 		$values = static::dot($source);
 
 		foreach ($values as $key => $value) {
-			if ($add || static::has($target, $key, true)) {
+			if ($add || static::has($target, $key)) {
 				static::set($target, $key, $value);
 			}
 		}
@@ -159,18 +160,18 @@ class Arr
 	/**
 	 * Collapse an array of arrays into a single array.
 	 *
-	 * @param array $array
+	 * @param array|Collection $array
 	 *
 	 * @return array
 	 */
-	public static function collapse(array $array): array
+	public static function collapse($array): array
 	{
 		$results = [];
 
 		foreach ($array as $values) {
 			if ($values instanceof Collection) {
 				$values = $values->all();
-			} else if (!\is_array($values)) {
+			} else if (!is_array($values)) {
 				continue;
 			}
 
@@ -183,29 +184,25 @@ class Arr
 	/**
 	 * Flatten a multi-dimensional array into a single level.
 	 *
-	 * @param array $array
-	 * @param int   $depth
+	 * @param array|Collection $array
+	 * @param int              $depth
 	 *
 	 * @return array
 	 */
-	public static function flatten(array $array, int $depth = 999): array
+	public static function flatten($array, int $depth = 999): array
 	{
 		$result = [];
 
 		foreach ($array as $item) {
 			$item = $item instanceof Collection ? $item->all() : $item;
 
-			if (\is_array($item)) {
-				if ($depth === 1) {
-					$result = array_merge($result, $item);
-					continue;
-				}
-
+			if (!is_array($item)) {
+				$result[] = $item;
+			} else if ($depth === 1) {
+				$result = array_merge($result, array_values($item));
+			} else {
 				$result = array_merge($result, static::flatten($item, $depth - 1));
-				continue;
 			}
-
-			$result[] = $item;
 		}
 
 		return $result;
@@ -225,16 +222,15 @@ class Arr
 	public static function set(array &$array, string $key, $value): array
 	{
 		if ($key === null) {
-			$array = $value;
-
-			return $array;
+			return $array = $value;
 		}
 
 		$keys = explode('.', $key);
 
-		while (\count($keys) > 1) {
+		while (count($keys) > 1) {
 			$key = array_shift($keys);
-			if (!isset($array[$key]) || !\is_array($array[$key])) {
+
+			if (!isset($array[$key]) || !is_array($array[$key])) {
 				$array[$key] = [];
 			}
 
@@ -257,7 +253,7 @@ class Arr
 	 */
 	public static function add(array $array, string $key, $value): array
 	{
-		if (!static::has($array, $key)) {
+		if (static::get($array, $key) === null) {
 			static::set($array, $key, $value);
 		}
 
@@ -265,43 +261,34 @@ class Arr
 	}
 
 	/**
-	 * Check if an item exists in an array using "dot" notation.
+	 * Check if an item or items exists in an array using "dot" notation.
 	 *
-	 * @param array  $array
-	 * @param string $key
-	 * @param bool   $relaxed
+	 * @param \ArrayAccess|array $array
+	 * @param string|array       $keys
 	 *
 	 * @return bool
 	 */
-	public static function has(array $array, string $key, bool $relaxed = false): bool
+	public static function has($array, $keys): bool
 	{
-		if (!$array) {
+		$keys = (array) $keys;
+
+		if (!$array || $keys === []) {
 			return false;
 		}
 
-		if ($key === null) {
-			return false;
-		}
+		foreach ($keys as $key) {
+			$subKeyArray = $array;
 
-		if (static::exists($array, $key)) {
-			return true;
-		}
-
-		foreach (explode('.', $key) as $segment) {
-			if ($segment === '*') {
-				return true;
+			if (static::exists($array, $key)) {
+				continue;
 			}
 
-			if (!static::accessible($array)) {
-				return false;
-			}
-
-			if (static::exists($array, $segment)) {
-				$array = $array[$segment];
-			} else if ($relaxed && !static::isAssoc($array)) {
-				return true;
-			} else {
-				return false;
+			foreach (explode('.', $key) as $segment) {
+				if (static::accessible($subKeyArray) && static::exists($subKeyArray, $segment)) {
+					$subKeyArray = $subKeyArray[$segment];
+				} else {
+					return false;
+				}
 			}
 		}
 
@@ -311,13 +298,13 @@ class Arr
 	/**
 	 * Get an item from an array using "dot" notation.
 	 *
-	 * @param array  $array
-	 * @param string $key
-	 * @param mixed  $default
+	 * @param \ArrayAccess|array $array
+	 * @param string             $key
+	 * @param mixed              $default
 	 *
 	 * @return mixed
 	 */
-	public static function get(array $array, string $key, $default = null)
+	public static function get($array, string $key, $default = null)
 	{
 		if (!static::accessible($array)) {
 			return Data::value($default);
@@ -329,6 +316,10 @@ class Arr
 
 		if (static::exists($array, $key)) {
 			return $array[$key];
+		}
+
+		if (strpos($key, '.') === false) {
+			return $array[$key] ?? Data::value($default);
 		}
 
 		foreach (explode('.', $key) as $segment) {
@@ -355,11 +346,11 @@ class Arr
 		$original = &$array;
 		$keys     = (array) $keys;
 
-		if (\count($keys) === 0) {
+		if (count($keys) === 0) {
 			return $array;
 		}
 
-		foreach ((array) $keys as $key) {
+		foreach ($keys as $key) {
 			if (static::exists($array, $key)) {
 				unset($array[$key]);
 				continue;
@@ -368,10 +359,10 @@ class Arr
 			$parts = explode('.', $key);
 			$array = &$original;
 
-			while (\count($parts) > 1) {
+			while (count($parts) > 1) {
 				$part = array_shift($parts);
 
-				if (isset($array[$part]) && \is_array($array[$part])) {
+				if (isset($array[$part]) && is_array($array[$part])) {
 					$array = &$array[$part];
 				} else {
 					continue 2;
@@ -454,8 +445,8 @@ class Arr
 	 */
 	protected static function explodePluckParameters($value, $key): array
 	{
-		$value = \is_string($value) ? explode('.', $value) : $value;
-		$key   = ($key === null) || \is_array($key) ? $key : explode('.', $key);
+		$value = is_string($value) ? explode('.', $value) : $value;
+		$key   = ($key === null) || is_array($key) ? $key : explode('.', $key);
 
 		return [$value, $key];
 	}
@@ -543,7 +534,7 @@ class Arr
 	public static function sortRecursive(array $array): array
 	{
 		foreach ($array as &$value) {
-			if (\is_array($value)) {
+			if (is_array($value)) {
 				$value = static::sortRecursive($value);
 			}
 		}
@@ -613,7 +604,7 @@ class Arr
 	 */
 	public static function items($items): array
 	{
-		if (\is_array($items)) {
+		if (is_array($items)) {
 			return $items;
 		}
 
@@ -680,6 +671,7 @@ class Arr
 	public static function defaults(array $defaults, array $values): array
 	{
 		$result = [];
+
 		foreach ($defaults as $key => $value) {
 			$result[$key] = $values[$key] ?? $value;
 		}
@@ -696,8 +688,9 @@ class Arr
 	public static function merge(array &$first, array &$second): array
 	{
 		$merged = $first;
+
 		foreach ($second as $key => &$value) {
-			if (\is_array($value) && isset($merged[$key]) && \is_array($merged[$key])) {
+			if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
 				$merged[$key] = static::merge($merged[$key], $value);
 			} else {
 				$merged[$key] = $value;
@@ -719,12 +712,12 @@ class Arr
 	{
 		$position = array_search($key, array_keys($array), true);
 		if ($position === false) {
-			$position = \count($array);
+			$position = count($array);
 		} else if (!$before) {
 			$position++;
 		}
 
-		return array_merge(\array_slice($array, 0, $position), $value, \array_slice($array, $position));
+		return array_merge(array_slice($array, 0, $position), $value, array_slice($array, $position));
 	}
 
 	/**
@@ -766,7 +759,7 @@ class Arr
 			$keys = null;
 		}
 
-		if (\is_array($keys) && $caseless) {
+		if (is_array($keys) && $caseless) {
 			foreach ($keys as &$key) {
 				$key = strtolower($key);
 			}
@@ -779,7 +772,7 @@ class Arr
 				$result[$name] = $value;
 			} else {
 				$search = $caseless ? strtolower($name) : $name;
-				if (!\in_array($search, $keys, true)) {
+				if (!in_array($search, $keys, true)) {
 					$result[$name] = $value;
 				}
 			}
