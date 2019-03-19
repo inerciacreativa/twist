@@ -30,8 +30,8 @@ class ElementsParser
 	/**
 	 * ElementParser constructor.
 	 *
-	 * @param string         $hook
-	 * @param array $elements
+	 * @param string $hook
+	 * @param array  $elements
 	 */
 	public function __construct(string $hook, array $elements)
 	{
@@ -122,8 +122,8 @@ class ElementsParser
 			'/* <![CDATA[ */',
 			'/* ]]> */',
 		], '', $content);
-		$content = (string) preg_replace('/^\s+/m', "\t\t", $content);
-		$content = (string) preg_replace('/^([^\t])/m', "\t\t$1", $content);
+		$content = preg_replace('/^\s+/m', "\t\t", $content);
+		$content = preg_replace('/^([^\t])/m', "\t\t$1", $content);
 		$content = trim($content);
 		$content = "\n\t\t" . $content . "\n\t";
 
