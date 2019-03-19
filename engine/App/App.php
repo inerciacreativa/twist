@@ -28,6 +28,8 @@ class App extends Container
 
 	public const FOOT = 'wp_footer';
 
+	public const SHUTDOWN = 'shutdown';
+
 	/**
 	 * @var array
 	 */
