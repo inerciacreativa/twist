@@ -206,15 +206,21 @@ class Url
 	/**
 	 * @return string
 	 */
+	public function getPath(): string
+	{
+		if (!empty($this->components['path'])) {
+			return $this->components['path'];
+		}
+
+		return '/';
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getRoute(): string
 	{
-		$route = '';
-
-		if (!empty($this->components['path'])) {
-			$route .= $this->components['path'];
-		} else {
-			$route .= '/';
-		}
+		$route = $this->getPath();
 
 		if (!empty($this->components['query'])) {
 			$route .= '?' . http_build_query($this->components['query']);
