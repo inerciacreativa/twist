@@ -23,28 +23,24 @@ class CoreServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
-		$app->service(HeadCleanerService::id(), function (App $app) {
+		$app->service(HeadCleanerService::id(), static function (App $app) {
 			return new HeadCleanerService($app, App::INIT);
 		}, true);
 
-		$app->service(SubresourceIntegrityService::id(), function (App $app) {
+		$app->service(SubresourceIntegrityService::id(), static function (App $app) {
 			return new SubresourceIntegrityService($app, App::INIT);
 		}, true);
 
-		$app->service(ContentCleanerService::id(), function (App $app) {
+		$app->service(ContentCleanerService::id(), static function (App $app) {
 			return new ContentCleanerService($app);
 		}, true);
 
-		$app->service(RelativeUrlService::id(), function (App $app) {
+		$app->service(RelativeUrlService::id(), static function (App $app) {
 			return new RelativeUrlService($app);
 		}, true);
 
-		$app->service(ThumbnailGeneratorService::id(), function (App $app) {
+		$app->service(ThumbnailGeneratorService::id(), static function (App $app) {
 			return new ThumbnailGeneratorService($app);
-		}, true);
-
-		$app->service(LazyLoadService::id(), function (App $app) {
-			return new LazyLoadService($app, $app['theme'], $app['asset']);
 		}, true);
 	}
 
