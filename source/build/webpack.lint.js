@@ -1,5 +1,4 @@
 const webpack = require('webpack');
-const path = require('path');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 
 module.exports = (config) => {
@@ -9,8 +8,6 @@ module.exports = (config) => {
 
   if (config.lint.styles) {
     webpackConfig.plugins.push(new StyleLintPlugin({
-      configFile: path.join(config.path.root, '.stylelintrc'),
-      syntax: 'scss',
       emitErrors: true,
       failOnError: false,
     }));

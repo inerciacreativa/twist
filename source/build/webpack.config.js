@@ -23,20 +23,20 @@ let webpackConfig = {
     version: false,
     timings: false,
     children: false,
-    errors: true,
+    errors: false,
     errorDetails: true,
     warnings: false,
     chunks: false,
     modules: false,
     reasons: true,
     source: false,
-    publicPath: true,
+    publicPath: false,
   },
   module: {
     rules: [
       {
         enforce: 'pre',
-        test: /\.(js|s[ca]ss|css)$/,
+        test: /\.(js|less|s?[ca]ss)$/,
         include: config.path.source,
         loader: 'import-glob',
       },
@@ -50,12 +50,57 @@ let webpackConfig = {
           },
           {
             loader: 'ifdef',
-            options: {DEVELOPMENT: config.env.development, PRODUCTION: config.env.production},
+            options: {
+              DEVELOPMENT: config.env.development,
+              PRODUCTION: config.env.production,
+            },
           },
         ],
       },
       {
-        test: /\.(sa|sc|c)ss$/,
+        test: /\.css$/,
+        include: config.path.source,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style',
+          use: [
+            {
+              loader: 'css',
+              options: {sourceMap: config.env.development},
+            },
+            {
+              loader: 'postcss', options: {
+                config: {path: __dirname, ctx: config},
+                sourceMap: config.env.development,
+              },
+            },
+          ],
+        }),
+      },
+      {
+        test: /\.less$/,
+        include: config.path.source,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style',
+          use: [
+            {
+              loader: 'css',
+              options: {sourceMap: config.env.development},
+            },
+            {
+              loader: 'postcss', options: {
+                config: {path: __dirname, ctx: config},
+                sourceMap: config.env.development,
+              },
+            },
+            {
+              loader: 'less',
+              options: {sourceMap: config.env.development},
+            },
+          ],
+        }),
+      },
+      {
+        test: /\.s[ca]ss$/,
         include: config.path.source,
         use: ExtractTextPlugin.extract({
           fallback: 'style',
@@ -76,7 +121,7 @@ let webpackConfig = {
             },
             {
               loader: 'sass',
-              options: {sourceMap: config.env.development},
+              options: {sourceMap: true},
             },
           ],
         }),
@@ -133,13 +178,20 @@ let webpackConfig = {
       stats: {colors: true},
     }),
     new webpack.LoaderOptionsPlugin({
-      test: /\.css|s[ac]ss$/,
+      test: /\.css|less|s?[ca]ss$/,
       options: {
         output: {path: config.path.target},
         context: config.path.source,
       },
     }),
-    new FriendlyErrorsPlugin(),
+    new FriendlyErrorsPlugin({
+      additionalTransformers: [
+        require('./helpers/error-transform'),
+      ],
+      additionalFormatters: [
+        require('./helpers/error-format'),
+      ],
+    }),
   ],
 };
 

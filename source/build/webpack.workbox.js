@@ -14,7 +14,6 @@ module.exports = (config) => {
         precacheManifestFilename: path.join(config.folder.scripts, config.workbox.manifest),
         templatedUrls: config.workbox.urls,
         importWorkboxFrom: config.workbox.import,
-        globDirectory: './../../..',
       }),
     ],
   }
