@@ -5,16 +5,7 @@
   "entry": {
     "app": [
       "scripts/app.js"
-    ],
-    "lazyload-10": [
-      "scripts/lib/lazyload-10.js"
-    ],
-    "lazyload-8": [
-      "scripts/lib/lazyload-8.js"
     ]
-  },
-  "lint": {
-    "scripts": false
   },
   "watch": {
     "proxy": "http://localhost:3000",
