@@ -2,6 +2,8 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
+use DOMDocument;
+use DOMElement;
 use Twist\Library\Util\Url;
 
 /**
@@ -29,10 +31,10 @@ class ContentModule implements ModuleInterface
 	public function search(ImageResolver $resolver, bool $all = false): bool
 	{
 		$found = false;
-		$dom   = new \DOMDocument();
+		$dom   = new DOMDocument();
 		@$dom->loadHTML($resolver->content());
 
-		/** @var $image \DOMElement */
+		/** @var $image DOMElement */
 		foreach ($dom->getElementsByTagName('img') as $image) {
 			if (!$image->hasAttribute('src')) {
 				continue;
@@ -40,7 +42,7 @@ class ContentModule implements ModuleInterface
 
 			$source = Url::parse($image->getAttribute('src'));
 
-			if (empty($source->host) || \in_array($source->host, static::$forbidenSources, true)) {
+			if (empty($source->host) || in_array($source->host, static::$forbidenSources, true)) {
 				continue;
 			}
 
@@ -58,11 +60,11 @@ class ContentModule implements ModuleInterface
 	}
 
 	/**
-	 * @param \DOMElement $image
+	 * @param DOMElement $image
 	 *
 	 * @return int
 	 */
-	protected function getId(\DOMElement $image): int
+	protected function getId(DOMElement $image): int
 	{
 		if (!$image->hasAttribute('class')) {
 			return 0;
@@ -76,19 +78,19 @@ class ContentModule implements ModuleInterface
 	}
 
 	/**
-	 * @param \DOMElement $image
-	 * @param string      $attribute
-	 * @param mixed       $default
+	 * @param DOMElement $image
+	 * @param string     $attribute
+	 * @param mixed      $default
 	 *
 	 * @return mixed
 	 */
-	protected function getAttribute(\DOMElement $image, string $attribute, $default)
+	protected function getAttribute(DOMElement $image, string $attribute, $default)
 	{
 		$result = $default;
 
 		if ($image->hasAttribute($attribute)) {
 			$result = $image->getAttribute($attribute);
-			settype($result, \gettype($default));
+			settype($result, gettype($default));
 		}
 
 		return $result;

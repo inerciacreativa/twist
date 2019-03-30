@@ -69,9 +69,9 @@ class HeadCleanerService extends Service
 	 */
 	protected function removeEditLinks(): void
 	{
-		$this->hook()->on('twist_site_links', function (array $links) {
-			return array_filter($links, function (Tag $link) {
-				return !\in_array($link['rel'], [
+		$this->hook()->on('twist_site_links', static function (array $links) {
+			return array_filter($links, static function (Tag $link) {
+				return !in_array($link['rel'], [
 					'EditURI',
 					'wlwmanifest',
 				], false);
@@ -97,7 +97,7 @@ class HeadCleanerService extends Service
 	protected function removeFilters(): void
 	{
 		foreach (self::$emoji as $filter => $function) {
-			if (\is_array($function)) {
+			if (is_array($function)) {
 				Hook::remove($filter, $function[0], $function[1]);
 			} else {
 				Hook::remove($filter, $function);
@@ -125,7 +125,7 @@ class HeadCleanerService extends Service
 	{
 		if ($relation === 'dns-prefetch') {
 			$base = 'https://s.w.org/images/core/emoji/';
-			$urls = array_filter($urls, function ($url) use ($base) {
+			$urls = array_filter($urls, static function ($url) use ($base) {
 				return strpos($url, $base) === false;
 			});
 		}

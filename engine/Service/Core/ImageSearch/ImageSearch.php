@@ -55,7 +55,7 @@ class ImageSearch
 		$resolver = new ImageResolver($post);
 
 		foreach ($this->modules as $module) {
-			if ((new $module())->search($resolver, $allImages) && !$allModules) {
+			if (!$allModules && (new $module())->search($resolver, $allImages)) {
 				break;
 			}
 		}

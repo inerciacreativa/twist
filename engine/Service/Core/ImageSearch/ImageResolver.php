@@ -61,7 +61,7 @@ class ImageResolver
 	 */
 	public function count(): int
 	{
-		return \count($this->images);
+		return count($this->images);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class ImageResolver
 		if ($image instanceof Image) {
 			$this->sorted   = false;
 			$this->images[] = $image;
-		} else if (\is_array($image)) {
+		} else if (is_array($image)) {
 			$this->sorted   = false;
 			$this->images[] = array_merge([
 				'id'     => 0,
@@ -195,7 +195,7 @@ class ImageResolver
 	 */
 	protected function getExternalImage(array $image): int
 	{
-		if (!\function_exists('download_url')) {
+		if (!function_exists('download_url')) {
 			include ABSPATH . 'wp-admin/includes/file.php';
 		}
 
@@ -212,11 +212,11 @@ class ImageResolver
 			return 0;
 		}
 
-		if (!\function_exists('media_handle_sideload')) {
+		if (!function_exists('media_handle_sideload')) {
 			include ABSPATH . 'wp-admin/includes/media.php';
 		}
 
-		if (!\function_exists('wp_read_image_metadata')) {
+		if (!function_exists('wp_read_image_metadata')) {
 			include ABSPATH . 'wp-admin/includes/image.php';
 		}
 
@@ -240,7 +240,7 @@ class ImageResolver
 			return $this;
 		}
 
-		usort($this->images, function ($a, $b) {
+		usort($this->images, static function ($a, $b) {
 			$ai = $a instanceof Image ? $a->get('large') : $a;
 			$bi = $b instanceof Image ? $b->get('large') : $b;
 

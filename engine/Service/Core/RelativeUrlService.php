@@ -2,6 +2,7 @@
 
 namespace Twist\Service\Core;
 
+use Twist\App\AppException;
 use Twist\Model\Post\Query;
 use Twist\Service\Service;
 
@@ -46,7 +47,7 @@ class RelativeUrlService extends Service
 	/**
 	 * @inheritdoc
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	protected function init(): void
 	{
@@ -66,7 +67,7 @@ class RelativeUrlService extends Service
 	 */
 	protected function makeRelative($link)
 	{
-		if (\is_string($link) && strpos($link, $this->config->get('uri.home')) === 0) {
+		if (is_string($link) && strpos($link, $this->config->get('uri.home')) === 0) {
 			return wp_make_link_relative($link);
 		}
 

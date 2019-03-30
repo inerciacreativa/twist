@@ -2,6 +2,7 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
+use Exception;
 use ic\Framework\Api\Api;
 use Twist\Model\Site\Site;
 
@@ -32,7 +33,7 @@ class TedModule extends VideoModule
 	/**
 	 * @inheritdoc
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function getImage(string $id, int $width): ?array
 	{
@@ -42,7 +43,7 @@ class TedModule extends VideoModule
 			'language' => explode('-', Site::language())[0],
 		]);
 
-		if (!\is_object($data)) {
+		if (!is_object($data)) {
 			return null;
 		}
 
