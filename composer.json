@@ -22,6 +22,7 @@
     "ext-dom": "*",
     "ext-libxml": "*",
     "ext-simplexml": "*",
+    "ext-json": "*",
     "roave/security-advisories": "dev-master",
     "composer/installers": "^1.5",
     "twig/twig": "^2.0",
