@@ -9,6 +9,7 @@ use Twist\Library\Html\Tag;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Service\ServiceProviderInterface;
+use Twist\Twist;
 use Twist\View\Twig\TwigView;
 
 /**
@@ -32,9 +33,9 @@ class Theme
 	protected $config;
 
 	/**
-	 * @var Asset
+	 * @var bool
 	 */
-	protected $asset;
+	protected $parent = true;
 
 	/**
 	 * @var Closure
@@ -117,28 +118,18 @@ class Theme
 	/**
 	 * @var array
 	 */
-	protected $formats = [
-		'aside',
-		'image',
-		'video',
-		'quote',
-		'link',
-		'gallery',
-		'audio',
-	];
+	protected $formats = [];
 
 	/**
 	 * Theme constructor.
 	 *
 	 * @param App    $app
 	 * @param Config $config
-	 * @param Asset  $asset
 	 */
-	public function __construct(App $app, Config $config, Asset $asset)
+	public function __construct(App $app, Config $config)
 	{
 		$this->app    = $app;
 		$this->config = $config;
-		$this->asset  = $asset;
 
 		$this->styles   = new Collection();
 		$this->scripts  = new Collection();
@@ -194,6 +185,18 @@ class Theme
 		return $this;
 	}
 
+	public function assets(string $path, string $manifest): self
+	{
+		return $this->options([
+			'asset' => [
+				$this->parent ? Asset::PARENT : Asset::CHILD => [
+					'path'     => '/' . trim($path, '/') . '/',
+					'manifest' => $manifest,
+				],
+			],
+		]);
+	}
+
 	/**
 	 * @param array $styles
 	 *
@@ -201,7 +204,7 @@ class Theme
 	 */
 	public function styles(array $styles): self
 	{
-		$this->styles = $this->addToCollection($this->styles, $styles);
+		$this->styles = $this->addAssets($this->styles, $styles);
 
 		return $this;
 	}
@@ -213,7 +216,7 @@ class Theme
 	 */
 	public function scripts(array $scripts): self
 	{
-		$this->scripts = $this->addToCollection($this->scripts, $scripts);
+		$this->scripts = $this->addAssets($this->scripts, $scripts);
 
 		return $this;
 	}
@@ -388,7 +391,15 @@ class Theme
 	 */
 	public function formats(array $formats): self
 	{
-		$this->formats = $formats;
+		$this->formats = array_intersect($formats, [
+			'aside',
+			'image',
+			'video',
+			'quote',
+			'link',
+			'gallery',
+			'audio',
+		]);
 
 		return $this;
 	}
@@ -436,6 +447,7 @@ class Theme
 		]);
 
 		if ($setup = $this->setup) {
+			$this->parent = false;
 			$setup($this);
 		}
 
@@ -547,12 +559,13 @@ class Theme
 	 */
 	protected function addStyles(): void
 	{
-		$this->styles->each(function ($style) {
+		$this->styles->each(static function ($style) {
 			$load = Data::value(Arr::value($style, 'load'));
 
 			if ($load) {
 				if (is_string($load)) {
-					wp_enqueue_style($style['id'], $this->asset->url($load, Arr::value($style, 'parent', false)), Arr::value($style, 'deps'), null);
+					wp_enqueue_style($style['id'], Twist::asset()
+					                                    ->url($load, $style['parent']), $style['deps'], null);
 				} else {
 					wp_enqueue_style($style['id']);
 				}
@@ -567,13 +580,14 @@ class Theme
 	 */
 	protected function addScripts(): void
 	{
-		$this->scripts->each(function ($script) {
+		$this->scripts->each(static function ($script) {
 			$load = Data::value(Arr::value($script, 'load'));
 
 			if ($load) {
 				if (is_string($load)) {
 					wp_deregister_script($script['id']);
-					wp_enqueue_script($script['id'], $this->asset->url($load, Arr::value($script, 'parent', false)), Arr::value($script, 'deps'), null, true);
+					wp_enqueue_script($script['id'], Twist::asset()
+					                                      ->url($load, $script['parent']), $script['deps'], null, true);
 				} else {
 					wp_enqueue_script($script['id']);
 				}
@@ -699,6 +713,29 @@ SCRIPT;
 	protected function addContactMethods(array $methods): array
 	{
 		return array_merge($methods, $this->contact);
+	}
+
+	/**
+	 * @param Collection $collection
+	 * @param array      $assets
+	 *
+	 * @return Collection
+	 */
+	protected function addAssets(Collection $collection, array $assets): Collection
+	{
+		return $this->addToCollection($collection, array_map(function (array $asset) {
+			if (isset($asset['load']) && $asset['load'] !== false) {
+				if (!isset($asset['parent'])) {
+					$asset['parent'] = $this->parent;
+				}
+
+				if (!isset($asset['deps'])) {
+					$asset['deps'] = [];
+				}
+			}
+
+			return $asset;
+		}, $assets));
 	}
 
 	/**

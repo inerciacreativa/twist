@@ -13,7 +13,9 @@ use Twist\Library\Util\Url;
 class Asset
 {
 
-	protected const FILE = '/assets/assets.json';
+	public const PARENT = 'template';
+
+	public const CHILD = 'stylesheet';
 
 	/**
 	 * @var JsonFile[]
@@ -36,59 +38,49 @@ class Asset
 	}
 
 	/**
-	 * @param bool $fromParentTheme
+	 * @param string $theme
+	 * @param string $filename
 	 *
 	 * @return JsonFile
 	 */
-	protected function manifest(bool $fromParentTheme): JsonFile
+	protected function manifest(string $theme, string $filename): JsonFile
 	{
-		$base = $fromParentTheme ? 'template' : 'stylesheet';
+		if (!array_key_exists($theme, $this->manifest)) {
+			$path = $this->config->get("dir.$theme");
 
-		if (!array_key_exists($base, $this->manifest)) {
-			$path = $this->config->get("dir.$base");
-
-			$this->manifest[$base] = new JsonFile($path . self::FILE);
+			$this->manifest[$theme] = new JsonFile($path . $filename);
 		}
 
-		return $this->manifest[$base];
+		return $this->manifest[$theme];
 	}
 
 	/**
 	 * @param string $filename
-	 * @param bool   $fromParentTheme
-	 *
-	 * @return mixed
-	 */
-	protected function get(string $filename, bool $fromParentTheme)
-	{
-		return $this->manifest($fromParentTheme)
-		            ->get(ltrim($filename, '/'), $filename);
-	}
-
-	/**
-	 * @param string $filename
-	 * @param bool   $fromParentTheme
-	 * @param bool   $fromSource
+	 * @param bool   $parent
 	 *
 	 * @return array
 	 */
-	protected function resolve(string $filename, bool $fromParentTheme = false, bool $fromSource = false): array
+	protected function get(string $filename, bool $parent): array
 	{
+		$theme    = $parent ? self::PARENT : self::CHILD;
+		$config   = $this->config->get("asset.$theme", ['path' => '/', 'manifest' => '']);
+		$manifest = $config['path'] . $config['manifest'];
+		$filename = $config['path'] . $this->manifest($theme, $manifest)
+		                                   ->get($filename, $filename);
+
 		return [
-			$fromParentTheme ? 'template' : 'stylesheet',
-			$fromSource ? 'source' : 'assets',
-			$fromSource ? $filename : $this->get($filename, $fromParentTheme),
+			$theme,
+			$filename,
 		];
 	}
 
 	/**
 	 * @param string $filename
-	 * @param bool   $fromParentTheme
-	 * @param bool   $fromSource
+	 * @param bool   $parent
 	 *
 	 * @return string
 	 */
-	public function url(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
+	public function url(string $filename, bool $parent = false): string
 	{
 		$url = Url::parse($filename);
 		if ($url->isValid() && $url->isAbsolute()) {
@@ -96,30 +88,27 @@ class Asset
 		}
 
 		[
-			$base,
-			$type,
-			$file,
-		] = $this->resolve($filename, $fromParentTheme, $fromSource);
+			$theme,
+			$path,
+		] = $this->get($filename, $parent);
 
-		return $this->config->get("uri.$base") . "/$type/$file";
+		return $this->config->get("uri.$theme") . $path;
 	}
 
 	/**
 	 * @param string $filename
-	 * @param bool   $fromParentTheme
-	 * @param bool   $fromSource
+	 * @param bool   $parent
 	 *
 	 * @return string
 	 */
-	public function path(string $filename, bool $fromParentTheme = false, bool $fromSource = false): string
+	public function path(string $filename, bool $parent = false): string
 	{
 		[
-			$base,
-			$type,
-			$file,
-		] = $this->resolve($filename, $fromParentTheme, $fromSource);
+			$theme,
+			$path,
+		] = $this->get($filename, $parent);
 
-		return $this->config->get("dir.$base") . "/$type/$file";
+		return $this->config->get("dir.$theme") . $path;
 	}
 
 }

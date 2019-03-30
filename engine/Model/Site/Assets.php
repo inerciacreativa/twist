@@ -79,15 +79,14 @@ class Assets
 
 	/**
 	 * @param string $path
-	 * @param bool   $source
 	 *
 	 * @return string
 	 */
-	public function svg_inline(string $path, $source = false): string
+	public function svg_inline(string $path): string
 	{
-		$image = $this->asset->path($path, false, $source);
+		$image = $this->asset->path($path);
 
-		return file_get_contents($image);
+		return (string) @file_get_contents($image);
 	}
 
 	/**
