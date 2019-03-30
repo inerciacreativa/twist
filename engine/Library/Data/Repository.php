@@ -2,6 +2,7 @@
 
 namespace Twist\Library\Data;
 
+use ArrayIterator;
 use Twist\Library\Util\Arr;
 
 /**
@@ -12,131 +13,131 @@ use Twist\Library\Util\Arr;
 class Repository implements RepositoryInterface
 {
 
-    /**
-     * @var array
-     */
-    private $items = [];
+	/**
+	 * @var array
+	 */
+	private $items = [];
 
-    /**
-     * @inheritdoc
-     */
-    public function count(): int
-    {
-        return \count($this->items);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function count(): int
+	{
+		return count($this->items);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function all(): array
-    {
-        return $this->items;
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function all(): array
+	{
+		return $this->items;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function get(string $key, $default = null)
-    {
-        return Arr::get($this->items, $key, $default);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function get(string $key, $default = null)
+	{
+		return Arr::get($this->items, $key, $default);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function has(string $key): bool
-    {
-        return Arr::has($this->items, $key);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function has(string $key): bool
+	{
+		return Arr::has($this->items, $key);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function add(string $key, $value)
-    {
-        $this->items = Arr::add($this->items, $key, $value);
+	/**
+	 * @inheritdoc
+	 */
+	public function add(string $key, $value): self
+	{
+		$this->items = Arr::add($this->items, $key, $value);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function set(string $key, $value)
-    {
-        Arr::set($this->items, $key, $value);
+	/**
+	 * @inheritdoc
+	 */
+	public function set(string $key, $value): self
+	{
+		Arr::set($this->items, $key, $value);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function fill($values)
-    {
-        Arr::map(static::getValues($values), [$this, 'set']);
+	/**
+	 * @inheritdoc
+	 */
+	public function fill($values): self
+	{
+		Arr::map(static::getValues($values), [$this, 'set']);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function forget($keys)
-    {
-        Arr::forget($this->items, $keys);
+	/**
+	 * @inheritdoc
+	 */
+	public function forget($keys): self
+	{
+		Arr::forget($this->items, $keys);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetExists($key): bool
-    {
-        return $this->has($key);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetExists($key): bool
+	{
+		return $this->has($key);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetGet($key)
-    {
-        return $this->get($key);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetGet($key)
+	{
+		return $this->get($key);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetSet($key, $value): void
-    {
-        $this->set($key ?: $this->count(), $value);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetSet($key, $value): void
+	{
+		$this->set($key ?: $this->count(), $value);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetUnset($key): void
-    {
-        $this->forget($key);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetUnset($key): void
+	{
+		$this->forget($key);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getIterator(): \ArrayIterator
-    {
-        return new \ArrayIterator($this->items);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getIterator(): ArrayIterator
+	{
+		return new ArrayIterator($this->items);
+	}
 
-    /**
-     * @param array|mixed $values
-     *
-     * @return array
-     */
-    protected static function getValues($values): array
-    {
-        return Arr::dot(Arr::items($values));
-    }
+	/**
+	 * @param array|mixed $values
+	 *
+	 * @return array
+	 */
+	protected static function getValues($values): array
+	{
+		return Arr::dot(Arr::items($values));
+	}
 
 }

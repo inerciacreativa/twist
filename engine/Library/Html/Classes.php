@@ -2,12 +2,14 @@
 
 namespace Twist\Library\Html;
 
+use ArrayAccess;
+
 /**
  * Class Classes
  *
  * @package Twist\Library\Html
  */
-class Classes implements \ArrayAccess
+class Classes implements ArrayAccess
 {
 
 	/**
@@ -165,12 +167,12 @@ class Classes implements \ArrayAccess
 	}
 
 	/**
-	 * @see sanitize_html_class()
-	 *
 	 * @param string $class
 	 * @param string $fallback
 	 *
 	 * @return string
+	 * @see sanitize_html_class()
+	 *
 	 */
 	public function sanitize(string $class, string $fallback = ''): string
 	{

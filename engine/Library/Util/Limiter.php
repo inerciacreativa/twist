@@ -2,6 +2,8 @@
 
 namespace Twist\Library\Util;
 
+use DOMNode;
+use DOMText;
 use Twist\Library\Util\Limiter\LimiterResolverInterface;
 use Twist\Library\Util\Limiter\LettersResolver;
 use Twist\Library\Util\Limiter\WordsResolver;
@@ -99,15 +101,15 @@ class Limiter
     }
 
     /**
-     * @param \DOMNode $node
+     * @param DOMNode $node
      * @param int      $limit
      */
-    protected function walk(\DOMNode $node, int $limit): void
+    protected function walk(DOMNode $node, int $limit): void
     {
         if ($this->count >= $limit) {
             $this->nodes[] = $node;
         } else {
-            if ($node instanceof \DOMText) {
+            if ($node instanceof DOMText) {
                 $count = $this->resolver->count($node->nodeValue);
 
                 if (($this->count + $count) > $limit) {

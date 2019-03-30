@@ -10,12 +10,12 @@ namespace Twist\Library\Hook;
 trait Hookable
 {
 
-    /**
-     * @return Hook
-     */
-    protected function hook(): Hook
-    {
-        return Hook::bind($this);
-    }
+	/**
+	 * @return Hook
+	 */
+	protected function hook(): Hook
+	{
+		return Hook::bind($this);
+	}
 
 }

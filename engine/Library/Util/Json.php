@@ -2,6 +2,8 @@
 
 namespace Twist\Library\Util;
 
+use InvalidArgumentException;
+
 /**
  * Class Json
  *
@@ -19,9 +21,9 @@ class Json
 	 */
 	public static function encode($value, int $options = 0, int $depth = 512): string
 	{
-		$json = \json_encode($value, $options, $depth);
+		$json = json_encode($value, $options, $depth);
 		if (JSON_ERROR_NONE !== json_last_error()) {
-			throw new \InvalidArgumentException('json_encode error: ' . json_last_error_msg());
+			throw new InvalidArgumentException('json_encode error: ' . json_last_error_msg());
 		}
 
 		return $json;
@@ -37,9 +39,9 @@ class Json
 	 */
 	public static function decode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
 	{
-		$data = \json_decode($json, $assoc, $depth, $options);
+		$data = json_decode($json, $assoc, $depth, $options);
 		if (JSON_ERROR_NONE !== json_last_error()) {
-			throw new \InvalidArgumentException('json_decode error: ' . json_last_error_msg());
+			throw new InvalidArgumentException('json_decode error: ' . json_last_error_msg());
 		}
 
 		return $data;

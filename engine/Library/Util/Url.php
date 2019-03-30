@@ -2,6 +2,8 @@
 
 namespace Twist\Library\Util;
 
+use InvalidArgumentException;
+
 /**
  * Class Url
  *
@@ -106,19 +108,19 @@ class Url
 	 * @param string $component
 	 * @param mixed  $value
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function __set(string $component, $value)
 	{
 		if (!array_key_exists($component, $this->components)) {
-			throw new \InvalidArgumentException('Component name not valid');
+			throw new InvalidArgumentException('Component name not valid');
 		}
 
 		if ($component === 'path' && strpos($value, '/') !== 0) {
 			$value = '/' . $value;
 		} else if ($component === 'query') {
-			if (!\is_array($value)) {
-				throw new \InvalidArgumentException('The query must be an array');
+			if (!is_array($value)) {
+				throw new InvalidArgumentException('The query must be an array');
 			}
 
 			$value = array_replace_recursive($this->components[$component], (array) $value);
@@ -134,12 +136,12 @@ class Url
 	 *
 	 * @return mixed
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function __get(string $component)
 	{
 		if (!array_key_exists($component, $this->components)) {
-			throw new \InvalidArgumentException('Component name not valid');
+			throw new InvalidArgumentException('Component name not valid');
 		}
 
 		return $this->components[$component];

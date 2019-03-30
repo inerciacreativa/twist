@@ -2,6 +2,8 @@
 
 namespace Twist\Library\Util;
 
+use ArrayAccess;
+use Traversable;
 use Twist\Library\Data\Collection;
 
 /**
@@ -23,7 +25,7 @@ class Arr
 	 */
 	public static function accessible($value): bool
 	{
-		return is_array($value) || $value instanceof \ArrayAccess;
+		return is_array($value) || $value instanceof ArrayAccess;
 	}
 
 	/**
@@ -101,14 +103,14 @@ class Arr
 	/**
 	 * Determine if the given key exists in the provided array.
 	 *
-	 * @param \ArrayAccess|array $array
-	 * @param string|int         $key
+	 * @param ArrayAccess|array $array
+	 * @param string|int        $key
 	 *
 	 * @return bool
 	 */
 	public static function exists($array, $key): bool
 	{
-		if ($array instanceof \ArrayAccess) {
+		if ($array instanceof ArrayAccess) {
 			return $array->offsetExists($key);
 		}
 
@@ -263,8 +265,8 @@ class Arr
 	/**
 	 * Check if an item or items exists in an array using "dot" notation.
 	 *
-	 * @param \ArrayAccess|array $array
-	 * @param string|array       $keys
+	 * @param ArrayAccess|array $array
+	 * @param string|array      $keys
 	 *
 	 * @return bool
 	 */
@@ -298,9 +300,9 @@ class Arr
 	/**
 	 * Get an item from an array using "dot" notation.
 	 *
-	 * @param \ArrayAccess|array $array
-	 * @param string             $key
-	 * @param mixed              $default
+	 * @param ArrayAccess|array $array
+	 * @param string            $key
+	 * @param mixed             $default
 	 *
 	 * @return mixed
 	 */
@@ -590,7 +592,7 @@ class Arr
 	 */
 	public static function values(array $array): array
 	{
-		return array_filter(array_map(function ($item) {
+		return array_filter(array_map(static function ($item) {
 			return Data::value($item);
 		}, $array));
 	}
@@ -614,7 +616,7 @@ class Arr
 			$items = $items->toArray();
 		} else if (method_exists($items, 'toJson')) {
 			$items = json_decode($items->toJson(), true);
-		} else if ($items instanceof \Traversable) {
+		} else if ($items instanceof Traversable) {
 			return iterator_to_array($items);
 		}
 
@@ -643,7 +645,7 @@ class Arr
 	 */
 	public static function reduce(array $array, callable $callback, $initial = null)
 	{
-		return array_reduce(array_keys($array), function ($result, $key) use ($callback, $array) {
+		return array_reduce(array_keys($array), static function ($result, $key) use ($callback, $array) {
 			return $callback($result, $array[$key], $key);
 		}, $initial);
 	}

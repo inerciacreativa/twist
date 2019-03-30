@@ -2,6 +2,11 @@
 
 namespace Twist\Library\Data;
 
+use ArrayAccess;
+use Closure;
+use Countable;
+use InvalidArgumentException;
+use IteratorAggregate;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 use Twist\Library\Util\Macroable;
@@ -11,7 +16,7 @@ use Twist\Library\Util\Macroable;
  *
  * @package Twist\Library\Data
  */
-class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
+class Collection implements ArrayAccess, Countable, IteratorAggregate
 {
 
 	use Macroable;
@@ -105,7 +110,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	{
 		$first = $this->first();
 
-		if (\is_array($first) || \is_object($first)) {
+		if (is_array($first) || is_object($first)) {
 			return implode($glue, $this->pluck($value)->all());
 		}
 
@@ -119,7 +124,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function count(): int
 	{
-		return \count($this->items);
+		return count($this->items);
 	}
 
 	/**
@@ -200,8 +205,8 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function set(int $index, $value)
 	{
-		if (\is_array($value)) {
-			$this->items = \array_slice($this->items, 0, $index) + $value + \array_slice($this->items, $index);
+		if (is_array($value)) {
+			$this->items = array_slice($this->items, 0, $index) + $value + array_slice($this->items, $index);
 		} else {
 			array_splice($this->items, $index, 0, $value);
 		}
@@ -232,15 +237,15 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function contains($key, $operator = null, $value = null): bool
 	{
-		if (\func_num_args() === 1) {
+		if (func_num_args() === 1) {
 			if (self::useAsCallable($key)) {
 				return $this->first($key) !== null;
 			}
 
-			return \in_array($key, $this->items, false);
+			return in_array($key, $this->items, false);
 		}
 
-		if (\func_num_args() === 2) {
+		if (func_num_args() === 2) {
 			$value    = $operator;
 			$operator = '=';
 		}
@@ -258,8 +263,8 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function containsStrict($key, $value = null): bool
 	{
-		if (\func_num_args() === 2) {
-			return $this->contains(function ($item) use ($key, $value) {
+		if (func_num_args() === 2) {
+			return $this->contains(static function ($item) use ($key, $value) {
 				return Data::get($item, $key) === $value;
 			});
 		}
@@ -268,7 +273,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 			return $this->first($key) !== null;
 		}
 
-		return \in_array($key, $this->items, true);
+		return in_array($key, $this->items, true);
 	}
 
 	/**
@@ -397,7 +402,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	public function first(callable $callback = null, $default = null)
 	{
 		if ($callback === null) {
-			return \count($this->items) > 0 ? reset($this->items) : Data::value($default);
+			return count($this->items) > 0 ? reset($this->items) : Data::value($default);
 		}
 
 		return Arr::first($this->items, $callback, $default);
@@ -414,7 +419,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	public function last(callable $callback = null, $default = null)
 	{
 		if ($callback === null) {
-			return \count($this->items) > 0 ? end($this->items) : Data::value($default);
+			return count($this->items) > 0 ? end($this->items) : Data::value($default);
 		}
 
 		return Arr::last($this->items, $callback, $default);
@@ -467,7 +472,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function every($key, $operator = null, $value = null): bool
 	{
-		if (\func_num_args() === 1) {
+		if (func_num_args() === 1) {
 			$callback = self::valueRetriever($key);
 
 			foreach ($this->items as $k => $v) {
@@ -479,7 +484,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 			return true;
 		}
 
-		if (\func_num_args() === 2) {
+		if (func_num_args() === 2) {
 			$value    = $operator;
 			$operator = '=';
 		}
@@ -568,7 +573,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function except($keys): Collection
 	{
-		$keys = \is_array($keys) ? $keys : \func_get_args();
+		$keys = is_array($keys) ? $keys : func_get_args();
 
 		return new static(Arr::except($this->items, $keys));
 	}
@@ -582,7 +587,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function only($keys): Collection
 	{
-		$keys = \is_array($keys) ? $keys : \func_get_args();
+		$keys = is_array($keys) ? $keys : func_get_args();
 
 		return new static(Arr::only($this->items, $keys));
 	}
@@ -664,7 +669,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 		foreach ($this->items as $key => $value) {
 			$groupKeys = $groupBy($value, $key);
 
-			if (!\is_array($groupKeys)) {
+			if (!is_array($groupKeys)) {
 				$groupKeys = [$groupKeys];
 			}
 
@@ -695,7 +700,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 		foreach ($this->items as $key => $item) {
 			$resolvedKey = $keyBy($item, $key);
 
-			if (\is_object($resolvedKey)) {
+			if (is_object($resolvedKey)) {
 				$resolvedKey = (string) $resolvedKey;
 			}
 
@@ -805,7 +810,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function where(string $key, string $operator, $value = null): Collection
 	{
-		if (\func_num_args() === 2) {
+		if (func_num_args() === 2) {
 			$value    = $operator;
 			$operator = '=';
 		}
@@ -839,8 +844,8 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	{
 		$values = Arr::items($values);
 
-		return $this->filter(function ($item) use ($key, $values, $strict) {
-			return \in_array(Data::get($item, $key), $values, $strict);
+		return $this->filter(static function ($item) use ($key, $values, $strict) {
+			return in_array(Data::get($item, $key), $values, $strict);
 		});
 	}
 
@@ -868,7 +873,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	{
 		$useAsCallable = self::useAsCallable($callback);
 
-		return $this->filter(function ($value, $key) use ($callback, $useAsCallable) {
+		return $this->filter(static function ($value, $key) use ($callback, $useAsCallable) {
 			return $useAsCallable ? !$callback($value, $key) : $value != $callback;
 		});
 	}
@@ -902,8 +907,8 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 		$callback = self::valueRetriever($key);
 		$exists   = [];
 
-		return $this->reject(function ($item, $key) use ($callback, $strict, &$exists) {
-			if (\in_array($id = $callback($item, $key), $exists, $strict)) {
+		return $this->reject(static function ($item, $key) use ($callback, $strict, &$exists) {
+			if (in_array($id = $callback($item, $key), $exists, $strict)) {
 				return true;
 			}
 
@@ -922,7 +927,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function splice(int $offset, int $length = null, array $replacement = []): Collection
 	{
-		if (\func_num_args() === 1) {
+		if (func_num_args() === 1) {
 			return new static(array_splice($this->items, $offset));
 		}
 
@@ -940,7 +945,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function slice(int $offset, int $length = null, bool $preserveKeys = true): Collection
 	{
-		return new static(\array_slice($this->items, $offset, $length, $preserveKeys));
+		return new static(array_slice($this->items, $offset, $length, $preserveKeys));
 	}
 
 	/**
@@ -1025,7 +1030,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 
 		$callback = self::valueRetriever($callback);
 
-		return $this->reduce(function ($result, $item) use ($callback) {
+		return $this->reduce(static function ($result, $item) use ($callback) {
 			return $result + $callback($item);
 		}, 0);
 	}
@@ -1103,14 +1108,14 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 		$collection = $key === null ? $this->pluck($key) : $this;
 		$counts     = new self;
 
-		$collection->each(function ($value) use ($counts) {
+		$collection->each(static function ($value) use ($counts) {
 			$counts[$value] = isset($counts[$value]) ? $counts[$value] + 1 : 1;
 		});
 
 		$sorted       = $counts->sort();
 		$highestValue = $sorted->last();
 
-		return $sorted->filter(function ($value) use ($highestValue) {
+		return $sorted->filter(static function ($value) use ($highestValue) {
 			return $value === $highestValue;
 		})->sort()->keys()->all();
 	}
@@ -1124,7 +1129,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function max($key = null)
 	{
-		return $this->reduce(function ($result, $item) use ($key) {
+		return $this->reduce(static function ($result, $item) use ($key) {
 			$value = Data::get($item, $key);
 
 			return $result === null || $value > $result ? $value : $result;
@@ -1140,7 +1145,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function min($key = null)
 	{
-		return $this->reduce(function ($result, $item) use ($key) {
+		return $this->reduce(static function ($result, $item) use ($key) {
 			$value = Data::get($item, $key);
 
 			return $result === null || $value < $result ? $value : $result;
@@ -1175,7 +1180,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 			shuffle($items);
 		} else {
 			mt_srand($seed);
-			usort($items, function () {
+			usort($items, static function () {
 				return random_int(-1, 1);
 			});
 		}
@@ -1190,12 +1195,12 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return Collection
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function random(int $amount = 1): Collection
 	{
 		if ($amount > ($count = $this->count())) {
-			throw new \InvalidArgumentException("You requested {$amount} items, but there are only {$count} items in the collection");
+			throw new InvalidArgumentException("You requested {$amount} items, but there are only {$count} items in the collection");
 		}
 
 		$keys = array_rand($this->items, $amount);
@@ -1224,7 +1229,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function toArray(): array
 	{
-		return array_map(function ($value) {
+		return array_map(static function ($value) {
 			return method_exists($value, 'toArray') ? $value->toArray() : $value;
 		}, $this->items);
 	}
@@ -1248,7 +1253,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public function serialize(): array
 	{
-		return array_map(function ($value) {
+		return array_map(static function ($value) {
 			if (method_exists($value, 'serialize')) {
 				return $value->serialize();
 			}
@@ -1288,7 +1293,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 			return $value;
 		}
 
-		return function ($item) use ($value) {
+		return static function ($item) use ($value) {
 			return Data::get($item, $value);
 		};
 	}
@@ -1302,7 +1307,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 */
 	public static function useAsCallable($value): bool
 	{
-		return !\is_string($value) && \is_callable($value);
+		return !is_string($value) && is_callable($value);
 	}
 
 	/**
@@ -1312,11 +1317,11 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 * @param string $operator
 	 * @param mixed  $value
 	 *
-	 * @return \Closure
+	 * @return Closure
 	 */
-	public static function operatorForWhere(string $key, string $operator, $value): \Closure
+	public static function operatorForWhere(string $key, string $operator, $value): Closure
 	{
-		return function ($item) use ($key, $operator, $value) {
+		return static function ($item) use ($key, $operator, $value) {
 			$retrieved = Data::get($item, $key);
 
 			switch ($operator) {

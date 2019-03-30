@@ -2,6 +2,9 @@
 
 namespace Twist\Library\Util;
 
+use BadMethodCallException;
+use Closure;
+
 /**
  * Class Macro
  *
@@ -10,86 +13,86 @@ namespace Twist\Library\Util;
 trait Macroable
 {
 
-    /**
-     * The registered string macros.
-     *
-     * @var array
-     */
-    protected static $macros = [];
+	/**
+	 * The registered string macros.
+	 *
+	 * @var array
+	 */
+	protected static $macros = [];
 
-    /**
-     * Register a custom macro.
-     *
-     * @param string   $name
-     * @param callable $macro
-     *
-     * @return void
-     */
-    public static function macro($name, callable $macro): void
-    {
-        static::$macros[$name] = $macro;
-    }
+	/**
+	 * Register a custom macro.
+	 *
+	 * @param string   $name
+	 * @param callable $macro
+	 *
+	 * @return void
+	 */
+	public static function macro($name, callable $macro): void
+	{
+		static::$macros[$name] = $macro;
+	}
 
-    /**
-     * Checks if macro is registered.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public static function hasMacro($name): bool
-    {
-        return isset(static::$macros[$name]);
-    }
+	/**
+	 * Checks if macro is registered.
+	 *
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public static function hasMacro($name): bool
+	{
+		return isset(static::$macros[$name]);
+	}
 
-    /**
-     * Dynamically handle calls to the class.
-     *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return mixed
-     *
-     * @throws \BadMethodCallException
-     */
-    public static function __callStatic($method, $parameters)
-    {
-        if (!static::hasMacro($method)) {
-            throw new \BadMethodCallException("Method {$method} does not exist.");
+	/**
+	 * Dynamically handle calls to the class.
+	 *
+	 * @param string $method
+	 * @param array  $parameters
+	 *
+	 * @return mixed
+	 *
+	 * @throws BadMethodCallException
+	 */
+	public static function __callStatic($method, $parameters)
+	{
+		if (!static::hasMacro($method)) {
+			throw new BadMethodCallException("Method {$method} does not exist.");
 
-        }
+		}
 
-        if (static::$macros[$method] instanceof \Closure) {
-            return \call_user_func_array(\Closure::bind(static::$macros[$method], null, static::class), $parameters);
-        }
+		if (static::$macros[$method] instanceof Closure) {
+			return call_user_func_array(Closure::bind(static::$macros[$method], null, static::class), $parameters);
+		}
 
-        return \call_user_func_array(static::$macros[$method], $parameters);
-    }
+		return call_user_func_array(static::$macros[$method], $parameters);
+	}
 
-    /**
-     * Dynamically handle calls to the class.
-     *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return mixed
-     *
-     * @throws \BadMethodCallException
-     */
-    public function __call($method, $parameters)
-    {
-        if (!static::hasMacro($method)) {
-            throw new \BadMethodCallException("Method {$method} does not exist.");
+	/**
+	 * Dynamically handle calls to the class.
+	 *
+	 * @param string $method
+	 * @param array  $parameters
+	 *
+	 * @return mixed
+	 *
+	 * @throws BadMethodCallException
+	 */
+	public function __call($method, $parameters)
+	{
+		if (!static::hasMacro($method)) {
+			throw new BadMethodCallException("Method {$method} does not exist.");
 
-        }
+		}
 
-        $callable = static::$macros[$method];
+		$callable = static::$macros[$method];
 
-        if ($callable instanceof \Closure) {
-            return \call_user_func_array($callable->bindTo($this, \get_class($this)), $parameters);
-        }
+		if ($callable instanceof Closure) {
+			return call_user_func_array($callable->bindTo($this, get_class($this)), $parameters);
+		}
 
-        return \call_user_func_array($callable, $parameters);
-    }
+		return call_user_func_array($callable, $parameters);
+	}
 
 }

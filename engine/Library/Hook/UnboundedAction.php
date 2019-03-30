@@ -10,53 +10,53 @@ namespace Twist\Library\Hook;
 class UnboundedAction extends Action
 {
 
-    /**
-     * UnboundedAction constructor.
-     *
-     * @param string   $hook
-     * @param callable $callback
-     * @param array    $parameters {
-     *
-     * @type int       $priority
-     * @type int       $arguments
-     * @type bool      $enabled
-     * }
-     */
-    public function __construct($hook, callable $callback, array $parameters = [])
-    {
-        parent::__construct($hook, $callback, $parameters);
+	/**
+	 * UnboundedAction constructor.
+	 *
+	 * @param string   $hook
+	 * @param callable $callback
+	 * @param array    $parameters {
+	 *
+	 * @type int       $priority
+	 * @type int       $arguments
+	 * @type bool      $enabled
+	 * }
+	 */
+	public function __construct($hook, callable $callback, array $parameters = [])
+	{
+		parent::__construct($hook, $callback, $parameters);
 
-        if (\is_array($callback)) {
-            $namespace = \get_class($callback[0]);
-            $id        = $callback[1];
-        } else {
-            $namespace = 'global';
-            $id        = $callback;
-        }
+		if (is_array($callback)) {
+			$namespace = get_class($callback[0]);
+			$id        = $callback[1];
+		} else {
+			$namespace = 'global';
+			$id        = $callback;
+		}
 
-        $this->setId($namespace, $id);
-    }
+		$this->setId($namespace, $id);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function enable(): void
-    {
-        if (!$this->enabled) {
-            add_filter($this->hook, $this->callback, $this->priority, $this->arguments);
-            $this->enabled = true;
-        }
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function enable(): void
+	{
+		if (!$this->enabled) {
+			add_filter($this->hook, $this->callback, $this->priority, $this->arguments);
+			$this->enabled = true;
+		}
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function disable(): void
-    {
-        if ($this->enabled) {
-            remove_filter($this->hook, $this->callback, $this->priority);
-            $this->enabled = false;
-        }
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function disable(): void
+	{
+		if ($this->enabled) {
+			remove_filter($this->hook, $this->callback, $this->priority);
+			$this->enabled = false;
+		}
+	}
 
 }

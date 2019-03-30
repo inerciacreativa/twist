@@ -640,8 +640,8 @@ class Str
 		if (static::$multiByte === null) {
 			static::$multiByte = false;
 
-			if (\function_exists('mb_list_encodings')) {
-				static::$multiByte = \in_array(static::getEncoding(), mb_list_encodings(), false);
+			if (function_exists('mb_list_encodings')) {
+				static::$multiByte = in_array(static::getEncoding(), mb_list_encodings(), false);
 			}
 		}
 
@@ -715,7 +715,7 @@ class Str
 	 */
 	public static function length(string $string): int
 	{
-		return static::isMultiByte() ? mb_strlen($string, static::getEncoding()) : \strlen($string);
+		return static::isMultiByte() ? mb_strlen($string, static::getEncoding()) : strlen($string);
 	}
 
 	/**
@@ -772,7 +772,8 @@ class Str
 	public static function startsWith(string $haystack, $needles): bool
 	{
 		foreach ((array) $needles as $needle) {
-			if ($needle !== '' && substr($haystack, 0, \strlen($needle)) === (string) $needle) {
+			//if ($needle !== '' && substr($haystack, 0, strlen($needle)) === (string) $needle) {
+			if ($needle !== '' && (strpos($haystack, (string) $needle) === 0)) {
 				return true;
 			}
 		}
@@ -791,7 +792,7 @@ class Str
 	public static function endsWith(string $haystack, $needles): bool
 	{
 		foreach ((array) $needles as $needle) {
-			if (substr($haystack, -\strlen($needle)) === (string) $needle) {
+			if (substr($haystack, -strlen($needle)) === (string) $needle) {
 				return true;
 			}
 		}
@@ -858,7 +859,7 @@ class Str
 		$position = strpos($subject, $search);
 
 		if ($position !== false) {
-			return substr_replace($subject, $replace, $position, \strlen($search));
+			return substr_replace($subject, $replace, $position, strlen($search));
 		}
 
 		return $subject;
@@ -876,7 +877,7 @@ class Str
 		$position = strrpos($subject, $search);
 
 		if ($position !== false) {
-			return substr_replace($subject, $replace, $position, \strlen($search));
+			return substr_replace($subject, $replace, $position, strlen($search));
 		}
 
 		return $subject;
@@ -905,8 +906,8 @@ class Str
 	/**
 	 * Convert a string to snake case.
 	 *
-	 * @param  string $string
-	 * @param  string $delimiter
+	 * @param string $string
+	 * @param string $delimiter
 	 *
 	 * @return string
 	 */
@@ -929,7 +930,7 @@ class Str
 	/**
 	 * Convert a value to camel case.
 	 *
-	 * @param  string $string
+	 * @param string $string
 	 *
 	 * @return string
 	 */
@@ -945,7 +946,7 @@ class Str
 	/**
 	 * Convert a value to studly caps case.
 	 *
-	 * @param  string $string
+	 * @param string $string
 	 *
 	 * @return string
 	 */

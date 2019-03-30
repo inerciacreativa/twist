@@ -2,6 +2,11 @@
 
 namespace Twist\Library\Dom;
 
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use DOMNodeList;
+use DOMXPath;
 use Twist\Library\Html\Tag;
 use Twist\Library\Util\Str;
 use Twist\Library\Util\Text;
@@ -17,7 +22,7 @@ use Twist\Library\Util\Text;
  * @method Element createElementNS($namespaceURI, $qualifiedName, $value = null)
  * @method Element getElementById($elementId)
  */
-class Document extends \DOMDocument
+class Document extends DOMDocument
 {
 
 	/**
@@ -31,7 +36,7 @@ class Document extends \DOMDocument
 	public $language;
 
 	/**
-	 * @var \DOMXPath|null
+	 * @var DOMXPath|null
 	 */
 	private $xpath;
 
@@ -56,7 +61,7 @@ class Document extends \DOMDocument
 
 		$this->language = $language;
 
-		$this->registerNodeClass(\DOMElement::class, Element::class);
+		$this->registerNodeClass(DOMElement::class, Element::class);
 	}
 
 	/**
@@ -96,11 +101,11 @@ class Document extends \DOMDocument
 	}
 
 	/**
-	 * @param \DOMNode $node
+	 * @param DOMNode $node
 	 *
 	 * @return string
 	 */
-	public function saveMarkup(\DOMNode $node = null): string
+	public function saveMarkup(DOMNode $node = null): string
 	{
 		$this->normalizeDocument();
 
@@ -122,11 +127,11 @@ class Document extends \DOMDocument
 	}
 
 	/**
-	 * @param \DOMNode|null $node
+	 * @param DOMNode|null $node
 	 *
 	 * @return Text
 	 */
-	public function saveText(\DOMNode $node = null): Text
+	public function saveText(DOMNode $node = null): Text
 	{
 		return new Text($this->saveMarkup($node));
 	}
@@ -155,15 +160,15 @@ class Document extends \DOMDocument
 	/**
 	 * Evaluates the given XPath expression.
 	 *
-	 * @param string        $query XPath expression
-	 * @param null|\DOMNode $context
+	 * @param string       $query XPath expression
+	 * @param null|DOMNode $context
 	 *
-	 * @return \DOMNodeList
+	 * @return DOMNodeList
 	 */
-	public function query(string $query, \DOMNode $context = null): \DOMNodeList
+	public function query(string $query, DOMNode $context = null): DOMNodeList
 	{
 		if ($this->xpath === null) {
-			$this->xpath = new \DOMXPath($this);
+			$this->xpath = new DOMXPath($this);
 		}
 
 		return $this->xpath->query($query, $context);
@@ -172,12 +177,12 @@ class Document extends \DOMDocument
 	/**
 	 * Gets elements which have any attributes.
 	 *
-	 * @param string        $tagName
-	 * @param null|\DOMNode $context
+	 * @param string       $tagName
+	 * @param null|DOMNode $context
 	 *
-	 * @return \DOMNodeList
+	 * @return DOMNodeList
 	 */
-	public function getElementsWithAttributes(string $tagName = '*', \DOMNode $context = null): \DOMNodeList
+	public function getElementsWithAttributes(string $tagName = '*', DOMNode $context = null): DOMNodeList
 	{
 		return $this->query(sprintf('//%s[@*]', $tagName), $context ?? $this);
 	}
@@ -185,12 +190,12 @@ class Document extends \DOMDocument
 	/**
 	 * Gets elements without attributes.
 	 *
-	 * @param string        $tagName
-	 * @param null|\DOMNode $context
+	 * @param string       $tagName
+	 * @param null|DOMNode $context
 	 *
-	 * @return \DOMNodeList
+	 * @return DOMNodeList
 	 */
-	public function getElementsWithoutAttributes(string $tagName = '*', \DOMNode $context = null): \DOMNodeList
+	public function getElementsWithoutAttributes(string $tagName = '*', DOMNode $context = null): DOMNodeList
 	{
 		return $this->query(sprintf('//%s[not(@*)]', $tagName), $context ?? $this);
 	}
@@ -198,32 +203,32 @@ class Document extends \DOMDocument
 	/**
 	 * Gets elements by class name.
 	 *
-	 * @param null|\DOMNode $context
-	 * @param string        $className
+	 * @param null|DOMNode $context
+	 * @param string       $className
 	 *
-	 * @return \DOMNodeList
+	 * @return DOMNodeList
 	 */
-	public function getElementsByClassName(string $className, \DOMNode $context = null): \DOMNodeList
+	public function getElementsByClassName(string $className, DOMNode $context = null): DOMNodeList
 	{
 		return $this->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $className ')]", $context ?? $this);
 	}
 
 	/**
-	 * @return \DOMNodeList
+	 * @return DOMNodeList
 	 */
-	public function getComments(): \DOMNodeList
+	public function getComments(): DOMNodeList
 	{
 		return $this->query('//comment()');
 	}
 
 	/**
-	 * @param \DOMNodeList $nodes
-	 * @param array        $disallowedAttributes
-	 * @param array        $allowedStyles
+	 * @param DOMNodeList $nodes
+	 * @param array       $disallowedAttributes
+	 * @param array       $allowedStyles
 	 *
 	 * @return $this
 	 */
-	public function cleanNodeAttributes(\DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = []): self
+	public function cleanNodeAttributes(DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = []): self
 	{
 		$disallowedAttributes = array_merge($disallowedAttributes, static::$disallowedAttributes);
 
@@ -262,7 +267,7 @@ class Document extends \DOMDocument
 	 */
 	public function cleanComments(): self
 	{
-		/** @var $node \DOMElement */
+		/** @var $node DOMElement */
 		foreach ($this->getComments() as $node) {
 			$node->parentNode->removeChild($node);
 		}
@@ -273,11 +278,11 @@ class Document extends \DOMDocument
 	/**
 	 * Removes elements, but not their children.
 	 *
-	 * @param \DOMNodeList $nodes
+	 * @param DOMNodeList $nodes
 	 *
 	 * @return $this
 	 */
-	public function unwrapElements(\DOMNodeList $nodes): self
+	public function unwrapElements(DOMNodeList $nodes): self
 	{
 		/** @var Element $node */
 		foreach ($nodes as $node) {
@@ -298,12 +303,12 @@ class Document extends \DOMDocument
 	}
 
 	/**
-	 * @param \DOMNodeList $nodes
-	 * @param string       $tagName
+	 * @param DOMNodeList $nodes
+	 * @param string      $tagName
 	 *
 	 * @return $this
 	 */
-	public function renameElements(\DOMNodeList $nodes, string $tagName): self
+	public function renameElements(DOMNodeList $nodes, string $tagName): self
 	{
 		/** @var Element $node */
 		while ($node = $nodes->item(0)) {

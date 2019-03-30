@@ -2,6 +2,8 @@
 
 namespace Twist\Library\Hook;
 
+use Closure;
+use RuntimeException;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
 
@@ -58,7 +60,7 @@ class Hook
 	{
 		$hooks         = static::instance();
 		$hooks->object = $object;
-		$hooks->class  = \get_class($object);
+		$hooks->class  = get_class($object);
 
 		return $hooks;
 	}
@@ -82,7 +84,7 @@ class Hook
 	 */
 	public static function apply(string $hook)
 	{
-		return apply_filters(...\func_get_args());
+		return apply_filters(...func_get_args());
 	}
 
 	/**
@@ -90,7 +92,7 @@ class Hook
 	 */
 	public static function fire(string $hook): void
 	{
-		do_action(...\func_get_args());
+		do_action(...func_get_args());
 	}
 
 	/**
@@ -138,11 +140,11 @@ class Hook
 	{
 		$segments = explode('.', $target);
 
-		if (\count($segments) === 1) {
+		if (count($segments) === 1) {
 			array_unshift($segments, '*');
 		}
 
-		if (\count($segments) === 2) {
+		if (count($segments) === 2) {
 			if ($this->isBounded()) {
 				array_unshift($segments, $this->class);
 			} else {
@@ -152,7 +154,7 @@ class Hook
 
 		$actions = Data::get($this->actions, $segments, []);
 
-		if (!\is_array($actions)) {
+		if (!is_array($actions)) {
 			$actions = [$actions];
 		} else if (!empty($actions)) {
 			$actions = array_values(array_filter($actions));
@@ -183,7 +185,7 @@ class Hook
 	 */
 	protected function getAction(string $hook, $callback, array $parameters = []): ?ActionInterface
 	{
-		if ($callback instanceof \Closure) {
+		if ($callback instanceof Closure) {
 			return new ClosureAction($hook, $callback, $parameters);
 		}
 
@@ -191,7 +193,7 @@ class Hook
 			return new BoundedAction($hook, $this->object, $callback, $parameters);
 		}
 
-		if (\is_callable($callback)) {
+		if (is_callable($callback)) {
 			return new UnboundedAction($hook, $callback, $parameters);
 		}
 
@@ -205,7 +207,7 @@ class Hook
 	 */
 	protected function isBounded(string $callback = null): bool
 	{
-		return $this->object !== null && ($callback === null || (\is_string($callback) && method_exists($this->object, $callback)));
+		return $this->object !== null && ($callback === null || (is_string($callback) && method_exists($this->object, $callback)));
 	}
 
 	/**
@@ -241,7 +243,7 @@ class Hook
 	 */
 	public function off(string $hook, $callback, $parameters = 10): self
 	{
-		if (\is_int($parameters)) {
+		if (is_int($parameters)) {
 			$parameters = ['priority' => $parameters, 'enabled' => false];
 		} else {
 			$parameters = array_merge($parameters, ['enabled' => false]);
@@ -386,11 +388,11 @@ class Hook
 	}
 
 	/**
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	final public function __wakeup()
 	{
-		throw new \RuntimeException('Cannot unserialize singleton.');
+		throw new RuntimeException('Cannot unserialize singleton.');
 	}
 
 }

@@ -2,6 +2,11 @@
 
 namespace Twist\Library\Html;
 
+use ArrayAccess;
+use Closure;
+use Exception;
+use InvalidArgumentException;
+use SimpleXMLElement;
 use Twist\Library\Util\Arr;
 
 /**
@@ -119,7 +124,7 @@ use Twist\Library\Util\Arr;
  * @method static Tag video($attributes = [], $content = null)
  * @method static Tag wbr($attributes = [])
  */
-class Tag implements \ArrayAccess
+class Tag implements ArrayAccess
 {
 
 	/**
@@ -220,7 +225,7 @@ class Tag implements \ArrayAccess
 		$attributes = Arr::get($arguments, 0, []);
 		$content    = Arr::get($arguments, 1);
 
-		if (\is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
+		if (is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
 			return new static($tag, $attributes, $content);
 		}
 
@@ -253,14 +258,14 @@ class Tag implements \ArrayAccess
 	{
 		$options = LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL;
 		try {
-			$xml = new \SimpleXMLElement(trim($html), $options);
+			$xml = new SimpleXMLElement(trim($html), $options);
 
 			$tag        = $xml->getName();
 			$attributes = current($xml->attributes());
 			$content    = (string) $xml;
 
 			return new static($tag, $attributes, $content);
-		} catch (\Exception $exception) {
+		} catch (Exception $exception) {
 			return null;
 		}
 	}
@@ -425,14 +430,14 @@ class Tag implements \ArrayAccess
 	 * @param string           $attribute
 	 * @param string|bool|null $value
 	 *
-	 * @throws \InvalidArgumentException
-	 *
 	 * @return void
+	 * @throws InvalidArgumentException
+	 *
 	 */
 	public function offsetSet($attribute, $value): void
 	{
 		if (empty($attribute)) {
-			throw new \InvalidArgumentException('Attribute name not specified');
+			throw new InvalidArgumentException('Attribute name not specified');
 		}
 
 		if ($value === null) {
@@ -467,16 +472,16 @@ class Tag implements \ArrayAccess
 			$result = '';
 		}
 
-		if (\is_string($content) || (\is_object($content) && method_exists($content, '__toString'))) {
+		if (is_string($content) || (is_object($content) && method_exists($content, '__toString'))) {
 			$result = (string) $content;
 		}
 
-		if ($content instanceof \Closure || (\is_object($content) && method_exists($content, '__invoke'))) {
+		if ($content instanceof Closure || (is_object($content) && method_exists($content, '__invoke'))) {
 			$result = $content();
 		}
 
-		if (\is_array($content)) {
-			$result = array_reduce($content, function ($string, $content) {
+		if (is_array($content)) {
+			$result = array_reduce($content, static function ($string, $content) {
 				return $string . static::getContent($content);
 			}, '');
 		}
@@ -495,12 +500,12 @@ class Tag implements \ArrayAccess
 	 */
 	protected static function getAttributes(array $attributes): string
 	{
-		$attributes = Arr::map($attributes, function ($name, $value) {
+		$attributes = Arr::map($attributes, static function ($name, $value) {
 			if (static::isBoolAttribute($name)) {
 				return $value ? $name : '';
 			}
 
-			if (($value  === '') && !static::canBeEmptyAttribute($name)) {
+			if (($value === '') && !static::canBeEmptyAttribute($name)) {
 				return $value;
 			}
 
@@ -525,7 +530,7 @@ class Tag implements \ArrayAccess
 	 */
 	public static function isVoidTag(string $tag): bool
 	{
-		return \in_array($tag, static::$voidTags, false);
+		return in_array($tag, static::$voidTags, false);
 	}
 
 	/**
@@ -535,7 +540,7 @@ class Tag implements \ArrayAccess
 	 */
 	public static function isBoolAttribute(string $attribute): bool
 	{
-		return \in_array($attribute, static::$boolAttributes, true);
+		return in_array($attribute, static::$boolAttributes, true);
 	}
 
 	/**
@@ -545,7 +550,7 @@ class Tag implements \ArrayAccess
 	 */
 	public static function isUrlAttribute(string $attribute): bool
 	{
-		return \in_array($attribute, static::$urlAttributes, true);
+		return in_array($attribute, static::$urlAttributes, true);
 	}
 
 	/**
@@ -555,7 +560,7 @@ class Tag implements \ArrayAccess
 	 */
 	public static function canBeEmptyAttribute(string $attribute): bool
 	{
-		return \in_array($attribute, static::$emptyAttributes, true);
+		return in_array($attribute, static::$emptyAttributes, true);
 	}
 
 }
