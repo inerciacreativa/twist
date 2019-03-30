@@ -44,7 +44,7 @@ class Form
 		}, 1, 3);
 
 		// Normalize generated hidden fields
-		Hook::add('comment_id_fields', function (string $fields) {
+		Hook::add('comment_id_fields', static function (string $fields) {
 			return str_replace(["'", ' />', "\n"], ['"', '>', ''], $fields);
 		});
 	}

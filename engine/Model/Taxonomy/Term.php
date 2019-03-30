@@ -6,6 +6,7 @@ use Twist\App\AppException;
 use Twist\Library\Html\Classes;
 use Twist\Model\Base\CollectionInterface;
 use Twist\Model\Base\Model;
+use WP_Term;
 
 /**
  * Class Term
@@ -23,7 +24,7 @@ class Term extends Model
 	protected $taxonomy;
 
 	/**
-	 * @var \WP_Term
+	 * @var WP_Term
 	 */
 	protected $term;
 
@@ -35,12 +36,12 @@ class Term extends Model
 	/**
 	 * Term constructor.
 	 *
-	 * @param \WP_Term          $term
+	 * @param WP_Term           $term
 	 * @param TaxonomyInterface $taxonomy
 	 *
 	 * @throws AppException
 	 */
-	public function __construct(\WP_Term $term, TaxonomyInterface $taxonomy = null)
+	public function __construct(WP_Term $term, TaxonomyInterface $taxonomy = null)
 	{
 		$this->term     = $term;
 		$this->taxonomy = $taxonomy ?? new Taxonomy($term->taxonomy);
@@ -177,9 +178,9 @@ class Term extends Model
 	}
 
 	/**
-	 * @return \WP_Term
+	 * @return WP_Term
 	 */
-	public function object(): \WP_Term
+	public function object(): WP_Term
 	{
 		return $this->term;
 	}

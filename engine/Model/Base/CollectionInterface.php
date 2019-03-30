@@ -2,12 +2,15 @@
 
 namespace Twist\Model\Base;
 
+use Countable;
+use IteratorAggregate;
+
 /**
  * Interface CollectionInterface
  *
  * @package Twist\Model\Base
  */
-interface CollectionInterface extends HasParentInterface, \IteratorAggregate, \Countable
+interface CollectionInterface extends Countable, HasParentInterface, IteratorAggregate
 {
 
 	/**

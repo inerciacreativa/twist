@@ -2,12 +2,14 @@
 
 namespace Twist\Model\Comment;
 
+use Walker_Comment;
+
 /**
  * Class Walker
  *
  * @package Twist\Model\Comment
  */
-class Walker extends \Walker_Comment
+class Walker extends Walker_Comment
 {
 
 	/**

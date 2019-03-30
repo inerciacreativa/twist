@@ -8,6 +8,7 @@ use Twist\Library\Util\Macroable;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Pagination;
+use Twist\Model\Post\Post;
 use Twist\Model\Post\Query;
 use Twist\Model\Taxonomy\Term;
 use Twist\Model\User\User;
@@ -168,12 +169,12 @@ class Site
 	}
 
 	/**
-	 * @see body_class()
-	 *
 	 * @param string|array $class
 	 *
 	 * @return Classes
 	 * @throws AppException
+	 * @see body_class()
+	 *
 	 */
 	public function classes($class = []): Classes
 	{
@@ -210,6 +211,7 @@ class Site
 		}
 
 		if (Query::main()->is_singular()) {
+			/** @var Post $post */
 			$post = Query::main()->posts()->first();
 
 			if (Query::main()->is_single()) {

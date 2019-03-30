@@ -2,10 +2,10 @@
 
 namespace Twist\Model\Site;
 
+use Twist\App\Asset;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 use Twist\Twist;
-use Twist\App\Asset;
 
 /**
  * Class Asset

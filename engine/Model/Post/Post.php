@@ -6,14 +6,16 @@ use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
 use Twist\Library\Html\Tag;
+use Twist\Library\Util\Macroable;
 use Twist\Model\Base\CollectionInterface;
 use Twist\Model\Base\Model;
 use Twist\Model\Base\ModelInterface;
-use Twist\Library\Util\Macroable;
 use Twist\Model\Comment\Query as CommentQuery;
 use Twist\Model\Image\Image;
 use Twist\Model\Image\Images;
 use Twist\Model\Site\Site;
+use Twist\Model\Taxonomy\Term;
+use WP_Post;
 
 /**
  * Class Post
@@ -26,7 +28,7 @@ class Post extends Model
 	use Macroable;
 
 	/**
-	 * @var \WP_Post
+	 * @var WP_Post
 	 */
 	private $post;
 
@@ -66,7 +68,7 @@ class Post extends Model
 	private $has_children;
 
 	/**
-	 * @param \WP_Post|int $post
+	 * @param WP_Post|int $post
 	 *
 	 * @return Post
 	 * @throws AppException
@@ -79,7 +81,7 @@ class Post extends Model
 	/**
 	 * Post constructor.
 	 *
-	 * @param \WP_Post|int|null $post
+	 * @param WP_Post|int|null $post
 	 *
 	 * @throws AppException
 	 */
@@ -87,7 +89,7 @@ class Post extends Model
 	{
 		$this->post = get_post($post);
 
-		if (!($this->post instanceof \WP_Post)) {
+		if (!($this->post instanceof WP_Post)) {
 			new AppException(sprintf('<p>Not valid post data.</p><pre>%s</pre>', print_r($post, true)));
 		}
 	}
@@ -240,7 +242,7 @@ class Post extends Model
 	 */
 	public function date(string $format = null): string
 	{
-		return $this->getDatetime($format, 'date');
+		return $this->getDatetime($format);
 	}
 
 	/**
@@ -260,15 +262,15 @@ class Post extends Model
 	 */
 	public function datetime(): string
 	{
-		return $this->getDatetime('U', 'date');
+		return $this->getDatetime('U');
 	}
 
 	/**
 	 * Retrieve the date on which the post was written in ISO 8601 format.
 	 *
+	 * @return string
 	 * @see the_date()
 	 *
-	 * @return string
 	 */
 	public function published(): string
 	{
@@ -276,9 +278,9 @@ class Post extends Model
 	}
 
 	/**
+	 * @return string
 	 * @see the_modified_date()
 	 *
-	 * @return string
 	 */
 	public function modified(): string
 	{
@@ -505,7 +507,7 @@ class Post extends Model
 	 *
 	 * @param bool $object
 	 *
-	 * @return string|\stdClass
+	 * @return string|object
 	 */
 	public function type(bool $object = false)
 	{
@@ -599,6 +601,7 @@ class Post extends Model
 
 		$format = $default;
 
+		/** @var Term $term */
 		if (($terms = $this->taxonomies()
 		                   ->get('post_format')) && ($term = $terms->first())) {
 			$format = str_replace('post-format-', '', $term->slug());
@@ -654,7 +657,7 @@ class Post extends Model
 	 */
 	public function is_draft(): bool
 	{
-		return \in_array($this->post->post_status, [
+		return in_array($this->post->post_status, [
 			'draft',
 			'pending',
 			'auto-draft',
@@ -682,9 +685,9 @@ class Post extends Model
 	}
 
 	/**
-	 * @return \WP_Post
+	 * @return WP_Post
 	 */
-	public function object(): \WP_Post
+	public function object(): WP_Post
 	{
 		return $this->post;
 	}
@@ -758,7 +761,7 @@ class Post extends Model
 		}
 
 		if ($preview) {
-			$output = preg_replace_callback('/\%u([0-9A-F]{4})/', function ($match) {
+			$output = preg_replace_callback('/\%u([0-9A-F]{4})/', static function ($match) {
 				return '&#' . base_convert($match[1], 16, 10) . ';';
 			}, $output);
 		}

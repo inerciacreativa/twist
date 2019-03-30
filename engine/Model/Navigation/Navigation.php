@@ -17,12 +17,11 @@ class Navigation
 	 */
 	public function __construct()
 	{
-		Hook::add('wp_nav_menu_args', function (array $arguments) {
+		Hook::add('wp_nav_menu_args', static function (array $arguments) {
 			$arguments['echo'] = false;
 
 			return $arguments;
 		});
-
 
 		Hook::add('pre_wp_nav_menu', function () {
 			return $this->getLinks(func_get_arg(1));
@@ -48,11 +47,11 @@ class Navigation
 	/**
 	 * Render the menu.
 	 *
-	 * @param \stdClass $arguments
+	 * @param object $arguments
 	 *
 	 * @return Links
 	 */
-	protected function getLinks($arguments): Links
+	protected function getLinks(object $arguments): Links
 	{
 		$items = $this->getItems($arguments->menu, $arguments->theme_location);
 
@@ -112,12 +111,12 @@ class Navigation
 	/**
 	 * Sort the menu items and decorates each item with its properties.
 	 *
-	 * @param array     $items
-	 * @param \stdClass $arguments
+	 * @param array  $items
+	 * @param object $arguments
 	 *
 	 * @return array
 	 */
-	protected function sortItems(array $items, $arguments): array
+	protected function sortItems(array $items, object $arguments): array
 	{
 		_wp_menu_item_classes_by_context($items);
 

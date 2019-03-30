@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Base;
 
+use ArrayIterator;
+use Countable;
 use Twist\Library\Util\Data;
 
 /**
@@ -9,7 +11,7 @@ use Twist\Library\Util\Data;
  *
  * @package Twist\Model\Base
  */
-class Enumerable implements EnumerableInterface, \Countable
+class Enumerable implements EnumerableInterface, Countable
 {
 
 	/**
@@ -82,15 +84,15 @@ class Enumerable implements EnumerableInterface, \Countable
 	 */
 	public function count(): int
 	{
-		return \count($this->values);
+		return count($this->values);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function getIterator(): \ArrayIterator
+	public function getIterator(): ArrayIterator
 	{
-		return new \ArrayIterator($this->values);
+		return new ArrayIterator($this->values);
 	}
 
 }

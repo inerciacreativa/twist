@@ -8,6 +8,7 @@ use Twist\Library\Html\Tag;
 use Twist\Model\Base\Model;
 use Twist\Model\Base\ModelInterface;
 use Twist\Model\Post\Post;
+use WP_Post;
 
 /**
  * Class Image
@@ -35,8 +36,8 @@ class Image extends Model
 	/**
 	 * Image constructor.
 	 *
-	 * @param Post|\WP_Post|int $post
-	 * @param Post              $parent
+	 * @param Post|WP_Post|int $post
+	 * @param Post             $parent
 	 *
 	 * @throws AppException
 	 */

@@ -2,12 +2,14 @@
 
 namespace Twist\Model\Base;
 
+use IteratorAggregate;
+
 /**
  * Interface EnumeratorInterface
  *
  * @package Twist\Model\Base
  */
-interface EnumerableInterface extends \IteratorAggregate
+interface EnumerableInterface extends IteratorAggregate
 {
 
 	/**

@@ -3,9 +3,10 @@
 namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
+use Twist\Library\Dom\Element;
 use Twist\Library\Hook\Hook;
-use Twist\Library\Util\Str;
 use Twist\Library\Html\Tag;
+use Twist\Library\Util\Str;
 
 /**
  * Class Metas
@@ -27,6 +28,7 @@ class Metas implements ElementsInterface
 	{
 		$nodes = $dom->getElementsByTagName('meta');
 
+		/** @var Element $node */
 		while ($node = $nodes->item(0)) {
 			$type = null;
 			if ($node->hasAttribute('name')) {

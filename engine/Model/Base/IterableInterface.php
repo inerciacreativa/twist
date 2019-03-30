@@ -2,12 +2,15 @@
 
 namespace Twist\Model\Base;
 
+use Countable;
+use Iterator;
+
 /**
  * Interface IterableInterface
  *
  * @package Twist\Model\Base
  */
-interface IterableInterface extends \Iterator, \Countable
+interface IterableInterface extends Countable, Iterator
 {
 
 }

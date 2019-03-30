@@ -3,13 +3,15 @@
 namespace Twist\Model\Taxonomy;
 
 use Twist\App\AppException;
+use Walker_Category;
+use WP_Term;
 
 /**
  * Class Walker
  *
  * @package Twist\Model\Taxonomy
  */
-class Walker extends \Walker_Category
+class Walker extends Walker_Category
 {
 
 	/**
@@ -55,12 +57,12 @@ class Walker extends \Walker_Category
 	/**
 	 * @inheritdoc
 	 *
-	 * @param string   $output    Unused.
-	 * @param \WP_Term $term      Taxonomy data object.
-	 * @param int      $depth     Unused.
-	 * @param array    $arguments Optional. An array of arguments. See
+	 * @param string  $output     Unused.
+	 * @param WP_Term $term       Taxonomy data object.
+	 * @param int     $depth      Unused.
+	 * @param array   $arguments  Optional. An array of arguments. See
 	 *                            wp_list_categories(). Default empty array.
-	 * @param int      $id        Unused.
+	 * @param int     $id         Unused.
 	 *
 	 * @throws AppException
 	 */
@@ -78,12 +80,12 @@ class Walker extends \Walker_Category
 	/**
 	 * @inheritdoc
 	 *
-	 * @param string   $output    Unused.
-	 * @param \WP_Term $term      Taxonomy data object.
-	 * @param int      $depth     Unused.
-	 * @param array    $arguments Optional. An array of arguments. See
+	 * @param string  $output     Unused.
+	 * @param WP_Term $term       Taxonomy data object.
+	 * @param int     $depth      Unused.
+	 * @param array   $arguments  Optional. An array of arguments. See
 	 *                            wp_list_categories(). Default empty array.
-	 * @param int      $id        Unused.
+	 * @param int     $id         Unused.
 	 */
 	public function end_el(&$output, $term, $depth = 0, $arguments = []): void
 	{
@@ -104,8 +106,9 @@ class Walker extends \Walker_Category
 	{
 		$term = $this->terms->parent();
 
+		/** @noinspection NullPointerExceptionInspection */
 		$this->terms = $term->has_parent() ? $term->parent()
-		                                    ->children() : $this->root;
+		                                          ->children() : $this->root;
 	}
 
 }

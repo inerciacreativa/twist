@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Meta;
 
+use ArrayIterator;
 use Twist\Library\Hook\Hook;
 use Twist\Model\Base\EnumerableInterface;
 use Twist\Model\Base\IdentifiableInterface;
@@ -97,7 +98,7 @@ class Meta implements EnumerableInterface
 	 */
 	public function getIterator()
 	{
-		return new \ArrayIterator($this->all());
+		return new ArrayIterator($this->all());
 	}
 
 }

@@ -83,7 +83,7 @@ class Images extends Collection
 
 		$models = $this->models;
 
-		uasort($models, function (Image $image1, Image $image2) use ($factor, $descending) {
+		uasort($models, static function (Image $image1, Image $image2) use ($factor, $descending) {
 			$info1 = $image1->get('large');
 			$info2 = $image2->get('large');
 

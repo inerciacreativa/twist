@@ -7,6 +7,7 @@ use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Util\Arr;
 use Twist\Model\Base\IterableInterface;
+use WP_Query;
 
 /**
  * Class Query
@@ -22,7 +23,7 @@ class Query implements IterableInterface
 	static private $queries = [];
 
 	/**
-	 * @var \WP_Query
+	 * @var WP_Query
 	 */
 	private $query;
 
@@ -44,6 +45,7 @@ class Query implements IterableInterface
 
 	/**
 	 * @return Query
+	 *
 	 * @throws AppException
 	 */
 	public static function main(): Query
@@ -83,7 +85,7 @@ class Query implements IterableInterface
 		if (!empty($parameters['include'])) {
 			$ids = wp_parse_id_list($parameters['include']);
 
-			$parameters['posts_per_page'] = \count($ids);
+			$parameters['posts_per_page'] = count($ids);
 			$parameters['post__in']       = $ids;
 		} else if (!empty($parameters['exclude'])) {
 			$parameters['post__not_in'] = wp_parse_id_list($parameters['exclude']);
@@ -150,7 +152,7 @@ class Query implements IterableInterface
 	{
 		global $wp_query;
 
-		$this->query = $query ? new \WP_Query($query) : $wp_query;
+		$this->query = $query ? new WP_Query($query) : $wp_query;
 	}
 
 	/**
@@ -170,9 +172,9 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @return \WP_Query
+	 * @return WP_Query
 	 */
-	public function object(): \WP_Query
+	public function object(): WP_Query
 	{
 		return $this->query;
 	}
@@ -237,7 +239,7 @@ class Query implements IterableInterface
 	public function set_comments(array $comments, $pages): void
 	{
 		$this->query->comments              = $comments;
-		$this->query->comment_count         = \count($comments);
+		$this->query->comment_count         = count($comments);
 		$this->query->max_num_comment_pages = (int) $pages;
 	}
 

@@ -24,7 +24,7 @@ interface FormDecoratorInterface
 	 * @param string $label
 	 * @param array  $attributes
 	 *
-	 * @return \Twist\Library\Html\Tag
+	 * @return Tag
 	 */
 	public function getTextField(string $id, string $label, array $attributes): Tag;
 
@@ -33,7 +33,7 @@ interface FormDecoratorInterface
 	 * @param string $label
 	 * @param array  $attributes
 	 *
-	 * @return \Twist\Library\Html\Tag
+	 * @return Tag
 	 */
 	public function getTextareaField(string $id, string $label, array $attributes): Tag;
 
@@ -41,7 +41,7 @@ interface FormDecoratorInterface
 	 * @param string $id
 	 * @param string $text
 	 *
-	 * @return \Twist\Library\Html\Tag
+	 * @return Tag
 	 */
 	public function getSubmitButton(string $id, string $text): Tag;
 
@@ -50,7 +50,7 @@ interface FormDecoratorInterface
 	 * @param string $text
 	 * @param string $form
 	 *
-	 * @return \Twist\Library\Html\Tag
+	 * @return Tag
 	 */
 	public function getCancelButton(string $id, string $text, string $form): Tag;
 

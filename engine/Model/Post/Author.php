@@ -4,6 +4,7 @@ namespace Twist\Model\Post;
 
 use Twist\Library\Hook\Hook;
 use Twist\Model\User\User;
+use WP_User;
 
 /**
  * Class Author
@@ -16,9 +17,9 @@ class Author extends User
 	/**
 	 * Author constructor.
 	 *
-	 * @param int       $user
+	 * @param int      $user
 	 *
-	 * @global \WP_User $authordata
+	 * @global WP_User $authordata
 	 */
 	public function __construct($user = 0)
 	{

@@ -4,6 +4,8 @@ namespace Twist\Model\Taxonomy;
 
 use Twist\App\AppException;
 use Twist\Model\Post\Query;
+use WP_Taxonomy;
+use WP_Term;
 
 /**
  * Class Taxonomy
@@ -14,7 +16,7 @@ class Taxonomy implements TaxonomyInterface
 {
 
 	/**
-	 * @var \WP_Taxonomy
+	 * @var WP_Taxonomy
 	 */
 	protected $taxonomy;
 
@@ -70,17 +72,17 @@ class Taxonomy implements TaxonomyInterface
 		if ($function === null) {
 			switch ($taxonomy) {
 				case 'category':
-					$function = function ($id) {
+					$function = static function ($id) {
 						return Query::main()->is_category($id);
 					};
 					break;
 				case 'post_tag':
-					$function = function ($id) {
+					$function = static function ($id) {
 						return Query::main()->is_tag($id);
 					};
 					break;
 				default:
-					$function = function ($id) use ($taxonomy) {
+					$function = static function ($id) use ($taxonomy) {
 						return Query::main()->is_taxonomy($taxonomy, $id);
 					};
 			}
@@ -99,7 +101,7 @@ class Taxonomy implements TaxonomyInterface
 
 			try {
 				if ($this->is_current(Query::main()->queried_id())) {
-					/** @var \WP_Term $term */
+					/** @var WP_Term $term */
 					$term = Query::main()->queried_object();
 
 					$this->current = new Term($term, $this);

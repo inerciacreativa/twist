@@ -5,6 +5,7 @@ namespace Twist\Model\User;
 use Twist\Library\Html\Tag;
 use Twist\Library\Util\Str;
 use Twist\Model\Post\Query;
+use WP_User;
 
 /**
  * Class User
@@ -25,7 +26,7 @@ class User implements UserInterface
 	private static $commenter;
 
 	/**
-	 * @var \WP_User
+	 * @var WP_User
 	 */
 	private $user;
 
@@ -93,7 +94,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @param \WP_User|\stdClass|int|string $user
+	 * @param WP_User|object|int|string $user
 	 *
 	 * @return User
 	 */
@@ -105,16 +106,16 @@ class User implements UserInterface
 	/**
 	 * User constructor.
 	 *
-	 * @param \WP_User|\stdClass|int|string|null $user
+	 * @param WP_User|object|int|string|null $user
 	 */
 	public function __construct($user = null)
 	{
 		if ($user === null) {
 			$this->user = wp_get_current_user();
-		} else if ($user instanceof \WP_User) {
+		} else if ($user instanceof WP_User) {
 			$this->user = $user;
-		} else if (\is_object($user) || \is_int($user) || \is_string($user)) {
-			$this->user = new \WP_User($user);
+		} else if (is_object($user) || is_int($user) || is_string($user)) {
+			$this->user = new WP_User($user);
 		}
 	}
 
@@ -280,10 +281,10 @@ class User implements UserInterface
 			return false;
 		}
 
-		$arguments = \array_slice(\func_get_args(), 1);
+		$arguments = array_slice(func_get_args(), 1);
 		$arguments = array_merge([$capability], $arguments);
 
-		return \call_user_func_array([$this->user, 'has_cap'], $arguments);
+		return call_user_func_array([$this->user, 'has_cap'], $arguments);
 	}
 
 	/**

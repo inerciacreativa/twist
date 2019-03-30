@@ -14,14 +14,14 @@ use Twist\Model\Meta\Meta as BaseMeta;
 class Meta extends BaseMeta
 {
 
-    /**
-     * Meta constructor.
-     *
-     * @param Post $post
-     */
-    public function __construct(Post $post)
-    {
-        parent::__construct($post, 'post');
-    }
+	/**
+	 * Meta constructor.
+	 *
+	 * @param Post $post
+	 */
+	public function __construct(Post $post)
+	{
+		parent::__construct($post, 'post');
+	}
 
 }

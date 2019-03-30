@@ -7,6 +7,7 @@ use Twist\Library\Hook\Hookable;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Pagination as BasePagination;
 use Twist\Model\Post\Query;
+use WP_Rewrite;
 
 /**
  * Class Pagination
@@ -122,12 +123,11 @@ class Pagination extends BasePagination
 	}
 
 	/**
-	 * @return \WP_Rewrite
+	 * @return WP_Rewrite
 	 */
-	protected function rewrite(): \WP_Rewrite
+	protected function rewrite(): WP_Rewrite
 	{
-		/** @var \WP_Rewrite $wp_rewrite */
-		global $wp_rewrite;
+		/** @var WP_Rewrite $wp_rewrite */ global $wp_rewrite;
 
 		return $wp_rewrite;
 	}

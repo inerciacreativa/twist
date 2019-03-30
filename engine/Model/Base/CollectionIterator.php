@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Base;
 
+use OutOfBoundsException;
+
 /**
  * Class CollectionIterator
  *
@@ -11,7 +13,7 @@ class CollectionIterator implements CollectionIteratorInterface
 {
 
 	/**
-	 * @var ModelInterface[] 
+	 * @var ModelInterface[]
 	 */
 	protected $models;
 
@@ -32,7 +34,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	 */
 	public function count(): int
 	{
-		return \count($this->models);
+		return count($this->models);
 	}
 
 	/**
@@ -40,12 +42,12 @@ class CollectionIterator implements CollectionIteratorInterface
 	 */
 	public function seek($position): void
 	{
-		if (\func_num_args() !== 1) {
+		if (func_num_args() !== 1) {
 			return;
 		}
 
-		if ($position < 0 || $position >= \count($this->models)) {
-			throw new \OutOfBoundsException("Seek position {$position} is out of range");
+		if ($position < 0 || $position >= count($this->models)) {
+			throw new OutOfBoundsException("Seek position {$position} is out of range");
 		}
 
 		reset($this->models);

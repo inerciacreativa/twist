@@ -29,7 +29,7 @@ class Terms extends BaseTerms
 
 		$terms = get_the_terms($post->object(), $taxonomy->name());
 
-		if (\is_array($terms)) {
+		if (is_array($terms)) {
 			foreach ($terms as $term) {
 				$this->add(new Term($term, $taxonomy));
 			}

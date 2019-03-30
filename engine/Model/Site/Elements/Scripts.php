@@ -3,6 +3,7 @@
 namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
+use Twist\Library\Dom\Element;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 
@@ -26,6 +27,7 @@ class Scripts implements ElementsInterface
 	{
 		$nodes = $dom->getElementsByTagName('script');
 
+		/** @var Element $node */
 		while ($node = $nodes->item(0)) {
 			$content    = empty($node->nodeValue) ? null : ElementsParser::clean($node->nodeValue);
 			$attributes = [];

@@ -4,13 +4,14 @@ namespace Twist\Model\Navigation;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
+use Walker_Nav_Menu;
 
 /**
  * Class Walker
  *
  * @package Twist\Model\Navigation
  */
-class Walker extends \Walker_Nav_Menu
+class Walker extends Walker_Nav_Menu
 {
 
 	/**

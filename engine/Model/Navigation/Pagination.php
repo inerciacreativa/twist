@@ -3,8 +3,8 @@
 namespace Twist\Model\Navigation;
 
 use Twist\App\AppException;
-use Twist\Library\Util\Str;
 use Twist\Library\Html\Tag;
+use Twist\Library\Util\Str;
 use Twist\Model\Post\Query;
 
 /**

@@ -7,6 +7,8 @@ use Twist\Library\Hook\Hook;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\Query as PostQuery;
 use Twist\Model\User\User;
+use WP_Comment;
+use WP_Comment_Query;
 
 /**
  * Class CommentQuery
@@ -95,6 +97,7 @@ class Query
 	 * CommentQuery constructor.
 	 *
 	 * @param Post $post
+	 *
 	 * @throws AppException
 	 */
 	public function __construct(Post $post)
@@ -129,10 +132,10 @@ class Query
 	}
 
 	/**
-	 * @see wp_list_comments()
-	 *
 	 * @return Comments
 	 * @throws AppException
+	 * @see wp_list_comments()
+	 *
 	 */
 	public function all(): ?Comments
 	{
@@ -215,10 +218,10 @@ class Query
 	}
 
 	/**
-	 * @see comments_template()
-	 *
 	 * @return bool
 	 * @throws AppException
+	 * @see comments_template()
+	 *
 	 */
 	protected function setup(): bool
 	{
@@ -314,7 +317,7 @@ class Query
 	 * @param array $arguments
 	 * @param bool  $results
 	 *
-	 * @return \WP_Comment_Query|array|int
+	 * @return WP_Comment_Query|array|int
 	 */
 	protected function getQuery(array $arguments = [], $results = false)
 	{
@@ -327,10 +330,10 @@ class Query
 		], $arguments);
 
 		if ($results) {
-			return (new \WP_Comment_Query())->query($arguments);
+			return (new WP_Comment_Query())->query($arguments);
 		}
 
-		return new \WP_Comment_Query($arguments);
+		return new WP_Comment_Query($arguments);
 	}
 
 	/**
@@ -356,10 +359,10 @@ class Query
 	}
 
 	/**
-	 * @param \WP_Comment[] $comments
-	 * @param array         $arguments
+	 * @param WP_Comment[] $comments
+	 * @param array        $arguments
 	 *
-	 * @return \WP_Comment[]
+	 * @return WP_Comment[]
 	 */
 	protected function getFlattenedComments(array $comments, array $arguments): array
 	{
@@ -395,7 +398,7 @@ class Query
 		if ($arguments['max_depth'] !== 1) {
 			// Count root comments
 			$count = array_reduce(PostQuery::main()
-			                           ->get_comments(), function (int $count, \WP_Comment $comment) {
+			                               ->get_comments(), static function (int $count, WP_Comment $comment) {
 				if ($comment->comment_parent === 0) {
 					$count++;
 				}

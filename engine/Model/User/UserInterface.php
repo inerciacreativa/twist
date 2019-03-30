@@ -12,27 +12,27 @@ use Twist\Model\Base\IdentifiableInterface;
 interface UserInterface extends IdentifiableInterface
 {
 
-    /**
-     * @return string
-     */
-    public function name(): string;
+	/**
+	 * @return string
+	 */
+	public function name(): string;
 
-    /**
-     * @return string
-     */
-    public function email(): string;
+	/**
+	 * @return string
+	 */
+	public function email(): string;
 
-    /**
-     * @return string
-     */
-    public function url(): string;
+	/**
+	 * @return string
+	 */
+	public function url(): string;
 
-    /**
-     * @param int    $size
-     * @param array  $attributes
-     *
-     * @return string
-     */
-    public function avatar(int $size = 96, array $attributes = []): string;
+	/**
+	 * @param int   $size
+	 * @param array $attributes
+	 *
+	 * @return string
+	 */
+	public function avatar(int $size = 96, array $attributes = []): string;
 
 }

@@ -75,7 +75,7 @@ class Collection implements CollectionInterface
 	 */
 	public function count(): int
 	{
-		return \count($this->models);
+		return count($this->models);
 	}
 
 	/**
@@ -100,7 +100,7 @@ class Collection implements CollectionInterface
 	public function first(callable $callback = null, $default = null): ?ModelInterface
 	{
 		if ($callback === null) {
-			return \count($this->models) > 0 ? reset($this->models) : Data::value($default);
+			return count($this->models) > 0 ? reset($this->models) : Data::value($default);
 		}
 
 		return Arr::first($this->models, $callback, $default);
@@ -112,7 +112,7 @@ class Collection implements CollectionInterface
 	public function last(callable $callback = null, $default = null): ?ModelInterface
 	{
 		if ($callback === null) {
-			return \count($this->models) > 0 ? end($this->models) : Data::value($default);
+			return count($this->models) > 0 ? end($this->models) : Data::value($default);
 		}
 
 		return Arr::last($this->models, $callback, $default);
@@ -147,7 +147,7 @@ class Collection implements CollectionInterface
 	 */
 	public function slice(int $offset, int $length = null): CollectionInterface
 	{
-		return new static($this->parent, \array_slice($this->models, $offset, $length, true));
+		return new static($this->parent, array_slice($this->models, $offset, $length, true));
 	}
 
 	/**
@@ -175,7 +175,7 @@ class Collection implements CollectionInterface
 	 */
 	public function where(string $method, string $operator, $value = null): CollectionInterface
 	{
-		if (\func_num_args() === 2) {
+		if (func_num_args() === 2) {
 			$value    = $operator;
 			$operator = '=';
 		}

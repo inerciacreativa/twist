@@ -8,6 +8,7 @@ use Twist\Model\Base\CollectionInterface;
 use Twist\Model\Base\Model;
 use Twist\Model\Post\Post;
 use Twist\Model\User\User;
+use WP_Comment;
 
 /**
  * Class Comment
@@ -23,7 +24,7 @@ class Comment extends Model
 	private $query;
 
 	/**
-	 * @var \WP_Comment
+	 * @var WP_Comment
 	 */
 	private $comment;
 
@@ -45,11 +46,11 @@ class Comment extends Model
 	/**
 	 * Comment constructor.
 	 *
-	 * @param Comments    $comments
-	 * @param \WP_Comment $comment
-	 * @param int         $depth
+	 * @param Comments   $comments
+	 * @param WP_Comment $comment
+	 * @param int        $depth
 	 */
-	public function __construct(Comments $comments, \WP_Comment $comment, int $depth = 0)
+	public function __construct(Comments $comments, WP_Comment $comment, int $depth = 0)
 	{
 		$this->query   = $comments->query();
 		$this->comment = $comment;
@@ -113,7 +114,7 @@ class Comment extends Model
 	 */
 	public function depth(): int
 	{
-		return (int) $this->depth + 1;
+		return $this->depth + 1;
 	}
 
 	/**
@@ -186,14 +187,17 @@ class Comment extends Model
 
 		if ($this->author()->exists()) {
 			$classes->add('by-user');
-			$classes->add('by-author-' . sanitize_html_class($this->author()->name(), $this->author()->id()));
+			$classes->add('by-author-' . sanitize_html_class($this->author()
+			                                                      ->name(), $this->author()
+			                                                                     ->id()));
 
 			if ($this->author()->id() === $this->post()->author()->id()) {
 				$classes->add('by-post-author');
 			}
 		}
 
-		$classes->set(Hook::apply('comment_class', $classes->all(), '', $this->id(), $this->object(), $this->post()->id()));
+		$classes->set(Hook::apply('comment_class', $classes->all(), '', $this->id(), $this->object(), $this->post()
+		                                                                                                   ->id()));
 
 		return $classes;
 	}
@@ -344,9 +348,9 @@ class Comment extends Model
 	}
 
 	/**
-	 * @return \WP_Comment
+	 * @return WP_Comment
 	 */
-	public function object(): \WP_Comment
+	public function object(): WP_Comment
 	{
 		return $this->comment;
 	}
