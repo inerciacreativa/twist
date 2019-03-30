@@ -2,6 +2,7 @@
 
 namespace Twist\App;
 
+use Closure;
 use Twist\Library\Data\Collection;
 use Twist\Library\Hook\Hookable;
 use Twist\Library\Html\Tag;
@@ -36,7 +37,7 @@ class Theme
 	protected $asset;
 
 	/**
-	 * @var \Closure
+	 * @var Closure
 	 */
 	protected $setup;
 
@@ -158,11 +159,11 @@ class Theme
 	}
 
 	/**
-	 * @param \Closure $setup
+	 * @param Closure $setup
 	 *
 	 * @return $this
 	 */
-	public function setup(\Closure $setup): self
+	public function setup(Closure $setup): self
 	{
 		$this->setup = $setup;
 
@@ -218,11 +219,11 @@ class Theme
 	}
 
 	/**
-	 * @param string $script
+	 * @param string|callable $script
 	 *
 	 * @return $this
 	 */
-	public function inline(string $script): self
+	public function inline($script): self
 	{
 		$this->inline[] = $script;
 
@@ -261,7 +262,7 @@ class Theme
 	 */
 	public function webfonts(array $config, $loader = true): self
 	{
-		$this->fonts['config'] = Arr::map($config, function ($id, $config) {
+		$this->fonts['config'] = Arr::map($config, static function ($id, $config) {
 			if ($id === 'google') {
 				$config = ['families' => $config];
 			}
@@ -269,7 +270,7 @@ class Theme
 			return (object) $config;
 		});
 
-		if (!$loader || \is_string($loader)) {
+		if (!$loader || is_string($loader)) {
 			$this->fonts['loader'] = $loader;
 		}
 
@@ -301,8 +302,6 @@ class Theme
 	}
 
 	/**
-	 * @see \add_theme_support()
-	 *
 	 * @param array $logo
 	 *   [
 	 *   'height' => (int)
@@ -313,6 +312,8 @@ class Theme
 	 *   ]
 	 *
 	 * @return $this
+	 * @see add_theme_support()
+	 *
 	 */
 	public function logo(array $logo): self
 	{
@@ -353,11 +354,11 @@ class Theme
 	}
 
 	/**
-	 * @see \register_nav_menus()
-	 *
 	 * @param array $menus
 	 *
 	 * @return $this
+	 * @see register_nav_menus()
+	 *
 	 */
 	public function menus(array $menus): self
 	{
@@ -367,11 +368,11 @@ class Theme
 	}
 
 	/**
-	 * @see filter 'user_contactmethods'
-	 *
 	 * @param array $contact
 	 *
 	 * @return $this
+	 * @see filter 'user_contactmethods'
+	 *
 	 */
 	public function contact(array $contact): self
 	{
@@ -415,10 +416,10 @@ class Theme
 	{
 		$this->config->fill([
 			'app'  => [
-				'debug' => \defined('WP_DEBUG') && WP_DEBUG,
+				'debug' => defined('WP_DEBUG') && WP_DEBUG,
 			],
 			'dir'  => [
-				'home'       => \defined('WP_ROOT') ? WP_ROOT : ABSPATH,
+				'home'       => defined('WP_ROOT') ? WP_ROOT : ABSPATH,
 				'stylesheet' => get_stylesheet_directory(),
 				'template'   => get_template_directory(),
 				'upload'     => wp_upload_dir()['basedir'],
@@ -520,17 +521,14 @@ class Theme
 	protected function addWebFonts(): void
 	{
 		if (!empty($this->fonts['config'])) {
-			if (\is_string($this->fonts['loader'])) {
+			if (is_string($this->fonts['loader'])) {
 				$script = $this->fonts['loader'];
 				$config = str_replace('"', "'", json_encode($this->fonts['config']));
 
-				$this->inline("WebFontConfig = $config;
-				   (function(d) {
-				      var script = d.createElement('script'), scripts = d.scripts[0];
-				      script.src = '$script';
-				      script.async = true;
-				      scripts.parentNode.insertBefore(script, scripts);
-				   })(document);");
+				$this->inline("(function(i,s,o,g,r,a,m) {i['WebFontConfig']=r;
+				      a=s.createElement(o);a.src=g;a.async=1;a.crossOrigin='anonymous';
+				      m=s.getElementsByTagName(o)[0];m.parentNode.insertBefore(a,m);
+				   })(window,document,'script','$script',$config);");
 			} else if (array_key_exists('google', $this->fonts['config'])) {
 				$families = implode('|', $this->fonts['config']['google']->families);
 
@@ -553,7 +551,7 @@ class Theme
 			$load = Data::value(Arr::value($style, 'load'));
 
 			if ($load) {
-				if (\is_string($load)) {
+				if (is_string($load)) {
 					wp_enqueue_style($style['id'], $this->asset->url($load, Arr::value($style, 'parent', false)), Arr::value($style, 'deps'), null);
 				} else {
 					wp_enqueue_style($style['id']);
@@ -573,7 +571,7 @@ class Theme
 			$load = Data::value(Arr::value($script, 'load'));
 
 			if ($load) {
-				if (\is_string($load)) {
+				if (is_string($load)) {
 					wp_deregister_script($script['id']);
 					wp_enqueue_script($script['id'], $this->asset->url($load, Arr::value($script, 'parent', false)), Arr::value($script, 'deps'), null, true);
 				} else {
@@ -583,6 +581,22 @@ class Theme
 				wp_dequeue_script($script['id']);
 			}
 		});
+	}
+
+	/**
+	 * Adds inline <script> in the footer.
+	 */
+	protected function addInlineScripts(): void
+	{
+		foreach ($this->inline as $script) {
+			$script = Data::value($script);
+
+			echo <<<SCRIPT
+	<script>
+$script
+   </script>
+SCRIPT;
+		}
 	}
 
 	/**
@@ -627,7 +641,7 @@ class Theme
 	 */
 	protected function addScriptsAttributes(string $script, string $handle): string
 	{
-		$scripts = $this->scripts->filter(function ($script) {
+		$scripts = $this->scripts->filter(static function ($script) {
 			return isset($script['attr']);
 		})->pluck('attr', 'id')->all();
 
@@ -666,7 +680,7 @@ class Theme
 	 */
 	protected function addSidebars(): void
 	{
-		$this->sidebars->each(function ($sidebar) {
+		$this->sidebars->each(static function ($sidebar) {
 			if (Arr::has($sidebar, 'name')) {
 				register_sidebar($sidebar);
 			} else {
@@ -685,20 +699,6 @@ class Theme
 	protected function addContactMethods(array $methods): array
 	{
 		return array_merge($methods, $this->contact);
-	}
-
-	/**
-	 * Adds inline <script> in the footer.
-	 */
-	protected function addInlineScripts(): void
-	{
-		foreach ($this->inline as $script) {
-			echo <<<SCRIPT
-	<script>
-$script
-   </script>
-SCRIPT;
-		}
 	}
 
 	/**
