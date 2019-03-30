@@ -39,7 +39,7 @@ class Context extends Service
 	/**
 	 * @inheritdoc
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	protected function init(): void
 	{
@@ -55,7 +55,7 @@ class Context extends Service
 	 *
 	 * @return $this
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function error(string $message): self
 	{
@@ -70,7 +70,7 @@ class Context extends Service
 	 *
 	 * @return $this
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function share(string $key, $value): self
 	{
@@ -93,7 +93,7 @@ class Context extends Service
 	 *
 	 * @return Context
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function add(array $context, bool $overwrite = false): self
 	{
@@ -111,7 +111,7 @@ class Context extends Service
 	 *
 	 * @return $this
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function set(string $key, $value, bool $overwrite = false): self
 	{
@@ -194,7 +194,7 @@ class Context extends Service
 	 *
 	 * @return array
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function resolve(array $context): array
 	{
@@ -213,7 +213,7 @@ class Context extends Service
 	 */
 	protected function value($value)
 	{
-		if (\is_string($value) && class_exists($value)) {
+		if (is_string($value) && class_exists($value)) {
 			return new $value();
 		}
 

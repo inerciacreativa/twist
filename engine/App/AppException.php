@@ -2,6 +2,8 @@
 
 namespace Twist\App;
 
+use Closure;
+use Exception;
 use Twist\Library\Html\Tag;
 use Twist\Twist;
 
@@ -10,7 +12,7 @@ use Twist\Twist;
  *
  * @package Twist\App
  */
-class AppException extends \Exception implements AppExceptionInterface
+class AppException extends Exception implements AppExceptionInterface
 {
 
 	/**
@@ -19,8 +21,8 @@ class AppException extends \Exception implements AppExceptionInterface
 	private $error = false;
 
 	/**
-	 * @param \Exception|string $message
-	 * @param bool              $throw
+	 * @param Exception|string $message
+	 * @param bool             $throw
 	 *
 	 * @return AppException
 	 *
@@ -34,18 +36,18 @@ class AppException extends \Exception implements AppExceptionInterface
 	/**
 	 * Error constructor.
 	 *
-	 * @param \Exception|string $message
-	 * @param bool              $throw
+	 * @param Exception|string $message
+	 * @param bool             $throw
 	 *
 	 * @throws AppException
 	 */
 	public function __construct($message, bool $throw = true)
 	{
-		if ($message instanceof \Exception) {
+		if ($message instanceof Exception) {
 			$exception = $message;
 			$message   = $exception->getMessage();
 		} else {
-			$exception   = new \Exception($message);
+			$exception   = new Exception($message);
 			$this->error = true;
 		}
 
@@ -205,7 +207,7 @@ class AppException extends \Exception implements AppExceptionInterface
 	protected static function getArguments(array $args): string
 	{
 		$result = [];
-		$count  = \count($args);
+		$count  = count($args);
 
 		foreach ($args as $arg) {
 			if ($arg === null) {
@@ -214,13 +216,13 @@ class AppException extends \Exception implements AppExceptionInterface
 				$result[] = 'false';
 			} else if ($arg === true) {
 				$result[] = 'true';
-			} else if (\is_array($arg)) {
+			} else if (is_array($arg)) {
 				$result[] = '[' . self::getArguments($arg) . ']';
-			} else if (\is_string($arg)) {
+			} else if (is_string($arg)) {
 				$result[] = empty($arg) && $count === 1 ? '' : "'$arg'";
-			} else if ($arg instanceof \Closure) {
+			} else if ($arg instanceof Closure) {
 				$result[] = 'Closure';
-			} else if (\is_object($arg)) {
+			} else if (is_object($arg)) {
 				$result[] = get_class($arg);
 			} else {
 				$result[] = $arg;

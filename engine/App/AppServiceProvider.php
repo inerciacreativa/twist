@@ -17,23 +17,23 @@ class AppServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
-		$app->service('config', function () {
+		$app->service('config', static function () {
 			return new Config();
 		});
 
-		$app->service('asset', function (App $app) {
+		$app->service('asset', static function (App $app) {
 			return new Asset($app['config']);
 		});
 
-		$app->service('theme', function (App $app) {
-			return new Theme($app, $app['config'], $app['asset']);
+		$app->service('theme', static function (App $app) {
+			return new Theme($app, $app['config']);
 		});
 
-		$app->service('context', function (App $app) {
+		$app->service('context', static function (App $app) {
 			return new Context($app);
 		});
 
-		$app->service('view', function (App $app) {
+		$app->service('view', static function (App $app) {
 			$view = $app['config']->get('view.service');
 
 			return $app[$view];
