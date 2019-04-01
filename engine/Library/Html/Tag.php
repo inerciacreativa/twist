@@ -413,7 +413,7 @@ class Tag implements ArrayAccess
 	 *
 	 * @param string $attribute
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function offsetGet($attribute): ?string
 	{
@@ -466,31 +466,29 @@ class Tag implements ArrayAccess
 	 */
 	protected static function getContent($content): string
 	{
-		$result = null;
-
 		if (empty($content)) {
-			$result = '';
+			if (is_numeric($content)) {
+				return (string) $content;
+			}
+
+			return '';
 		}
 
 		if (is_string($content) || (is_object($content) && method_exists($content, '__toString'))) {
-			$result = (string) $content;
-		}
-
-		if ($content instanceof Closure || (is_object($content) && method_exists($content, '__invoke'))) {
-			$result = $content();
+			return (string) $content;
 		}
 
 		if (is_array($content)) {
-			$result = array_reduce($content, static function ($string, $content) {
+			return array_reduce($content, static function ($string, $content) {
 				return $string . static::getContent($content);
 			}, '');
 		}
 
-		if ($result === null) {
-			$result = '';
+		if (($content instanceof Closure) || (is_object($content) && method_exists($content, '__invoke'))) {
+			return $content();
 		}
 
-		return $result;
+		return '';
 	}
 
 	/**
