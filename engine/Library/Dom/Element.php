@@ -49,13 +49,37 @@ class Element extends DOMElement
 	}
 
 	/**
+	 * @param string $name
+	 * @param mixed  $default
+	 *
+	 * @return mixed
+	 */
+	public function getAttribute($name, $default = '')
+	{
+		$result = parent::getAttribute($name);
+		if ($result === '') {
+			return $default;
+		}
+
+		if (!is_string($default)) {
+			settype($result, gettype($default));
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Returns the content of the class attribute as an array.
 	 *
 	 * @return array
 	 */
 	public function getClassNames(): array
 	{
-		$classes = $this->hasAttribute('class') ? explode(' ', $this->getAttribute('class')) : [];
+		if (!$this->hasAttribute('class')) {
+			return [];
+		}
+
+		$classes = explode(' ', $this->getAttribute('class'));
 
 		return array_filter($classes);
 	}
