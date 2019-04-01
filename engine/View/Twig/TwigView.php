@@ -2,6 +2,11 @@
 
 namespace Twist\View\Twig;
 
+use Throwable;
+use Twig_Environment;
+use Twig_Extension_Debug;
+use Twig_Loader_Filesystem;
+use Twist\App\AppException;
 use Twist\View\View;
 
 /**
@@ -13,12 +18,12 @@ class TwigView extends View
 {
 
 	/**
-	 * @var \Twig_Loader_Filesystem
+	 * @var Twig_Loader_Filesystem
 	 */
 	protected $loader;
 
 	/**
-	 * @var \Twig_Environment
+	 * @var Twig_Environment
 	 */
 	protected $environment;
 
@@ -27,8 +32,8 @@ class TwigView extends View
 	 */
 	protected function init(): void
 	{
-		$this->loader      = new \Twig_Loader_Filesystem($this->config->get('view.paths', []));
-		$this->environment = new \Twig_Environment($this->loader, [
+		$this->loader      = new Twig_Loader_Filesystem($this->config->get('view.paths', []));
+		$this->environment = new Twig_Environment($this->loader, [
 			'cache'       => $this->config->get('view.cache', false),
 			'debug'       => $this->config->get('app.debug', false),
 			'auto_reload' => true,
@@ -37,7 +42,7 @@ class TwigView extends View
 		$this->environment->addExtension(new TwigExtension());
 
 		if ($this->config->get('app.debug')) {
-			$this->environment->addExtension(new \Twig_Extension_Debug());
+			$this->environment->addExtension(new Twig_Extension_Debug());
 		}
 	}
 
@@ -46,12 +51,16 @@ class TwigView extends View
 	 *
 	 * @return array
 	 *
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	protected function resolve(array $context): array
 	{
-		foreach ($this->context->shared() as $name => $value) {
-			$this->environment->addGlobal($name, $value);
+		try {
+			foreach ($this->context->shared() as $name => $value) {
+				$this->environment->addGlobal($name, $value);
+			}
+		} catch (Throwable $exception) {
+			throw new AppException($exception);
 		}
 
 		return $this->context->resolve($context);
@@ -60,37 +69,43 @@ class TwigView extends View
 	/**
 	 * @inheritdoc
 	 *
-	 * @throws \Twig_Error_Loader  When the template cannot be found
-	 * @throws \Twig_Error_Syntax  When an error occurred during compilation
-	 * @throws \Twig_Error_Runtime When an error occurred during rendering
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function render(string $template, array $context = []): string
 	{
-		return $this->environment->render($template, $this->resolve($context));
+		try {
+			return $this->environment->render($template, $this->resolve($context));
+		} catch (Throwable $exception) {
+			throw new AppException($exception);
+		}
 	}
 
 	/**
 	 * @inheritdoc
 	 *
-	 * @throws \Twig_Error_Loader  When the template cannot be found
-	 * @throws \Twig_Error_Syntax  When an error occurred during compilation
-	 * @throws \Twig_Error_Runtime When an error occurred during rendering
-	 * @throws \Exception
+	 * @throws AppException
 	 */
 	public function display(string $template, array $context = []): void
 	{
-		$this->environment->display($template, $this->resolve($context));
+		try {
+			$this->environment->display($template, $this->resolve($context));
+		} catch (Throwable $exception) {
+			throw new AppException($exception);
+		}
 	}
 
 	/**
 	 * @param string $path
 	 *
-	 * @throws \Twig_Error_Loader
+	 * @throws AppException
 	 */
 	public function path(string $path): void
 	{
-		$this->loader->addPath($path);
+		try {
+			$this->loader->addPath($path);
+		} catch (Throwable $exception) {
+			throw new AppException($exception);
+		}
 	}
 
 }
