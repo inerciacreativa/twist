@@ -21,7 +21,7 @@ class Image extends Model
 	/**
 	 * @var Post
 	 */
-	protected $post;
+	protected $image;
 
 	/**
 	 * @var Meta
@@ -36,30 +36,30 @@ class Image extends Model
 	/**
 	 * Image constructor.
 	 *
-	 * @param Post|WP_Post|int $post
+	 * @param Post|WP_Post|int $image
 	 * @param Post             $parent
 	 *
 	 * @throws AppException
 	 */
-	public function __construct($post, Post $parent = null)
+	public function __construct($image, Post $parent = null)
 	{
-		if (!($post instanceof Post)) {
-			$post = Post::make($post);
+		if (!($image instanceof Post)) {
+			$image = Post::make($image);
 		}
 
-		if ($post->type() !== 'attachment') {
-			new AppException(sprintf('The post (ID %d) is not an attachment (type %s).', $this->id(), $this->post->type()));
+		if ($image->type() !== 'attachment') {
+			new AppException(sprintf('The post (ID %d) is not an attachment (type %s).', $this->id(), $this->image->type()));
 		}
 
 		if ($parent) {
 			$this->set_parent($parent);
 
-			if ($parent->id() === $post->parent_id()) {
-				$post->set_parent($parent);
+			if ($parent->id() === $image->parent_id()) {
+				$image->set_parent($parent);
 			}
 		}
 
-		$this->post = $post;
+		$this->image = $image;
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Image extends Model
 	 */
 	public function id(): int
 	{
-		return $this->post->id();
+		return $this->image->id();
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Image extends Model
 	 */
 	public function has_parent(): bool
 	{
-		return $this->parent || $this->post->has_parent();
+		return $this->parent || $this->image->has_parent();
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Image extends Model
 	{
 		if ($this->parent === null && $this->has_parent()) {
 			try {
-				$this->set_parent($this->post->parent());
+				$this->set_parent($this->image->parent());
 			} catch (AppException $exception) {
 				return null;
 			}
@@ -146,7 +146,7 @@ class Image extends Model
 	 */
 	public function title(): string
 	{
-		return $this->post->title();
+		return $this->image->title();
 	}
 
 	/**
@@ -154,7 +154,7 @@ class Image extends Model
 	 */
 	public function caption(): string
 	{
-		return wptexturize($this->post->excerpt());
+		return wptexturize($this->image->excerpt());
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Image extends Model
 	 */
 	public function link(): string
 	{
-		return get_attachment_link($this->post->object());
+		return get_attachment_link($this->image->object());
 	}
 
 	/**
