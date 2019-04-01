@@ -2,6 +2,7 @@
 
 namespace Twist\Model\User;
 
+use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 use Twist\Library\Util\Str;
 use Twist\Model\Post\Query;
@@ -246,6 +247,7 @@ class User implements UserInterface
 		}
 
 		$avatar->attributes(array_merge(['class' => 'avatar photo'], $attributes));
+		$avatar = Hook::apply('twist_user_avatar', $avatar);
 
 		return $avatar;
 	}
