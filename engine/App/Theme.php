@@ -441,6 +441,7 @@ class Theme
 				'template'   => get_template_directory_uri(),
 			],
 			'view' => [
+				'cache'     => defined('WP_DEBUG') && WP_DEBUG,
 				'service'   => TwigView::id(),
 				'templates' => '/templates',
 			],
@@ -455,7 +456,7 @@ class Theme
 
 		$this->config->fill([
 			'view' => [
-				'cache' => $this->config->get('app.debug') ? false : $this->config->get('dir.upload') . '/view_cache',
+				'cache' => $this->config->get('view.cache') ? $this->config->get('dir.upload') . '/view_cache' : false,
 				'paths' => array_unique(array_map(function ($path) {
 					return $path . $this->config->get('view.templates');
 				}, [
