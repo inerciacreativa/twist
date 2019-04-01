@@ -9,7 +9,6 @@ use DOMNodeList;
 use DOMXPath;
 use Twist\Library\Html\Tag;
 use Twist\Library\Util\Str;
-use Twist\Library\Util\Text;
 
 /**
  * Class Document
@@ -55,7 +54,7 @@ class Document extends DOMDocument
 	 *
 	 * @param string|null $language
 	 */
-	public function __construct($language = null)
+	public function __construct(string $language = null)
 	{
 		parent::__construct('1.0', 'UTF-8');
 
@@ -77,7 +76,7 @@ class Document extends DOMDocument
 	 *
 	 * @return bool
 	 */
-	public function loadMarkup($source): bool
+	public function loadMarkup(string $source): bool
 	{
 		$this->preserveWhiteSpace = false;
 		$this->substituteEntities = false;
@@ -114,26 +113,6 @@ class Document extends DOMDocument
 		}
 
 		return Str::fromEntities($this->saveHTML($node));
-	}
-
-	/**
-	 * @param Text $text
-	 *
-	 * @return bool
-	 */
-	public function loadText(Text $text): bool
-	{
-		return $this->loadMarkup($text->whitespace()->toString());
-	}
-
-	/**
-	 * @param DOMNode|null $node
-	 *
-	 * @return Text
-	 */
-	public function saveText(DOMNode $node = null): Text
-	{
-		return new Text($this->saveMarkup($node));
 	}
 
 	/**
