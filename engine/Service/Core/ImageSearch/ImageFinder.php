@@ -2,20 +2,28 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
-use Twist\Model\Post\Post;
+use Twist\Model\Image\Image;
 
 /**
  * Class ImageSearch
  *
  * @package Twist\Service\Core\ImageSearch
  */
-class ImageSearch
+class ImageFinder
 {
+
+	protected static $classes = [
+		ContentModule::class,
+		YouTubeModule::class,
+		VimeoModule::class,
+		TedModule::class,
+		AttachmentModule::class,
+	];
 
 	/**
 	 * @var array
 	 */
-	private $modules = [];
+	protected $modules = [];
 
 	/**
 	 * ImageFinder constructor.
@@ -24,43 +32,46 @@ class ImageSearch
 	 */
 	public function __construct(array $modules = [])
 	{
-		foreach ($modules as $module) {
+		foreach (self::$classes as $module) {
 			$this->add($module);
+		}
+
+		foreach ($modules as $module) {
+			$this->add($module, true);
 		}
 	}
 
 	/**
 	 * @param string $module
+	 * @param bool $check
 	 *
 	 * @return $this
 	 */
-	public function add(string $module): self
+	public function add(string $module, bool $check = false): self
 	{
-		if (is_a($module, ModuleInterface::class, true)) {
-			$this->modules[] = $module;
+		if (!$check || is_a($module, ModuleInterface::class, true)) {
+			$this->modules[] = new $module();
 		}
 
 		return $this;
 	}
 
 	/**
-	 * @param Post $post
+	 * @param ImageResolver     $resolver
 	 * @param bool $allModules
 	 * @param bool $allImages
 	 *
-	 * @return ImageResolver
+	 * @return Image|null
 	 */
-	public function parse(Post $post, bool $allModules = false, bool $allImages = false): ImageResolver
+	public function search(ImageResolver $resolver, bool $allModules = false, bool $allImages = false): ?Image
 	{
-		$resolver = new ImageResolver($post);
-
 		foreach ($this->modules as $module) {
-			if (!$allModules && (new $module())->search($resolver, $allImages)) {
+			if (!$allModules && $module->search($resolver, $allImages)) {
 				break;
 			}
 		}
 
-		return $resolver;
+		return $resolver->get();
 	}
 
 }

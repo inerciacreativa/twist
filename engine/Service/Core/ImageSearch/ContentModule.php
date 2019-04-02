@@ -2,8 +2,7 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
-use DOMDocument;
-use DOMElement;
+use Twist\Library\Dom\Element;
 use Twist\Library\Util\Url;
 
 /**
@@ -17,7 +16,7 @@ class ContentModule implements ModuleInterface
 	/**
 	 * @var array
 	 */
-	protected static $forbidenSources = [
+	protected static $forbiddenSources = [
 		'feeds.feedburner.com',
 		'blogger.googleusercontent.com',
 		'feedads.g.doubleclick.net',
@@ -31,18 +30,16 @@ class ContentModule implements ModuleInterface
 	public function search(ImageResolver $resolver, bool $all = false): bool
 	{
 		$found = false;
-		$dom   = new DOMDocument();
-		@$dom->loadHTML($resolver->content());
 
-		/** @var $image DOMElement */
-		foreach ($dom->getElementsByTagName('img') as $image) {
+		/** @var $image Element */
+		foreach ($resolver->document()->getElementsByTagName('img') as $image) {
 			if (!$image->hasAttribute('src')) {
 				continue;
 			}
 
 			$source = Url::parse($image->getAttribute('src'));
 
-			if (empty($source->host) || in_array($source->host, static::$forbidenSources, true)) {
+			if (empty($source->host) || in_array($source->host, static::$forbiddenSources, true)) {
 				continue;
 			}
 
@@ -50,9 +47,9 @@ class ContentModule implements ModuleInterface
 			$resolver->add([
 				'id'     => $this->getId($image),
 				'src'    => $source->get(),
-				'alt'    => $this->getAttribute($image, 'alt', ''),
-				'width'  => $this->getAttribute($image, 'width', 0),
-				'height' => $this->getAttribute($image, 'height', 0),
+				'alt'    => $image->getAttribute('alt'),
+				'width'  => $image->getAttribute('width', 0),
+				'height' => $image->getAttribute('height', 0),
 			]);
 		}
 
@@ -60,11 +57,11 @@ class ContentModule implements ModuleInterface
 	}
 
 	/**
-	 * @param DOMElement $image
+	 * @param Element $image
 	 *
 	 * @return int
 	 */
-	protected function getId(DOMElement $image): int
+	protected function getId(Element $image): int
 	{
 		if (!$image->hasAttribute('class')) {
 			return 0;
@@ -75,25 +72,6 @@ class ContentModule implements ModuleInterface
 		}
 
 		return 0;
-	}
-
-	/**
-	 * @param DOMElement $image
-	 * @param string     $attribute
-	 * @param mixed      $default
-	 *
-	 * @return mixed
-	 */
-	protected function getAttribute(DOMElement $image, string $attribute, $default)
-	{
-		$result = $default;
-
-		if ($image->hasAttribute($attribute)) {
-			$result = $image->getAttribute($attribute);
-			settype($result, gettype($default));
-		}
-
-		return $result;
 	}
 
 }

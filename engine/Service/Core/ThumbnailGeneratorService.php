@@ -5,12 +5,8 @@ namespace Twist\Service\Core;
 use Twist\Model\Post\Meta;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\Query;
-use Twist\Service\Core\ImageSearch\AttachmentModule;
-use Twist\Service\Core\ImageSearch\ContentModule;
-use Twist\Service\Core\ImageSearch\ImageSearch;
-use Twist\Service\Core\ImageSearch\TedModule;
-use Twist\Service\Core\ImageSearch\VimeoModule;
-use Twist\Service\Core\ImageSearch\YouTubeModule;
+use Twist\Service\Core\ImageSearch\ImageFinder;
+use Twist\Service\Core\ImageSearch\ImageResolver;
 use Twist\Service\Service;
 
 /**
@@ -20,6 +16,11 @@ use Twist\Service\Service;
  */
 class ThumbnailGeneratorService extends Service
 {
+
+	/**
+	 * @var ImageFinder
+	 */
+	protected $finder;
 
 	/**
 	 * @inheritdoc
@@ -64,21 +65,25 @@ class ThumbnailGeneratorService extends Service
 	 */
 	protected function search(Post $post): int
 	{
-		$modules = array_merge([
-			ContentModule::class,
-		], $this->config('modules', []), [
-			YouTubeModule::class,
-			VimeoModule::class,
-			TedModule::class,
-			AttachmentModule::class,
-		]);
+		$resolver = new ImageResolver($post);
 
-		$search = new ImageSearch($modules);
-		if (($image = $search->parse($post)->get()) && $image->set_featured()) {
+		if (($image = $this->getFinder()->search($resolver)) && $image->set_featured()) {
 			return $image->id();
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @return ImageFinder
+	 */
+	protected function getFinder(): ImageFinder
+	{
+		if ($this->finder === null) {
+			$this->finder = new ImageFinder($this->config('modules', []));
+		}
+
+		return $this->finder;
 	}
 
 }

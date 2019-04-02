@@ -9,21 +9,21 @@ namespace Twist\Service\Core\ImageSearch;
  */
 class AttachmentModule implements ModuleInterface
 {
+
 	/**
 	 * @inheritdoc
 	 */
 	public function search(ImageResolver $resolver, bool $all = false): bool
 	{
-		$found = false;
-
-		if ($resolver->post()->images()->count() > 0) {
-			foreach ($resolver->post()->images() as $image) {
-				$found = true;
-				$resolver->add($image);
-			}
+		if ($resolver->post()->images()->count() === 0) {
+			return false;
 		}
 
-		return $found;
+		foreach ($resolver->post()->images() as $image) {
+			$resolver->add($image);
+		}
+
+		return true;
 	}
 
 }

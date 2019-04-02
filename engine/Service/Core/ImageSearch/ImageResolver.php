@@ -3,6 +3,7 @@
 namespace Twist\Service\Core\ImageSearch;
 
 use Twist\App\AppException;
+use Twist\Library\Dom\Document;
 use Twist\Library\Util\Url;
 use Twist\Model\Image\Image;
 use Twist\Model\Post\Post;
@@ -18,17 +19,27 @@ class ImageResolver
 	/**
 	 * @var Post
 	 */
-	private $post;
+	protected $post;
+
+	/**
+	 * @var string
+	 */
+	protected $content;
+
+	/**
+	 * @var Document
+	 */
+	protected $document;
 
 	/**
 	 * @var array
 	 */
-	private $images = [];
+	protected $images = [];
 
 	/**
 	 * @var bool
 	 */
-	private $sorted = true;
+	protected $sorted = false;
 
 	/**
 	 * ImageResolver constructor.
@@ -37,7 +48,9 @@ class ImageResolver
 	 */
 	public function __construct(Post $post)
 	{
-		$this->post = $post;
+		$this->post     = $post;
+		$this->content  = $post->content(['filter' => false]);
+		$this->document = $post->document();
 	}
 
 	/**
@@ -53,15 +66,15 @@ class ImageResolver
 	 */
 	public function content(): string
 	{
-		return $this->post->content(null, false, true);
+		return $this->content;
 	}
 
 	/**
-	 * @return int
+	 * @return Document
 	 */
-	public function count(): int
+	public function document(): Document
 	{
-		return count($this->images);
+		return $this->document;
 	}
 
 	/**
@@ -89,6 +102,14 @@ class ImageResolver
 	}
 
 	/**
+	 * @return int
+	 */
+	public function count(): int
+	{
+		return count($this->images);
+	}
+
+	/**
 	 * @return array
 	 */
 	public function all(): array
@@ -99,24 +120,15 @@ class ImageResolver
 	}
 
 	/**
-	 * @param bool $once
-	 *
 	 * @return null|Image
 	 */
-	public function get(bool $once = false): ?Image
+	public function get(): ?Image
 	{
-		if (empty($this->images)) {
-			return null;
-		}
-
 		$this->sort();
 
-		for ($i = 0, $count = $this->count(); $i < $count; $i++) {
-			if ($image = $this->image($this->images[$i])) {
-				return $this->images[$i] = $image;
-			}
-			if ($once) {
-				break;
+		foreach ($this->images as $index => $image) {
+			if ($object = $this->getObject($image)) {
+				return $this->images[$index] = $object;
 			}
 		}
 
@@ -124,11 +136,41 @@ class ImageResolver
 	}
 
 	/**
+	 * @return $this
+	 */
+	protected function sort(): self
+	{
+		if ($this->sorted || $this->count() < 2) {
+			$this->sorted = true;
+
+			return $this;
+		}
+
+		usort($this->images, static function ($a, $b) {
+			$ai = $a instanceof Image ? $a->get('large') : $a;
+			$bi = $b instanceof Image ? $b->get('large') : $b;
+
+			$ad = ($ai['width'] * 10) + $ai['height'];
+			$bd = ($bi['width'] * 10) + $bi['height'];
+
+			if ($ad === $bd) {
+				return 0;
+			}
+
+			return ($ad > $bd) ? -1 : 1;
+		});
+
+		$this->sorted = true;
+
+		return $this;
+	}
+
+	/**
 	 * @param array|Image $image
 	 *
 	 * @return Image|null
 	 */
-	public function image($image): ?Image
+	protected function getObject($image): ?Image
 	{
 		if ($image instanceof Image) {
 			return $image;
@@ -144,9 +186,9 @@ class ImageResolver
 			if ($source->host === $home->host) {
 				$source->scheme = $home->scheme;
 
-				$id = $this->getLocalImage($source);
+				$id = self::getLocal($source);
 			} else {
-				$id = $this->getExternalImage($image);
+				$id = self::getExternal($image, $this->post);
 			}
 		}
 
@@ -166,7 +208,7 @@ class ImageResolver
 	 *
 	 * @return int
 	 */
-	protected function getLocalImage(Url $source): int
+	protected static function getLocal(Url $source): int
 	{
 		global $wpdb;
 
@@ -190,10 +232,11 @@ class ImageResolver
 
 	/**
 	 * @param array $image
+	 * @param Post  $post
 	 *
 	 * @return int
 	 */
-	protected function getExternalImage(array $image): int
+	protected static function getExternal(array $image, Post $post): int
 	{
 		if (!function_exists('download_url')) {
 			include ABSPATH . 'wp-admin/includes/file.php';
@@ -220,7 +263,7 @@ class ImageResolver
 			include ABSPATH . 'wp-admin/includes/image.php';
 		}
 
-		$id = media_handle_sideload($temp, $this->post->id(), $image['alt']);
+		$id = media_handle_sideload($temp, $post->id(), $image['alt']);
 
 		if (is_wp_error($id)) {
 			@unlink($temp['tmp_name']);
@@ -229,34 +272,6 @@ class ImageResolver
 		}
 
 		return (int) $id;
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function sort(): self
-	{
-		if ($this->sorted || $this->count() < 2) {
-			return $this;
-		}
-
-		usort($this->images, static function ($a, $b) {
-			$ai = $a instanceof Image ? $a->get('large') : $a;
-			$bi = $b instanceof Image ? $b->get('large') : $b;
-
-			$ad = ($ai['width'] * 10) + $ai['height'];
-			$bd = ($bi['width'] * 10) + $bi['height'];
-
-			if ($ad === $bd) {
-				return 0;
-			}
-
-			return ($ad > $bd) ? -1 : 1;
-		});
-
-		$this->sorted = true;
-
-		return $this;
 	}
 
 }
