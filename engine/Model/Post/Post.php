@@ -3,10 +3,13 @@
 namespace Twist\Model\Post;
 
 use Twist\App\AppException;
+use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
 use Twist\Library\Html\Tag;
+use Twist\Library\Util\Arr;
 use Twist\Library\Util\Macroable;
+use Twist\Library\Util\Str;
 use Twist\Model\Base\CollectionInterface;
 use Twist\Model\Base\Model;
 use Twist\Model\Base\ModelInterface;
@@ -326,13 +329,18 @@ class Post extends Model
 		if ($this->has_excerpt()) {
 			$excerpt = $this->post->post_excerpt;
 		} else {
-			$words = Hook::apply('excerpt_length', $words);
-			$more  = Hook::apply('excerpt_more', ' ' . '[&hellip;]');
-
 			$excerpt = $this->getContent('');
+
 			$excerpt = strip_shortcodes($excerpt);
+			if (function_exists('excerpt_remove_blocks')) {
+				$excerpt = excerpt_remove_blocks($excerpt);
+			}
+
 			$excerpt = Hook::apply('the_content', $excerpt);
 			$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
+
+			$words   = Hook::apply('excerpt_length', $words);
+			$more    = Hook::apply('excerpt_more', ' ' . '[&hellip;]');
 			$excerpt = wp_trim_words($excerpt, $words, $more);
 		}
 
@@ -343,19 +351,30 @@ class Post extends Model
 	}
 
 	/**
-	 * @param Tag|string|null $more_link
-	 * @param bool            $strip_teaser
-	 * @param bool            $raw
+	 * @param array $options
+	 *   [
+	 *   'more_link' => (Tag|string|null)
+	 *   'strip_teaser' => (bool)
+	 *   'filter' => (bool)
+	 *   ]
 	 *
 	 * @return string
 	 */
-	public function content(string $more_link = null, bool $strip_teaser = false, bool $raw = false): string
+	public function content(array $options = []): string
 	{
-		if ($raw) {
-			return $this->post->post_content;
+		$options = Arr::defaults([
+			'more_link'    => null,
+			'strip_teaser' => false,
+			'filter'       => true,
+		], $options);
+
+		$content = Hook::apply('the_content', $this->getContent($options['more_link'], $options['strip_teaser']));
+
+		if ($options['filter']) {
+			$document = Hook::apply('twist_post_filter', $this->getDocument($content), $this);
+			$content  = $document->saveMarkup();
 		}
 
-		$content = Hook::apply('the_content', $this->getContent($more_link, $strip_teaser));
 		$content = str_replace(']]>', ']]&gt;', $content);
 
 		return $content;
@@ -400,7 +419,6 @@ class Post extends Model
 
 	/**
 	 * @return Images
-	 * @throws AppException
 	 */
 	public function images(): Images
 	{
@@ -722,7 +740,7 @@ class Post extends Model
 		$content = $pages[$page - 1];
 		if (preg_match('/<!--more(.*?)?-->/', $content, $matches)) {
 			$content = explode($matches[0], $content, 2);
-			if ($more_link && !empty($matches[1])) {
+			if (!empty($more_link) && !empty($matches[1])) {
 				$more_link = strip_tags(wp_kses_no_null(trim($matches[1])));
 			}
 
@@ -736,7 +754,6 @@ class Post extends Model
 		}
 
 		$teaser = $content[0];
-
 		if ($more && $strip_teaser && $has_teaser) {
 			$teaser = '';
 		}
@@ -767,6 +784,19 @@ class Post extends Model
 		}
 
 		return $output;
+	}
+
+	/**
+	 * @param string $content
+	 *
+	 * @return Document
+	 */
+	private function getDocument(string $content): Document
+	{
+		$document = new Document(Site::language());
+		$document->loadMarkup(Str::whitespace($content));
+
+		return $document;
 	}
 
 	/**
