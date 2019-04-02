@@ -2,11 +2,15 @@
 
 namespace Twist\Model\Comment;
 
+use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
+use Twist\Library\Util\Arr;
+use Twist\Library\Util\Str;
 use Twist\Model\Base\CollectionInterface;
 use Twist\Model\Base\Model;
 use Twist\Model\Post\Post;
+use Twist\Model\Site\Site;
 use Twist\Model\User\User;
 use WP_Comment;
 
@@ -205,12 +209,26 @@ class Comment extends Model
 	/**
 	 * Returns the text of this comment.
 	 *
+	 * @param array $options
+	 *
 	 * @return string
 	 */
-	public function content(): string
+	public function content(array $options = []): string
 	{
+		$options = Arr::defaults([
+			'filter' => true,
+		], $options);
+
 		$content = Hook::apply('get_comment_text', $this->comment->comment_content, $this->comment);
 		$content = Hook::apply('comment_text', $content, $this->comment);
+
+		if ($options['filter']) {
+			$document = new Document(Site::language());
+			$document->loadMarkup(Str::whitespace($content));
+			$document = Hook::apply('twist_comment_filter', $document, $this);
+
+			$content = $document->saveMarkup();
+		}
 
 		return $content;
 	}
