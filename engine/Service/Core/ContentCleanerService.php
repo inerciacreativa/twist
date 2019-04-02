@@ -30,30 +30,25 @@ class ContentCleanerService extends Service
 	protected function init(): void
 	{
 		$this->hook()
-		     ->after('the_content', 'clean')
-		     ->after('comment_text', 'clean');
+		     ->before('twist_post_filter', 'clean')
+		     ->before('twist_comment_filter', 'clean');
 	}
 
 	/**
-	 * @param string $content
+	 * @param Document $document
 	 *
-	 * @return string
+	 * @return Document
 	 */
-	protected function clean(string $content): string
+	protected function clean(Document $document): Document
 	{
-		$dom = new Document(Site::language());
-
-		$dom->loadMarkup(Str::whitespace($content));
-		$dom->cleanAttributes($this->config('attributes', []), $this->config('styles', []));
-		$dom->cleanElements();
+		$document->cleanAttributes($this->config('attributes', []), $this->config('styles', []));
+		$document->cleanElements();
 
 		if ($this->config('comments')) {
-			$dom->cleanComments();
+			$document->cleanComments();
 		}
 
-		$this->hook()->apply('twist_service_content_cleaner', $dom);
-
-		return $dom->saveMarkup();
+		return $document;
 	}
 
 }
