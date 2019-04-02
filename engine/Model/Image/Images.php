@@ -21,7 +21,6 @@ class Images extends Collection
 	 * @param array $parameters
 	 *
 	 * @return Images
-	 * @throws AppException
 	 */
 	public static function make(Post $post, array $parameters = []): Images
 	{
@@ -64,8 +63,12 @@ class Images extends Collection
 
 		$query = Query::make($parameters, false);
 
-		foreach ($query->posts() as $image) {
-			$collection->add(new Image($image, $post));
+		try {
+			foreach ($query->posts() as $image) {
+				$collection->add(new Image($image, $post));
+			}
+		} catch (AppException $exception) {
+			// This will never happen!
 		}
 
 		return $collection;
