@@ -381,6 +381,16 @@ class Post extends Model
 	}
 
 	/**
+	 * @return Document
+	 */
+	public function document(): Document
+	{
+		$content = $this->content(['filter' => false]);
+
+		return $this->getDocument($content);
+	}
+
+	/**
 	 * @return Meta
 	 */
 	public function meta(): Meta
