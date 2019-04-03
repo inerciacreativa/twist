@@ -133,7 +133,7 @@ class Document extends DOMDocument
 	protected function removeRootNode(): void
 	{
 		$root = $this->query(sprintf('//*[@id="%s"]', self::ROOT));
-		$this->unwrapElements($root);
+		$this->removeElements($root);
 	}
 
 	/**
@@ -207,7 +207,7 @@ class Document extends DOMDocument
 	 *
 	 * @return $this
 	 */
-	public function cleanNodeAttributes(DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = []): self
+	public function cleanElementsAttributes(DOMNodeList $nodes, array $disallowedAttributes = [], array $allowedStyles = []): self
 	{
 		$disallowedAttributes = array_merge($disallowedAttributes, static::$disallowedAttributes);
 
@@ -227,7 +227,7 @@ class Document extends DOMDocument
 	 */
 	public function cleanAttributes(array $disallowedAttributes = [], array $allowedStyles = []): self
 	{
-		return $this->cleanNodeAttributes($this->getElementsWithAttributes(), $disallowedAttributes, $allowedStyles);
+		return $this->cleanElementsAttributes($this->getElementsWithAttributes(), $disallowedAttributes, $allowedStyles);
 	}
 
 	/**
@@ -235,7 +235,7 @@ class Document extends DOMDocument
 	 */
 	public function cleanElements(): self
 	{
-		return $this->unwrapElements($this->getElementsWithoutAttributes('span'))
+		return $this->removeElements($this->getElementsWithoutAttributes('span'))
 		            ->removeEmptyTextNodes();
 	}
 
@@ -244,7 +244,7 @@ class Document extends DOMDocument
 	 *
 	 * @return $this
 	 */
-	public function cleanComments(): self
+	public function removeComments(): self
 	{
 		/** @var $node DOMElement */
 		foreach ($this->getComments() as $node) {
@@ -255,17 +255,18 @@ class Document extends DOMDocument
 	}
 
 	/**
-	 * Removes elements, but not their children.
+	 * Removes elements, and optionally their children.
 	 *
 	 * @param DOMNodeList $nodes
+	 * @param bool        $children
 	 *
 	 * @return $this
 	 */
-	public function unwrapElements(DOMNodeList $nodes): self
+	public function removeElements(DOMNodeList $nodes, bool $children = false): self
 	{
 		/** @var Element $node */
 		foreach ($nodes as $node) {
-			if ($node->hasChildNodes()) {
+			if (!$children && $node->hasChildNodes()) {
 				$fragment = $this->createDocumentFragment();
 
 				while ($node->firstChild) {
@@ -274,6 +275,22 @@ class Document extends DOMDocument
 
 				$node->parentNode->replaceChild($fragment, $node);
 			} else {
+				$node->parentNode->removeChild($node);
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Removes empty text nodes.
+	 *
+	 * @return $this
+	 */
+	public function removeEmptyTextNodes(): self
+	{
+		while (($nodes = $this->query('//*[not(*) and not(@*) and not(text()[normalize-space()]) and not(self::br)]')) && $nodes->length) {
+			foreach ($nodes as $node) {
 				$node->parentNode->removeChild($node);
 			}
 		}
@@ -292,22 +309,6 @@ class Document extends DOMDocument
 		/** @var Element $node */
 		while ($node = $nodes->item(0)) {
 			$node->setTagName($tagName);
-		}
-
-		return $this;
-	}
-
-	/**
-	 * Removes empty text nodes.
-	 *
-	 * @return $this
-	 */
-	protected function removeEmptyTextNodes(): self
-	{
-		while (($nodes = $this->query('//*[not(*) and not(@*) and not(text()[normalize-space()]) and not(self::br)]')) && $nodes->length) {
-			foreach ($nodes as $node) {
-				$node->parentNode->removeChild($node);
-			}
 		}
 
 		return $this;

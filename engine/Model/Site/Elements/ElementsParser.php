@@ -99,7 +99,7 @@ class ElementsParser
 
 		$dom = new Document(Site::language());
 		$dom->loadMarkup($html);
-		$dom->cleanComments();
+		$dom->removeComments();
 
 		foreach ($this->elements as $elements) {
 			$elements->get($dom);

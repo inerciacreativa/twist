@@ -3,9 +3,7 @@
 namespace Twist\Service\Core;
 
 use Twist\Library\Dom\Document;
-use Twist\Library\Util\Str;
 use Twist\Model\Post\Query;
-use Twist\Model\Site\Site;
 use Twist\Service\Service;
 
 /**
@@ -45,7 +43,7 @@ class ContentCleanerService extends Service
 		$document->cleanElements();
 
 		if ($this->config('comments')) {
-			$document->cleanComments();
+			$document->removeComments();
 		}
 
 		return $document;
