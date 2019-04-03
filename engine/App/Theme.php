@@ -425,9 +425,11 @@ class Theme
 	 */
 	protected function addConfig(): void
 	{
+		$debug = defined('WP_DEBUG') && WP_DEBUG;
+
 		$this->config->fill([
 			'app'  => [
-				'debug' => defined('WP_DEBUG') && WP_DEBUG,
+				'debug' => $debug,
 			],
 			'dir'  => [
 				'home'       => defined('WP_ROOT') ? WP_ROOT : ABSPATH,
@@ -441,7 +443,7 @@ class Theme
 				'template'   => get_template_directory_uri(),
 			],
 			'view' => [
-				'cache'     => defined('WP_DEBUG') && WP_DEBUG,
+				'cache'     => !$debug,
 				'service'   => TwigView::id(),
 				'templates' => '/templates',
 			],
