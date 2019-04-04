@@ -338,6 +338,7 @@ class Post extends Model
 
 			$excerpt = Hook::apply('the_content', $excerpt);
 			$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
+			$excerpt = trim(Str::whitespace($excerpt));
 
 			$words   = Hook::apply('excerpt_length', $words);
 			$more    = Hook::apply('excerpt_more', ' ' . '[&hellip;]');
