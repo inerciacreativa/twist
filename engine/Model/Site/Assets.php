@@ -105,7 +105,7 @@ class Assets
 			$svg['aria-hidden'] = 'true';
 		}
 
-		return $svg->content(Tag::use(['xlink:href' => "#icon-$icon"]));
+		return $svg->content(Tag::use(['xlink:href' => "#icon-$icon"]))->render(true);
 	}
 
 }
