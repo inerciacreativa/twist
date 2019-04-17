@@ -351,15 +351,18 @@ class Tag implements ArrayAccess
 	}
 
 	/**
-	 * @param bool $print
+	 * @param bool $spaceless
 	 *
 	 * @return string
 	 */
-	public function render(bool $print = false): string
+	public function render(bool $spaceless = false): string
 	{
 		$tag = $this->open() . $this->close();
+		if ($spaceless) {
+			$tag = preg_replace('/>\s+</', '><', $tag);
+		}
 
-		return $print ? print($tag) : $tag;
+		return $tag;
 	}
 
 	/**
