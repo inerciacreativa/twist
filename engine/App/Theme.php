@@ -427,7 +427,7 @@ class Theme
 	{
 		$debug = defined('WP_DEBUG') && WP_DEBUG;
 
-		$this->config->fill([
+		$this->config->set([
 			'app'  => [
 				'debug' => $debug,
 			],
@@ -454,9 +454,9 @@ class Theme
 			$setup($this);
 		}
 
-		$this->config->fill($this->options);
+		$this->config->set($this->options);
 
-		$this->config->fill([
+		$this->config->set([
 			'view' => [
 				'cache' => $this->config->get('view.cache') ? $this->config->get('dir.upload') . '/view_cache' : false,
 				'paths' => array_unique(array_map(function ($path) {
