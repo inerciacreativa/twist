@@ -5,6 +5,7 @@ namespace Twist\Library\Util;
 use ArrayAccess;
 use Traversable;
 use Twist\Library\Data\Collection;
+use Twist\Library\Data\RepositoryInterface;
 
 /**
  * Class Arr
@@ -17,30 +18,6 @@ class Arr
 	use Macroable;
 
 	/**
-	 * Determine whether the given value is array accessible.
-	 *
-	 * @param mixed $value
-	 *
-	 * @return bool
-	 */
-	public static function accessible($value): bool
-	{
-		return is_array($value) || $value instanceof ArrayAccess;
-	}
-
-	/**
-	 * Divide an array into two arrays. One with keys and the other with values.
-	 *
-	 * @param array $array
-	 *
-	 * @return array
-	 */
-	public static function divide(array $array): array
-	{
-		return [array_keys($array), array_values($array)];
-	}
-
-	/**
 	 * Flatten a multi-dimensional associative array with dots.
 	 *
 	 * @param array  $array
@@ -50,39 +27,196 @@ class Arr
 	 */
 	public static function dot(array $array, string $prepend = ''): array
 	{
-		$results = [];
+		$results = [[]];
 
 		foreach ($array as $key => $value) {
-			if (is_array($value) && !empty($value)) {
-				$results = array_merge($results, static::dot($value, $prepend . $key . '.'));
+			if (!empty($value) && self::isAssoc($value)) {
+				$results[] = static::dot($value, $prepend . $key . '.');
 			} else {
-				$results[$prepend . $key] = $value;
+				$results[][$prepend . $key] = $value;
 			}
 		}
 
-		return $results;
+		return array_merge(...$results);
 	}
 
 	/**
-	 * Fill the target array with the source values.
+	 * Get an item from an array using "dot" notation.
 	 *
-	 * @param array $target
-	 * @param array $source
-	 * @param bool  $add
+	 * @param ArrayAccess|array $array
+	 * @param string            $key
+	 * @param mixed             $default
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	public static function fill(array $target, array $source, bool $add = false): array
+	public static function get($array, string $key, $default = null)
 	{
-		$values = static::dot($source);
+		if (!static::accessible($array)) {
+			return Data::value($default);
+		}
 
-		foreach ($values as $key => $value) {
-			if ($add || static::has($target, $key)) {
-				static::set($target, $key, $value);
+		if ($key === null) {
+			return $array;
+		}
+
+		if (static::exists($array, $key)) {
+			return $array[$key];
+		}
+
+		if (strpos($key, '.') === false) {
+			return $array[$key] ?? Data::value($default);
+		}
+
+		foreach (explode('.', $key) as $segment) {
+			if (static::accessible($array) && static::exists($array, $segment)) {
+				$array = $array[$segment];
+			} else {
+				return Data::value($default);
 			}
 		}
 
-		return $target;
+		return $array;
+	}
+
+	/**
+	 * Set an array item to a given value using "dot" notation.
+	 *
+	 * If no key is given to the method, the entire array will be replaced.
+	 *
+	 * @param ArrayAccess|array $array
+	 * @param string            $key
+	 * @param mixed             $value
+	 *
+	 * @return ArrayAccess|array
+	 */
+	public static function set(&$array, string $key, $value)
+	{
+		if (!static::accessible($array)) {
+			return $array;
+		}
+
+		if ($key === null) {
+			if (is_array($array)) {
+				return $array = $value;
+			}
+
+			return $array;
+		}
+
+		$keys = explode('.', $key);
+
+		while (count($keys) > 1) {
+			$key = array_shift($keys);
+
+			if (!isset($array[$key]) || !is_array($array[$key])) {
+				$array[$key] = [];
+			}
+
+			$array = &$array[$key];
+		}
+
+		$array[array_shift($keys)] = $value;
+
+		return $array;
+	}
+
+	/**
+	 * Add an element to an array using "dot" notation if it doesn't exist.
+	 *
+	 * @param ArrayAccess|array $array
+	 * @param string            $key
+	 * @param mixed             $value
+	 *
+	 * @return ArrayAccess|array
+	 */
+	public static function add(&$array, string $key, $value)
+	{
+		if (static::get($array, $key) === null) {
+			static::set($array, $key, $value);
+		}
+
+		return $array;
+	}
+
+	/**
+	 * Check if an item or items exists in an array using "dot" notation.
+	 *
+	 * @param ArrayAccess|array $array
+	 * @param string|array      $keys
+	 *
+	 * @return bool
+	 */
+	public static function has($array, $keys): bool
+	{
+		$keys = (array) $keys;
+
+		if (!$array || $keys === []) {
+			return false;
+		}
+
+		foreach ($keys as $key) {
+			$subKeyArray = $array;
+
+			if (static::exists($array, $key)) {
+				continue;
+			}
+
+			foreach (explode('.', $key) as $segment) {
+				if (static::accessible($subKeyArray) && static::exists($subKeyArray, $segment)) {
+					$subKeyArray = $subKeyArray[$segment];
+				} else {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Remove one or many array items from a given array using "dot" notation.
+	 *
+	 * @param ArrayAccess|array $array
+	 * @param array|string      $keys
+	 *
+	 * @return ArrayAccess|array
+	 */
+	public static function forget(&$array, $keys)
+	{
+		if (!static::accessible($array)) {
+			return $array;
+		}
+
+		$original = &$array;
+		$keys     = (array) $keys;
+
+		if (count($keys) === 0) {
+			return $array;
+		}
+
+		foreach ($keys as $key) {
+			if (static::exists($array, $key)) {
+				unset($array[$key]);
+				continue;
+			}
+
+			$parts = explode('.', $key);
+			$array = &$original;
+
+			while (count($parts) > 1) {
+				$part = array_shift($parts);
+
+				if (isset($array[$part]) && is_array($array[$part])) {
+					$array = &$array[$part];
+				} else {
+					continue 2;
+				}
+			}
+
+			unset($array[array_shift($parts)]);
+		}
+
+		return $array;
 	}
 
 	/**
@@ -98,6 +232,19 @@ class Arr
 		static::forget($array, $keys);
 
 		return $array;
+	}
+
+	/**
+	 * Get a subset of the items from the given array.
+	 *
+	 * @param array        $array
+	 * @param array|string $keys
+	 *
+	 * @return array
+	 */
+	public static function only(array $array, $keys): array
+	{
+		return array_intersect_key($array, array_flip((array) $keys));
 	}
 
 	/**
@@ -160,6 +307,18 @@ class Arr
 	}
 
 	/**
+	 * Divide an array into two arrays. One with keys and the other with values.
+	 *
+	 * @param array $array
+	 *
+	 * @return array
+	 */
+	public static function divide(array $array): array
+	{
+		return [array_keys($array), array_values($array)];
+	}
+
+	/**
 	 * Collapse an array of arrays into a single array.
 	 *
 	 * @param array|Collection $array
@@ -168,7 +327,7 @@ class Arr
 	 */
 	public static function collapse($array): array
 	{
-		$results = [];
+		$results = [[]];
 
 		foreach ($array as $values) {
 			if ($values instanceof Collection) {
@@ -177,10 +336,10 @@ class Arr
 				continue;
 			}
 
-			$results = array_merge($results, $values);
+			$results[] = $values;
 		}
 
-		return $results;
+		return array_merge(...$results);
 	}
 
 	/**
@@ -191,220 +350,23 @@ class Arr
 	 *
 	 * @return array
 	 */
-	public static function flatten($array, int $depth = 999): array
+	public static function flatten($array, int $depth = PHP_INT_MAX): array
 	{
-		$result = [];
+		$result = [[]];
 
 		foreach ($array as $item) {
 			$item = $item instanceof Collection ? $item->all() : $item;
 
 			if (!is_array($item)) {
-				$result[] = $item;
+				$result[] = [$item];
 			} else if ($depth === 1) {
-				$result = array_merge($result, array_values($item));
+				$result[] = array_values($item);
 			} else {
-				$result = array_merge($result, static::flatten($item, $depth - 1));
+				$result[] = static::flatten($item, $depth - 1);
 			}
 		}
 
-		return $result;
-	}
-
-	/**
-	 * Set an array item to a given value using "dot" notation.
-	 *
-	 * If no key is given to the method, the entire array will be replaced.
-	 *
-	 * @param array  $array
-	 * @param string $key
-	 * @param mixed  $value
-	 *
-	 * @return array
-	 */
-	public static function set(array &$array, string $key, $value): array
-	{
-		if ($key === null) {
-			return $array = $value;
-		}
-
-		$keys = explode('.', $key);
-
-		while (count($keys) > 1) {
-			$key = array_shift($keys);
-
-			if (!isset($array[$key]) || !is_array($array[$key])) {
-				$array[$key] = [];
-			}
-
-			$array = &$array[$key];
-		}
-
-		$array[array_shift($keys)] = $value;
-
-		return $array;
-	}
-
-	/**
-	 * Add an element to an array using "dot" notation if it doesn't exist.
-	 *
-	 * @param array  $array
-	 * @param string $key
-	 * @param mixed  $value
-	 *
-	 * @return array
-	 */
-	public static function add(array $array, string $key, $value): array
-	{
-		if (static::get($array, $key) === null) {
-			static::set($array, $key, $value);
-		}
-
-		return $array;
-	}
-
-	/**
-	 * Check if an item or items exists in an array using "dot" notation.
-	 *
-	 * @param ArrayAccess|array $array
-	 * @param string|array      $keys
-	 *
-	 * @return bool
-	 */
-	public static function has($array, $keys): bool
-	{
-		$keys = (array) $keys;
-
-		if (!$array || $keys === []) {
-			return false;
-		}
-
-		foreach ($keys as $key) {
-			$subKeyArray = $array;
-
-			if (static::exists($array, $key)) {
-				continue;
-			}
-
-			foreach (explode('.', $key) as $segment) {
-				if (static::accessible($subKeyArray) && static::exists($subKeyArray, $segment)) {
-					$subKeyArray = $subKeyArray[$segment];
-				} else {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Get an item from an array using "dot" notation.
-	 *
-	 * @param ArrayAccess|array $array
-	 * @param string            $key
-	 * @param mixed             $default
-	 *
-	 * @return mixed
-	 */
-	public static function get($array, string $key, $default = null)
-	{
-		if (!static::accessible($array)) {
-			return Data::value($default);
-		}
-
-		if ($key === null) {
-			return $array;
-		}
-
-		if (static::exists($array, $key)) {
-			return $array[$key];
-		}
-
-		if (strpos($key, '.') === false) {
-			return $array[$key] ?? Data::value($default);
-		}
-
-		foreach (explode('.', $key) as $segment) {
-			if (static::accessible($array) && static::exists($array, $segment)) {
-				$array = $array[$segment];
-			} else {
-				return Data::value($default);
-			}
-		}
-
-		return $array;
-	}
-
-	/**
-	 * Remove one or many array items from a given array using "dot" notation.
-	 *
-	 * @param array        $array
-	 * @param array|string $keys
-	 *
-	 * @return array
-	 */
-	public static function forget(array &$array, $keys): array
-	{
-		$original = &$array;
-		$keys     = (array) $keys;
-
-		if (count($keys) === 0) {
-			return $array;
-		}
-
-		foreach ($keys as $key) {
-			if (static::exists($array, $key)) {
-				unset($array[$key]);
-				continue;
-			}
-
-			$parts = explode('.', $key);
-			$array = &$original;
-
-			while (count($parts) > 1) {
-				$part = array_shift($parts);
-
-				if (isset($array[$part]) && is_array($array[$part])) {
-					$array = &$array[$part];
-				} else {
-					continue 2;
-				}
-			}
-
-			unset($array[array_shift($parts)]);
-		}
-
-		return $array;
-	}
-
-	/**
-	 * Determines if an array is associative.
-	 *
-	 * An array is "associative" if it doesn't have sequential numerical keys
-	 * beginning with zero.
-	 *
-	 * @param array $array
-	 *
-	 * @return bool
-	 */
-	public static function isAssoc(array $array): bool
-	{
-		$keys = array_keys($array);
-
-		return array_keys($keys) !== $keys;
-	}
-
-	/**
-	 * Get a subset of the items from the given array.
-	 *
-	 * @param array        $array
-	 * @param array|string $keys
-	 *
-	 * @return array
-	 */
-	public static function only(array $array, $keys): array
-	{
-		return array_intersect_key($array, array_flip((array) $keys));
+		return array_merge(...$result);
 	}
 
 	/**
@@ -610,7 +572,7 @@ class Arr
 			return $items;
 		}
 
-		if ($items instanceof Collection) {
+		if ($items instanceof Collection || $items instanceof RepositoryInterface) {
 			$items = $items->all();
 		} else if (method_exists($items, 'toArray')) {
 			$items = $items->toArray();
@@ -687,9 +649,9 @@ class Arr
 	 *
 	 * @return array
 	 */
-	public static function merge(array &$first, array &$second): array
+	public static function merge(array $first, array $second): array
 	{
-		$merged = $first;
+		$merged = &$first;
 
 		foreach ($second as $key => &$value) {
 			if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
@@ -781,6 +743,39 @@ class Arr
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Determines if an array is associative.
+	 *
+	 * An array is "associative" if it doesn't have sequential numerical keys
+	 * beginning with zero.
+	 *
+	 * @param array $array
+	 *
+	 * @return bool
+	 */
+	public static function isAssoc($array): bool
+	{
+		if (!is_array($array)) {
+			return false;
+		}
+
+		$keys = array_keys($array);
+
+		return array_keys($keys) !== $keys;
+	}
+
+	/**
+	 * Determine whether the given value is array accessible.
+	 *
+	 * @param mixed $value
+	 *
+	 * @return bool
+	 */
+	public static function accessible($value): bool
+	{
+		return is_array($value) || $value instanceof ArrayAccess;
 	}
 
 }
