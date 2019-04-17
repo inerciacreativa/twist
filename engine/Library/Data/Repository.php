@@ -2,7 +2,10 @@
 
 namespace Twist\Library\Data;
 
+use ArrayAccess;
 use ArrayIterator;
+use InvalidArgumentException;
+use Traversable;
 use Twist\Library\Util\Arr;
 
 /**
@@ -16,14 +19,18 @@ class Repository implements RepositoryInterface
 	/**
 	 * @var array
 	 */
-	private $items = [];
+	protected $items = [];
 
 	/**
-	 * @inheritdoc
+	 * Repository constructor.
+	 *
+	 * @param array $values
 	 */
-	public function count(): int
+	public function __construct(array $values = [])
 	{
-		return count($this->items);
+		if (!empty($values)) {
+			$this->set($values);
+		}
 	}
 
 	/**
@@ -45,7 +52,7 @@ class Repository implements RepositoryInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function has(string $key): bool
+	public function has($key): bool
 	{
 		return Arr::has($this->items, $key);
 	}
@@ -53,9 +60,16 @@ class Repository implements RepositoryInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function add(string $key, $value): self
+	public function add($key, $value = null): self
 	{
-		$this->items = Arr::add($this->items, $key, $value);
+		if (is_string($key)) {
+			$this->items = Arr::add($this->items, $key, $value);
+		} else {
+			$values = self::getValues($key);
+			foreach ($values as $k => $v) {
+				$this->add($k, $v);
+			}
+		}
 
 		return $this;
 	}
@@ -63,11 +77,36 @@ class Repository implements RepositoryInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function set(string $key, $value): self
+	public function set($key, $value = null): self
 	{
-		Arr::set($this->items, $key, $value);
+		if (is_string($key)) {
+			Arr::set($this->items, $key, $value);
+		} else {
+			$values = self::getValues($key);
+			foreach ($values as $k => $v) {
+				$this->set($k, $v);
+			}
+		}
 
 		return $this;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function forget($key): self
+	{
+		Arr::forget($this->items, $key);
+
+		return $this;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function pull(string $key, $default = null)
+	{
+		return Arr::pull($this->items, $key, $default);
 	}
 
 	/**
@@ -75,7 +114,12 @@ class Repository implements RepositoryInterface
 	 */
 	public function fill($values): self
 	{
-		Arr::map(static::getValues($values), [$this, 'set']);
+		$values = self::getValues($values);
+		foreach ($values as $key => $value) {
+			if ($this->has($key)) {
+				$this->set($key, $value);
+			}
+		}
 
 		return $this;
 	}
@@ -83,15 +127,20 @@ class Repository implements RepositoryInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function forget($keys): self
+	public function merge(array $values): self
 	{
-		Arr::forget($this->items, $keys);
+		$values = self::getItems($values);
+		Arr::merge($this->items, $values);
 
 		return $this;
 	}
 
 	/**
-	 * @inheritdoc
+	 * Determine if an item exists.
+	 *
+	 * @param string $key
+	 *
+	 * @return bool
 	 */
 	public function offsetExists($key): bool
 	{
@@ -99,7 +148,11 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Get an item.
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed
 	 */
 	public function offsetGet($key)
 	{
@@ -107,15 +160,28 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Set the item to a given value.
+	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 *
+	 * @return void
 	 */
 	public function offsetSet($key, $value): void
 	{
+		if (empty($key)) {
+			throw new InvalidArgumentException('No key was specified.');
+		}
+
 		$this->set($key ?: $this->count(), $value);
 	}
 
 	/**
-	 * @inheritdoc
+	 * Unset the item.
+	 *
+	 * @param string $key
+	 *
+	 * @return void
 	 */
 	public function offsetUnset($key): void
 	{
@@ -123,7 +189,17 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @return int
+	 */
+	public function count(): int
+	{
+		return count($this->items);
+	}
+
+	/**
+	 * Get an iterator for the items.
+	 *
+	 * @return ArrayIterator
 	 */
 	public function getIterator(): ArrayIterator
 	{
@@ -131,13 +207,39 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
-	 * @param array|mixed $values
+	 * @param array|object $items
 	 *
 	 * @return array
 	 */
-	protected static function getValues($values): array
+	protected static function getValues($items): array
 	{
-		return Arr::dot(Arr::items($values));
+		return Arr::dot(self::getItems($items));
+	}
+
+	/**
+	 * @param mixed $items
+	 *
+	 * @return array
+	 */
+	protected static function getItems($items): array
+	{
+		if (is_array($items)) {
+			return $items;
+		}
+
+		if ($items instanceof self || $items instanceof Collection) {
+			return $items->all();
+		}
+
+		if ($items instanceof ArrayAccess) {
+			return (array) $items;
+		}
+
+		if ($items instanceof Traversable) {
+			return iterator_to_array($items);
+		}
+
+		throw new InvalidArgumentException('Unable to get items.');
 	}
 
 }

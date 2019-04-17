@@ -1,4 +1,5 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
 
 namespace Twist\Library\Data;
 
@@ -28,30 +29,45 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function get(string $key, $default = null);
 
 	/**
-	 * @param string $key
+	 * @param string|array $key
 	 *
 	 * @return bool
 	 */
-	public function has(string $key): bool;
+	public function has($key): bool;
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param string|array|object $key
+	 * @param mixed               $value
 	 *
 	 * @return $this
 	 */
-	public function add(string $key, $value);
+	public function add($key, $value = null);
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param string|array|object $key
+	 * @param mixed               $value
 	 *
 	 * @return $this
 	 */
-	public function set(string $key, $value);
+	public function set($key, $value = null);
 
 	/**
-	 * Fill the options with an array or object values.
+	 * @param string|array $key
+	 *
+	 * @return $this
+	 */
+	public function forget($key);
+
+	/**
+	 * @param string $key
+	 * @param mixed  $default
+	 *
+	 * @return mixed
+	 */
+	public function pull(string $key, $default = null);
+
+	/**
+	 * Overwrites the values that already exists in the repository using "dot" notation.
 	 *
 	 * @param array|mixed $values
 	 *
@@ -60,10 +76,10 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function fill($values);
 
 	/**
-	 * @param array|string $keys
+	 * @param array $values
 	 *
 	 * @return $this
 	 */
-	public function forget($keys);
+	public function merge(array $values);
 
 }
