@@ -190,9 +190,9 @@ class Comment extends Model
 		}
 
 		if ($this->author()->exists()) {
+			$author = Str::lower(Str::toAscii($this->author()->name()));
 			$classes->add('by-user');
-			$classes->add('by-author-' . sanitize_html_class($this->author()
-			                                                      ->name(), $this->author()
+			$classes->add('by-author-' . sanitize_html_class($author, $this->author()
 			                                                                     ->id()));
 
 			if ($this->author()->id() === $this->post()->author()->id()) {
