@@ -3,9 +3,9 @@
 namespace Twist\View\Twig;
 
 use Throwable;
-use Twig_Environment;
-use Twig_Extension_Debug;
-use Twig_Loader_Filesystem;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+use Twig\Extension\DebugExtension;
 use Twist\App\AppException;
 use Twist\View\View;
 
@@ -18,12 +18,12 @@ class TwigView extends View
 {
 
 	/**
-	 * @var Twig_Loader_Filesystem
+	 * @var FilesystemLoader
 	 */
 	protected $loader;
 
 	/**
-	 * @var Twig_Environment
+	 * @var Environment
 	 */
 	protected $environment;
 
@@ -32,8 +32,8 @@ class TwigView extends View
 	 */
 	protected function init(): void
 	{
-		$this->loader      = new Twig_Loader_Filesystem($this->config->get('view.paths', []));
-		$this->environment = new Twig_Environment($this->loader, [
+		$this->loader      = new FilesystemLoader($this->config->get('view.paths', []));
+		$this->environment = new Environment($this->loader, [
 			'cache'       => $this->config->get('view.cache', false),
 			'debug'       => $this->config->get('app.debug', false),
 			'auto_reload' => true,
@@ -42,7 +42,7 @@ class TwigView extends View
 		$this->environment->addExtension(new TwigExtension());
 
 		if ($this->config->get('app.debug')) {
-			$this->environment->addExtension(new Twig_Extension_Debug());
+			$this->environment->addExtension(new DebugExtension());
 		}
 	}
 

@@ -3,16 +3,16 @@
 namespace Twist\View\Twig;
 
 use Kint;
-use Twig_Extension;
-use Twig_Filter;
-use Twig_SimpleFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 /**
  * Class TwigExtension
  *
  * @package Twist\View\Twig
  */
-class TwigExtension extends Twig_Extension
+class TwigExtension extends AbstractExtension
 {
 
 	/**
@@ -29,7 +29,7 @@ class TwigExtension extends Twig_Extension
 	public function getFilters(): array
 	{
 		return [
-			new Twig_Filter('classes', static function (array $classes) {
+			new TwigFilter('classes', static function (array $classes) {
 				return implode(' ', array_filter($classes));
 			}),
 		];
@@ -41,10 +41,10 @@ class TwigExtension extends Twig_Extension
 	public function getFunctions(): array
 	{
 		return [
-			new Twig_SimpleFunction('kint', static function ($debug) {
+			new TwigFunction('kint', static function ($debug) {
 				Kint::dump($debug);
 			}, ['is_safe' => ['html']]),
-			new Twig_SimpleFunction('__', static function (string $string) {
+			new TwigFunction('__', static function (string $string) {
 				$translation = __($string, 'twist');
 
 				if (func_num_args() > 1) {
@@ -55,7 +55,7 @@ class TwigExtension extends Twig_Extension
 
 				return $translation;
 			}, ['is_safe' => ['html']]),
-			new Twig_SimpleFunction('_x', static function (string $string, string $context) {
+			new TwigFunction('_x', static function (string $string, string $context) {
 				$translation = _x($string, $context, 'twist');
 
 				if (func_num_args() > 2) {
@@ -67,12 +67,12 @@ class TwigExtension extends Twig_Extension
 
 				return $translation;
 			}, ['is_safe' => ['html']]),
-			new Twig_SimpleFunction('_n', static function (string $single, string $plural, $number) {
+			new TwigFunction('_n', static function (string $single, string $plural, $number) {
 				$translation = _n($single, $plural, $number, 'twist');
 
 				return sprintf($translation, $number);
 			}, ['is_safe' => ['html']]),
-			new Twig_SimpleFunction('_nx', static function (string $single, string $plural, $number, string $context) {
+			new TwigFunction('_nx', static function (string $single, string $plural, $number, string $context) {
 				$translation = _nx($single, $plural, $number, $context, 'twist');
 
 				return sprintf($translation, $number);
