@@ -4,7 +4,7 @@ namespace Twist\App;
 
 use Closure;
 use Twist\Library\Data\Collection;
-use Twist\Library\Hook\Hookable;
+use Twist\Library\Hook\HookDecorator;
 use Twist\Library\Html\Tag;
 use Twist\Library\Util\Arr;
 use Twist\Library\Util\Data;
@@ -20,7 +20,7 @@ use Twist\View\Twig\TwigView;
 class Theme
 {
 
-	use Hookable;
+	use HookDecorator;
 
 	/**
 	 * @var App

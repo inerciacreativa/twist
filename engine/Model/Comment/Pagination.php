@@ -3,7 +3,7 @@
 namespace Twist\Model\Comment;
 
 use Twist\App\AppException;
-use Twist\Library\Hook\Hookable;
+use Twist\Library\Hook\HookDecorator;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Pagination as BasePagination;
 use Twist\Model\Post\Query;
@@ -17,7 +17,7 @@ use WP_Rewrite;
 class Pagination extends BasePagination
 {
 
-	use Hookable;
+	use HookDecorator;
 
 	/**
 	 * @var int

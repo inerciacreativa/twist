@@ -3,11 +3,11 @@
 namespace Twist\Library\Hook;
 
 /**
- * Class HookDecorator
+ * Trait HookDecorator
  *
  * @package Twist\Library\Hook
  */
-trait Hookable
+trait HookDecorator
 {
 
 	/**

@@ -3,7 +3,7 @@
 namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
-use Twist\Library\Hook\Hookable;
+use Twist\Library\Hook\HookDecorator;
 use Twist\Library\Util\Str;
 use Twist\Model\Site\Site;
 
@@ -15,7 +15,7 @@ use Twist\Model\Site\Site;
 class ElementsParser
 {
 
-	use Hookable;
+	use HookDecorator;
 
 	/**
 	 * @var ElementsInterface[]
