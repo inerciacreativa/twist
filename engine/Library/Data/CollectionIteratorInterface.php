@@ -12,7 +12,7 @@ use Serializable;
  *
  * @package Twist\Library\Data
  */
-interface CollectionIteratorInterface extends ArrayAccess,Countable, SeekableIterator, Serializable
+interface CollectionIteratorInterface extends ArrayAccess, Countable, SeekableIterator, Serializable
 {
 
 }
