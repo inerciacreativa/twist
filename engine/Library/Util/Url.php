@@ -91,6 +91,13 @@ class Url
 				unset($components[$key]);
 			}
 
+			// Check for non US-ASCII chars in the path
+			// It may fail to parse, so
+			// encode each part of the path if necessary
+			if (array_key_exists('path', $components) && !preg_match('/^[[:graph:]]+$/', $url)) {
+				$components['path'] = static::encodePath($components, $url);
+			}
+
 			if (array_key_exists('query', $components)) {
 				parse_str($components['query'], $query);
 				$components['query'] = $query;
@@ -102,6 +109,35 @@ class Url
 		}
 
 		$this->components = array_merge(static::$defaults, $components);
+	}
+
+	/**
+	 * @param array  $components
+	 * @param string $url
+	 *
+	 * @return string
+	 */
+	protected static function encodePath(array $components, string $url): string
+	{
+		if (array_key_exists('fragment', $components)) {
+			$url = str_replace('#' . $components['fragment'], '', $url);
+		}
+
+		if (array_key_exists('query', $components)) {
+			$url = str_replace('?' . $components['query'], '', $url);
+		}
+
+		$path   = explode('/', trim($components['path'], '/'));
+		$source = explode('/', trim($url, '/'));
+
+		return array_reduce(array_reverse($path), static function ($result, $part) use (&$source) {
+			$slug = array_pop($source);
+			if ($part !== $slug) {
+				$part = urlencode($slug);
+			}
+
+			return "/$part$result";
+		}, '');
 	}
 
 	/**
