@@ -83,7 +83,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 	 *
 	 * @return Collection
 	 */
-	public function flatten(int $depth = INF): Collection
+	public function flatten(int $depth = PHP_INT_MAX): Collection
 	{
 		return new static(Arr::flatten($this->items, $depth));
 	}
@@ -206,6 +206,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 	public function set(int $index, $value)
 	{
 		if (is_array($value)) {
+			/** @noinspection AdditionOperationOnArraysInspection */
 			$this->items = array_slice($this->items, 0, $index) + $value + array_slice($this->items, $index);
 		} else {
 			array_splice($this->items, $index, 0, $value);
@@ -501,6 +502,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 	 */
 	public function union($items): Collection
 	{
+		/** @noinspection AdditionOperationOnArraysInspection */
 		return new static($this->items + Arr::items($items));
 	}
 
@@ -651,6 +653,34 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 	public function sortByDesc($callback, int $options = SORT_REGULAR): Collection
 	{
 		return $this->sortBy($callback, $options, true);
+	}
+
+	/**
+	 * Sort the collection keys.
+	 *
+	 * @param int  $options
+	 * @param bool $descending
+	 *
+	 * @return static
+	 */
+	public function sortKeys(int $options = SORT_REGULAR, bool $descending = false)
+	{
+		$items = $this->items;
+		$descending ? krsort($items, $options) : ksort($items, $options);
+
+		return new static($items);
+	}
+
+	/**
+	 * Sort the collection keys in descending order.
+	 *
+	 * @param int $options
+	 *
+	 * @return static
+	 */
+	public function sortKeysDesc(int $options = SORT_REGULAR)
+	{
+		return $this->sortKeys($options, true);
 	}
 
 	/**
@@ -881,13 +911,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 	/**
 	 * Reverse items order.
 	 *
-	 * @param bool $preserveKeys
-	 *
 	 * @return Collection
 	 */
-	public function reverse(bool $preserveKeys = true): Collection
+	public function reverse(): Collection
 	{
-		return new static(array_reverse($this->items, $preserveKeys));
+		return new static(array_reverse($this->items, true));
 	}
 
 	/**
@@ -913,7 +941,21 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 			}
 
 			$exists[] = $id;
+
+			return false;
 		});
+	}
+
+	/**
+	 * Return only unique items from the collection array using strict comparison.
+	 *
+	 * @param string|callable|null $key
+	 *
+	 * @return static
+	 */
+	public function uniqueStrict($key = null)
+	{
+		return $this->unique($key, true);
 	}
 
 	/**
@@ -1347,4 +1389,5 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 			}
 		};
 	}
+
 }
