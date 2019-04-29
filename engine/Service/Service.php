@@ -4,7 +4,7 @@ namespace Twist\Service;
 
 use Twist\App\App;
 use Twist\App\Config;
-use Twist\Library\Hook\HookDecorator;
+use Twist\Library\Hook\Hookable;
 use Twist\Library\Util\Str;
 
 /**
@@ -15,7 +15,7 @@ use Twist\Library\Util\Str;
 abstract class Service implements ServiceInterface
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * @var App
