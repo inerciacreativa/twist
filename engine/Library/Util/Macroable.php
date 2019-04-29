@@ -6,7 +6,7 @@ use BadMethodCallException;
 use Closure;
 
 /**
- * Class Macro
+ * Trait Macroable
  *
  * @package Twist\Library\Util
  */
@@ -28,7 +28,7 @@ trait Macroable
 	 *
 	 * @return void
 	 */
-	public static function macro($name, callable $macro): void
+	public static function macro(string $name, callable $macro): void
 	{
 		static::$macros[$name] = $macro;
 	}
@@ -40,7 +40,7 @@ trait Macroable
 	 *
 	 * @return bool
 	 */
-	public static function hasMacro($name): bool
+	public static function hasMacro(string $name): bool
 	{
 		return isset(static::$macros[$name]);
 	}
@@ -55,11 +55,10 @@ trait Macroable
 	 *
 	 * @throws BadMethodCallException
 	 */
-	public static function __callStatic($method, $parameters)
+	public static function __callStatic(string $method, array $parameters)
 	{
 		if (!static::hasMacro($method)) {
 			throw new BadMethodCallException("Method {$method} does not exist.");
-
 		}
 
 		if (static::$macros[$method] instanceof Closure) {
@@ -79,14 +78,13 @@ trait Macroable
 	 *
 	 * @throws BadMethodCallException
 	 */
-	public function __call($method, $parameters)
+	public function __call(string $method, array $parameters)
 	{
 		if (!static::hasMacro($method)) {
 			throw new BadMethodCallException("Method {$method} does not exist.");
-
 		}
 
-		$callable = static::$macros[$method];
+		$callable = &static::$macros[$method];
 
 		if ($callable instanceof Closure) {
 			return call_user_func_array($callable->bindTo($this, get_class($this)), $parameters);
