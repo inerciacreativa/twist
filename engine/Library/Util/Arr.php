@@ -3,6 +3,7 @@
 namespace Twist\Library\Util;
 
 use ArrayAccess;
+use InvalidArgumentException;
 use Traversable;
 use Twist\Library\Data\Collection;
 use Twist\Library\Data\RepositoryInterface;
@@ -629,15 +630,26 @@ class Arr
 	/**
 	 * @param array $defaults
 	 * @param array $values
+	 * @param array $required
 	 *
 	 * @return array
 	 */
-	public static function defaults(array $defaults, array $values): array
+	public static function defaults(array $defaults, array $values, array $required = []): array
 	{
 		$result = [];
 
 		foreach ($defaults as $key => $value) {
 			$result[$key] = $values[$key] ?? $value;
+		}
+
+		foreach ($required as $key) {
+			if (array_key_exists($key, $values)) {
+				$result[$key] = $values[$key];
+			}
+		}
+
+		if ($required && ($missing = array_diff($required, array_keys($result)))) {
+			throw new InvalidArgumentException('Values does not contain the following keys: ' . implode(', ', $missing));
 		}
 
 		return $result;
