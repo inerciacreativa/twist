@@ -35,7 +35,7 @@ class Json
 	 * @param int    $depth
 	 * @param int    $options
 	 *
-	 * @return array|mixed|object
+	 * @return array|object
 	 */
 	public static function decode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
 	{
