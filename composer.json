@@ -20,10 +20,9 @@
   "require": {
     "php": ">=7.2",
     "ext-dom": "*",
+    "ext-json": "*",
     "ext-libxml": "*",
     "ext-simplexml": "*",
-    "ext-json": "*",
-    "ext-apache": "*",
     "composer/installers": "^1.5",
     "pimple/pimple": "^3.0",
     "twig/twig": "^2.7"
