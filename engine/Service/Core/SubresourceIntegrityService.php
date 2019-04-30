@@ -4,8 +4,8 @@ namespace Twist\Service\Core;
 
 use Twist\App\App;
 use Twist\Library\Data\Cache;
-use Twist\Library\Util\Arr;
-use Twist\Library\Util\Url;
+use Twist\Library\Support\Arr;
+use Twist\Library\Support\Url;
 use Twist\Model\Post\Query;
 use Twist\Service\Service;
 

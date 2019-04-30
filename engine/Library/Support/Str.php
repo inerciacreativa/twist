@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Support;
 
 /**
  * Class Str
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Support
  */
 class Str
 {

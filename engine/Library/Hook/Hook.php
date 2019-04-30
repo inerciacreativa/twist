@@ -4,8 +4,8 @@ namespace Twist\Library\Hook;
 
 use Closure;
 use RuntimeException;
-use Twist\Library\Util\Arr;
-use Twist\Library\Util\Data;
+use Twist\Library\Support\Arr;
+use Twist\Library\Support\Data;
 
 /**
  * Class Hooks

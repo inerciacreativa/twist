@@ -1,11 +1,11 @@
 <?php
 
-namespace Twist\Library\Util\Limiter;
+namespace Twist\Library\Support\Limiter;
 
 /**
  * Class WordsResolver
  *
- * @package Twist\Library\Util\Limiter
+ * @package Twist\Library\Support\Limiter
  */
 class WordsResolver implements LimiterResolverInterface
 {

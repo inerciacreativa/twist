@@ -1,18 +1,18 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Support;
 
 use DOMNode;
 use DOMText;
-use Twist\Library\Util\Limiter\LimiterResolverInterface;
-use Twist\Library\Util\Limiter\LettersResolver;
-use Twist\Library\Util\Limiter\WordsResolver;
+use Twist\Library\Support\Limiter\LimiterResolverInterface;
+use Twist\Library\Support\Limiter\LettersResolver;
+use Twist\Library\Support\Limiter\WordsResolver;
 use Twist\Library\Dom\Document;
 
 /**
  * Class TextLimiter
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Support
  */
 class Limiter
 {

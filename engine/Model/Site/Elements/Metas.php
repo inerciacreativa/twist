@@ -6,7 +6,7 @@ use Twist\Library\Dom\Document;
 use Twist\Library\Dom\Element;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
-use Twist\Library\Util\Str;
+use Twist\Library\Support\Str;
 
 /**
  * Class Metas

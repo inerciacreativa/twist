@@ -3,7 +3,7 @@
 namespace Twist\App;
 
 use Twist\Library\Data\JsonFile;
-use Twist\Library\Util\Url;
+use Twist\Library\Support\Url;
 
 /**
  * Class Asset

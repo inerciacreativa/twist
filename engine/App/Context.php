@@ -2,7 +2,7 @@
 
 namespace Twist\App;
 
-use Twist\Library\Util\Data;
+use Twist\Library\Support\Data;
 use Twist\Service\Service;
 
 /**

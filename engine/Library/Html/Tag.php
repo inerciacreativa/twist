@@ -7,12 +7,12 @@ use Closure;
 use Exception;
 use InvalidArgumentException;
 use SimpleXMLElement;
-use Twist\Library\Util\Arr;
+use Twist\Library\Support\Arr;
 
 /**
  * Class Tag
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Html
  *
  * @method static Tag a($attributes = [], $content = null)
  * @method static Tag abbr($attributes = [], $content = null)

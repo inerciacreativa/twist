@@ -5,7 +5,7 @@ namespace Twist\Model\Post;
 use Twist\App\App;
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
-use Twist\Library\Util\Arr;
+use Twist\Library\Support\Arr;
 use Twist\Model\Base\IterableInterface;
 use WP_Query;
 

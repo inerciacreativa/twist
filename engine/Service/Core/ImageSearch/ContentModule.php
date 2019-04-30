@@ -3,7 +3,7 @@
 namespace Twist\Service\Core\ImageSearch;
 
 use Twist\Library\Dom\Element;
-use Twist\Library\Util\Url;
+use Twist\Library\Support\Url;
 
 /**
  * Class ContentModule

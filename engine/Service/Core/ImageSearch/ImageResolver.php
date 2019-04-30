@@ -4,7 +4,7 @@ namespace Twist\Service\Core\ImageSearch;
 
 use Twist\App\AppException;
 use Twist\Library\Dom\Document;
-use Twist\Library\Util\Url;
+use Twist\Library\Support\Url;
 use Twist\Model\Image\Image;
 use Twist\Model\Post\Post;
 

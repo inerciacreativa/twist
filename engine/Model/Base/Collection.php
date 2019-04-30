@@ -3,8 +3,8 @@
 namespace Twist\Model\Base;
 
 use Twist\Library\Data\Collection as DataCollection;
-use Twist\Library\Util\Arr;
-use Twist\Library\Util\Data;
+use Twist\Library\Support\Arr;
+use Twist\Library\Support\Data;
 
 /**
  * Class Collection

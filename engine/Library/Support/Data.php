@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Support;
 
 use Closure;
 use Twist\Library\Data\Collection;
@@ -8,7 +8,7 @@ use Twist\Library\Data\Collection;
 /**
  * Class Data
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Support
  */
 class Data
 {

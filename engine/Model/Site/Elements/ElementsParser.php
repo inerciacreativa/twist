@@ -4,7 +4,7 @@ namespace Twist\Model\Site\Elements;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hookable;
-use Twist\Library\Util\Str;
+use Twist\Library\Support\Str;
 use Twist\Model\Site\Site;
 
 /**

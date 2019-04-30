@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Support;
 
 use BadMethodCallException;
 use Closure;
@@ -8,7 +8,7 @@ use Closure;
 /**
  * Trait Macroable
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Support
  */
 trait Macroable
 {

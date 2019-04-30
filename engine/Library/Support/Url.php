@@ -1,13 +1,13 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Support;
 
 use InvalidArgumentException;
 
 /**
  * Class Url
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Support
  *
  * @property string $scheme
  * @property string $host

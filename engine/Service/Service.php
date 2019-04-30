@@ -5,7 +5,7 @@ namespace Twist\Service;
 use Twist\App\App;
 use Twist\App\Config;
 use Twist\Library\Hook\Hookable;
-use Twist\Library\Util\Str;
+use Twist\Library\Support\Str;
 
 /**
  * Class Service

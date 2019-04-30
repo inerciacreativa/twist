@@ -8,7 +8,7 @@ use DOMNode;
 use DOMNodeList;
 use DOMXPath;
 use Twist\Library\Html\Tag;
-use Twist\Library\Util\Str;
+use Twist\Library\Support\Str;
 
 /**
  * Class Document

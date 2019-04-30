@@ -2,7 +2,7 @@
 
 namespace Twist\Library\Hook;
 
-use Twist\Library\Util\Arr;
+use Twist\Library\Support\Arr;
 
 /**
  * Class Action

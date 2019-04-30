@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Support;
 
 use ArrayAccess;
 use InvalidArgumentException;
@@ -11,7 +11,7 @@ use Twist\Library\Data\RepositoryInterface;
 /**
  * Class Arr
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Support
  */
 class Arr
 {

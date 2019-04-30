@@ -4,7 +4,7 @@ namespace Twist\Model\Site;
 
 use Twist\App\AppException;
 use Twist\Library\Html\Classes;
-use Twist\Library\Util\Macroable;
+use Twist\Library\Support\Macroable;
 use Twist\Model\Navigation\Links;
 use Twist\Model\Navigation\Navigation;
 use Twist\Model\Navigation\Pagination;

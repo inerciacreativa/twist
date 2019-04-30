@@ -3,7 +3,7 @@
 namespace Twist\App;
 
 use Twist\Library\Data\Repository;
-use Twist\Library\Util\Data;
+use Twist\Library\Support\Data;
 
 /**
  * Class Config

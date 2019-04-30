@@ -4,7 +4,7 @@ namespace Twist\Model\User;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
-use Twist\Library\Util\Str;
+use Twist\Library\Support\Str;
 use Twist\Model\Post\Query;
 use WP_User;
 

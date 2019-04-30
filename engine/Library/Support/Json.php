@@ -1,13 +1,13 @@
 <?php
 
-namespace Twist\Library\Util;
+namespace Twist\Library\Support;
 
 use InvalidArgumentException;
 
 /**
  * Class Json
  *
- * @package Twist\Library\Util
+ * @package Twist\Library\Support
  */
 class Json
 {

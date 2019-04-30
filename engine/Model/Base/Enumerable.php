@@ -4,7 +4,7 @@ namespace Twist\Model\Base;
 
 use ArrayIterator;
 use Countable;
-use Twist\Library\Util\Data;
+use Twist\Library\Support\Data;
 
 /**
  * Class Enumerator

@@ -3,7 +3,7 @@
 namespace Twist\Service\Core\ImageSearch;
 
 use ic\Framework\Api\Client\VimeoClient;
-use Twist\Library\Util\Arr;
+use Twist\Library\Support\Arr;
 
 /**
  * Class VimeoModule

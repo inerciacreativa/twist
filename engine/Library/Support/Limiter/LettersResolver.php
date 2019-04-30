@@ -1,13 +1,13 @@
 <?php
 
-namespace Twist\Library\Util\Limiter;
+namespace Twist\Library\Support\Limiter;
 
-use Twist\Library\Util\Str;
+use Twist\Library\Support\Str;
 
 /**
  * Class LettersResolver
  *
- * @package Twist\Library\Util\Limiter
+ * @package Twist\Library\Support\Limiter
  */
 class LettersResolver implements LimiterResolverInterface
 {
