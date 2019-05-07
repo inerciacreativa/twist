@@ -1,0 +1,23 @@
+{
+  "path": {
+    "public": "/app/themes/twist"
+  },
+  "entry": {
+    "app": [
+      "styles/app.scss",
+      "scripts/app.js"
+    ]
+  },
+  "watch": {
+    "proxy": "https://localhost:3000",
+    "url": "https://twist.dev",
+    "files": [
+      "functions.php",
+      "redukt.json",
+      "templates/**/*.twig"
+    ]
+  },
+  "jquery": {
+    "enabled": true
+  }
+}

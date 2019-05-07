@@ -1,78 +1,32 @@
 {
   "name": "twist",
-  "version": "1.1.0",
-  "author": "Jose Cuesta <jose.cuesta@inerciacreativa.com>",
-  "homepage": "https://inerciacreativa.com/",
+  "version": "1.0.0",
+  "description": "WordPress theme that uses Twig as the template engine.",
+  "keywords": [
+    "wordpress",
+    "wordpress-theme",
+    "webpack"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/inerciacreativa/twist",
   "repository": {
     "type": "git",
-    "url": "git://github.com/inerciacreativa/twist.git"
+    "url": "https://github.com/inerciacreativa/twist.git"
   },
-  "bugs": {
-    "url": "https://github.com/inerciacreativa/twist/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://opensource.org/licenses/MIT"
-    }
-  ],
-  "scripts": {
-    "start": "webpack --hide-modules --watch --config source/build/webpack.config.js",
-    "build": "webpack --progress --config source/build/webpack.config.js",
-    "build:production": "webpack --progress -p --config source/build/webpack.config.js",
-    "clear": "rimraf assets/*",
-    "lint:js": "eslint source/scripts source/build",
-    "lint:css": "stylelint 'source/styles/**/*'"
+  "bugs":  "https://github.com/inerciacreativa/twist/issues",
+  "author": {
+    "name": "Jose Cuesta",
+    "email": "jose.cuesta@inerciacreativa.com",
+    "url": "https://inerciacreativa.com/"
   },
   "engines": {
-    "node": ">= 6.9.4 || >= 8.9.0"
+    "node": ">= 6.9.4 || >= 8.7.0"
   },
   "devDependencies": {
-    "autoprefixer": "^9.5.0",
-    "browser-sync": "^2.26.3",
-    "browsersync-webpack-plugin": "^0.6.0",
-    "bs-html-injector": "^3.0.3",
-    "buble": "^0.19.7",
-    "buble-loader": "^0.5.1",
-    "clean-webpack-plugin": "^1.0.1",
-    "copy-globs-webpack-plugin": "^0.2.0",
-    "css-loader": "^0.28.11",
-    "cssnano": "^4.1.10",
-    "eslint": "^5.15.3",
-    "eslint-loader": "^2.1.2",
-    "eslint-plugin-import": "^2.16.0",
-    "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^2.0.0",
-    "friendly-errors-webpack-plugin": "^1.7.0",
-    "ifdef-loader": "^2.1.1",
-    "imagemin-mozjpeg": "^8.0.0",
-    "imagemin-webpack-plugin": "^2.4.2",
-    "import-glob": "^1.5.0",
-    "less": "^3.9.0",
-    "less-loader": "^4.1.0",
-    "node-sass": "^4.11.0",
-    "postcss-loader": "^3.0.0",
-    "postcss-safe-parser": "^4.0.1",
-    "resolve-url-loader": "^3.0.1",
-    "rimraf": "^2.6.3",
-    "sass-loader": "^7.1.0",
-    "style-loader": "^0.23.1",
-    "stylelint": "^9.10.1",
-    "stylelint-config-standard": "^18.2.0",
-    "stylelint-scss": "^3.5.4",
-    "stylelint-webpack-plugin": "https://github.com/inerciacreativa/stylelint-webpack-plugin",
-    "upath": "^1.1.2",
-    "url-loader": "^1.1.2",
-    "webpack": "^3.12.0",
-    "webpack-assets-manifest": "^1.0.0",
-    "webpack-dev-middleware": "^2.0.6",
-    "webpack-hot-middleware": "^2.24.3",
-    "webpack-merge": "^4.2.1",
-    "workbox-webpack-plugin": "^3.6.3",
-    "yargs": "^13.2.2"
+    "redukt": "^1.0.1"
   },
   "dependencies": {
-    "jquery": "3.3.1",
+    "jquery": "^3.4.1",
     "popper.js": "^1.14.4"
   }
 }
