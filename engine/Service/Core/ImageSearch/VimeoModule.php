@@ -2,7 +2,8 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
-use ic\Framework\Api\Client\VimeoClient;
+use RuntimeException;
+use Twist\Library\Api\Client\VimeoClient;
 use Twist\Library\Support\Arr;
 
 /**
@@ -34,7 +35,11 @@ class VimeoModule extends VideoModule
 	 */
 	protected function getImage(string $id, int $width): ?array
 	{
-		$video = (new VimeoClient())->getVideo($id);
+		try {
+			$video = (new VimeoClient())->getVideo($id);
+		} catch (RuntimeException $exception) {
+			return null;
+		}
 
 		if ($video === null || !isset($video->pictures->sizes)) {
 			return null;

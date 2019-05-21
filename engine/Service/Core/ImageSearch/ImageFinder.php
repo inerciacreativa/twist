@@ -43,7 +43,7 @@ class ImageFinder
 
 	/**
 	 * @param string $module
-	 * @param bool $check
+	 * @param bool   $check
 	 *
 	 * @return $this
 	 */
@@ -57,9 +57,9 @@ class ImageFinder
 	}
 
 	/**
-	 * @param ImageResolver     $resolver
-	 * @param bool $allModules
-	 * @param bool $allImages
+	 * @param ImageResolver $resolver
+	 * @param bool          $allModules
+	 * @param bool          $allImages
 	 *
 	 * @return Image|null
 	 */

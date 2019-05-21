@@ -2,7 +2,8 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
-use ic\Framework\Api\Client\YouTubeClient;
+use RuntimeException;
+use Twist\Library\Api\Client\YouTubeClient;
 use Twist\Library\Support\Arr;
 
 /**
@@ -35,7 +36,11 @@ class YouTubeModule extends VideoModule
 	 */
 	protected function getImage(string $id, int $width): ?array
 	{
-		$data = (new YouTubeClient())->getVideo($id);
+		try {
+			$data = (new YouTubeClient())->getVideo($id);
+		} catch (RuntimeException $exception) {
+			return null;
+		}
 
 		if ($data === null || !isset($data->items[0]->snippet)) {
 			return null;

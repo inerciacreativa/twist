@@ -2,8 +2,7 @@
 
 namespace Twist\Service\Core\ImageSearch;
 
-use Exception;
-use ic\Framework\Api\Api;
+use Twist\Library\Api\Api;
 use Twist\Model\Site\Site;
 
 /**
@@ -32,12 +31,10 @@ class TedModule extends VideoModule
 
 	/**
 	 * @inheritdoc
-	 *
-	 * @throws Exception
 	 */
 	protected function getImage(string $id, int $width): ?array
 	{
-		$data = (new Api('Ted', 'http://www.ted.com/'))->get('services/v1/oembed.json', [
+		$data = Api::create('Ted', 'http://www.ted.com/')->get('services/v1/oembed.json', [
 			'url'      => 'http://embed.ted.com/talks/' . $id,
 			'maxwidth' => $width,
 			'language' => explode('-', Site::language())[0],
