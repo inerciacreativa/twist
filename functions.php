@@ -29,12 +29,20 @@ Twist::theme()
 			     'comments'   => true,
 		     ],
 		     ThumbnailGeneratorService::id()   => [
-			     'enable' => true,
+			     'enable'      => true,
+			     'modules'     => [],
 		     ],
 		     SubresourceIntegrityService::id() => [
 			     'script'    => false,
 			     'style'     => false,
 			     'algorithm' => 'sha265',
+		     ],
+	     ],
+	     'credentials' => [
+		     'youtube' => ['key' => ''],
+		     'vimeo'   => [
+			     'id'     => '',
+			     'secret' => '',
 		     ],
 	     ],
      ])
