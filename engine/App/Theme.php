@@ -136,7 +136,7 @@ class Theme
 		$this->sidebars = new Collection();
 
 		$this->hook()
-		     ->before('after_setup_theme', 'boot')
+		     ->before(App::BOOT, 'boot')
 		     ->on('show_admin_bar', '__return_false')
 		     ->on('user_contactmethods', 'addContactMethods')
 		     ->on('wp_enqueue_scripts', 'addStyles')
@@ -405,9 +405,7 @@ class Theme
 	}
 
 	/**
-	 * @throws \InvalidArgumentException
-	 * @throws \RuntimeException
-	 * @throws \Pimple\Exception\FrozenServiceException
+	 * Start application.
 	 */
 	protected function boot(): void
 	{
@@ -482,10 +480,6 @@ class Theme
 
 	/**
 	 * Adds service providers.
-	 *
-	 * @throws \InvalidArgumentException
-	 * @throws \RuntimeException
-	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
 	protected function addServices(): void
 	{
