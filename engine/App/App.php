@@ -41,8 +41,6 @@ class App extends Container
 	 * @param bool     $boot
 	 *
 	 * @return $this
-	 *
-	 * @throws \RuntimeException
 	 */
 	public function service($id, $service, $boot = false): self
 	{
@@ -60,15 +58,10 @@ class App extends Container
 	 * @param mixed  $value A callable to protect from being evaluated
 	 *
 	 * @return $this
-	 *
-	 * @throws \InvalidArgumentException
-	 * @throws \RuntimeException
-	 * @throws \Pimple\Exception\ExpectedInvokableException
-	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
 	public function parameter($id, $value): self
 	{
-		if (\is_object($value) && method_exists($value, '__invoke')) {
+		if (is_object($value) && method_exists($value, '__invoke')) {
 			$this->protect($value);
 		}
 
@@ -86,10 +79,6 @@ class App extends Container
 	 *                                           customizes the provider
 	 *
 	 * @return $this
-	 *
-	 * @throws \RuntimeException
-	 * @throws \InvalidArgumentException
-	 * @throws \Pimple\Exception\FrozenServiceException
 	 */
 	public function provider(ServiceProviderInterface $provider, array $values = []): self
 	{
