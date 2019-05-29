@@ -2,8 +2,6 @@
 
 namespace Twist\Service;
 
-use InvalidArgumentException;
-use RuntimeException;
 use Twist\App\App;
 
 /**
@@ -21,9 +19,6 @@ interface ServiceProviderInterface
 	 * It should not get services.
 	 *
 	 * @param App $app An Application instance
-	 *
-	 * @throws InvalidArgumentException
-	 * @throws RuntimeException
 	 */
 	public function register(App $app): void;
 
