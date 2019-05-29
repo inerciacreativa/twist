@@ -7,6 +7,7 @@ use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
 use Twist\Service\Core\LazyLoadService;
 use Twist\Service\Core\RelativeUrlService;
+use Twist\Service\Core\SslCertificatesService;
 use Twist\Service\Core\SubresourceIntegrityService;
 use Twist\Service\Core\ThumbnailGeneratorService;
 
@@ -23,6 +24,10 @@ class CoreServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
+		$app->service(SslCertificatesService::id(), static function (App $app) {
+			return new SslCertificatesService($app, App::INIT);
+		}, true);
+
 		$app->service(HeadCleanerService::id(), static function (App $app) {
 			return new HeadCleanerService($app, App::INIT);
 		}, true);
