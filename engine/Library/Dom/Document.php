@@ -289,7 +289,7 @@ class Document extends DOMDocument
 	 */
 	public function removeEmptyTextNodes(): self
 	{
-		while (($nodes = $this->query('//*[not(*) and not(@*) and not(text()[normalize-space()]) and not(self::br)]')) && $nodes->length) {
+		while (($nodes = $this->query('//*[not(*) and not(@*) and not(text()[normalize-space()]) and not(self::br) and not(self::hr)]')) && $nodes->length) {
 			foreach ($nodes as $node) {
 				$node->parentNode->removeChild($node);
 			}
