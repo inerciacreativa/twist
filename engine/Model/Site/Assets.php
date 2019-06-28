@@ -98,8 +98,10 @@ class Assets
 	public function svg_icon(string $icon, $title = null): string
 	{
 		$svg = Tag::svg(['class' => "icon icon-$icon"]);
+		$svg['focusable'] = 'false';
 
 		if ($title) {
+			$svg['role'] = 'img';
 			$svg->content(Tag::title($title));
 		} else {
 			$svg['aria-hidden'] = 'true';
