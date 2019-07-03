@@ -169,7 +169,6 @@ class Post extends Model
 
 	/**
 	 * @inheritdoc
-	 * @throws AppException
 	 */
 	public function has_children(): bool
 	{
@@ -201,7 +200,6 @@ class Post extends Model
 
 	/**
 	 * @return Posts|null
-	 * @throws AppException
 	 */
 	public function children(): ?CollectionInterface
 	{
@@ -229,6 +227,8 @@ class Post extends Model
 	}
 
 	/**
+	 * Retrieve the permalink for this post type archive.
+	 *
 	 * @return string
 	 */
 	public function archive_link(): string
@@ -437,6 +437,8 @@ class Post extends Model
 	}
 
 	/**
+	 * Retrieve the post {@see Author} object.
+	 *
 	 * @return Author
 	 */
 	public function author(): Author
@@ -494,6 +496,8 @@ class Post extends Model
 	}
 
 	/**
+	 * Determines whether the current post is open for comments.
+	 *
 	 * @return bool
 	 */
 	public function can_be_commented(): bool
@@ -502,6 +506,8 @@ class Post extends Model
 	}
 
 	/**
+	 * Determines whether the current post is open for pings.
+	 *
 	 * @return bool
 	 */
 	public function can_be_pinged(): bool
