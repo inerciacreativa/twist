@@ -18,18 +18,21 @@ class Posts extends Collection
 	 * @param array $posts
 	 *
 	 * @return static
-	 * @throws AppException
 	 */
 	public static function make(array $posts = []): Posts
 	{
 		$collection = new static();
 
-		foreach ($posts as $post) {
-			if (!($post instanceof Post)) {
-				$post = Post::make($post);
-			}
+		try {
+			foreach ($posts as $post) {
+				if (!($post instanceof Post)) {
+					$post = Post::make($post);
+				}
 
-			$collection->add($post);
+				$collection->add($post);
+			}
+		} catch (AppException $exception) {
+
 		}
 
 		return $collection;
