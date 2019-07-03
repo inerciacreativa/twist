@@ -193,7 +193,6 @@ class Query implements IterableInterface
 
 	/**
 	 * @return Posts
-	 * @throws AppException
 	 */
 	public function posts(): Posts
 	{
