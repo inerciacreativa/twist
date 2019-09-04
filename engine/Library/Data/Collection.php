@@ -613,7 +613,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 	/**
 	 * Sort the collection using the given callback.
 	 *
-	 * @param callable|string $callback
+	 * @param callable|string $callback ($value, $key)
 	 * @param int             $options
 	 * @param bool            $descending
 	 *
