@@ -501,7 +501,7 @@ class Tag implements ArrayAccess
 	 */
 	protected static function getAttributes(array $attributes): string
 	{
-		$attributes = Arr::map($attributes, static function ($name, $value) {
+		$attributes = Arr::map($attributes, static function ($value, $name) {
 			if (static::isBoolAttribute($name)) {
 				return $value ? $name : '';
 			}

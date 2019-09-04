@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Twist\Library\Support;
 
@@ -50,7 +51,7 @@ class Arr
 	 *
 	 * @return mixed
 	 */
-	public static function get($array, string $key, $default = null)
+	public static function get($array, string $key = null, $default = null)
 	{
 		if (!static::accessible($array)) {
 			return Data::value($default);
@@ -85,12 +86,12 @@ class Arr
 	 * If no key is given to the method, the entire array will be replaced.
 	 *
 	 * @param ArrayAccess|array $array
-	 * @param string            $key
+	 * @param string|null       $key
 	 * @param mixed             $value
 	 *
 	 * @return ArrayAccess|array
 	 */
-	public static function set(&$array, string $key, $value)
+	public static function set(&$array, $key, $value)
 	{
 		if (!static::accessible($array)) {
 			return $array;
@@ -130,7 +131,7 @@ class Arr
 	 *
 	 * @return ArrayAccess|array
 	 */
-	public static function add(&$array, string $key, $value)
+	public static function add($array, string $key, $value)
 	{
 		if (static::get($array, $key) === null) {
 			static::set($array, $key, $value);
@@ -269,7 +270,7 @@ class Arr
 	 * Return the first element in an array passing a given truth test.
 	 *
 	 * @param array         $array
-	 * @param callable|null $callback
+	 * @param callable|null $callback ($value, $key)
 	 * @param mixed         $default
 	 *
 	 * @return mixed
@@ -281,7 +282,7 @@ class Arr
 		}
 
 		foreach ($array as $key => $value) {
-			if ($callback($key, $value)) {
+			if ($callback($value, $key)) {
 				return $value;
 			}
 		}
@@ -293,7 +294,7 @@ class Arr
 	 * Return the last element in an array passing a given truth test.
 	 *
 	 * @param array         $array
-	 * @param callable|null $callback
+	 * @param callable|null $callback ($value, $key)
 	 * @param mixed         $default
 	 *
 	 * @return mixed
@@ -304,7 +305,7 @@ class Arr
 			return empty($array) ? Data::value($default) : end($array);
 		}
 
-		return static::first(array_reverse($array), $callback, $default);
+		return static::first(array_reverse($array, true), $callback, $default);
 	}
 
 	/**
@@ -475,12 +476,12 @@ class Arr
 	/**
 	 * Sort the array using the given callback.
 	 *
-	 * @param array    $array
-	 * @param callable $callback
+	 * @param array           $array
+	 * @param callable|string $callback ($value, $key)
 	 *
 	 * @return array
 	 */
-	public static function sort(array $array, callable $callback = null): array
+	public static function sort(array $array, $callback = null): array
 	{
 		if ($callback) {
 			return Collection::make($array)->sortBy($callback)->all();
@@ -519,7 +520,7 @@ class Arr
 	 * Filter the array using the given callback.
 	 *
 	 * @param array    $array
-	 * @param callable $callback
+	 * @param callable $callback ($value, $key)
 	 *
 	 * @return array
 	 */
@@ -615,14 +616,14 @@ class Arr
 
 	/**
 	 * @param array    $array
-	 * @param callable $callback
+	 * @param callable $callback ($value, $key)
 	 *
 	 * @return array
 	 */
 	public static function map(array $array, callable $callback): array
 	{
 		$keys  = array_keys($array);
-		$items = array_map($callback, $keys, $array);
+		$items = array_map($callback, $array, $keys);
 
 		return array_combine($keys, $items);
 	}
@@ -667,7 +668,11 @@ class Arr
 
 		foreach ($second as $key => &$value) {
 			if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
-				$merged[$key] = static::merge($merged[$key], $value);
+				if (self::isAssoc($merged[$key])) {
+					$merged[$key] = static::merge($merged[$key], $value);
+				} else {
+					$merged[$key] = array_merge($merged[$key], $value);
+				}
 			} else {
 				$merged[$key] = $value;
 			}
@@ -684,7 +689,7 @@ class Arr
 	 *
 	 * @return array
 	 */
-	public static function insert(array $array, $key, array $value, $before = false): array
+	protected static function insert(array $array, $key, array $value, $before = false): array
 	{
 		$position = array_search($key, array_keys($array), true);
 		if ($position === false) {
@@ -721,19 +726,16 @@ class Arr
 	}
 
 	/**
-	 * @param array      $array
-	 * @param null|array $keys
-	 * @param bool       $caseless
+	 * @param array             $array
+	 * @param null|string|array $keys
+	 * @param bool              $caseless
 	 *
 	 * @return array
 	 */
 	public static function remove(array $array, $keys = null, bool $caseless = true): array
 	{
 		$result = [];
-
-		if (empty($keys)) {
-			$keys = null;
-		}
+		$keys   = empty($keys) ? null : (array) $keys;
 
 		if (is_array($keys) && $caseless) {
 			foreach ($keys as &$key) {
@@ -744,8 +746,10 @@ class Arr
 		}
 
 		foreach ($array as $name => $value) {
-			if ($keys === null && $value !== null) {
-				$result[$name] = $value;
+			if ($keys === null) {
+				if ($value !== null) {
+					$result[$name] = $value;
+				}
 			} else {
 				$search = $caseless ? strtolower($name) : $name;
 				if (!in_array($search, $keys, true)) {

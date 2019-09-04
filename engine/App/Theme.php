@@ -265,7 +265,7 @@ class Theme
 	 */
 	public function webfonts(array $config, $loader = true): self
 	{
-		$this->fonts['config'] = Arr::map($config, static function ($id, $config) {
+		$this->fonts['config'] = Arr::map($config, static function ($config, $id) {
 			if ($id === 'google') {
 				$config = ['families' => $config];
 			}
