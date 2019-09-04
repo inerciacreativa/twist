@@ -30,6 +30,9 @@ class Url
 		'http'   => '://',
 		'https'  => '://',
 		'ftp'    => '://',
+		'ftps'   => '://',
+		'sftp'   => '://',
+		'ssh'    => '://',
 		'telnet' => '://',
 		'mailto' => ':',
 	];
@@ -276,7 +279,11 @@ class Url
 	 */
 	public function isValid(): bool
 	{
-		return filter_var($this->get(), FILTER_VALIDATE_URL, []);
+		if ($this->isAbsolute()) {
+			return filter_var($this->get(), FILTER_VALIDATE_URL, []);
+		}
+
+		return $this->getDomain() === '';
 	}
 
 	/**
