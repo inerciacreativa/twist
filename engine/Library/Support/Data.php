@@ -3,6 +3,8 @@
 namespace Twist\Library\Support;
 
 use Closure;
+use InvalidArgumentException;
+use RuntimeException;
 use Twist\Library\Data\Collection;
 
 /**
@@ -132,7 +134,6 @@ class Data
 		$segments = is_array($key) ? $key : explode('.', $key);
 
 		if (($segment = array_shift($segments)) === '*') {
-			/** @noinspection NotOptimalIfConditionsInspection */
 			if (!Arr::accessible($target)) {
 				$target = [];
 			}
@@ -223,6 +224,162 @@ class Data
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param string $data
+	 * @param bool   $strict
+	 *
+	 * @return bool
+	 */
+	public static function isSerialized($data, bool $strict = true): bool
+	{
+		if (!is_string($data)) {
+			return false;
+		}
+
+		$data = trim($data);
+		if ('N;' === $data) {
+			return true;
+		}
+
+		if (strlen($data) < 4) {
+			return false;
+		}
+
+		if (':' !== $data[1]) {
+			return false;
+		}
+
+		if ($strict) {
+			$last = substr($data, -1);
+			if (';' !== $last && '}' !== $last) {
+				return false;
+			}
+		} else {
+			$semicolon = strpos($data, ';');
+			$brace     = strpos($data, '}');
+
+			// Either ; or } must exist.
+			if (false === $semicolon && false === $brace) {
+				return false;
+			}
+
+			// But neither must be in the first X characters.
+			if (false !== $semicolon && $semicolon < 3) {
+				return false;
+			}
+
+			if (false !== $brace && $brace < 4) {
+				return false;
+			}
+		}
+
+		$token = $data[0];
+		switch ($token) {
+			case 's':
+				if ($strict) {
+					if ('"' !== substr($data, -2, 1)) {
+						return false;
+					}
+				} else if (false === strpos($data, '"')) {
+					return false;
+				}
+			// or else fall through
+			case 'a':
+			case 'O':
+				return (bool) preg_match("/^{$token}:[0-9]+:/s", $data);
+			case 'b':
+			case 'i':
+			case 'd':
+				$end = $strict ? '$' : '';
+
+				return (bool) preg_match("/^{$token}:[0-9.E-]+;$end/", $data);
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param mixed $data
+	 * @param bool  $compatible
+	 *
+	 * @return string
+	 */
+	public static function serialize($data, bool $compatible = false): string
+	{
+		if (is_array($data) || is_object($data)) {
+			return serialize($data);
+		}
+
+		// Double serialization is required for WP backward compatibility.
+		$serialized = self::isSerialized($data, false);
+		if (($compatible && $serialized) || (!$compatible && !$serialized)) {
+			return serialize($data);
+		}
+
+		return $data;
+
+	}
+
+	/**
+	 * @param string $data
+	 * @param bool   $options
+	 *
+	 * @return mixed
+	 */
+	public static function unserialize(string $data, $options = false)
+	{
+		if (self::isSerialized($data)) {
+			$exception = null;
+			set_error_handler(static function () use (&$exception) {
+				$exception = new RuntimeException('Unable to unserialize data.');
+			});
+			$data = @unserialize($data, $options);
+			restore_error_handler();
+
+			if ($exception) {
+				/** @var $exception RuntimeException */
+				throw $exception;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @param mixed $value
+	 * @param int   $options
+	 * @param int   $depth
+	 *
+	 * @return string
+	 */
+	public static function encode($value, int $options = 0, int $depth = 512): string
+	{
+		$json = json_encode($value, $options, $depth);
+		if (JSON_ERROR_NONE !== json_last_error()) {
+			throw new InvalidArgumentException('json_encode error: ' . json_last_error_msg());
+		}
+
+		return $json;
+	}
+
+	/**
+	 * @param string $json
+	 * @param bool   $assoc
+	 * @param int    $depth
+	 * @param int    $options
+	 *
+	 * @return array|object
+	 */
+	public static function decode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
+	{
+		$data = json_decode($json, $assoc, $depth, $options);
+		if (JSON_ERROR_NONE !== json_last_error()) {
+			throw new InvalidArgumentException('json_decode error: ' . json_last_error_msg());
+		}
+
+		return $data;
 	}
 
 }

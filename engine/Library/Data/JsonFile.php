@@ -4,7 +4,7 @@ namespace Twist\Library\Data;
 
 use InvalidArgumentException;
 use Twist\Library\Support\Arr;
-use Twist\Library\Support\Json;
+use Twist\Library\Support\Data;
 
 /**
  * Class JsonFile
@@ -28,7 +28,7 @@ class JsonFile
 	{
 		if (file_exists($file) && is_file($file)) {
 			try {
-				$this->data = Json::decode(file_get_contents($file), true);
+				$this->data = Data::decode(file_get_contents($file), true);
 			} catch (InvalidArgumentException $exception) {
 				$this->data = [];
 			}
