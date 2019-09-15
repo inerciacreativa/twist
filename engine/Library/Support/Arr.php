@@ -197,7 +197,7 @@ class Arr
 		}
 
 		foreach ($keys as $key) {
-			if (static::exists($array, $key)) {
+			if (is_int($key) || static::exists($array, $key)) {
 				unset($array[$key]);
 				continue;
 			}
