@@ -1,32 +1,32 @@
 {
-  "name": "twist",
-  "version": "1.0.0",
-  "description": "WordPress theme that uses Twig as the template engine.",
-  "keywords": [
-    "wordpress",
-    "wordpress-theme",
-    "webpack"
-  ],
-  "license": "MIT",
-  "homepage": "https://github.com/inerciacreativa/twist",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/inerciacreativa/twist.git"
-  },
-  "bugs":  "https://github.com/inerciacreativa/twist/issues",
-  "author": {
-    "name": "Jose Cuesta",
-    "email": "jose.cuesta@inerciacreativa.com",
-    "url": "https://inerciacreativa.com/"
-  },
-  "engines": {
-    "node": ">= 6.9.4 || >= 8.7.0"
-  },
-  "devDependencies": {
-    "redukt": "^1.0.1"
-  },
-  "dependencies": {
-    "jquery": "^3.4.1",
-    "popper.js": "^1.14.4"
-  }
+	"name": "twist",
+	"version": "1.0.0",
+	"description": "WordPress theme that uses Twig as the template engine.",
+	"keywords": [
+		"wordpress",
+		"wordpress-theme",
+		"webpack"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/inerciacreativa/twist",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/inerciacreativa/twist.git"
+	},
+	"bugs": "https://github.com/inerciacreativa/twist/issues",
+	"author": {
+		"name": "Jose Cuesta",
+		"email": "jose.cuesta@inerciacreativa.com",
+		"url": "https://inerciacreativa.com/"
+	},
+	"engines": {
+		"node": ">= 8.10.0 || >= 10.13.0"
+	},
+	"devDependencies": {
+		"redukt": "^2.0.5"
+	},
+	"dependencies": {
+		"jquery": "^3.4.1",
+		"popper.js": "^1.15.0"
+	}
 }
