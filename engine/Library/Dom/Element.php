@@ -56,11 +56,11 @@ class Element extends DOMElement
 	 */
 	public function getAttribute($name, $default = '')
 	{
-		$result = parent::getAttribute($name);
-		if ($result === '') {
+		if (!$this->hasAttribute($name)) {
 			return $default;
 		}
 
+		$result = parent::getAttribute($name);
 		if (!is_string($default)) {
 			settype($result, gettype($default));
 		}
