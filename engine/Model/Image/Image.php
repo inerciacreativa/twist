@@ -5,6 +5,7 @@ namespace Twist\Model\Image;
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
+use Twist\Library\Support\Macroable;
 use Twist\Model\Base\Model;
 use Twist\Model\Base\ModelInterface;
 use Twist\Model\Post\Post;
@@ -17,6 +18,8 @@ use WP_Post;
  */
 class Image extends Model
 {
+
+	use Macroable;
 
 	/**
 	 * @var Post
@@ -219,6 +222,104 @@ class Image extends Model
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param int  $width
+	 * @param int  $height
+	 * @param bool $crop
+	 * @param int  $quality
+	 *
+	 * @return array|null
+	 */
+	public function resize(int $width, int $height, bool $crop, int $quality = 90): ?array
+	{
+		$source    = wp_get_attachment_image_src($this->id(), 'full');
+		$file      = get_attached_file($this->id());
+		$info      = pathinfo($file);
+		$path      = $info['dirname'] . '/' . $info['filename'];
+		$extension = '.' . $info['extension'];
+
+		if ($source[1] > $width || $source[2] > $height) {
+			$croppedFile = $path . '-' . $width . 'x' . $height . $extension;
+			if (file_exists($croppedFile)) {
+				$croppedUrl = str_replace(basename($source[0]), basename($croppedFile), $source[0]);
+
+				return [
+					'url'    => $croppedUrl,
+					'width'  => $width,
+					'height' => $height,
+				];
+			}
+
+			if ($crop === false) {
+				$resizedSize = wp_constrain_dimensions($source[1], $source[2], $width, $height);
+				$resizedFile = $path . '-' . $resizedSize[0] . 'x' . $resizedSize[1] . $extension;
+				if (file_exists($resizedFile)) {
+					$resizedUrl = str_replace(basename($source[0]), basename($resizedFile), $source[0]);
+
+					return [
+						'url'    => $resizedUrl,
+						'width'  => $resizedSize[0],
+						'height' => $resizedSize[1],
+					];
+				}
+			}
+
+			$size = @getimagesize($file);
+			if ($size[0] < $width) {
+				$width = (int) $size[0] - 1;
+			}
+
+			$newFile = $this->resizeHelper($file, $width, $height, $crop, $quality);
+			if ($newFile === null) {
+				return null;
+			}
+
+			$newSize = getimagesize($newFile);
+			$newUrl  = str_replace(basename($source[0]), basename($newFile), $source[0]);
+
+			return [
+				'url'    => $newUrl,
+				'width'  => $newSize[0],
+				'height' => $newSize[1],
+			];
+		}
+
+		return [
+			'url'    => $source[0],
+			'width'  => $source[1],
+			'height' => $source[2],
+		];
+	}
+
+	/**
+	 * @param string $file
+	 * @param int    $width
+	 * @param int    $height
+	 * @param bool   $crop
+	 * @param int    $quality
+	 *
+	 * @return string|null
+	 */
+	protected function resizeHelper(string $file, int $width, int $height, bool $crop, int $quality): ?string
+	{
+		$editor = wp_get_image_editor($file);
+		if (is_wp_error($editor)) {
+			return null;
+		}
+
+		$editor->set_quality($quality);
+		if (is_wp_error($editor->resize($width, $height, $crop))) {
+			return null;
+		}
+
+		$resized = $editor->generate_filename();
+		if (is_wp_error($editor->save())) {
+			return null;
+		}
+
+		return $resized;
 	}
 
 }
