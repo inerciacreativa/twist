@@ -133,7 +133,7 @@ class FormDecorator implements FormDecoratorInterface
 		}
 
 		return Tag::p(['class' => $this->classes['field']], [
-			$this->getLabel($id, $label),
+			$this->getLabel($id, $label, $attributes),
 			$control,
 		]);
 	}
@@ -141,10 +141,11 @@ class FormDecorator implements FormDecoratorInterface
 	/**
 	 * @param string $id
 	 * @param string $text
+	 * @param array  $attributes
 	 *
 	 * @return Tag
 	 */
-	protected function getLabel(string $id, string $text): Tag
+	protected function getLabel(string $id, string $text, array $attributes): Tag
 	{
 		if (isset($attributes['required'])) {
 			$label = [$text, ' ', Tag::span(['class' => 'required'], '*')];
