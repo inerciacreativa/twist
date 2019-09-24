@@ -65,8 +65,9 @@ class Form
 		ob_start();
 		comment_form();
 		$form = ob_get_clean();
+		$form = str_replace('<!-- #respond -->', '', $form);
 
-		return str_replace('<!-- #respond -->', '', $form);
+		return Hook::apply('twist_comment_form', $form);
 	}
 
 	/**
