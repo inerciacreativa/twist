@@ -218,7 +218,54 @@ class Image extends Model
 				'is_intermediate',
 				'alt',
 				'id',
-			], array_merge($image, [$this->alt(), $this->id()]));
+				'sizes',
+				'srcset'
+			], array_merge($image, [$this->alt(), $this->id(), $this->sizes($size), $this->sources($size)]));
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return array|null
+	 */
+	public function metadata(): ?array
+	{
+		$meta = $this->meta()->get('_wp_attachment_metadata');
+		if (is_array($meta)) {
+			return Hook::apply('wp_get_attachment_metadata', $meta, $this->id());
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param string $size
+	 *
+	 * @return string|null
+	 */
+	public function sizes(string $size = 'thumbnail'): ?string
+	{
+		if ($image = wp_get_attachment_image_src($this->id(), $size)) {
+			[$source, $width, $height] = $image;
+
+			return $this->getSizes($source, $width, $height);
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param string $size
+	 *
+	 * @return string|null
+	 */
+	public function sources(string $size = 'thumbnail'): ?string
+	{
+		if ($image = wp_get_attachment_image_src($this->id(), $size)) {
+			[$source, $width, $height] = $image;
+
+			return $this->getSources($source, $width, $height);
 		}
 
 		return null;
@@ -234,35 +281,27 @@ class Image extends Model
 	 */
 	public function resize(int $width, int $height, bool $crop, int $quality = 90): ?array
 	{
-		$source    = wp_get_attachment_image_src($this->id(), 'full');
+		$image     = wp_get_attachment_image_src($this->id(), 'full');
 		$file      = get_attached_file($this->id());
 		$info      = pathinfo($file);
 		$path      = $info['dirname'] . '/' . $info['filename'];
 		$extension = '.' . $info['extension'];
 
-		if ($source[1] > $width || $source[2] > $height) {
+		if ($image[1] > $width || $image[2] > $height) {
 			$croppedFile = $path . '-' . $width . 'x' . $height . $extension;
 			if (file_exists($croppedFile)) {
-				$croppedUrl = str_replace(basename($source[0]), basename($croppedFile), $source[0]);
+				$croppedUrl = str_replace(basename($image[0]), basename($croppedFile), $image[0]);
 
-				return [
-					'url'    => $croppedUrl,
-					'width'  => $width,
-					'height' => $height,
-				];
+				return $this->resizeInfo($croppedUrl, $width, $height);
 			}
 
 			if ($crop === false) {
-				$resizedSize = wp_constrain_dimensions($source[1], $source[2], $width, $height);
+				$resizedSize = wp_constrain_dimensions($image[1], $image[2], $width, $height);
 				$resizedFile = $path . '-' . $resizedSize[0] . 'x' . $resizedSize[1] . $extension;
 				if (file_exists($resizedFile)) {
-					$resizedUrl = str_replace(basename($source[0]), basename($resizedFile), $source[0]);
+					$resizedUrl = str_replace(basename($image[0]), basename($resizedFile), $image[0]);
 
-					return [
-						'url'    => $resizedUrl,
-						'width'  => $resizedSize[0],
-						'height' => $resizedSize[1],
-					];
+					return $this->resizeInfo($resizedUrl, $resizedSize[0], $resizedSize[1]);
 				}
 			}
 
@@ -277,19 +316,29 @@ class Image extends Model
 			}
 
 			$newSize = getimagesize($newFile);
-			$newUrl  = str_replace(basename($source[0]), basename($newFile), $source[0]);
+			$newUrl  = str_replace(basename($image[0]), basename($newFile), $image[0]);
 
-			return [
-				'url'    => $newUrl,
-				'width'  => $newSize[0],
-				'height' => $newSize[1],
-			];
+			return $this->resizeInfo($newUrl, $newSize[0], $newSize[1]);
 		}
 
+		return $this->resizeInfo($image[0], $image[1], $image[2]);
+	}
+
+	/**
+	 * @param string $source
+	 * @param int    $width
+	 * @param int    $height
+	 *
+	 * @return array
+	 */
+	protected function resizeInfo(string $source, int $width, int $height): array
+	{
 		return [
-			'url'    => $source[0],
-			'width'  => $source[1],
-			'height' => $source[2],
+			'src'    => $source,
+			'width'  => $width,
+			'height' => $height,
+			'srcset' => $this->getSources($source, $width, $height),
+			'sizes'  => $this->getSizes($source, $width, $height),
 		];
 	}
 
@@ -320,6 +369,42 @@ class Image extends Model
 		}
 
 		return $resized;
+	}
+
+	/**
+	 * @param string $source
+	 * @param int    $width
+	 * @param int    $height
+	 *
+	 * @return string
+	 */
+	protected function getSizes(string $source, int $width, int $height): string
+	{
+		$meta  = $this->metadata();
+		$sizes = wp_calculate_image_sizes([
+			$width,
+			$height,
+		], $source, $meta, $this->id());
+
+		return (string) $sizes;
+	}
+
+	/**
+	 * @param string $source
+	 * @param int    $width
+	 * @param int    $height
+	 *
+	 * @return string
+	 */
+	protected function getSources(string $source, int $width, int $height): string
+	{
+		$meta    = $this->metadata();
+		$sources = wp_calculate_image_srcset([
+			$width,
+			$height,
+		], $source, $meta, $this->id());
+
+		return (string) $sources;
 	}
 
 }
