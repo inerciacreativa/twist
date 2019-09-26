@@ -30,8 +30,11 @@ class Form
 	 */
 	public function __construct()
 	{
-		if (($this->decorator = Twist::config('form.comment.decorator')) === null) {
+		$decorator = Twist::config('form.comment.decorator');
+		if ($decorator === null) {
 			$this->decorator = new FormDecorator(Twist::config('form.comment.classes', []));
+		} else {
+			$this->decorator = new $decorator;
 		}
 
 		Hook::add('comment_form_defaults', function (array $arguments) {
