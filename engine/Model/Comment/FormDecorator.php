@@ -128,6 +128,10 @@ class FormDecorator implements FormDecoratorInterface
 			'class' => $this->classes['input'] ?? $type,
 		], $attributes));
 
+		if (isset($attributes['required'])) {
+			$control['aria-required'] = 'true';
+		}
+
 		if ($this->classes['control']) {
 			$control = Tag::span(['class' => $this->classes['control']], $control);
 		}
@@ -148,7 +152,11 @@ class FormDecorator implements FormDecoratorInterface
 	protected function getLabel(string $id, string $text, array $attributes): Tag
 	{
 		if (isset($attributes['required'])) {
-			$label = [$text, ' ', Tag::span(['class' => 'required'], '*')];
+			$label = [
+				$text,
+				' ',
+				Tag::span(['class' => 'required', 'aria-hidden' => 'true'], '*'),
+			];
 		} else {
 			$label = $text;
 		}
