@@ -87,43 +87,27 @@ class Element extends DOMElement
 	/**
 	 * Adds a className to the class attribute.
 	 *
-	 * @param string $className
-	 *
-	 * @return bool
+	 * @param string|array $classes
 	 */
-	public function addClassName(string $className): bool
+	public function addClassNames($classes): void
 	{
-		$classes = $this->getClassNames();
+		$current = $this->getClassNames();
+		$result  = array_unique(array_merge($current, (array) $classes));
 
-		if (!in_array($className, $classes, false)) {
-			$classes[] = $className;
-			$this->setAttribute('class', implode(' ', $classes));
-
-			return true;
-		}
-
-		return false;
+		$this->setAttribute('class', implode(' ', $result));
 	}
 
 	/**
-	 * Removes a tagName from the class attribute.
+	 * Removes class names from the class attribute.
 	 *
-	 * @param string $className
-	 *
-	 * @return bool
+	 * @param string|array $classes
 	 */
-	public function removeClassName(string $className): bool
+	public function removeClassNames($classes): void
 	{
-		$classes = $this->getClassNames();
+		$current = $this->getClassNames();
+		$result  = array_diff($current, (array) $classes);
 
-		if (($key = array_search($className, $classes, false)) !== false) {
-			unset($classes[$key]);
-			$this->setAttribute('class', implode(' ', $classes));
-
-			return true;
-		}
-
-		return false;
+		$this->setAttribute('class', implode(' ', $result));
 	}
 
 	/**
@@ -152,7 +136,7 @@ class Element extends DOMElement
 				$className = strtolower('align' . $attribute->nodeValue);
 
 				if ($className !== 'alignjustify') {
-					$this->addClassName($className);
+					$this->addClassNames($className);
 				}
 
 				$remove[] = $attribute;
