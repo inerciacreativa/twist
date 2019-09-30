@@ -335,6 +335,7 @@ class Post extends Model
 			if (function_exists('excerpt_remove_blocks')) {
 				$excerpt = excerpt_remove_blocks($excerpt);
 			}
+			$excerpt = preg_replace('/<figure[^>]+>.*<\/figure>/is', '', $excerpt);
 
 			$excerpt = Hook::apply('the_content', $excerpt);
 			$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
