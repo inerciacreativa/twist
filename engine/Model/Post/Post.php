@@ -373,7 +373,7 @@ class Post extends Model
 		$content = Hook::apply('the_content', $this->getContent($options['more_link'], $options['strip_teaser']));
 
 		if ($options['filter']) {
-			$document = Hook::apply('twist_post_filter', $this->getDocument($content), $this);
+			$document = Hook::apply('twist_post_content', $this->getDocument($content), $this);
 			$content  = $document->saveMarkup();
 		}
 

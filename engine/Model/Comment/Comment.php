@@ -226,7 +226,7 @@ class Comment extends Model
 		if ($options['filter']) {
 			$document = new Document(Site::language());
 			$document->loadMarkup(Str::whitespace($content));
-			$document = Hook::apply('twist_comment_filter', $document, $this);
+			$document = Hook::apply('twist_comment_content', $document, $this);
 
 			$content = $document->saveMarkup();
 		}

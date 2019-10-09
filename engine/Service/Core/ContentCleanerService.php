@@ -28,8 +28,8 @@ class ContentCleanerService extends Service
 	protected function init(): void
 	{
 		$this->hook()
-		     ->before('twist_post_filter', 'clean')
-		     ->before('twist_comment_filter', 'clean');
+		     ->before('twist_post_content', 'clean')
+		     ->before('twist_comment_content', 'clean');
 	}
 
 	/**

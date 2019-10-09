@@ -193,7 +193,7 @@ class Image extends Model
 		if (($image = wp_get_attachment_image($this->id(), $size, false, $attributes)) && ($tag = Tag::parse($image))) {
 			$image = $tag->attributes($attributes);
 
-			return Hook::apply('twist_post_image', $image);
+			return Hook::apply('twist_image_image', $image);
 		}
 
 		return null;
