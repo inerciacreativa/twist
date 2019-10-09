@@ -4,6 +4,7 @@ use Twist\Model\Post\Query;
 use Twist\Model\Site\Site;
 use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
+use Twist\Service\Core\SslCertificatesService;
 use Twist\Service\Core\SubresourceIntegrityService;
 use Twist\Service\Core\ThumbnailGeneratorService;
 use Twist\Service\CoreServiceProvider;
@@ -36,6 +37,9 @@ Twist::theme()
 			     'script'    => false,
 			     'style'     => false,
 			     'algorithm' => 'sha265',
+		     ],
+		     SslCertificatesService::id() => [
+			     'enable' => (defined('WP_ENV') && WP_ENV) || class_exists('WP_CLI'),
 		     ],
 	     ],
 	     'credentials' => [
