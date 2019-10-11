@@ -16,17 +16,64 @@ class Pagination
 {
 
 	/**
-	 * @return bool
+	 * @var Query
+	 */
+	protected $query;
+
+	/**
+	 * Pagination constructor.
+	 *
+	 * @param Query|null $query
+	 *
 	 * @throws AppException
+	 */
+	public function __construct(Query $query = null)
+	{
+		$this->query = $query ?: Query::main();
+	}
+
+	/**
+	 * @return bool
 	 */
 	public function has_pages(): bool
 	{
-		return Query::main()->has_pages();
+		return $this->query->has_pages();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function total(): int
+	{
+		return $this->query->total_pages();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function current(): int
+	{
+		return $this->query->current_page();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function posts_total(): int
+	{
+		return $this->query->total();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function posts_per_page(): int
+	{
+		return $this->query->posts_per_page();
 	}
 
 	/**
 	 * @return Links
-	 * @throws AppException
 	 */
 	public function simple(): Links
 	{
@@ -50,7 +97,6 @@ class Pagination
 	 * @param array $arguments
 	 *
 	 * @return Links
-	 * @throws AppException
 	 */
 	public function extended(array $arguments = []): Links
 	{
@@ -61,7 +107,6 @@ class Pagination
 	 * @param array $arguments
 	 *
 	 * @return Links
-	 * @throws AppException
 	 */
 	public function numeric(array $arguments = []): Links
 	{
@@ -83,7 +128,6 @@ class Pagination
 	 * @param array $arguments
 	 *
 	 * @return Links
-	 * @throws AppException
 	 */
 	protected function getPaginatedLinks(array $arguments = []): Links
 	{
@@ -93,6 +137,8 @@ class Pagination
 		}
 
 		$items = paginate_links(array_merge([
+			'total'     => $this->total(),
+			'current'   => $this->current(),
 			'mid_size'  => 1,
 			'prev_text' => _x('Previous', 'previous set of posts', 'twist'),
 			'next_text' => _x('Next', 'next set of posts', 'twist'),
