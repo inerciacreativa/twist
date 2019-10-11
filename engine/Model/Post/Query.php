@@ -538,7 +538,7 @@ class Query implements IterableInterface
 	 */
 	public function is_current_page(int $page = 1): bool
 	{
-		return $this->has_pages() && ($page === (int) $this->query->get('paged', 1));
+		return $this->has_pages() && ($page === $this->current_page());
 	}
 
 	/**
@@ -546,7 +546,33 @@ class Query implements IterableInterface
 	 */
 	public function has_pages(): bool
 	{
-		return $this->query->max_num_pages > 1;
+		return $this->total_pages() > 1;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function current_page(): int
+	{
+		$current = (int) $this->query->get('paged', 1);
+
+		return ($current === 0 && $this->has_pages()) ? 1 : $current;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function total_pages(): int
+	{
+		return (int) $this->query->max_num_pages;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function posts_per_page(): int
+	{
+		return ceil($this->total() / $this->total_pages());
 	}
 
 	/**
