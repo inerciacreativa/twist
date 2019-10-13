@@ -572,7 +572,11 @@ class Query implements IterableInterface
 	 */
 	public function posts_per_page(): int
 	{
-		return ceil($this->total() / $this->total_pages());
+		if ($this->has_pages()) {
+			return ceil($this->total() / $this->total_pages());
+		}
+
+		return $this->total();
 	}
 
 	/**
