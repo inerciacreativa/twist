@@ -136,17 +136,17 @@ class Theme
 		$this->sidebars = new Collection();
 
 		$this->hook()
-		     ->before(App::BOOT, 'boot')
-		     ->on('show_admin_bar', '__return_false')
-		     ->on('user_contactmethods', 'addContactMethods')
-		     ->on('wp_enqueue_scripts', 'addStyles')
-		     ->on('wp_enqueue_scripts', 'addScripts')
-		     ->on('twist_site_links', 'addLinks')
-		     ->on('twist_site_metas', 'addMetas')
-		     ->on('widgets_init', 'addSidebars')
-		     ->after('wp_footer', 'addInlineScripts')
-		     ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
-		     ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2]);
+			 ->before(App::BOOT, 'boot')
+			 ->on('show_admin_bar', '__return_false')
+			 ->on('user_contactmethods', 'addContactMethods')
+			 ->on('wp_enqueue_scripts', 'addStyles')
+			 ->on('wp_enqueue_scripts', 'addScripts')
+			 ->on('twist_site_links', 'addLinks')
+			 ->on('twist_site_metas', 'addMetas')
+			 ->on('widgets_init', 'addSidebars')
+			 ->after('wp_footer', 'addInlineScripts')
+			 ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
+			 ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2]);
 	}
 
 	/**
@@ -185,12 +185,13 @@ class Theme
 		return $this;
 	}
 
-	public function assets(string $path, string $manifest): self
+	public function assets(string $source, string $target, string $manifest): self
 	{
 		return $this->options([
 			'asset' => [
 				$this->parent ? Asset::PARENT : Asset::CHILD => [
-					'path'     => '/' . trim($path, '/') . '/',
+					'source'   => '/' . trim($source, '/') . '/',
+					'target'   => '/' . trim($target, '/') . '/',
 					'manifest' => $manifest,
 				],
 			],
@@ -562,7 +563,7 @@ class Theme
 			if ($load) {
 				if (is_string($load)) {
 					wp_enqueue_style($style['id'], Twist::asset()
-					                                    ->url($load, $style['parent']), $style['deps'], null);
+														->url($load, $style['parent']), $style['deps'], null);
 				} else {
 					wp_enqueue_style($style['id']);
 				}
@@ -584,7 +585,7 @@ class Theme
 				if (is_string($load)) {
 					wp_deregister_script($script['id']);
 					wp_enqueue_script($script['id'], Twist::asset()
-					                                      ->url($load, $script['parent']), $script['deps'], null, true);
+														  ->url($load, $script['parent']), $script['deps'], null, true);
 				} else {
 					wp_enqueue_script($script['id']);
 				}

@@ -62,15 +62,23 @@ class Asset
 	 */
 	protected function get(string $filename, bool $parent): array
 	{
-		$theme    = $parent ? self::PARENT : self::CHILD;
-		$config   = $this->config->get("asset.$theme", ['path' => '/', 'manifest' => '']);
-		$manifest = $config['path'] . $config['manifest'];
-		$filename = $config['path'] . $this->manifest($theme, $manifest)
-		                                   ->get($filename, $filename);
+		$theme  = $parent ? self::PARENT : self::CHILD;
+		$config = $this->config->get("asset.$theme", [
+			'source'   => '/',
+			'target'   => '/',
+			'manifest' => '',
+		]);
+
+		$manifest = $config['target'] . $config['manifest'];
+		$filename = $this->manifest($theme, $manifest)
+						 ->get($filename, $filename);
+
+		$path = $this->config->get("dir.$theme") . $config['target'] . $filename;
+		$file = file_exists($path) ? ($config['target'] . $filename) : ($config['source'] . $filename);
 
 		return [
 			$theme,
-			$filename,
+			$file,
 		];
 	}
 
@@ -89,10 +97,10 @@ class Asset
 
 		[
 			$theme,
-			$path,
+			$file,
 		] = $this->get($filename, $parent);
 
-		return $this->config->get("uri.$theme") . $path;
+		return $this->config->get("uri.$theme") . $file;
 	}
 
 	/**
@@ -105,10 +113,10 @@ class Asset
 	{
 		[
 			$theme,
-			$path,
+			$file,
 		] = $this->get($filename, $parent);
 
-		return $this->config->get("dir.$theme") . $path;
+		return $this->config->get("dir.$theme") . $file;
 	}
 
 }
