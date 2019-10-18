@@ -13,7 +13,7 @@ use Twist\Twist;
 Twist::context()->set('posts', Query::class)->share('site', Site::class);
 
 Twist::theme()
-     ->assets('source', 'assets', 'assets.json')
+     ->assets('assets', 'assets.json')
      ->services(new CoreServiceProvider())
      ->options([
 	     'service' => [

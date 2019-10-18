@@ -185,13 +185,12 @@ class Theme
 		return $this;
 	}
 
-	public function assets(string $source, string $target, string $manifest): self
+	public function assets(string $path, string $manifest): self
 	{
 		return $this->options([
 			'asset' => [
 				$this->parent ? Asset::PARENT : Asset::CHILD => [
-					'source'   => '/' . trim($source, '/') . '/',
-					'target'   => '/' . trim($target, '/') . '/',
+					'path'     => '/' . trim($path, '/') . '/',
 					'manifest' => $manifest,
 				],
 			],
