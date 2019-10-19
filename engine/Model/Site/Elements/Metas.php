@@ -58,7 +58,7 @@ class Metas implements ElementsInterface
 	public function all(): array
 	{
 		$metas = Hook::apply('twist_site_metas', $this->metas);
-		sort($this->metas);
+		natcasesort($metas);
 
 		return $metas;
 	}
