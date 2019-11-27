@@ -234,9 +234,9 @@ class User implements UserInterface
 	 * @param int   $size
 	 * @param array $attributes
 	 *
-	 * @return string
+	 * @return Tag
 	 */
-	public function avatar(int $size = 96, array $attributes = []): string
+	public function avatar(int $size = 96, array $attributes = []): Tag
 	{
 		if (array_key_exists($size, $this->avatar)) {
 			$avatar = $this->avatar[$size];

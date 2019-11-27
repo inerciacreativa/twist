@@ -3,6 +3,7 @@
 namespace Twist\Model\User;
 
 use Twist\Model\Base\IdentifiableInterface;
+use Twist\Library\Html\Tag;
 
 /**
  * Interface UserInterface
@@ -31,8 +32,8 @@ interface UserInterface extends IdentifiableInterface
 	 * @param int   $size
 	 * @param array $attributes
 	 *
-	 * @return string
+	 * @return Tag
 	 */
-	public function avatar(int $size = 96, array $attributes = []): string;
+	public function avatar(int $size = 96, array $attributes = []): Tag;
 
 }
