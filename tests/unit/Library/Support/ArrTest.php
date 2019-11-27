@@ -10,6 +10,11 @@ use Twist\Library\Support\Arr;
 use ArrayObject;
 use InvalidArgumentException;
 
+/**
+ * Class ArrTest
+ *
+ * @package Twist\Test\Library\Support
+ */
 final class ArrTest extends TestCase
 {
 
