@@ -63,7 +63,10 @@ class Asset
 	protected function get(string $filename, bool $parent): array
 	{
 		$theme    = $parent ? self::PARENT : self::CHILD;
-		$config   = $this->config->get("asset.$theme", ['path' => '/', 'manifest' => '']);
+		$config   = $this->config->get("asset.$theme", [
+			'path'     => '/',
+			'manifest' => '',
+		]);
 		$manifest = $config['path'] . $config['manifest'];
 		$filename = $config['path'] . $this->manifest($theme, $manifest)
 										   ->get($filename, $filename);
