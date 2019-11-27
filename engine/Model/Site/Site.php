@@ -215,7 +215,7 @@ class Site
 			$post = Query::main()->posts()->first();
 
 			if (Query::main()->is_single()) {
-				$classes->add('single single-' . $classes->sanitize($post->type(), $post->id()));
+				$classes->add('single single-' . Classes::sanitize($post->type(), $post->id()));
 
 				if ($post->has_format()) {
 					$classes->add($post->format('single-format'));
@@ -227,7 +227,7 @@ class Site
 			}
 
 			if (Query::main()->is_page()) {
-				$classes->add('page page-' . $classes->sanitize($post->name()));
+				$classes->add('page page-' . Classes::sanitize($post->name()));
 				if ($post->has_parent()) {
 					$classes->add('page-has-parent');
 				}
@@ -242,24 +242,24 @@ class Site
 					$type = reset($type);
 				}
 
-				$classes->add('archive-' . $classes->sanitize($type));
+				$classes->add('archive-' . Classes::sanitize($type));
 			} else if (Query::main()->is_author()) {
 				$author = new User(Query::main()->queried_object());
 
-				$classes->add('archive-author author-' . $classes->sanitize($author->nice_name(), $author->id()));
+				$classes->add('archive-author author-' . Classes::sanitize($author->nice_name(), $author->id()));
 			} else if (Query::main()->is_category()) {
 				$term = new Term(Query::main()->queried_object());
 
-				$classes->add('archive-category category-' . $classes->sanitize($term->slug(), $term->id()));
+				$classes->add('archive-category category-' . Classes::sanitize($term->slug(), $term->id()));
 			} else if (Query::main()->is_tag()) {
 				$term = new Term(Query::main()->queried_object());
 
-				$classes->add('archive-tag tag-' . $classes->sanitize($term->slug(), $term->id()));
+				$classes->add('archive-tag tag-' . Classes::sanitize($term->slug(), $term->id()));
 			} else if (Query::main()->is_taxonomy()) {
 				$term     = new Term(Query::main()->queried_object());
-				$taxonomy = $classes->sanitize($term->taxonomy());
+				$taxonomy = Classes::sanitize($term->taxonomy());
 
-				$classes->add("$taxonomy $taxonomy-" . $classes->sanitize($term->slug(), $term->id()));
+				$classes->add("$taxonomy $taxonomy-" . Classes::sanitize($term->slug(), $term->id()));
 			}
 		}
 

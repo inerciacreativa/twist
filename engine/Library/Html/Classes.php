@@ -3,6 +3,7 @@
 namespace Twist\Library\Html;
 
 use ArrayAccess;
+use Twist\Library\Support\Arr;
 
 /**
  * Class Classes
@@ -70,7 +71,7 @@ class Classes implements ArrayAccess
 	 */
 	public function set($classes): self
 	{
-		$this->classes = $this->parse($classes);
+		$this->classes = self::parse($classes);
 
 		return $this;
 	}
@@ -82,7 +83,7 @@ class Classes implements ArrayAccess
 	 */
 	public function add($classes): self
 	{
-		$this->classes = array_unique(array_merge($this->classes, $this->parse($classes)));
+		$this->classes = self::parse([$this->classes, $classes]);
 
 		return $this;
 	}
@@ -94,36 +95,13 @@ class Classes implements ArrayAccess
 	 */
 	public function remove($classes): self
 	{
-		foreach ($this->parse($classes) as $class) {
+		foreach (self::parse($classes) as $class) {
 			if (($index = array_search($class, $this->classes, true)) !== false) {
 				unset($this->classes[$index]);
 			}
 		}
 
-		return $this;
-	}
-
-	/**
-	 * @param array|string $classes
-	 *
-	 * @return $this
-	 */
-	public function only($classes): self
-	{
-		$this->classes = array_intersect($this->classes, $this->parse($classes));
-
-		return $this;
-	}
-
-	/**
-	 * @param array|string $search
-	 * @param array|string $replace
-	 *
-	 * @return $this
-	 */
-	public function replace($search, $replace): self
-	{
-		$this->classes = $this->parse(str_replace($this->parse($search), $this->parse($replace), $this->render()));
+		$this->classes = array_values($this->classes);
 
 		return $this;
 	}
@@ -136,6 +114,31 @@ class Classes implements ArrayAccess
 	public function has(string $class): bool
 	{
 		return in_array($class, $this->classes, true);
+	}
+
+	/**
+	 * @param array|string $classes
+	 *
+	 * @return $this
+	 */
+	public function only($classes): self
+	{
+		$this->classes = array_intersect($this->classes, self::parse($classes));
+
+		return $this;
+	}
+
+	/**
+	 * @param array|string $search
+	 * @param array|string $replace
+	 *
+	 * @return $this
+	 */
+	public function replace($search, $replace): self
+	{
+		$this->classes = self::parse(str_replace(self::parse($search), self::parse($replace), $this->render()));
+
+		return $this;
 	}
 
 	/**
@@ -164,26 +167,6 @@ class Classes implements ArrayAccess
 	public function render(): string
 	{
 		return implode(' ', $this->all());
-	}
-
-	/**
-	 * @param string $class
-	 * @param string $fallback
-	 *
-	 * @return string
-	 * @see sanitize_html_class()
-	 *
-	 */
-	public function sanitize(string $class, string $fallback = ''): string
-	{
-		$sanitized = preg_replace('/%[a-f0-9]{2}/i', '', $class);
-		$sanitized = preg_replace('/[^a-z0-9_-]/i', '', $sanitized);
-
-		if ($sanitized === '' && $fallback) {
-			return $this->sanitize($fallback);
-		}
-
-		return apply_filters('sanitize_html_class', $sanitized, $class, $fallback);
 	}
 
 	/**
@@ -229,25 +212,63 @@ class Classes implements ArrayAccess
 	}
 
 	/**
+	 * @param string $class
+	 * @param string $fallback
+	 *
+	 * @return string
+	 * @see sanitize_html_class()
+	 *
+	 */
+	public static function sanitize(string $class, string $fallback = ''): string
+	{
+		$sanitized = preg_replace('/%[a-f0-9]{2}/i', '', $class);
+		$sanitized = preg_replace('/[^a-z0-9_-]/i', '', $sanitized);
+
+		if ($sanitized === '' && $fallback) {
+			return self::sanitize($fallback);
+		}
+
+		return $sanitized;
+	}
+
+	/**
 	 * @param array|string $value
 	 *
 	 * @return array
 	 */
-	protected function parse($value): array
+	protected static function parse($value): array
 	{
 		if (empty($value)) {
 			return [];
 		}
 
 		if (is_string($value)) {
-			return (array) preg_split('#\s+#', $value);
+			return self::filter((array) preg_split('#\s+#', trim($value)));
 		}
 
 		if (is_array($value)) {
-			return $value;
+			return self::filter(array_map([self::class, 'parse'], $value), true);
 		}
 
 		return [];
+	}
+
+	/**
+	 * @param array $values
+	 * @param bool  $array
+	 *
+	 * @return array
+	 */
+	protected static function filter(array $values, bool $array = false): array
+	{
+		if ($array) {
+			$values = Arr::flatten($values);
+		}
+
+		$values = array_map([self::class, 'sanitize'], $values);
+		$values = array_filter($values);
+
+		return array_unique($values);
 	}
 
 }
