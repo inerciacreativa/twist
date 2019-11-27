@@ -6,10 +6,12 @@ use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 use Twist\Library\Support\Macroable;
+use Twist\Library\Support\Url;
 use Twist\Model\Base\Model;
 use Twist\Model\Base\ModelInterface;
 use Twist\Model\Post\Post;
 use WP_Post;
+use wpdb;
 
 /**
  * Class Image
@@ -35,6 +37,37 @@ class Image extends Model
 	 * @var array
 	 */
 	protected $sizes = [];
+
+	/**
+	 * @param string|Url $url
+	 *
+	 * @return static|null
+	 */
+	public static function by_url($url): ?self
+	{
+		/** @var $wpdb wpdb */ global $wpdb;
+
+		if (!($url instanceof Url)) {
+			$url = Url::parse($url);
+		}
+
+		if (empty($url->path) || $url->path === '/') {
+			return null;
+		}
+
+		$query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid RLIKE %s", $url->path);
+		$id    = $wpdb->get_var($query);
+
+		if ($id) {
+			try {
+				return new static($id);
+			} catch (AppException $exception) {
+				return null;
+			}
+		}
+
+		return null;
+	}
 
 	/**
 	 * Image constructor.
@@ -112,7 +145,7 @@ class Image extends Model
 	{
 		/** @noinspection NullPointerExceptionInspection */
 		return $this->has_parent() && ($this->parent()
-		                                    ->thumbnail_id() === $this->id());
+											->thumbnail_id() === $this->id());
 	}
 
 	/**
@@ -122,7 +155,7 @@ class Image extends Model
 	{
 		/** @noinspection NullPointerExceptionInspection */
 		if (!$this->has_parent() || $this->is_featured() || $this->parent()
-		                                                         ->is_preview()) {
+																 ->is_preview()) {
 			return false;
 		}
 
@@ -219,8 +252,13 @@ class Image extends Model
 				'alt',
 				'id',
 				'sizes',
-				'srcset'
-			], array_merge($image, [$this->alt(), $this->id(), $this->sizes($size), $this->sources($size)]));
+				'srcset',
+			], array_merge($image, [
+				$this->alt(),
+				$this->id(),
+				$this->sizes($size),
+				$this->sources($size),
+			]));
 		}
 
 		return null;
