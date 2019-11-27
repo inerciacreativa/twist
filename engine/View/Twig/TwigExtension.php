@@ -2,11 +2,12 @@
 
 namespace Twist\View\Twig;
 
-use Kint;
+use Kint\Kint;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twist\Library\Html\Classes;
+use Twist\Twist;
 
 /**
  * Class TwigExtension
@@ -44,10 +45,7 @@ class TwigExtension extends AbstractExtension
 	 */
 	public function getFunctions(): array
 	{
-		return [
-			new TwigFunction('kint', static function ($debug) {
-				Kint::dump($debug);
-			}, ['is_safe' => ['all']]),
+		$functions = [
 			new TwigFunction('__', static function (string $string) {
 				$translation = __($string, 'twist');
 
@@ -82,6 +80,14 @@ class TwigExtension extends AbstractExtension
 				return sprintf($translation, $number);
 			}, ['is_safe' => ['html']]),
 		];
+
+		if (Twist::config('app.debug') && class_exists(Kint::class)) {
+			$functions[] = new TwigFunction('kint', static function ($debug) {
+				Kint::dump($debug);
+			}, ['is_safe' => ['all']]);
+		}
+
+		return $functions;
 	}
 
 }
