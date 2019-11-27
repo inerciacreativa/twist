@@ -97,17 +97,62 @@ class Assets
 	 */
 	public function svg_icon(string $icon, $title = null): string
 	{
-		$svg = Tag::svg(['class' => "icon icon-$icon"]);
+		$class = "icon-$icon";
+		$svg   = Tag::svg(['class' => "icon $class"]);
+
 		$svg['focusable'] = 'false';
 
 		if ($title) {
-			$svg['role'] = 'img';
-			$svg->content(Tag::title($title));
+			[$add, $id] = $this->svg_title($class, $title);
+
+			$svg['role']            = 'img';
+			$svg['aria-labelledby'] = $id;
+
+			if ($add) {
+				$svg->content(Tag::title(['id' => $id], $title));
+			}
 		} else {
 			$svg['aria-hidden'] = 'true';
 		}
 
-		return $svg->content(Tag::use(['xlink:href' => "#icon-$icon"]))->render(true);
+		return $svg->content(Tag::use(['xlink:href' => "#icon-$icon"]))
+				   ->render(true);
+	}
+
+	/**
+	 * @param string $class
+	 * @param string $title
+	 *
+	 * @return array
+	 */
+	protected function svg_title(string $class, string $title): array
+	{
+		static $titles = [];
+
+		$id = "${class}__title";
+
+		if (empty($titles) || ($key = array_search($id, array_column($titles, 'id'), true)) === false) {
+			$titles[] = ['id' => $id, 'title' => $title];
+
+			return [true, $id];
+		}
+
+		if ($titles[$key]['title'] === $title) {
+			return [false, $titles[$key]['id']];
+		}
+
+		$count = array_reduce($titles, static function (int $count, array $item) use ($id) {
+			if (strpos($item['id'], $id) === 0) {
+				return ++$count;
+			}
+
+			return $count;
+		}, 0);
+
+		$id       .= "-$count";
+		$titles[] = ['id' => $id, 'title' => $title];
+
+		return [true, $id];
 	}
 
 }
