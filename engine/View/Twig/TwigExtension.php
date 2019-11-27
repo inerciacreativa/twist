@@ -6,6 +6,7 @@ use Kint;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use Twist\Library\Html\Classes;
 
 /**
  * Class TwigExtension
@@ -29,9 +30,12 @@ class TwigExtension extends AbstractExtension
 	public function getFilters(): array
 	{
 		return [
-			new TwigFilter('classes', static function (array $classes) {
-				return implode(' ', array_filter($classes));
+			new TwigFilter('classes', static function ($classes) {
+				return Classes::make($classes)->render();
 			}),
+			new TwigFilter('normalize', static function ($content) {
+				return trim(preg_replace('/>\s+</', '> <', $content));
+			}, ['is_safe' => ['html']]),
 		];
 	}
 
@@ -43,7 +47,7 @@ class TwigExtension extends AbstractExtension
 		return [
 			new TwigFunction('kint', static function ($debug) {
 				Kint::dump($debug);
-			}, ['is_safe' => ['html']]),
+			}, ['is_safe' => ['all']]),
 			new TwigFunction('__', static function (string $string) {
 				$translation = __($string, 'twist');
 
