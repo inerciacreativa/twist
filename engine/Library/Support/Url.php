@@ -22,6 +22,11 @@ class Url
 {
 
 	/**
+	 * @var string
+	 */
+	static protected $home;
+
+	/**
 	 * Allowed schemes.
 	 *
 	 * @var array
@@ -64,6 +69,18 @@ class Url
 	public static function parse(string $url): Url
 	{
 		return new static($url);
+	}
+
+	/**
+	 * @return Url
+	 */
+	public static function home(): Url
+	{
+		if (self::$home === null) {
+			self::$home = self::parse(home_url());
+		}
+
+		return self::$home;
 	}
 
 	/**
@@ -300,6 +317,18 @@ class Url
 	public function isRelative(): bool
 	{
 		return empty($this->components['host']);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLocal(): bool
+	{
+		if ($this->host === 'localhost' || $this->isRelative()) {
+			return true;
+		}
+
+		return $this->host === self::home()->host;
 	}
 
 	/**
