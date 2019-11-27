@@ -4,8 +4,8 @@ namespace Twist\View\Twig;
 
 use Throwable;
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
+use Twig\Loader\FilesystemLoader;
 use Twist\App\AppException;
 use Twist\View\View;
 
@@ -16,6 +16,11 @@ use Twist\View\View;
  */
 class TwigView extends View
 {
+
+	/**
+	 *
+	 */
+	public const MAIN_NAMESPACE = FilesystemLoader::MAIN_NAMESPACE;
 
 	/**
 	 * @var FilesystemLoader
@@ -32,7 +37,12 @@ class TwigView extends View
 	 */
 	protected function init(): void
 	{
-		$this->loader      = new FilesystemLoader($this->config->get('view.paths', []));
+		$this->loader = new FilesystemLoader();
+
+		foreach ($this->config->get('view.paths') as $path) {
+			$this->loader->addPath($path['path'], $path['namespace']);
+		}
+
 		$this->environment = new Environment($this->loader, [
 			'cache'       => $this->config->get('view.cache', false),
 			'debug'       => $this->config->get('app.debug', false),
@@ -96,13 +106,14 @@ class TwigView extends View
 
 	/**
 	 * @param string $path
+	 * @param string $namespace
 	 *
 	 * @throws AppException
 	 */
-	public function path(string $path): void
+	public function path(string $path, string $namespace = self::MAIN_NAMESPACE): void
 	{
 		try {
-			$this->loader->addPath($path);
+			$this->loader->addPath($path, $namespace);
 		} catch (Throwable $exception) {
 			throw new AppException($exception);
 		}

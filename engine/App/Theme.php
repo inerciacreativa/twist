@@ -443,7 +443,8 @@ class Theme
 			'view' => [
 				'cache'     => !$debug,
 				'service'   => TwigView::id(),
-				'templates' => '/templates',
+				'namespace' => TwigView::MAIN_NAMESPACE,
+				'folder'    => '/templates',
 			],
 		]);
 
@@ -457,14 +458,39 @@ class Theme
 		$this->config->set([
 			'view' => [
 				'cache' => $this->config->get('view.cache') ? $this->config->get('dir.upload') . '/view_cache' : false,
-				'paths' => array_unique(array_map(function ($path) {
-					return $path . $this->config->get('view.templates');
-				}, [
-					$this->config->get('dir.stylesheet'),
-					$this->config->get('dir.template'),
-				])),
+				'paths' => $this->getViewPaths($this->config->get('dir.stylesheet'), $this->config->get('dir.template'), $this->config->get('view.folder'), $this->config->get('view.namespace')),
 			],
 		]);
+	}
+
+	/**
+	 * @param string      $stylesheet
+	 * @param string      $template
+	 * @param string      $folder
+	 * @param string|null $namespace
+	 *
+	 * @return array
+	 */
+	protected function getViewPaths(string $stylesheet, string $template, string $folder, string $namespace = null): array
+	{
+		$paths = [];
+
+		if ($namespace) {
+			$paths[] = [$namespace, $stylesheet];
+		}
+
+		$paths[] = [basename($stylesheet), $stylesheet];
+
+		if ($template !== $stylesheet) {
+			$paths[] = [basename($template), $template];
+		}
+
+		return array_map(static function (array $path) use ($folder) {
+			return [
+				'namespace' => $path[0],
+				'path'      => $path[1] . $folder,
+			];
+		}, $paths);
 	}
 
 	/**
