@@ -18,17 +18,6 @@ use InvalidArgumentException;
 final class ArrTest extends TestCase
 {
 
-	protected $testArray = [
-		'flat'   => 'value1',
-		'nested' => [
-			'first'  => '1st',
-			'second' => '2nd',
-			'nested' => [
-				'key' => 'value2',
-			],
-		],
-	];
-
 	public function testDot(): void
 	{
 		$array = Arr::dot(['foo' => ['bar' => 'baz']]);
