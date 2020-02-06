@@ -59,8 +59,8 @@ class Str
 	/**
 	 * Transliterate a UTF-8 value to ASCII.
 	 *
-	 * @param  string  $string
-	 * @param  string  $language
+	 * @param string $string
+	 * @param string $language
 	 *
 	 * @return string
 	 */
@@ -105,6 +105,19 @@ class Str
 	}
 
 	/**
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	public static function stripTags(string $string): string
+	{
+		$string = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@si', '', $string);
+		$string = strip_tags($string);
+
+		return trim($string);
+	}
+
+	/**
 	 * Return the length of the given string.
 	 *
 	 * @param string      $string
@@ -122,30 +135,6 @@ class Str
 	}
 
 	/**
-	 * @param string $string
-	 * @param string $needle
-	 * @param int    $offset
-	 *
-	 * @return bool|int
-	 */
-	public static function searchFirst(string $string, string $needle, int $offset = 0)
-	{
-		return mb_strpos($string, $needle, $offset, 'UTF-8');
-	}
-
-	/**
-	 * @param string $string
-	 * @param string $needle
-	 * @param int    $offset
-	 *
-	 * @return bool|int
-	 */
-	public static function searchLast(string $string, string $needle, int $offset = 0)
-	{
-		return mb_strrpos($string, $needle, $offset, 'UTF-8');
-	}
-
-	/**
 	 * Determine if a given string contains a given substring.
 	 *
 	 * @param string       $haystack
@@ -156,7 +145,7 @@ class Str
 	public static function contains(string $haystack, $needles): bool
 	{
 		foreach ((array) $needles as $needle) {
-			if (static::searchFirst($haystack, $needle) !== false) {
+			if ($needle !== '' && mb_strpos($haystack, $needle, 0, 'UTF-8') !== false) {
 				return true;
 			}
 		}
@@ -217,36 +206,13 @@ class Str
 	}
 
 	/**
-	 * @param string   $subject
-	 * @param string   $replace
-	 * @param int      $start
-	 * @param int|null $length
+	 * @param string       $subject
+	 * @param string|array $search
+	 * @param string|array $replace
 	 *
 	 * @return string
 	 */
-	public static function replace(string $subject, string $replace, int $start, int $length = null): string
-	{
-		$length = $length === null ? static::length($subject) : (int) $length;
-
-		if ($start === 0) {
-			return $replace . static::substring($subject, $length);
-		}
-
-		if ($start === static::length($subject)) {
-			return $subject . $replace;
-		}
-
-		return static::substring($subject, 0, $start) . $replace . static::substring($subject, $length);
-	}
-
-	/**
-	 * @param string $subject
-	 * @param string $search
-	 * @param string $replace
-	 *
-	 * @return string
-	 */
-	public static function replaceAll(string $subject, string $search, string $replace): string
+	public static function replace(string $subject, $search, $replace): string
 	{
 		return str_replace($search, $replace, $subject);
 	}
@@ -262,6 +228,10 @@ class Str
 	 */
 	public static function replaceFirst(string $subject, string $search, string $replace): string
 	{
+		if ($search === '') {
+			return $subject;
+		}
+
 		$position = strpos($subject, $search);
 
 		if ($position !== false) {
@@ -282,6 +252,10 @@ class Str
 	 */
 	public static function replaceLast(string $subject, string $search, string $replace): string
 	{
+		if ($search === '') {
+			return $subject;
+		}
+
 		$position = strrpos($subject, $search);
 
 		if ($position !== false) {
@@ -332,7 +306,7 @@ class Str
 		}
 
 		if (!ctype_lower($string)) {
-			$string = preg_replace('/\s+/u', '', $string);
+			$string = preg_replace('/\s+/u', '', ucwords($string));
 			$string = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1' . $delimiter, $string));
 		}
 
@@ -392,49 +366,82 @@ class Str
 	 * Normalizes the whitespaces of a given string.
 	 *
 	 * @param string $string
-	 * @param bool   $entities
 	 *
 	 * @return string
 	 */
-	public static function whitespace(string $string, bool $entities = false): string
+	public static function whitespace(string $string): string
 	{
-		if ($entities) {
-			// Replace non-breaking spaces entities
-			$string = str_replace('&nbsp;', ' ', $string);
-		}
-
 		// Replace non-breaking spaces
+		$string = str_replace('&nbsp;', ' ', $string);
 		$string = preg_replace('/(\x{00A0})/iu', ' ', $string);
-		// Remove multiple whitespaces
+		// Remove multiple whitespaces and line breaks
 		$string = preg_replace('/\s+/u', ' ', $string);
 
-		return trim($string, ' ');
+		return trim($string);
+	}
+
+	/**
+	 * Limit the number of characters in a string.
+	 *
+	 * @param string $string
+	 * @param int    $limit
+	 * @param string $end
+	 *
+	 * @return string
+	 */
+	public static function chars(string $string, int $limit = 100, string $end = '...'): string
+	{
+		if (mb_strwidth($string, 'UTF-8') <= $limit) {
+			return $string;
+		}
+
+		return rtrim(mb_strimwidth($string, 0, $limit, '', 'UTF-8')) . $end;
+	}
+
+	/**
+	 * Limit the number of words in a string.
+	 *
+	 * @param string $string
+	 * @param int    $words
+	 * @param string $end
+	 *
+	 * @return string
+	 */
+	public static function words(string $string, int $words = 100, string $end = '...'): string
+	{
+		preg_match('/^\s*+(?:\S++\s*+){1,' . $words . '}/u', $string, $matches);
+
+		if (!isset($matches[0]) || static::length($string) === static::length($matches[0])) {
+			return $string;
+		}
+
+		return rtrim($matches[0], " \t\n\r\0.,;") . $end;
 	}
 
 	/**
 	 * Generate a URL friendly "slug" from a given string.
 	 *
-	 * @param string $title
-	 * @param string $separator
-	 * @param string $language
+	 * @param string      $string
+	 * @param string      $separator
+	 * @param string|null $language
 	 *
 	 * @return string
 	 */
-	public static function slug(string $title, string $separator = '-', string $language = 'en'): string
+	public static function slug(string $string, string $separator = '-', $language = 'en'): string
 	{
-		$title = static::ascii($title, $language);
+		$string = $language ? static::ascii($string, $language) : $string;
 
 		$flip = $separator === '-' ? '_' : '-';
 
-		$title = preg_replace('![' . preg_quote($flip, '/') . ']+!u', $separator, $title);
+		$string = preg_replace('![' . preg_quote($flip, '/') . ']+!u', $separator, $string);
 		// Replace @ with the word 'at'
-		$title = str_replace('@', $separator . 'at' . $separator, $title);
+		$string = str_replace('@', $separator . 'at' . $separator, $string);
 		// Remove all characters that are not the separator, letters, numbers, or whitespace
-		$title = preg_replace('![^' . preg_quote($separator, '/') . '\pL\pN\s]+!u', '', static::lower($title));
+		$string = preg_replace('![^' . preg_quote($separator, '/') . '\pL\pN\s]+!u', '', static::lower($string));
 		// Replace all separator characters and whitespace by a single separator
-		$title = preg_replace('![' . preg_quote($separator, '/') . '\s]+!u', $separator, $title);
+		$string = preg_replace('![' . preg_quote($separator, '/') . '\s]+!u', $separator, $string);
 
-		return trim($title, $separator);
+		return trim($string, $separator);
 	}
 
 	/**
@@ -454,6 +461,7 @@ class Str
 			return $charsArray;
 		}
 
+		// @formatter:off
 		return $charsArray = [
 			'0'    => ['°', '₀', '۰', '０'],
 			'1'    => ['¹', '₁', '۱', '１'],
@@ -465,31 +473,31 @@ class Str
 			'7'    => ['⁷', '₇', '۷', '７'],
 			'8'    => ['⁸', '₈', '۸', '８'],
 			'9'    => ['⁹', '₉', '۹', '９'],
-			'a'    => ['à', 'á', 'ả', 'ã', 'ạ', 'ă', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'â', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ', 'ā', 'ą', 'å', 'α', 'ά', 'ἀ', 'ἁ', 'ἂ', 'ἃ', 'ἄ', 'ἅ', 'ἆ', 'ἇ', 'ᾀ', 'ᾁ', 'ᾂ', 'ᾃ', 'ᾄ', 'ᾅ', 'ᾆ', 'ᾇ', 'ὰ', 'ά', 'ᾰ', 'ᾱ', 'ᾲ', 'ᾳ', 'ᾴ', 'ᾶ', 'ᾷ', 'а', 'أ', 'အ', 'ာ', 'ါ', 'ǻ', 'ǎ', 'ª', 'ა', 'अ', 'ا', 'ａ', 'ä', 'א'],
+			'a'    => ['à', 'á', 'ả', 'ã', 'ạ', 'ă', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'â', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ', 'ā', 'ą', 'å', 'α', 'ά', 'ἀ', 'ἁ', 'ἂ', 'ἃ', 'ἄ', 'ἅ', 'ἆ', 'ἇ', 'ᾀ', 'ᾁ', 'ᾂ', 'ᾃ', 'ᾄ', 'ᾅ', 'ᾆ', 'ᾇ', 'ὰ', 'ά', 'ᾰ', 'ᾱ', 'ᾲ', 'ᾳ', 'ᾴ', 'ᾶ', 'ᾷ', 'а', 'أ', 'အ', 'ာ', 'ါ', 'ǻ', 'ǎ', 'ª', 'ა', 'अ', 'ا', 'ａ', 'ä', 'א',],
 			'b'    => ['б', 'β', 'ب', 'ဗ', 'ბ', 'ｂ', 'ב'],
 			'c'    => ['ç', 'ć', 'č', 'ĉ', 'ċ', 'ｃ'],
-			'd'    => ['ď', 'ð', 'đ', 'ƌ', 'ȡ', 'ɖ', 'ɗ', 'ᵭ', 'ᶁ', 'ᶑ', 'д', 'δ', 'د', 'ض', 'ဍ', 'ဒ', 'დ', 'ｄ', 'ד'],
-			'e'    => ['é', 'è', 'ẻ', 'ẽ', 'ẹ', 'ê', 'ế', 'ề', 'ể', 'ễ', 'ệ', 'ë', 'ē', 'ę', 'ě', 'ĕ', 'ė', 'ε', 'έ', 'ἐ', 'ἑ', 'ἒ', 'ἓ', 'ἔ', 'ἕ', 'ὲ', 'έ', 'е', 'ё', 'э', 'є', 'ə', 'ဧ', 'ေ', 'ဲ', 'ე', 'ए', 'إ', 'ئ', 'ｅ'],
+			'd'    => ['ď', 'ð', 'đ', 'ƌ', 'ȡ', 'ɖ', 'ɗ', 'ᵭ', 'ᶁ', 'ᶑ', 'д', 'δ', 'د', 'ض', 'ဍ', 'ဒ', 'დ', 'ｄ', 'ד',],
+			'e'    => ['é', 'è', 'ẻ', 'ẽ', 'ẹ', 'ê', 'ế', 'ề', 'ể', 'ễ', 'ệ', 'ë', 'ē', 'ę', 'ě', 'ĕ', 'ė', 'ε', 'έ', 'ἐ', 'ἑ', 'ἒ', 'ἓ', 'ἔ', 'ἕ', 'ὲ', 'έ', 'е', 'ё', 'э', 'є', 'ə', 'ဧ', 'ေ', 'ဲ', 'ე', 'ए', 'إ', 'ئ', 'ｅ',],
 			'f'    => ['ф', 'φ', 'ف', 'ƒ', 'ფ', 'ｆ', 'פ', 'ף'],
-			'g'    => ['ĝ', 'ğ', 'ġ', 'ģ', 'г', 'ґ', 'γ', 'ဂ', 'გ', 'گ', 'ｇ', 'ג'],
+			'g'    => ['ĝ', 'ğ', 'ġ', 'ģ', 'г', 'ґ', 'γ', 'ဂ', 'გ', 'گ', 'ｇ', 'ג',],
 			'h'    => ['ĥ', 'ħ', 'η', 'ή', 'ح', 'ه', 'ဟ', 'ှ', 'ჰ', 'ｈ', 'ה'],
-			'i'    => ['í', 'ì', 'ỉ', 'ĩ', 'ị', 'î', 'ï', 'ī', 'ĭ', 'į', 'ı', 'ι', 'ί', 'ϊ', 'ΐ', 'ἰ', 'ἱ', 'ἲ', 'ἳ', 'ἴ', 'ἵ', 'ἶ', 'ἷ', 'ὶ', 'ί', 'ῐ', 'ῑ', 'ῒ', 'ΐ', 'ῖ', 'ῗ', 'і', 'ї', 'и', 'ဣ', 'ိ', 'ီ', 'ည်', 'ǐ', 'ი', 'इ', 'ی', 'ｉ', 'י'],
+			'i'    => ['í', 'ì', 'ỉ', 'ĩ', 'ị', 'î', 'ï', 'ī', 'ĭ', 'į', 'ı', 'ι', 'ί', 'ϊ', 'ΐ', 'ἰ', 'ἱ', 'ἲ', 'ἳ', 'ἴ', 'ἵ', 'ἶ', 'ἷ', 'ὶ', 'ί', 'ῐ', 'ῑ', 'ῒ', 'ΐ', 'ῖ', 'ῗ', 'і', 'ї', 'и', 'ဣ', 'ိ', 'ီ', 'ည်', 'ǐ', 'ი', 'इ', 'ی', 'ｉ', 'י',],
 			'j'    => ['ĵ', 'ј', 'Ј', 'ჯ', 'ج', 'ｊ'],
-			'k'    => ['ķ', 'ĸ', 'к', 'κ', 'Ķ', 'ق', 'ك', 'က', 'კ', 'ქ', 'ک', 'ｋ', 'ק'],
-			'l'    => ['ł', 'ľ', 'ĺ', 'ļ', 'ŀ', 'л', 'λ', 'ل', 'လ', 'ლ', 'ｌ', 'ל'],
+			'k'    => ['ķ', 'ĸ', 'к', 'κ', 'Ķ', 'ق', 'ك', 'က', 'კ', 'ქ', 'ک', 'ｋ', 'ק',],
+			'l'    => ['ł', 'ľ', 'ĺ', 'ļ', 'ŀ', 'л', 'λ', 'ل', 'လ', 'ლ', 'ｌ', 'ל',],
 			'm'    => ['м', 'μ', 'م', 'မ', 'მ', 'ｍ', 'מ', 'ם'],
-			'n'    => ['ñ', 'ń', 'ň', 'ņ', 'ŉ', 'ŋ', 'ν', 'н', 'ن', 'န', 'ნ', 'ｎ', 'נ'],
-			'o'    => ['ó', 'ò', 'ỏ', 'õ', 'ọ', 'ô', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ơ', 'ớ', 'ờ', 'ở', 'ỡ', 'ợ', 'ø', 'ō', 'ő', 'ŏ', 'ο', 'ὀ', 'ὁ', 'ὂ', 'ὃ', 'ὄ', 'ὅ', 'ὸ', 'ό', 'о', 'و', 'ို', 'ǒ', 'ǿ', 'º', 'ო', 'ओ', 'ｏ', 'ö'],
+			'n'    => ['ñ', 'ń', 'ň', 'ņ', 'ŉ', 'ŋ', 'ν', 'н', 'ن', 'န', 'ნ', 'ｎ', 'נ',],
+			'o'    => ['ó', 'ò', 'ỏ', 'õ', 'ọ', 'ô', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ơ', 'ớ', 'ờ', 'ở', 'ỡ', 'ợ', 'ø', 'ō', 'ő', 'ŏ', 'ο', 'ὀ', 'ὁ', 'ὂ', 'ὃ', 'ὄ', 'ὅ', 'ὸ', 'ό', 'о', 'و', 'ို', 'ǒ', 'ǿ', 'º', 'ო', 'ओ', 'ｏ', 'ö',],
 			'p'    => ['п', 'π', 'ပ', 'პ', 'پ', 'ｐ', 'פ', 'ף'],
 			'q'    => ['ყ', 'ｑ'],
 			'r'    => ['ŕ', 'ř', 'ŗ', 'р', 'ρ', 'ر', 'რ', 'ｒ', 'ר'],
-			's'    => ['ś', 'š', 'ş', 'с', 'σ', 'ș', 'ς', 'س', 'ص', 'စ', 'ſ', 'ს', 'ｓ', 'ס'],
-			't'    => ['ť', 'ţ', 'т', 'τ', 'ț', 'ت', 'ط', 'ဋ', 'တ', 'ŧ', 'თ', 'ტ', 'ｔ', 'ת'],
-			'u'    => ['ú', 'ù', 'ủ', 'ũ', 'ụ', 'ư', 'ứ', 'ừ', 'ử', 'ữ', 'ự', 'û', 'ū', 'ů', 'ű', 'ŭ', 'ų', 'µ', 'у', 'ဉ', 'ု', 'ူ', 'ǔ', 'ǖ', 'ǘ', 'ǚ', 'ǜ', 'უ', 'उ', 'ｕ', 'ў', 'ü'],
+			's'    => ['ś', 'š', 'ş', 'с', 'σ', 'ș', 'ς', 'س', 'ص', 'စ', 'ſ', 'ს', 'ｓ', 'ס',],
+			't'    => ['ť', 'ţ', 'т', 'τ', 'ț', 'ت', 'ط', 'ဋ', 'တ', 'ŧ', 'თ', 'ტ', 'ｔ', 'ת',],
+			'u'    => ['ú', 'ù', 'ủ', 'ũ', 'ụ', 'ư', 'ứ', 'ừ', 'ử', 'ữ', 'ự', 'û', 'ū', 'ů', 'ű', 'ŭ', 'ų', 'µ', 'у', 'ဉ', 'ု', 'ူ', 'ǔ', 'ǖ', 'ǘ', 'ǚ', 'ǜ', 'უ', 'उ', 'ｕ', 'ў', 'ü',],
 			'v'    => ['в', 'ვ', 'ϐ', 'ｖ', 'ו'],
 			'w'    => ['ŵ', 'ω', 'ώ', 'ဝ', 'ွ', 'ｗ'],
 			'x'    => ['χ', 'ξ', 'ｘ'],
-			'y'    => ['ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ', 'ÿ', 'ŷ', 'й', 'ы', 'υ', 'ϋ', 'ύ', 'ΰ', 'ي', 'ယ', 'ｙ'],
+			'y'    => ['ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ', 'ÿ', 'ŷ', 'й', 'ы', 'υ', 'ϋ', 'ύ', 'ΰ', 'ي', 'ယ', 'ｙ',],
 			'z'    => ['ź', 'ž', 'ż', 'з', 'ζ', 'ز', 'ဇ', 'ზ', 'ｚ', 'ז'],
 			'aa'   => ['ع', 'आ', 'آ'],
 			'ae'   => ['æ', 'ǽ'],
@@ -520,31 +528,31 @@ class Str
 			'yu'   => ['ю'],
 			'zh'   => ['ж', 'ჟ', 'ژ'],
 			'(c)'  => ['©'],
-			'A'    => ['Á', 'À', 'Ả', 'Ã', 'Ạ', 'Ă', 'Ắ', 'Ằ', 'Ẳ', 'Ẵ', 'Ặ', 'Â', 'Ấ', 'Ầ', 'Ẩ', 'Ẫ', 'Ậ', 'Å', 'Ā', 'Ą', 'Α', 'Ά', 'Ἀ', 'Ἁ', 'Ἂ', 'Ἃ', 'Ἄ', 'Ἅ', 'Ἆ', 'Ἇ', 'ᾈ', 'ᾉ', 'ᾊ', 'ᾋ', 'ᾌ', 'ᾍ', 'ᾎ', 'ᾏ', 'Ᾰ', 'Ᾱ', 'Ὰ', 'Ά', 'ᾼ', 'А', 'Ǻ', 'Ǎ', 'Ａ', 'Ä'],
+			'A'    => ['Á', 'À', 'Ả', 'Ã', 'Ạ', 'Ă', 'Ắ', 'Ằ', 'Ẳ', 'Ẵ', 'Ặ', 'Â', 'Ấ', 'Ầ', 'Ẩ', 'Ẫ', 'Ậ', 'Å', 'Ā', 'Ą', 'Α', 'Ά', 'Ἀ', 'Ἁ', 'Ἂ', 'Ἃ', 'Ἄ', 'Ἅ', 'Ἆ', 'Ἇ', 'ᾈ', 'ᾉ', 'ᾊ', 'ᾋ', 'ᾌ', 'ᾍ', 'ᾎ', 'ᾏ', 'Ᾰ', 'Ᾱ', 'Ὰ', 'Ά', 'ᾼ', 'А', 'Ǻ', 'Ǎ', 'Ａ', 'Ä',],
 			'B'    => ['Б', 'Β', 'ब', 'Ｂ'],
 			'C'    => ['Ç', 'Ć', 'Č', 'Ĉ', 'Ċ', 'Ｃ'],
 			'D'    => ['Ď', 'Ð', 'Đ', 'Ɖ', 'Ɗ', 'Ƌ', 'ᴅ', 'ᴆ', 'Д', 'Δ', 'Ｄ'],
-			'E'    => ['É', 'È', 'Ẻ', 'Ẽ', 'Ẹ', 'Ê', 'Ế', 'Ề', 'Ể', 'Ễ', 'Ệ', 'Ë', 'Ē', 'Ę', 'Ě', 'Ĕ', 'Ė', 'Ε', 'Έ', 'Ἐ', 'Ἑ', 'Ἒ', 'Ἓ', 'Ἔ', 'Ἕ', 'Έ', 'Ὲ', 'Е', 'Ё', 'Э', 'Є', 'Ə', 'Ｅ'],
+			'E'    => ['É', 'È', 'Ẻ', 'Ẽ', 'Ẹ', 'Ê', 'Ế', 'Ề', 'Ể', 'Ễ', 'Ệ', 'Ë', 'Ē', 'Ę', 'Ě', 'Ĕ', 'Ė', 'Ε', 'Έ', 'Ἐ', 'Ἑ', 'Ἒ', 'Ἓ', 'Ἔ', 'Ἕ', 'Έ', 'Ὲ', 'Е', 'Ё', 'Э', 'Є', 'Ə', 'Ｅ',],
 			'F'    => ['Ф', 'Φ', 'Ｆ'],
 			'G'    => ['Ğ', 'Ġ', 'Ģ', 'Г', 'Ґ', 'Γ', 'Ｇ'],
 			'H'    => ['Η', 'Ή', 'Ħ', 'Ｈ'],
-			'I'    => ['Í', 'Ì', 'Ỉ', 'Ĩ', 'Ị', 'Î', 'Ï', 'Ī', 'Ĭ', 'Į', 'İ', 'Ι', 'Ί', 'Ϊ', 'Ἰ', 'Ἱ', 'Ἳ', 'Ἴ', 'Ἵ', 'Ἶ', 'Ἷ', 'Ῐ', 'Ῑ', 'Ὶ', 'Ί', 'И', 'І', 'Ї', 'Ǐ', 'ϒ', 'Ｉ'],
+			'I'    => ['Í', 'Ì', 'Ỉ', 'Ĩ', 'Ị', 'Î', 'Ï', 'Ī', 'Ĭ', 'Į', 'İ', 'Ι', 'Ί', 'Ϊ', 'Ἰ', 'Ἱ', 'Ἳ', 'Ἴ', 'Ἵ', 'Ἶ', 'Ἷ', 'Ῐ', 'Ῑ', 'Ὶ', 'Ί', 'И', 'І', 'Ї', 'Ǐ', 'ϒ', 'Ｉ',],
 			'J'    => ['Ｊ'],
 			'K'    => ['К', 'Κ', 'Ｋ'],
 			'L'    => ['Ĺ', 'Ł', 'Л', 'Λ', 'Ļ', 'Ľ', 'Ŀ', 'ल', 'Ｌ'],
 			'M'    => ['М', 'Μ', 'Ｍ'],
 			'N'    => ['Ń', 'Ñ', 'Ň', 'Ņ', 'Ŋ', 'Н', 'Ν', 'Ｎ'],
-			'O'    => ['Ó', 'Ò', 'Ỏ', 'Õ', 'Ọ', 'Ô', 'Ố', 'Ồ', 'Ổ', 'Ỗ', 'Ộ', 'Ơ', 'Ớ', 'Ờ', 'Ở', 'Ỡ', 'Ợ', 'Ø', 'Ō', 'Ő', 'Ŏ', 'Ο', 'Ό', 'Ὀ', 'Ὁ', 'Ὂ', 'Ὃ', 'Ὄ', 'Ὅ', 'Ὸ', 'Ό', 'О', 'Ө', 'Ǒ', 'Ǿ', 'Ｏ', 'Ö'],
+			'O'    => ['Ó', 'Ò', 'Ỏ', 'Õ', 'Ọ', 'Ô', 'Ố', 'Ồ', 'Ổ', 'Ỗ', 'Ộ', 'Ơ', 'Ớ', 'Ờ', 'Ở', 'Ỡ', 'Ợ', 'Ø', 'Ō', 'Ő', 'Ŏ', 'Ο', 'Ό', 'Ὀ', 'Ὁ', 'Ὂ', 'Ὃ', 'Ὄ', 'Ὅ', 'Ὸ', 'Ό', 'О', 'Ө', 'Ǒ', 'Ǿ', 'Ｏ', 'Ö',],
 			'P'    => ['П', 'Π', 'Ｐ'],
 			'Q'    => ['Ｑ'],
 			'R'    => ['Ř', 'Ŕ', 'Р', 'Ρ', 'Ŗ', 'Ｒ'],
 			'S'    => ['Ş', 'Ŝ', 'Ș', 'Š', 'Ś', 'С', 'Σ', 'Ｓ'],
 			'T'    => ['Ť', 'Ţ', 'Ŧ', 'Ț', 'Т', 'Τ', 'Ｔ'],
-			'U'    => ['Ú', 'Ù', 'Ủ', 'Ũ', 'Ụ', 'Ư', 'Ứ', 'Ừ', 'Ử', 'Ữ', 'Ự', 'Û', 'Ū', 'Ů', 'Ű', 'Ŭ', 'Ų', 'У', 'Ǔ', 'Ǖ', 'Ǘ', 'Ǚ', 'Ǜ', 'Ｕ', 'Ў', 'Ü'],
+			'U'    => ['Ú', 'Ù', 'Ủ', 'Ũ', 'Ụ', 'Ư', 'Ứ', 'Ừ', 'Ử', 'Ữ', 'Ự', 'Û', 'Ū', 'Ů', 'Ű', 'Ŭ', 'Ų', 'У', 'Ǔ', 'Ǖ', 'Ǘ', 'Ǚ', 'Ǜ', 'Ｕ', 'Ў', 'Ü',],
 			'V'    => ['В', 'Ｖ'],
 			'W'    => ['Ω', 'Ώ', 'Ŵ', 'Ｗ'],
 			'X'    => ['Χ', 'Ξ', 'Ｘ'],
-			'Y'    => ['Ý', 'Ỳ', 'Ỷ', 'Ỹ', 'Ỵ', 'Ÿ', 'Ῠ', 'Ῡ', 'Ὺ', 'Ύ', 'Ы', 'Й', 'Υ', 'Ϋ', 'Ŷ', 'Ｙ'],
+			'Y'    => ['Ý', 'Ỳ', 'Ỷ', 'Ỹ', 'Ỵ', 'Ÿ', 'Ῠ', 'Ῡ', 'Ὺ', 'Ύ', 'Ы', 'Й', 'Υ', 'Ϋ', 'Ŷ', 'Ｙ',],
 			'Z'    => ['Ź', 'Ž', 'Ż', 'З', 'Ζ', 'Ｚ'],
 			'AE'   => ['Æ', 'Ǽ'],
 			'Ch'   => ['Ч'],
@@ -567,8 +575,9 @@ class Str
 			'Ya'   => ['Я', 'יא'],
 			'Yu'   => ['Ю', 'יו'],
 			'Zh'   => ['Ж'],
-			' '    => ["\xC2\xA0", "\xE2\x80\x80", "\xE2\x80\x81", "\xE2\x80\x82", "\xE2\x80\x83", "\xE2\x80\x84", "\xE2\x80\x85", "\xE2\x80\x86", "\xE2\x80\x87", "\xE2\x80\x88", "\xE2\x80\x89", "\xE2\x80\x8A", "\xE2\x80\xAF", "\xE2\x81\x9F", "\xE3\x80\x80", "\xEF\xBE\xA0"],
+			' '    => ["\xC2\xA0", "\xE2\x80\x80", "\xE2\x80\x81", "\xE2\x80\x82", "\xE2\x80\x83", "\xE2\x80\x84", "\xE2\x80\x85", "\xE2\x80\x86", "\xE2\x80\x87", "\xE2\x80\x88", "\xE2\x80\x89", "\xE2\x80\x8A", "\xE2\x80\xAF", "\xE2\x81\x9F", "\xE3\x80\x80", "\xEF\xBE\xA0",],
 		];
+		// @formatter:on
 	}
 
 	/**
@@ -578,14 +587,15 @@ class Str
 	 *
 	 * @see https://github.com/danielstjules/Stringy/blob/3.1.0/LICENSE.txt
 	 *
-	 * @param  string  $language
+	 * @param string $language
+	 *
 	 * @return array|null
 	 */
 	protected static function languageSpecificCharsArray(string $language): ?array
 	{
 		static $languageSpecific;
 
-		if (! isset($languageSpecific)) {
+		if (!isset($languageSpecific)) {
 			$languageSpecific = [
 				'bg' => [
 					['х', 'Х', 'щ', 'Щ', 'ъ', 'Ъ', 'ь', 'Ь'],
@@ -596,7 +606,7 @@ class Str
 					['ae', 'oe', 'aa', 'Ae', 'Oe', 'Aa'],
 				],
 				'de' => [
-					['ä',  'ö',  'ü',  'Ä',  'Ö',  'Ü'],
+					['ä', 'ö', 'ü', 'Ä', 'Ö', 'Ü'],
 					['ae', 'oe', 'ue', 'AE', 'OE', 'UE'],
 				],
 				'he' => [
