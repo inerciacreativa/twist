@@ -1,48 +1,49 @@
 {
-	"name": "inerciacreativa/twist",
-	"description": "Twist theme for WordPress",
-	"type": "wordpress-theme",
-	"homepage": "https://inerciacreativa.com/twist/",
-	"keywords": [
-		"theme",
-		"wordpress",
-		"twig"
-	],
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "José Cuesta",
-			"email": "jose.cuesta@inerciacreativa.com",
-			"homepage": "https://inerciacreativa.com/",
-			"role": "Developer"
-		}
-	],
-	"require": {
-		"php": ">=7.2",
-		"ext-dom": "*",
-		"ext-json": "*",
-		"ext-libxml": "*",
-		"ext-simplexml": "*",
-		"composer/installers": "^1.5",
-		"pimple/pimple": "^3.0",
-		"twig/twig": "^2.11"
-	},
-	"require-dev": {
-		"kint-php/kint": "^2.2",
-		"phpunit/phpunit": "^8",
-		"roave/security-advisories": "dev-master"
-	},
-	"config": {
-		"vendor-dir": "vendor"
-	},
-	"autoload": {
-		"psr-4": {
-			"Twist\\": "engine/"
-		}
-	},
-	"autoload-dev": {
-		"psr-0": {
-			"Twist\\Tests\\": "tests/unit/"
-		}
+  "name": "inerciacreativa/twist",
+  "description": "Twist theme for WordPress",
+  "type": "wordpress-theme",
+  "homepage": "https://inerciacreativa.com/twist/",
+  "keywords": [
+	"theme",
+	"wordpress",
+	"twig"
+  ],
+  "license": "MIT",
+  "authors": [
+	{
+	  "name": "José Cuesta",
+	  "email": "jose.cuesta@inerciacreativa.com",
+	  "homepage": "https://inerciacreativa.com/",
+	  "role": "Developer"
 	}
+  ],
+  "require": {
+	"php": ">=7.2",
+	"ext-dom": "*",
+	"ext-json": "*",
+	"ext-libxml": "*",
+	"ext-mbstring": "*",
+	"ext-simplexml": "*",
+	"composer/installers": "^1.5",
+	"pimple/pimple": "^3.0",
+	"twig/twig": "^2.11"
+  },
+  "require-dev": {
+	"kint-php/kint": "^2.2",
+	"phpunit/phpunit": "^8",
+	"roave/security-advisories": "dev-master"
+  },
+  "config": {
+	"vendor-dir": "vendor"
+  },
+  "autoload": {
+	"psr-4": {
+	  "Twist\\": "engine/"
+	}
+  },
+  "autoload-dev": {
+	"psr-0": {
+	  "Twist\\Tests\\": "tests/unit/"
+	}
+  }
 }
