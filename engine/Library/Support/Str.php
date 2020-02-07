@@ -79,7 +79,6 @@ class Str
 		return preg_replace('/[^\x20-\x7E]/u', '', $string);
 	}
 
-
 	/**
 	 * @param string $string
 	 *
@@ -135,6 +134,22 @@ class Str
 	}
 
 	/**
+	 * @param string $string
+	 * @param string $needle
+	 * @param int    $offset
+	 *
+	 * @return bool|int
+	 */
+	public static function search(string $string, string $needle, int $offset = 0)
+	{
+		if ($needle === '') {
+			return false;
+		}
+
+		return mb_strpos($string, $needle, $offset, 'UTF-8');
+	}
+
+	/**
 	 * Determine if a given string contains a given substring.
 	 *
 	 * @param string       $haystack
@@ -145,7 +160,7 @@ class Str
 	public static function contains(string $haystack, $needles): bool
 	{
 		foreach ((array) $needles as $needle) {
-			if ($needle !== '' && mb_strpos($haystack, $needle, 0, 'UTF-8') !== false) {
+			if (static::search($haystack, $needle) !== false) {
 				return true;
 			}
 		}
