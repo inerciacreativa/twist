@@ -94,9 +94,9 @@ class Repository implements RepositoryInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function forget($key): self
+	public function forget($keys): self
 	{
-		Arr::forget($this->items, $key);
+		Arr::forget($this->items, $keys);
 
 		return $this;
 	}
@@ -104,7 +104,7 @@ class Repository implements RepositoryInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function pull(string $key, $default = null)
+	public function fetch(string $key, $default = null)
 	{
 		return Arr::pull($this->items, $key, $default);
 	}

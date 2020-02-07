@@ -2,7 +2,8 @@
 
 namespace Twist\App;
 
-use Twist\Library\Data\JsonFile;
+use Twist\Library\Data\Repository;
+use Twist\Library\Support\Json;
 use Twist\Library\Support\Url;
 
 /**
@@ -18,7 +19,7 @@ class Asset
 	public const CHILD = 'stylesheet';
 
 	/**
-	 * @var JsonFile[]
+	 * @var Repository[]
 	 */
 	protected $manifest = [];
 
@@ -41,14 +42,14 @@ class Asset
 	 * @param string $theme
 	 * @param string $filename
 	 *
-	 * @return JsonFile
+	 * @return Repository
 	 */
-	protected function manifest(string $theme, string $filename): JsonFile
+	protected function manifest(string $theme, string $filename): Repository
 	{
 		if (!array_key_exists($theme, $this->manifest)) {
 			$path = $this->config->get("dir.$theme");
 
-			$this->manifest[$theme] = new JsonFile($path . $filename);
+			$this->manifest[$theme] = Json::load($path . $filename);
 		}
 
 		return $this->manifest[$theme];

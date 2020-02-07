@@ -52,19 +52,23 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function set($key, $value = null);
 
 	/**
-	 * @param string|array $key
+	 * Remove one or many array items from the repository using "dot" notation.
+	 *
+	 * @param string|array $keys
 	 *
 	 * @return $this
 	 */
-	public function forget($key);
+	public function forget($keys);
 
 	/**
+	 * Get a value from the repository, and remove it.
+	 *
 	 * @param string $key
 	 * @param mixed  $default
 	 *
 	 * @return mixed
 	 */
-	public function pull(string $key, $default = null);
+	public function fetch(string $key, $default = null);
 
 	/**
 	 * Overwrites the values that already exists in the repository using "dot" notation.
