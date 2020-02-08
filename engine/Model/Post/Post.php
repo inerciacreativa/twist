@@ -336,14 +336,13 @@ class Post extends Model
 				$excerpt = excerpt_remove_blocks($excerpt);
 			}
 
-			$excerpt = preg_replace('/<figure[^>]+>.*<\/figure>/is', '', $excerpt);
 			$excerpt = Hook::apply('the_content', $excerpt);
 			$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
 
 			$words   = Hook::apply('excerpt_length', $words);
 			$more    = Hook::apply('excerpt_more', ' [&hellip;]');
 
-			$excerpt = Str::stripTags($excerpt);
+			$excerpt = Str::stripTags($excerpt, ['figure']);
 			$excerpt = Str::whitespace($excerpt);
 			$excerpt = Str::words($excerpt, $words, $more);
 		}
