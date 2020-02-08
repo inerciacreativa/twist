@@ -42,6 +42,8 @@ final class StrTest extends TestCase
 	{
 		$this->assertSame('Twist is a free, open source WordPress theme.', Str::stripTags('<strong>Twist</strong> is a free, open source WordPress theme.'));
 		$this->assertSame('Twist is a free, open source WordPress theme.', Str::stripTags('<script>console.log("Twist");</script><strong>Twist</strong> is a free, open source WordPress theme.'));
+		$this->assertSame('Twist is a free, open source WordPress theme. WordPress', Str::stripTags('<strong>Twist</strong> is a free, open source WordPress theme. <figure><img src="foo.jpg"><figcaption>WordPress</figcaption></figure>'));
+		$this->assertSame('Twist is a free, open source WordPress theme.', Str::stripTags('<strong>Twist</strong> is a free, open source WordPress theme. <figure><img src="foo.jpg"><figcaption>WordPress</figcaption></figure>', ['figure']));
 	}
 
 	public function testLength(): void
@@ -227,22 +229,22 @@ final class StrTest extends TestCase
 
 	public function testLimitedByChars(): void
 	{
-		$this->assertSame('Twist is...', Str::chars('Twist is a free, open source WordPress theme.', 8));
-		$this->assertSame('这是一...', Str::chars('这是一段中文', 6));
+		$this->assertSame('Twist is…', Str::chars('Twist is a free, open source WordPress theme.', 8));
+		$this->assertSame('这是一…', Str::chars('这是一段中文', 6));
 
 		$string = 'The WordPress theme for web artisans.';
-		$this->assertSame('The Word...', Str::chars($string, 8));
+		$this->assertSame('The Word…', Str::chars($string, 8));
 		$this->assertSame('The WordPress', Str::chars($string, 13, ''));
 		$this->assertSame('The WordPress theme for web artisans.', Str::chars($string, 100));
 
 		$nonAsciiString = '这是一段中文';
-		$this->assertSame('这是一...', Str::chars($nonAsciiString, 6));
+		$this->assertSame('这是一…', Str::chars($nonAsciiString, 6));
 		$this->assertSame('这是一', Str::chars($nonAsciiString, 6, ''));
 	}
 
 	public function testLimitedByWords(): void
 	{
-		$this->assertSame('Jose...', Str::words('Jose Cuesta', 1));
+		$this->assertSame('Jose…', Str::words('Jose Cuesta', 1));
 		$this->assertSame('Jose___', Str::words('Jose Cuesta', 1, '___'));
 		$this->assertSame('Jose Cuesta', Str::words('Jose Cuesta', 3));
 		$this->assertSame('Twist is a free.', Str::words('Twist is a free, open source WordPress theme.', 4, '.'));

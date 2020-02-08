@@ -105,12 +105,18 @@ class Str
 
 	/**
 	 * @param string $string
+	 * @param array $tags
 	 *
 	 * @return string
 	 */
-	public static function stripTags(string $string): string
+	public static function stripTags(string $string, array $tags = []): string
 	{
-		$string = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@si', '', $string);
+		$tags = array_map(static function (string $tag) {
+			return preg_replace('/[^A-Z1-6]/i', '', $tag);
+		}, $tags);
+		$tags = array_merge($tags, ['script', 'style']);
+
+		$string = preg_replace('@<(' . implode('|', $tags) . ')[^>]*?>.*?</\\1>@si', '', $string);
 		$string = strip_tags($string);
 
 		return trim($string);
@@ -404,7 +410,7 @@ class Str
 	 *
 	 * @return string
 	 */
-	public static function chars(string $string, int $limit = 100, string $end = '...'): string
+	public static function chars(string $string, int $limit = 100, string $end = '…'): string
 	{
 		if (mb_strwidth($string, 'UTF-8') <= $limit) {
 			return $string;
@@ -422,7 +428,7 @@ class Str
 	 *
 	 * @return string
 	 */
-	public static function words(string $string, int $words = 100, string $end = '...'): string
+	public static function words(string $string, int $words = 100, string $end = '…'): string
 	{
 		preg_match('/^\s*+(?:\S++\s*+){1,' . $words . '}/u', $string, $matches);
 
