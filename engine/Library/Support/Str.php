@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Twist\Library\Support;
 
@@ -9,6 +10,8 @@ namespace Twist\Library\Support;
  */
 class Str
 {
+
+	use Macroable;
 
 	/**
 	 * The cache of snake-cased words.
@@ -204,7 +207,7 @@ class Str
 	public static function endsWith(string $haystack, $needles): bool
 	{
 		foreach ((array) $needles as $needle) {
-			if (substr($haystack, -strlen($needle)) === (string) $needle) {
+			if (substr($haystack, -strlen((string) $needle)) === (string) $needle) {
 				return true;
 			}
 		}
