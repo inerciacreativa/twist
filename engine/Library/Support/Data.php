@@ -18,6 +18,8 @@ class Data
 	use Macroable;
 
 	/**
+	 * Check if an item exists in an array or object using "dot" notation.
+	 *
 	 * @param mixed        $target
 	 * @param string|array $key
 	 *
