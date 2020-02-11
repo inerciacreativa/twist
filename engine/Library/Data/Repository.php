@@ -189,6 +189,8 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
+	 * Count the number of items.
+	 *
 	 * @return int
 	 */
 	public function count(): int
@@ -207,16 +209,24 @@ class Repository implements RepositoryInterface
 	}
 
 	/**
+	 * Convert the values to an array with "dot" notation.
+	 *
 	 * @param array|object $items
 	 *
 	 * @return array
 	 */
 	protected static function getValues($items): array
 	{
+		if (empty($items)) {
+			return [];
+		}
+
 		return Arr::dot(self::getItems($items));
 	}
 
 	/**
+	 * Convert the values to an array if possible.
+	 *
 	 * @param mixed $items
 	 *
 	 * @return array
@@ -239,7 +249,7 @@ class Repository implements RepositoryInterface
 			return iterator_to_array($items);
 		}
 
-		throw new InvalidArgumentException('Unable to get items.');
+		throw new InvalidArgumentException('Unable to get items: ' . print_r($items, true));
 	}
 
 }

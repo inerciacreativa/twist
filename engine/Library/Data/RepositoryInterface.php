@@ -16,11 +16,15 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 {
 
 	/**
+	 * Get all items.
+	 *
 	 * @return array
 	 */
 	public function all(): array;
 
 	/**
+	 * Get an item using "dot" notation.
+	 *
 	 * @param string $key
 	 * @param mixed  $default
 	 *
@@ -29,6 +33,8 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function get(string $key, $default = null);
 
 	/**
+	 * Check if an item or items exists using "dot" notation.
+	 *
 	 * @param string|array $key
 	 *
 	 * @return bool
@@ -36,6 +42,8 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function has($key): bool;
 
 	/**
+	 * Add an element using "dot" notation if it doesn't exist.
+	 *
 	 * @param string|array|object $key
 	 * @param mixed               $value
 	 *
@@ -44,6 +52,8 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function add($key, $value = null);
 
 	/**
+	 * Set an item to a given value using "dot" notation.
+	 *
 	 * @param string|array|object $key
 	 * @param mixed               $value
 	 *
@@ -52,7 +62,7 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function set($key, $value = null);
 
 	/**
-	 * Remove one or many array items from the repository using "dot" notation.
+	 * Delete one or more items using "dot" notation.
 	 *
 	 * @param string|array $keys
 	 *
@@ -61,7 +71,7 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function forget($keys);
 
 	/**
-	 * Get a value from the repository, and remove it.
+	 * Get and delete an item using "dot" notation.
 	 *
 	 * @param string $key
 	 * @param mixed  $default
@@ -80,6 +90,8 @@ interface RepositoryInterface extends ArrayAccess, Countable, IteratorAggregate
 	public function fill($values);
 
 	/**
+	 * Merge the items with the items from an array.
+	 *
 	 * @param array $values
 	 *
 	 * @return $this
