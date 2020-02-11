@@ -64,6 +64,22 @@ class Pagination extends BasePagination
 	/**
 	 * @inheritdoc
 	 */
+	public function total(): int
+	{
+		return $this->page_count;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function current(): int
+	{
+		return (int) Query::main()->get('cpage', 1);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	protected function getLinks(): array
 	{
 		return array_filter([
@@ -85,8 +101,8 @@ class Pagination extends BasePagination
 		$arguments = array_merge([
 			'base'         => add_query_arg('cpage', '%#%'),
 			'format'       => '',
-			'total'        => $this->page_count,
-			'current'      => Query::main()->get('cpage', 1),
+			'total'        => $this->total(),
+			'current'      => $this->current(),
 			'add_fragment' => '#comments',
 		], $arguments);
 
