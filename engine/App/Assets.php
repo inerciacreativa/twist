@@ -11,7 +11,7 @@ use Twist\Library\Support\Url;
  *
  * @package Twist\App
  */
-class Asset
+class Assets
 {
 
 	public const PARENT = 'template';

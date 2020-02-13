@@ -21,8 +21,8 @@ class AppServiceProvider implements ServiceProviderInterface
 			return new Config();
 		});
 
-		$app->service('asset', static function (App $app) {
-			return new Asset($app['config']);
+		$app->service('assets', static function (App $app) {
+			return new Assets($app['config']);
 		});
 
 		$app->service('theme', static function (App $app) {

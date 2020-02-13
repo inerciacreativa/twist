@@ -4,7 +4,7 @@ namespace Twist;
 
 use Twist\App\App;
 use Twist\App\AppServiceProvider;
-use Twist\App\Asset;
+use Twist\App\Assets;
 use Twist\App\Config;
 use Twist\App\Context;
 use Twist\App\Theme;
@@ -63,11 +63,11 @@ class Twist
 	}
 
 	/**
-	 * @return Asset
+	 * @return Assets
 	 */
-	final public static function asset(): Asset
+	final public static function assets(): Assets
 	{
-		return self::app('asset');
+		return self::app('assets');
 	}
 
 	/**

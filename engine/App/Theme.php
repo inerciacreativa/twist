@@ -189,7 +189,7 @@ class Theme
 	{
 		return $this->options([
 			'asset' => [
-				$this->parent ? Asset::PARENT : Asset::CHILD => [
+				$this->parent ? Assets::PARENT : Assets::CHILD => [
 					'path'     => '/' . trim($path, '/') . '/',
 					'manifest' => $manifest,
 				],
@@ -587,7 +587,7 @@ class Theme
 
 			if ($load) {
 				if (is_string($load)) {
-					wp_enqueue_style($style['id'], Twist::asset()
+					wp_enqueue_style($style['id'], Twist::assets()
 														->url($load, $style['parent']), $style['deps'], null);
 				} else {
 					wp_enqueue_style($style['id']);
@@ -609,7 +609,7 @@ class Theme
 			if ($load) {
 				if (is_string($load)) {
 					wp_deregister_script($script['id']);
-					wp_enqueue_script($script['id'], Twist::asset()
+					wp_enqueue_script($script['id'], Twist::assets()
 														  ->url($load, $script['parent']), $script['deps'], null, true);
 				} else {
 					wp_enqueue_script($script['id']);

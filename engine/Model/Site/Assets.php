@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Site;
 
-use Twist\App\Asset;
+use Twist\App\Assets;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 use Twist\Twist;
@@ -16,7 +16,7 @@ class Assets
 {
 
 	/**
-	 * @var Asset
+	 * @var Assets
 	 */
 	private $asset;
 
@@ -25,7 +25,7 @@ class Assets
 	 */
 	public function __construct()
 	{
-		$this->asset = Twist::asset();
+		$this->asset = Twist::assets();
 	}
 
 	/**
@@ -103,7 +103,7 @@ class Assets
 		$svg['focusable'] = 'false';
 
 		if ($title) {
-			[$add, $id] = $this->svg_title($class, $title);
+			[$add, $id] = $this->getSvgTitle($class, $title);
 
 			$svg['role']            = 'img';
 			$svg['aria-labelledby'] = $id;
@@ -125,7 +125,7 @@ class Assets
 	 *
 	 * @return array
 	 */
-	protected function svg_title(string $class, string $title): array
+	protected function getSvgTitle(string $class, string $title): array
 	{
 		static $titles = [];
 
