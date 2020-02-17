@@ -126,6 +126,7 @@ class AppException extends Exception implements AppExceptionInterface
 	 */
 	public static function toHtml(AppExceptionInterface $exception): Tag
 	{
+		//$test = preg_match('/^(.*)Stack trace:(.*){main}$/s', $exception->getMessage(), $matches);
 		$trace = static::toArray($exception);
 		$rows  = [];
 
@@ -173,12 +174,13 @@ class AppException extends Exception implements AppExceptionInterface
 				border-spacing: 0;
 			}',
 			'.table caption {
-				font-size: 1.2em;
-				font-weight: 700;
+				font-size: 1rem;
 				border-bottom: 3px solid #dfe4ea;
 				padding: .5em;
+				text-align: left;
 			}',
 			'.table th, .table td {
+				font-size: 1rem;
 				border-bottom: 1px solid #dfe4ea;
 				padding: .75em 1em;
 				vertical-align: top;
