@@ -3,6 +3,7 @@
 namespace Twist\Model\Navigation;
 
 use Twist\Library\Hook\Hook;
+use Twist\Model\Link\Links;
 
 /**
  * Class Navigation
@@ -13,58 +14,85 @@ class Navigation
 {
 
 	/**
-	 * Navigation constructor.
+	 * @var Links[]
 	 */
-	public function __construct()
-	{
-		Hook::add('wp_nav_menu_args', static function (array $arguments) {
-			$arguments['echo'] = false;
-
-			return $arguments;
-		});
-
-		Hook::add('pre_wp_nav_menu', function () {
-			return $this->getLinks(func_get_arg(1));
-		}, 1, 2);
-	}
+	private static $cache = [];
 
 	/**
-	 * @param mixed  $menu
-	 * @param string $location
-	 * @param int    $depth
+	 * Get a navigation menu.
+	 *
+	 * @param int|string $menu
+	 * @param string     $location
+	 * @param int        $depth
 	 *
 	 * @return Links
 	 */
-	public function get($menu, string $location = null, int $depth = 0): Links
+	public static function make($menu, string $location = '', int $depth = 0): Links
 	{
-		return wp_nav_menu([
-			'menu'           => $menu,
-			'theme_location' => $location,
-			'depth'          => $depth,
-		]);
+		return (new static())->get($menu, $location, $depth);
 	}
 
 	/**
-	 * Render the menu.
+	 * Get a navigation menu.
 	 *
-	 * @param object $arguments
+	 * @param int|string $menu
+	 * @param string     $location
+	 * @param int        $depth
 	 *
 	 * @return Links
 	 */
-	protected function getLinks(object $arguments): Links
+	public function get($menu, string $location = '', int $depth = 0): Links
 	{
-		$items = $this->getItems($arguments->menu, $arguments->theme_location);
-
-		if (empty($items)) {
-			return new Links();
+		$id = sprintf('%s-%s-%d', $menu, $location, $depth);
+		if (isset(self::$cache[$id])) {
+			return self::$cache[$id];
 		}
 
-		$items  = $this->sortItems($items, $arguments);
-		$walker = new Walker();
+		$items = $this->getItems($menu, $location);
+
+		if (empty($items)) {
+			return self::$cache[$id] = new Links();
+		}
+
+		$arguments = $this->getArguments($menu, $location, $depth);
+		$items     = $this->sortItems($items, $arguments);
+		$walker    = new Walker();
 
 		$walker->walk($items, $arguments->depth, $arguments);
 
-		return $walker->getLinks();
+		return self::$cache[$id] = $walker->getLinks();
+	}
+
+	/**
+	 * Get the complete list of menu arguments.
+	 *
+	 * @param int|string $menu
+	 * @param string     $location
+	 * @param int        $depth
+	 *
+	 * @return object
+	 */
+	protected function getArguments($menu, string $location, int $depth): object
+	{
+		return (object) [
+			'menu'            => $menu,
+			'container'       => 'div',
+			'container_class' => '',
+			'container_id'    => '',
+			'menu_class'      => 'menu',
+			'menu_id'         => '',
+			'echo'            => false,
+			'fallback_cb'     => false,
+			'before'          => '',
+			'after'           => '',
+			'link_before'     => '',
+			'link_after'      => '',
+			'items_wrap'      => '<ul id="%1$s" class="%2$s">%3$s</ul>',
+			'item_spacing'    => 'preserve',
+			'depth'           => $depth,
+			'walker'          => '',
+			'theme_location'  => $location,
+		];
 	}
 
 	/**

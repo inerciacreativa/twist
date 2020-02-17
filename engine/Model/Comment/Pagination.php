@@ -2,10 +2,8 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\App\AppException;
 use Twist\Library\Hook\Hookable;
-use Twist\Model\Navigation\Links;
-use Twist\Model\Navigation\Pagination as BasePagination;
+use Twist\Model\Pagination\Pagination as BasePagination;
 use Twist\Model\Post\Query;
 use WP_Rewrite;
 
@@ -35,11 +33,6 @@ class Pagination extends BasePagination
 	protected $post_link;
 
 	/**
-	 * @var array
-	 */
-	protected $arguments;
-
-	/**
 	 * Pagination constructor.
 	 *
 	 * @param int    $page_count
@@ -51,6 +44,9 @@ class Pagination extends BasePagination
 		$this->page_count = $page_count;
 		$this->page_first = $page_first;
 		$this->post_link  = $post_link;
+
+		$this->hook()
+			 ->on('paginate_links', 'filterLink');
 	}
 
 	/**
@@ -80,7 +76,7 @@ class Pagination extends BasePagination
 	/**
 	 * @inheritdoc
 	 */
-	protected function getLinks(): array
+	protected function getPrevNextLinks(): array
 	{
 		return array_filter([
 			'prev' => get_previous_comments_link(_x('Previous', 'previous set of posts', 'twist')),
@@ -90,62 +86,61 @@ class Pagination extends BasePagination
 
 	/**
 	 * @inheritdoc
-	 * @throws AppException
 	 */
-	protected function getPaginatedLinks(array $arguments = []): Links
+	protected function getPaginatedLinks(array $arguments): array
 	{
-		if (!$this->has_pages()) {
-			return new Links();
-		}
-
 		$arguments = array_merge([
-			'base'         => add_query_arg('cpage', '%#%'),
+			'base'         => $this->getBase(),
 			'format'       => '',
+			'add_fragment' => '#comments',
 			'total'        => $this->total(),
 			'current'      => $this->current(),
-			'add_fragment' => '#comments',
-		], $arguments);
+			'mid_size'     => 1,
+			'prev_text'    => _x('Previous', 'previous set of posts', 'twist'),
+			'next_text'    => _x('Next', 'next set of posts', 'twist'),
+		], $arguments, ['type' => 'array']);
 
-		if ($this->rewrite()->using_permalinks()) {
-			$link   = trailingslashit($this->post_link);
-			$append = $this->rewrite()->comments_pagination_base . '-%#%';
-
-			$arguments['base'] = user_trailingslashit($link . $append, 'commentpaged');
-		}
-
-		$this->arguments = $arguments;
-
-		$this->hook()->on('paginate_links', 'filterLink');
-		$links = parent::getPaginatedLinks($arguments);
-		$this->hook()->disable();
-
-		return $links;
+		return paginate_links($arguments);
 	}
 
 	/**
+	 * Remove the query from the URL for the first page of comments.
+	 *
 	 * @param string $link
 	 *
 	 * @return string
 	 */
 	protected function filterLink(string $link): string
 	{
-		if ($this->rewrite()->using_permalinks()) {
-			$search = $this->rewrite()->comments_pagination_base . '-' . $this->page_first . '/';
-		} else {
-			$search = '&#038;cpage=' . $this->page_first;
+		/** @var WP_Rewrite $wp_rewrite */ global $wp_rewrite;
+
+		if ($wp_rewrite->using_permalinks()) {
+			$search = $wp_rewrite->comments_pagination_base . '-' . $this->page_first . '/';
+
+			return str_replace($search, '', $link);
 		}
 
-		return str_replace($search, '', $link);
+		if (strpos($link,'cpage=' . $this->page_first)) {
+			return add_query_arg('cpage', false, $link);
+		}
+
+		return $link;
 	}
 
 	/**
-	 * @return WP_Rewrite
+	 * Return the base of the paginated URL.
+	 *
+	 * @return string
 	 */
-	protected function rewrite(): WP_Rewrite
+	protected function getBase(): string
 	{
 		/** @var WP_Rewrite $wp_rewrite */ global $wp_rewrite;
 
-		return $wp_rewrite;
+		if ($wp_rewrite->using_permalinks()) {
+			return $this->post_link . $wp_rewrite->comments_pagination_base . '-%#%/';
+		}
+
+		return add_query_arg('cpage', '%#%', $this->post_link);
 	}
 
 }

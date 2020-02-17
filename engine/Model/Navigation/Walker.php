@@ -4,6 +4,8 @@ namespace Twist\Model\Navigation;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
+use Twist\Model\Link\Link;
+use Twist\Model\Link\Links;
 use Walker_Nav_Menu;
 
 /**
@@ -60,7 +62,8 @@ class Walker extends Walker_Nav_Menu
 	 */
 	public function start_el(&$output, $item, $depth = 0, $arguments = [], $id = 0): void
 	{
-		$classes = Classes::make($item->classes)->only(array_keys(static::$classes));
+		$classes = Classes::make($item->classes)
+						  ->only(array_keys(static::$classes));
 		$classes->set(Hook::apply('nav_menu_css_class', $classes->all(), $item, $arguments, $depth));
 		$classes->replace(array_keys(static::$classes), static::$classes);
 
@@ -106,7 +109,7 @@ class Walker extends Walker_Nav_Menu
 
 		/** @noinspection NullPointerExceptionInspection */
 		$this->links = $link->has_parent() ? $link->parent()
-		                                          ->children() : $this->root;
+												  ->children() : $this->root;
 	}
 
 }
