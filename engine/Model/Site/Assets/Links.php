@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Model\Site\Elements;
+namespace Twist\Model\Site\Assets;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Hook\Hook;
@@ -9,9 +9,9 @@ use Twist\Library\Html\Tag;
 /**
  * Class Links
  *
- * @package Twist\Model\Site\Elements
+ * @package Twist\Model\Site\Assets
  */
-class Links implements ElementsInterface
+class Links implements AssetsInterface
 {
 
 	/**

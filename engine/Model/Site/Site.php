@@ -5,11 +5,11 @@ namespace Twist\Model\Site;
 use Twist\App\AppException;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Macroable;
-use Twist\Model\Navigation\Links;
+use Twist\Model\Link\Links;
 use Twist\Model\Navigation\Navigation;
-use Twist\Model\Navigation\Pagination;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\Query;
+use Twist\Model\Site\Assets\AssetsGroup;
 use Twist\Model\Taxonomy\Term;
 use Twist\Model\User\User;
 
@@ -24,19 +24,9 @@ class Site
 	use Macroable;
 
 	/**
-	 * @var Head
+	 * @var Assets
 	 */
-	private $head;
-
-	/**
-	 * @var Foot
-	 */
-	private $foot;
-
-	/**
-	 * @var Navigation
-	 */
-	private $navigation;
+	private $assets;
 
 	/**
 	 * @var Pagination
@@ -44,24 +34,19 @@ class Site
 	private $pagination;
 
 	/**
-	 * @var Assets
+	 * @return AssetsGroup
 	 */
-	private $assets;
-
-	/**
-	 * @return Head
-	 */
-	public function head(): Head
+	public function head(): AssetsGroup
 	{
-		return $this->head ?? $this->head = new Head();
+		return $this->assets()->head();
 	}
 
 	/**
-	 * @return Foot
+	 * @return AssetsGroup
 	 */
-	public function foot(): Foot
+	public function foot(): AssetsGroup
 	{
-		return $this->foot ?? $this->foot = new Foot();
+		return $this->assets()->foot();
 	}
 
 	/**
@@ -73,19 +58,15 @@ class Site
 	}
 
 	/**
-	 * @param string $menu
-	 * @param string $location
-	 * @param int    $depth
+	 * @param int|string $menu
+	 * @param string     $location
+	 * @param int        $depth
 	 *
 	 * @return Links
 	 */
-	public function navigation(string $menu, $location = null, $depth = 0): Links
+	public function navigation($menu, string $location = '', int $depth = 0): Links
 	{
-		if ($this->navigation === null) {
-			$this->navigation = new Navigation();
-		}
-
-		return $this->navigation->get($menu, $location, $depth);
+		return Navigation::make($menu, $location, $depth);
 	}
 
 	/**
@@ -99,6 +80,7 @@ class Site
 
 	/**
 	 * @return Pagination
+	 * @throws AppException
 	 */
 	public function pagination(): Pagination
 	{
@@ -199,7 +181,7 @@ class Site
 		if (Query::main()->is_search()) {
 			$classes->add('search');
 			$classes->add(Query::main()
-			                   ->total() > 0 ? 'search-has-results' : 'search-has-no-results');
+							   ->total() > 0 ? 'search-has-results' : 'search-has-no-results');
 		}
 
 		if (Query::main()->is_404()) {

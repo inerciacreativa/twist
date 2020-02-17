@@ -2,9 +2,15 @@
 
 namespace Twist\Model\Site;
 
-use Twist\App\Assets;
+use Twist\App\App;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
+use Twist\Model\Site\Assets\AssetsGroup;
+use Twist\Model\Site\Assets\Title;
+use Twist\Model\Site\Assets\Metas;
+use Twist\Model\Site\Assets\Links;
+use Twist\Model\Site\Assets\Styles;
+use Twist\Model\Site\Assets\Scripts;
 use Twist\Twist;
 
 /**
@@ -16,16 +22,37 @@ class Assets
 {
 
 	/**
-	 * @var Assets
+	 * @var AssetsGroup
 	 */
-	private $asset;
+	private $head;
 
 	/**
-	 * Asset constructor.
+	 * @var AssetsGroup
 	 */
-	public function __construct()
+	private $foot;
+
+	/**
+	 * @return AssetsGroup
+	 */
+	public function head(): AssetsGroup
 	{
-		$this->asset = Twist::assets();
+		return $this->head ?? $this->head = new AssetsGroup(App::HEAD, [
+				Title::class,
+				Metas::class,
+				Links::class,
+				Styles::class,
+				Scripts::class,
+			]);
+	}
+
+	/**
+	 * @return AssetsGroup
+	 */
+	public function foot(): AssetsGroup
+	{
+		return $this->foot ?? $this->foot = new AssetsGroup(App::FOOT, [
+				Scripts::class,
+			]);
 	}
 
 	/**
@@ -36,7 +63,7 @@ class Assets
 	 */
 	public function url(string $filename, bool $parent = false): string
 	{
-		return $this->asset->url($filename, $parent);
+		return Twist::assets()->url($filename, $parent);
 	}
 
 	/**
@@ -50,7 +77,7 @@ class Assets
 		if (empty($filename) && ($id = get_theme_mod('custom_logo'))) {
 			$logo = Tag::parse(wp_get_attachment_image($id, 'full'));
 		} else {
-			$logo = Tag::img(['src' => $this->asset->url($filename)]);
+			$logo = Tag::img(['src' => Twist::assets()->url($filename)]);
 		}
 
 		$logo->attributes(array_merge([
@@ -69,7 +96,7 @@ class Assets
 	 */
 	public function image(string $filename, array $attributes = [], bool $parent = false): string
 	{
-		$image = Tag::img(['src' => $this->asset->url($filename, $parent)]);
+		$image = Tag::img(['src' => Twist::assets()->url($filename, $parent)]);
 		$image->attributes(array_merge([
 			'alt' => '',
 		], $attributes));
@@ -84,7 +111,7 @@ class Assets
 	 */
 	public function svg_inline(string $path): string
 	{
-		$image = $this->asset->path($path);
+		$image = Twist::assets()->path($path);
 
 		return (string) @file_get_contents($image);
 	}

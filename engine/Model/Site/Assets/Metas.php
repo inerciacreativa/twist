@@ -1,6 +1,6 @@
 <?php
 
-namespace Twist\Model\Site\Elements;
+namespace Twist\Model\Site\Assets;
 
 use Twist\Library\Dom\Document;
 use Twist\Library\Dom\Element;
@@ -11,9 +11,9 @@ use Twist\Library\Support\Str;
 /**
  * Class Metas
  *
- * @package Twist\Model\Site\Elements
+ * @package Twist\Model\Site\Assets
  */
-class Metas implements ElementsInterface
+class Metas implements AssetsInterface
 {
 
 	/**
@@ -89,7 +89,7 @@ class Metas implements ElementsInterface
 		static $title;
 
 		if ($title === null) {
-			$title = html_entity_decode(the_title_attribute(['echo' => false]), ENT_HTML5 | ENT_QUOTES);
+			$title = Str::fromEntities(the_title_attribute(['echo' => false]));
 		}
 
 		return $title;
