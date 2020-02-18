@@ -3,8 +3,8 @@
 namespace Twist\Model\Post;
 
 use Twist\App\AppException;
-use Twist\Model\Base\Collection;
-use Twist\Model\Base\CollectionIteratorInterface;
+use Twist\Model\Collection;
+use Twist\Model\CollectionIteratorInterface;
 
 /**
  * Class Posts

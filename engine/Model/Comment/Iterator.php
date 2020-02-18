@@ -2,8 +2,8 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Model\Base\CollectionIterator;
-use Twist\Model\Base\ModelInterface;
+use Twist\Model\CollectionIterator;
+use Twist\Model\ModelInterface;
 
 /**
  * Class Iterator

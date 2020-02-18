@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Taxonomy;
 
-use Twist\Model\Base\Collection;
+use Twist\Model\Collection;
 
 /**
  * Class Terms

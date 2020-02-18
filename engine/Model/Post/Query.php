@@ -6,7 +6,7 @@ use Twist\App\App;
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Support\Arr;
-use Twist\Model\Base\IterableInterface;
+use Twist\Model\IterableInterface;
 use WP_Query;
 
 /**

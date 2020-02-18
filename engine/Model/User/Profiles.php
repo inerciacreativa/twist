@@ -3,7 +3,7 @@
 namespace Twist\Model\User;
 
 use Twist\Library\Support\Arr;
-use Twist\Model\Base\Enumerable;
+use Twist\Model\Enumerable;
 
 /**
  * Class Profiles

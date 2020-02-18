@@ -2,8 +2,8 @@
 
 namespace Twist\Model\User;
 
-use Twist\Model\Base\IdentifiableInterface;
 use Twist\Library\Html\Tag;
+use Twist\Model\IdentifiableInterface;
 
 /**
  * Interface UserInterface

@@ -3,8 +3,8 @@
 namespace Twist\Model\Link;
 
 use Twist\Library\Html\Classes;
-use Twist\Model\Base\CollectionInterface;
-use Twist\Model\Base\Model;
+use Twist\Model\CollectionInterface;
+use Twist\Model\Model;
 
 /**
  * Class Link

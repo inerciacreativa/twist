@@ -3,8 +3,8 @@
 namespace Twist\Model\Image;
 
 use Twist\App\AppException;
-use Twist\Model\Base\Collection;
-use Twist\Model\Base\CollectionInterface;
+use Twist\Model\Collection;
+use Twist\Model\CollectionInterface;
 use Twist\Model\Post\Post;
 use Twist\Model\Post\Query;
 

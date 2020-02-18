@@ -4,8 +4,8 @@ namespace Twist\Model\Meta;
 
 use ArrayIterator;
 use Twist\Library\Hook\Hook;
-use Twist\Model\Base\EnumerableInterface;
-use Twist\Model\Base\IdentifiableInterface;
+use Twist\Model\EnumerableInterface;
+use Twist\Model\IdentifiableInterface;
 
 /**
  * Class Meta
