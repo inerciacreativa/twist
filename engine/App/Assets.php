@@ -5,6 +5,7 @@ namespace Twist\App;
 use Twist\Library\Data\Repository;
 use Twist\Library\Support\Json;
 use Twist\Library\Support\Url;
+use RuntimeException;
 
 /**
  * Class Asset
@@ -49,7 +50,13 @@ class Assets
 		if (!array_key_exists($theme, $this->manifest)) {
 			$path = $this->config->get("dir.$theme");
 
-			$this->manifest[$theme] = Json::load($path . $filename);
+			try {
+				$manifest = Json::load($path . $filename);
+			} catch (RuntimeException $exception) {
+				$manifest = new Repository();
+			}
+
+			$this->manifest[$theme] = $manifest;
 		}
 
 		return $this->manifest[$theme];
