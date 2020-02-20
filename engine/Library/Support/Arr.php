@@ -624,14 +624,16 @@ class Arr
 			$result[$key] = $values[$key] ?? $value;
 		}
 
-		foreach ($required as $key) {
-			if (array_key_exists($key, $values)) {
-				$result[$key] = $values[$key];
+		if ($required) {
+			foreach ($required as $key) {
+				if (array_key_exists($key, $values)) {
+					$result[$key] = $values[$key];
+				}
 			}
-		}
 
-		if ($required && ($missing = array_diff($required, array_keys($result)))) {
-			throw new InvalidArgumentException('Values does not contain the following keys: ' . implode(', ', $missing));
+			if ($missing = array_diff($required, array_keys($result))) {
+				throw new InvalidArgumentException('Values does not contain the following keys: ' . implode(', ', $missing));
+			}
 		}
 
 		return $result;
