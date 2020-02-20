@@ -17,31 +17,7 @@ class Enumerable implements EnumerableInterface, Countable
 	/**
 	 * @var array
 	 */
-	private $values = [];
-
-	/**
-	 * Reset the values in the set, optionally fill with the new values passed.
-	 *
-	 * @param array $values
-	 *
-	 * @return $this
-	 */
-	public function reset(array $values = []): EnumerableInterface
-	{
-		$this->values = $values;
-
-		return $this;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function set(string $key, $value): EnumerableInterface
-	{
-		$this->values[$key] = $value;
-
-		return $this;
-	}
+	protected $values = [];
 
 	/**
 	 * @inheritdoc
@@ -59,16 +35,6 @@ class Enumerable implements EnumerableInterface, Countable
 	public function has(string $key): bool
 	{
 		return array_key_exists($key, $this->values);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function forget(string $key): EnumerableInterface
-	{
-		unset($this->values[$key]);
-
-		return $this;
 	}
 
 	/**
