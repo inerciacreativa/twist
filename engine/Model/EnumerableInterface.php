@@ -13,16 +13,6 @@ interface EnumerableInterface extends IteratorAggregate
 {
 
 	/**
-	 * Set a key value pair in the set.
-	 *
-	 * @param string $key
-	 * @param mixed  $value
-	 *
-	 * @return EnumerableInterface
-	 */
-	public function set(string $key, $value): EnumerableInterface;
-
-	/**
 	 * Get a value from the set.
 	 *
 	 * @param string $key
@@ -30,15 +20,6 @@ interface EnumerableInterface extends IteratorAggregate
 	 * @return mixed
 	 */
 	public function get(string $key);
-
-	/**
-	 * Remove a value from the set.
-	 *
-	 * @param string $key
-	 *
-	 * @return EnumerableInterface
-	 */
-	public function forget(string $key): EnumerableInterface;
 
 	/**
 	 * Check if a key exists in the set.
