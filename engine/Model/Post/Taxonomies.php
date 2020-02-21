@@ -26,8 +26,8 @@ class Taxonomies extends Enumerable
 	 */
 	public function __construct(Post $post)
 	{
-		$this->post   = $post;
-		$this->values = array_flip(get_object_taxonomies($post->type()));
+		$this->post = $post;
+		$this->fill(array_flip(get_object_taxonomies($post->type())));
 	}
 
 	/**
@@ -35,17 +35,17 @@ class Taxonomies extends Enumerable
 	 */
 	public function get(string $key, $default = null): ?Terms
 	{
-		if (!array_key_exists($key, $this->values)) {
+		if (!$this->has($key)) {
 			return null;
 		}
 
-		$terms = $this->values[$key];
+		$terms = parent::get($key);
 
 		if (!($terms instanceof Terms)) {
 			try {
 				$terms = new Terms($this->post, new Taxonomy($key));
 
-				$this->values[$key] = $terms;
+				$this->set($key, $terms);
 			} catch (AppException $exception) {
 				$terms = null;
 			}

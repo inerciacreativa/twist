@@ -20,12 +20,12 @@ class Profiles extends Enumerable
 	 */
 	public function __construct(User $user)
 	{
-		$this->values = Arr::map(wp_get_user_contact_methods(), static function ($title, $name) use ($user) {
+		$this->fill(Arr::map(wp_get_user_contact_methods(), static function ($title, $name) use ($user) {
 			return [
 				'title' => $title,
 				'url'   => esc_url($user->meta()->get($name, '')),
 			];
-		});
+		}));
 	}
 
 }

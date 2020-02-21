@@ -17,7 +17,24 @@ class Enumerable implements EnumerableInterface, Countable
 	/**
 	 * @var array
 	 */
-	protected $values = [];
+	private $values = [];
+
+	/**
+	 * @param array $values
+	 */
+	protected function fill(array $values): void
+	{
+		$this->values = $values;
+	}
+
+	/**
+	 * @param string $key
+	 * @param mixed  $value
+	 */
+	protected function set(string $key, $value): void
+	{
+		$this->values[$key] = $value;
+	}
 
 	/**
 	 * @inheritdoc
