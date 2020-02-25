@@ -54,4 +54,16 @@ class Taxonomies extends Enumerable
 		return $terms;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+	public function getValues(): array
+	{
+		foreach ($this->getNames() as $name) {
+			$this->get($name);
+		}
+
+		return parent::getValues();
+	}
+
 }

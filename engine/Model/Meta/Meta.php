@@ -50,9 +50,9 @@ class Meta implements EnumerableInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function set(string $key, $value): EnumerableInterface
+	public function set(string $name, $value): EnumerableInterface
 	{
-		update_metadata($this->type, $this->parent->id(), $key, $value);
+		update_metadata($this->type, $this->parent->id(), $name, $value);
 
 		return $this;
 	}
@@ -60,35 +60,35 @@ class Meta implements EnumerableInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function get(string $key, bool $all = false)
+	public function get(string $name, bool $all = false)
 	{
-		return Hook::apply('twist_meta_' . $this->type, get_metadata($this->type, $this->parent->id(), $key, !$all), $key, $this);
+		return Hook::apply('twist_meta_' . $this->type, get_metadata($this->type, $this->parent->id(), $name, !$all), $name, $this);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function forget(string $key): EnumerableInterface
+	public function forget(string $name): EnumerableInterface
 	{
-		delete_metadata($this->type, $this->parent->id(), $key);
+		delete_metadata($this->type, $this->parent->id(), $name);
 
 		return $this;
 	}
 
 	/**
-	 * @param string $key
+	 * @param string $name
 	 *
 	 * @return bool
 	 */
-	public function has(string $key): bool
+	public function has(string $name): bool
 	{
-		return metadata_exists($this->type, $this->parent->id(), $key);
+		return metadata_exists($this->type, $this->parent->id(), $name);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function all(): array
+	public function getValues(): array
 	{
 		return get_metadata($this->type, $this->parent->id());
 	}
@@ -96,9 +96,17 @@ class Meta implements EnumerableInterface
 	/**
 	 * @inheritdoc
 	 */
+	public function getNames(): array
+	{
+		return array_keys($this->getValues());
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function getIterator()
 	{
-		return new ArrayIterator($this->all());
+		return new ArrayIterator($this->getValues());
 	}
 
 }

@@ -20,49 +20,6 @@ class Enumerable implements EnumerableInterface, Countable
 	private $values = [];
 
 	/**
-	 * @param array $values
-	 */
-	protected function fill(array $values): void
-	{
-		$this->values = $values;
-	}
-
-	/**
-	 * @param string $key
-	 * @param mixed  $value
-	 */
-	protected function set(string $key, $value): void
-	{
-		$this->values[$key] = $value;
-	}
-
-	/**
-	 * @inheritdoc
-	 *
-	 * @param mixed $default
-	 */
-	public function get(string $key, $default = null)
-	{
-		return $this->values[$key] ?? Data::value($default);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function has(string $key): bool
-	{
-		return array_key_exists($key, $this->values);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function all(): array
-	{
-		return $this->values;
-	}
-
-	/**
 	 * @inheritdoc
 	 */
 	public function count(): int
@@ -71,11 +28,62 @@ class Enumerable implements EnumerableInterface, Countable
 	}
 
 	/**
+	 * @param array $values
+	 */
+	protected function fill(array $values): void
+	{
+		$this->values = $values;
+	}
+
+	/**
+	 * @param string $name
+	 * @param mixed  $value
+	 */
+	protected function set(string $name, $value): void
+	{
+		$this->values[$name] = $value;
+	}
+
+	/**
+	 * @inheritdoc
+	 *
+	 * @param mixed $default
+	 */
+	public function get(string $name, $default = null)
+	{
+		return $this->values[$name] ?? Data::value($default);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function has(string $name): bool
+	{
+		return array_key_exists($name, $this->values);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getValues(): array
+	{
+		return $this->values;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getNames(): array
+	{
+		return array_keys($this->values);
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function getIterator(): ArrayIterator
 	{
-		return new ArrayIterator($this->values);
+		return new ArrayIterator($this->getValues());
 	}
 
 }
