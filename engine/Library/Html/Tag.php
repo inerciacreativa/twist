@@ -506,7 +506,7 @@ class Tag implements ArrayAccess
 				return $value ? $name : '';
 			}
 
-			if (($value === '') && !static::canBeEmptyAttribute($name)) {
+			if (((string) $value === '') && !static::canBeEmptyAttribute($name)) {
 				return $value;
 			}
 
