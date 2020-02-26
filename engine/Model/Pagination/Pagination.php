@@ -2,10 +2,8 @@
 
 namespace Twist\Model\Pagination;
 
-use Kint\Kint;
 use Twist\Library\Html\Tag;
 use Twist\Library\Support\Str;
-use Twist\Model\Link\Link;
 use Twist\Model\Link\Links;
 
 /**
@@ -105,11 +103,11 @@ abstract class Pagination implements PaginationInterface
 		}
 
 		return new Link([
-			'id'      => $index,
-			'title'   => $title,
-			'url'     => $tag['href'] ?? null,
-			'classes' => $class,
-			'label'   => $label,
+			'id'    => $index,
+			'title' => $title,
+			'href'  => $tag['href'],
+			'class' => $class,
+			'label' => $label,
 		]);
 	}
 
