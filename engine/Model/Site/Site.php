@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Site;
 
+use Kint\Kint;
 use Twist\App\AppException;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Macroable;
@@ -58,15 +59,13 @@ class Site
 	}
 
 	/**
-	 * @param int|string $menu
-	 * @param string     $location
-	 * @param int        $depth
+	 * @param int|string|array $menu
 	 *
 	 * @return Links
 	 */
-	public function navigation($menu, string $location = '', int $depth = 0): Links
+	public function navigation($menu): Links
 	{
-		return Navigation::make($menu, $location, $depth);
+		return Navigation::make($menu);
 	}
 
 	/**
