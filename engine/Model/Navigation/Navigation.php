@@ -3,7 +3,9 @@
 namespace Twist\Model\Navigation;
 
 use Twist\Library\Hook\Hook;
+use Twist\Library\Support\Arr;
 use Twist\Model\Link\Links;
+use Twist\Model\Taxonomy\Taxonomies;
 
 /**
  * Class Navigation
@@ -21,42 +23,38 @@ class Navigation
 	/**
 	 * Get a navigation menu.
 	 *
-	 * @param int|string $menu
-	 * @param string     $location
-	 * @param int        $depth
+	 * @param int|string|array $menu
 	 *
 	 * @return Links
 	 */
-	public static function make($menu, string $location = '', int $depth = 0): Links
+	public static function make($menu): Links
 	{
-		return (new static())->get($menu, $location, $depth);
+		return (new static())->get($menu);
 	}
 
 	/**
 	 * Get a navigation menu.
 	 *
-	 * @param int|string $menu
-	 * @param string     $location
-	 * @param int        $depth
+	 * @param int|string|array $menu
 	 *
 	 * @return Links
 	 */
-	public function get($menu, string $location = '', int $depth = 0): Links
+	public function get($menu): Links
 	{
-		$id = sprintf('%s-%s-%d', $menu, $location, $depth);
+		$id = serialize($menu);
 		if (isset(self::$cache[$id])) {
 			return self::$cache[$id];
 		}
 
-		$items = $this->getItems($menu, $location);
+		$arguments = $this->getArguments($menu);
+		$items     = $this->getItems($arguments->menu, $arguments->theme_location);
 
 		if (empty($items)) {
 			return self::$cache[$id] = new Links();
 		}
 
-		$arguments = $this->getArguments($menu, $location, $depth);
-		$items     = $this->sortItems($items, $arguments);
-		$walker    = new Walker();
+		$items  = $this->sortItems($items, $arguments);
+		$walker = new Walker();
 
 		$walker->walk($items, $arguments->depth, $arguments);
 
@@ -66,33 +64,36 @@ class Navigation
 	/**
 	 * Get the complete list of menu arguments.
 	 *
-	 * @param int|string $menu
-	 * @param string     $location
-	 * @param int        $depth
+	 * @param int|string|array $menu
 	 *
 	 * @return object
 	 */
-	protected function getArguments($menu, string $location, int $depth): object
+	protected function getArguments($menu): object
 	{
-		return (object) [
-			'menu'            => $menu,
-			'container'       => 'div',
-			'container_class' => '',
-			'container_id'    => '',
-			'menu_class'      => 'menu',
-			'menu_id'         => '',
-			'echo'            => false,
-			'fallback_cb'     => false,
-			'before'          => '',
-			'after'           => '',
-			'link_before'     => '',
-			'link_after'      => '',
-			'items_wrap'      => '<ul id="%1$s" class="%2$s">%3$s</ul>',
-			'item_spacing'    => 'preserve',
-			'depth'           => $depth,
-			'walker'          => '',
-			'theme_location'  => $location,
+		$defaults = [
+			'menu'           => '',
+			'depth'          => 0,
+			'theme_location' => '',
+			'terms_children' => false,
 		];
+
+		if (is_array($menu)) {
+			$arguments = Arr::defaults($defaults, $menu);
+		} else {
+			$arguments = array_merge($defaults, ['menu' => $menu]);
+		}
+
+		$taxonomies = Taxonomies::getInstance()->getNames();
+
+		if ($arguments['terms_children'] === true) {
+			$arguments['terms_children'] = $taxonomies;
+		} else if ($arguments['terms_children'] === false) {
+			$arguments['terms_children'] = [];
+		} else {
+			$arguments['terms_children'] = array_intersect($taxonomies, (array) $arguments['terms_children']);
+		}
+
+		return (object) $arguments;
 	}
 
 	/**
@@ -157,7 +158,7 @@ class Navigation
 			}
 		}
 
-		// Add the menu-item-has-children class where applicable
+		// Add the "has-children" class where applicable
 		if ($itemsWithChildren) {
 			foreach ($sortedItems as &$item) {
 				if (isset($itemsWithChildren[$item->ID])) {
