@@ -3,7 +3,7 @@
 namespace Twist\Model\Link;
 
 use Twist\Library\Html\Classes;
-use Twist\Model\CollectionInterface;
+use Twist\Library\Support\Arr;
 use Twist\Model\Model;
 
 /**
@@ -11,15 +11,24 @@ use Twist\Model\Model;
  *
  * @package Twist\Model\Link
  *
- * @method Link|null parent()
  */
-class Link extends Model
+abstract class Link extends Model
 {
+
+	/**
+	 * @var int
+	 */
+	protected $id;
+
+	/**
+	 * @var string
+	 */
+	protected $title;
 
 	/**
 	 * @var array
 	 */
-	protected $properties;
+	protected $attributes = [];
 
 	/**
 	 * Link constructor.
@@ -31,47 +40,50 @@ class Link extends Model
 		$properties = array_merge([
 			'id'      => 0,
 			'title'   => '',
-			'url'     => null,
-			'classes' => [],
-			'label'   => null,
-			'rel'     => null,
+			'href'    => null,
+			'class'   => [],
 		], $properties);
 
-		if (!($properties['classes'] instanceof Classes)) {
-			$properties['classes'] = new Classes($properties['classes']);
+		$this->id    = Arr::pull($properties, 'id');
+		$this->title = Arr::pull($properties, 'title');
+
+		if (!($properties['class'] instanceof Classes)) {
+			$properties['class'] = new Classes($properties['class']);
 		}
 
-		$this->properties = $properties;
+		$properties['class']->only(array_keys(static::CLASSES))
+			 ->replace(array_keys(static::CLASSES), static::CLASSES);
+
+		$this->attributes = $properties;
 	}
 
 	/**
-	 * @inheritdoc
-	 *
-	 * @return Links
+	 * @return string
 	 */
-	public function children(): ?CollectionInterface
-	{
-		if ($this->children === null) {
-			$this->set_children(new Links($this));
-		}
-
-		return $this->children;
-	}
+	abstract public function render(): string;
 
 	/**
 	 * @inheritdoc
 	 */
 	public function id(): int
 	{
-		return (int) $this->properties['id'];
+		return $this->id;
 	}
 
 	/**
-	 * @return string
+	 * @param null|string $title
+	 *
+	 * @return string|self
 	 */
-	public function title(): string
+	public function title(string $title = null)
 	{
-		return $this->properties['title'];
+		if (empty($title)) {
+			return $this->title;
+		}
+
+		$this->title = $title;
+
+		return $this;
 	}
 
 	/**
@@ -79,33 +91,28 @@ class Link extends Model
 	 */
 	public function url(): ?string
 	{
-		return $this->properties['url'];
+		return $this->attributes['href'];
 	}
 
 	/**
-	 * @param string|array $class
+	 * @param null|string|array $classes
+	 * @param bool $add
 	 *
-	 * @return Classes
+	 * @return Classes|self
 	 */
-	public function classes($class = []): Classes
+	public function class($classes = null, bool $add = false)
 	{
-		return $this->properties['classes']->add($class);
-	}
+		if (empty($classes)) {
+			return $this->attributes['class'];
+		}
 
-	/**
-	 * @return null|string
-	 */
-	public function label(): ?string
-	{
-		return $this->properties['label'];
-	}
+		if ($add) {
+			$this->attributes['class']->add($classes);
+		} else {
+			$this->attributes['class']->set($classes);
+		}
 
-	/**
-	 * @return null|string
-	 */
-	public function rel(): ?string
-	{
-		return $this->properties['rel'];
+		return $this;
 	}
 
 	/**
@@ -113,7 +120,7 @@ class Link extends Model
 	 */
 	public function is_disabled(): bool
 	{
-		return $this->properties['url'] === null;
+		return empty($this->attributes['href']);
 	}
 
 	/**
@@ -121,23 +128,7 @@ class Link extends Model
 	 */
 	public function is_current(): bool
 	{
-		return $this->properties['classes']->has('current');
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function is_next(): bool
-	{
-		return $this->properties['classes']->has('next');
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function is_previous(): bool
-	{
-		return $this->properties['classes']->has('prev');
+		return $this->class()->has('is-current');
 	}
 
 	/**
@@ -145,6 +136,7 @@ class Link extends Model
 	 */
 	public function __toString(): string
 	{
-		return $this->title();
+		return $this->render();
 	}
+
 }
