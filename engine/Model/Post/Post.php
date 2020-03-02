@@ -269,6 +269,14 @@ class Post extends Model
 	}
 
 	/**
+	 * @return string
+	 */
+	public function time_ago(): string
+	{
+		return human_time_diff($this->getDatetime('U'));
+	}
+
+	/**
 	 * Retrieve the date on which the post was written in ISO 8601 format.
 	 *
 	 * @return string
