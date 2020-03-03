@@ -144,22 +144,17 @@ class Term extends Model
 	}
 
 	/**
-	 * @param string $prefix
-	 *
 	 * @return Classes
 	 */
-	public function classes(string $prefix = ''): Classes
+	public function classes(): Classes
 	{
-		$classes = Classes::make()
-		                  ->prefix($prefix ?: $this->taxonomy->name())
-		                  ->add([
-			                  $this->taxonomy->name(),
-			                  'item',
-			                  $this->term->slug,
-		                  ]);
+		$classes = Classes::make([
+			$this->taxonomy->name(),
+			$this->term->slug,
+		]);
 
 		if ($this->is_current()) {
-			$classes->add('current');
+			$classes->add('is-current');
 		}
 
 		return $classes;
