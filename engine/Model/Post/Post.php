@@ -347,8 +347,8 @@ class Post extends Model
 			$excerpt = Hook::apply('the_content', $excerpt);
 			$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
 
-			$words   = Hook::apply('excerpt_length', $words);
-			$more    = Hook::apply('excerpt_more', ' [&hellip;]');
+			$words = Hook::apply('excerpt_length', $words);
+			$more  = Hook::apply('excerpt_more', ' [&hellip;]');
 
 			$excerpt = Str::stripTags($excerpt, ['figure']);
 			$excerpt = Str::whitespace($excerpt);
@@ -532,19 +532,20 @@ class Post extends Model
 	 */
 	public function classes($class = []): Classes
 	{
-		$classes = Classes::make($class)->add($this->type());
+		$classes   = Classes::parse($class);
+		$classes[] = $this->type();
 
 		if ($this->has_format()) {
-			$classes->add($this->format('is'));
+			$classes[] = $this->format('is');
 		}
 
 		if ($this->has_thumbnail()) {
-			$classes->add('has-thumbnail');
+			$classes[] = 'has-thumbnail';
 		}
 
-		$classes->set(Hook::apply('post_class', $classes->all(), $class, $this->id()));
+		$classes = Hook::apply('post_class', $classes, $class, $this->id());
 
-		return $classes;
+		return Classes::make($classes);
 	}
 
 	/**
@@ -648,7 +649,7 @@ class Post extends Model
 
 		/** @var Term $term */
 		if (($terms = $this->taxonomies()
-		                   ->get('post_format')) && ($term = $terms->first())) {
+						   ->get('post_format')) && ($term = $terms->first())) {
 			$format = str_replace('post-format-', '', $term->slug());
 		}
 

@@ -174,37 +174,37 @@ class Comment extends Model
 	 */
 	public function classes($class = []): Classes
 	{
-		$classes = new Classes($class);
-		$classes->add($this->type());
+		$classes   = Classes::parse($class);
+		$classes[] = $this->type();
 
 		if ($this->has_parent()) {
-			$classes->add('has-parent');
+			$classes[] = 'has-parent';
 		}
 
 		if ($this->has_children()) {
-			$classes->add('has-children');
+			$classes[] = 'has-children';
 
 			if ($this->depth() === 1) {
-				$classes->add('is-thread');
+				$classes[] = 'is-thread';
 			}
 		}
 
 		if ($this->author()->exists()) {
 			$author = Str::slug($this->author()->name());
-			$author = sanitize_html_class($author, $this->author()->id());
+			$author = Classes::sanitize($author, $this->author()->id());
 
-			$classes->add('by-user');
-			$classes->add('by-author-' . $author);
+			$classes[] = 'by-user';
+			$classes[] = 'by-author-' . $author;
 
 			if ($this->author()->id() === $this->post()->author()->id()) {
-				$classes->add('by-post-author');
+				$classes[] = 'by-post-author';
 			}
 		}
 
-		$classes->set(Hook::apply('comment_class', $classes->all(), '', $this->id(), $this->object(), $this->post()
-		                                                                                                   ->id()));
+		$classes = Hook::apply('comment_class', $classes, $class, $this->id(), $this->object(), $this->post()
+																									 ->id());
 
-		return $classes;
+		return Classes::make($classes);
 	}
 
 	/**
@@ -322,7 +322,7 @@ class Comment extends Model
 
 		if (User::current()->can('comment')) {
 			$link = add_query_arg('replytocom', $this->id(), $this->post()
-			                                                      ->link()) . $respond;
+																  ->link()) . $respond;
 		} else {
 			$link = wp_login_url($this->post()->link());
 		}
