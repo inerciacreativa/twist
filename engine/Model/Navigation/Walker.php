@@ -153,12 +153,12 @@ class Walker extends Walker_Nav_Menu
 			$taxonomy = new Taxonomy($item->object);
 			$terms    = $taxonomy->terms(['child_of' => $item->object_id]);
 
-			$link->class()->add('has-dropdown');
+			$link->classes()->add('has-dropdown');
 
 			/** @var Term $term */
 			foreach ($terms as $term) {
 				if ($term->is_current()) {
-					$link->class()->add('is-current-parent');
+					$link->classes()->add('is-current-parent');
 				}
 
 				$link->children()->add(new Link([
