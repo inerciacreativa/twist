@@ -3,6 +3,7 @@
 namespace Twist\Library\Html;
 
 use ArrayAccess;
+use Countable;
 use Twist\Library\Support\Arr;
 
 /**
@@ -10,23 +11,13 @@ use Twist\Library\Support\Arr;
  *
  * @package Twist\Library\Html
  */
-class Classes implements ArrayAccess
+class Classes implements ArrayAccess, Countable
 {
 
 	/**
 	 * @var array
 	 */
 	private $classes = [];
-
-	/**
-	 * @var string
-	 */
-	private $prefix = '';
-
-	/**
-	 * @var string
-	 */
-	private $separator = '-';
 
 	/**
 	 * @param array|string $classes
@@ -45,35 +36,7 @@ class Classes implements ArrayAccess
 	 */
 	public function __construct($classes = [])
 	{
-		if (!empty($classes)) {
-			$this->set($classes);
-		}
-	}
-
-	/**
-	 * @param string $prefix
-	 * @param string $separator
-	 *
-	 * @return $this
-	 */
-	public function prefix(string $prefix = '', string $separator = '-'): self
-	{
-		$this->prefix    = $prefix;
-		$this->separator = $separator;
-
-		return $this;
-	}
-
-	/**
-	 * @param array|string $classes
-	 *
-	 * @return $this
-	 */
-	public function set($classes): self
-	{
 		$this->classes = self::parse($classes);
-
-		return $this;
 	}
 
 	/**
@@ -95,7 +58,7 @@ class Classes implements ArrayAccess
 	 */
 	public function remove($classes): self
 	{
-		foreach (self::parse($classes) as $class) {
+		foreach ((array) $classes as $class) {
 			if (($index = array_search($class, $this->classes, true)) !== false) {
 				unset($this->classes[$index]);
 			}
@@ -104,6 +67,14 @@ class Classes implements ArrayAccess
 		$this->classes = array_values($this->classes);
 
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get(): array
+	{
+		return $this->classes;
 	}
 
 	/**
@@ -142,23 +113,11 @@ class Classes implements ArrayAccess
 	}
 
 	/**
-	 * @return array
+	 * @return int
 	 */
-	public function all(): array
+	public function count(): int
 	{
-		$classes = $this->classes;
-
-		if (!empty($this->prefix)) {
-			$classes = array_map(function (string $class) {
-				if ($this->prefix === $class) {
-					return $class;
-				}
-
-				return $this->prefix . $this->separator . $class;
-			}, $classes);
-		}
-
-		return $classes;
+		return count($this->classes);
 	}
 
 	/**
@@ -166,7 +125,7 @@ class Classes implements ArrayAccess
 	 */
 	public function render(): string
 	{
-		return implode(' ', $this->all());
+		return implode(' ', $this->get());
 	}
 
 	/**
@@ -236,39 +195,56 @@ class Classes implements ArrayAccess
 	 *
 	 * @return array
 	 */
-	protected static function parse($value): array
+	public static function parse($value): array
 	{
 		if (empty($value)) {
 			return [];
 		}
 
 		if (is_string($value)) {
-			return self::filter((array) preg_split('#\s+#', trim($value)));
+			return self::filter(self::parseString($value));
 		}
 
 		if (is_array($value)) {
-			return self::filter(array_map([self::class, 'parse'], $value), true);
+			return self::filter(self::parseArray($value));
 		}
 
 		return [];
 	}
 
 	/**
-	 * @param array $values
-	 * @param bool  $array
+	 * @param string $value
 	 *
 	 * @return array
 	 */
-	protected static function filter(array $values, bool $array = false): array
+	protected static function parseString(string $value): array
 	{
-		if ($array) {
-			$values = Arr::flatten($values);
-		}
+		return (array) preg_split('#\s+#', trim($value));
+	}
 
+	/**
+	 * @param array $values
+	 *
+	 * @return array
+	 */
+	protected static function parseArray(array $values): array
+	{
+		$values = array_map([self::class, 'parseString'], Arr::flatten($values));
+
+		return array_merge(...$values);
+	}
+
+	/**
+	 * @param array $values
+	 *
+	 * @return array
+	 */
+	protected static function filter(array $values): array
+	{
 		$values = array_map([self::class, 'sanitize'], $values);
-		$values = array_filter($values);
+		$values = array_unique($values);
 
-		return array_unique($values);
+		return array_filter($values);
 	}
 
 }
