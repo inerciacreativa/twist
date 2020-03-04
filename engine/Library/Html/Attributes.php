@@ -2,6 +2,7 @@
 
 namespace Twist\Library\Html;
 
+use ArrayAccess;
 use Twist\Library\Support\Arr;
 
 /**
@@ -9,7 +10,7 @@ use Twist\Library\Support\Arr;
  *
  * @package Twist\Library\Html
  */
-class Attributes
+class Attributes implements ArrayAccess
 {
 
 	/**
@@ -71,14 +72,30 @@ class Attributes
 	protected $classes;
 
 	/**
+	 * @var Tag
+	 */
+	protected $tag;
+
+	/**
 	 * Attributes constructor.
 	 *
 	 * @param array $attributes
+	 * @param Tag   $tag
 	 */
-	public function __construct(array $attributes = [])
+	public function __construct(array $attributes = [], Tag $tag = null)
 	{
-		$this->classes = new Classes();
+		$this->classes = $this->getClassesInstance();
+		$this->tag     = $tag;
+
 		$this->add($attributes);
+	}
+
+	/**
+	 * @return Tag|null
+	 */
+	public function tag(): ?Tag
+	{
+		return $this->tag;
 	}
 
 	/**
@@ -128,7 +145,7 @@ class Attributes
 		$name = strtolower($name);
 
 		if ($name === 'class') {
-			$this->classes = new Classes();
+			$this->classes = $this->getClassesInstance();
 		} else {
 			unset($this->attributes[$name]);
 		}
@@ -175,7 +192,7 @@ class Attributes
 	/**
 	 * @return Classes
 	 */
-	public function class(): Classes
+	public function classes(): Classes
 	{
 		return $this->classes;
 	}
@@ -292,6 +309,14 @@ class Attributes
 	public static function canBeEmpty(string $attribute): bool
 	{
 		return in_array($attribute, static::$emptyAttributes, true);
+	}
+
+	/**
+	 * @return Classes
+	 */
+	protected function getClassesInstance(): Classes
+	{
+		return new Classes([], $this);
 	}
 
 }
