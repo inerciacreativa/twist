@@ -232,7 +232,7 @@ class Tag implements ArrayAccess
 	public function __construct(string $tag, array $attributes = [], $content = null)
 	{
 		$this->tag        = $tag;
-		$this->attributes = new Attributes($attributes);
+		$this->attributes = new Attributes($attributes, $this);
 
 		if (!empty($content)) {
 			$this->content($content);
@@ -256,10 +256,10 @@ class Tag implements ArrayAccess
 	}
 
 	/**
-	 * @param string|callable|array|Tag $content
-	 * @param bool                      $overwrite
+	 * @param mixed|null $content
+	 * @param bool       $overwrite
 	 *
-	 * @return static|string
+	 * @return $this|string
 	 */
 	public function content($content = null, $overwrite = false)
 	{
@@ -287,13 +287,33 @@ class Tag implements ArrayAccess
 	}
 
 	/**
-	 * @param array $attributes
+	 * @param array|null $attributes
 	 *
-	 * @return static|array
+	 * @return $this|Attributes
 	 */
-	public function attributes(array $attributes = [])
+	public function attributes(array $attributes = null)
 	{
+		if ($attributes === null) {
+			return $this->attributes;
+		}
+
 		$this->attributes->add($attributes);
+
+		return $this;
+	}
+
+	/**
+	 * @param array|null $classes
+	 *
+	 * @return $this|Classes
+	 */
+	public function classes(array $classes = null)
+	{
+		if ($classes === null) {
+			return $this->attributes->classes();
+		}
+
+		$this->attributes->classes()->add($classes);
 
 		return $this;
 	}
@@ -409,11 +429,11 @@ class Tag implements ArrayAccess
 	 */
 	protected static function getContent($content): string
 	{
-		if (empty($content)) {
-			if (is_numeric($content)) {
-				return (string) $content;
-			}
+		if (is_numeric($content)) {
+			return (string) $content;
+		}
 
+		if (empty($content)) {
 			return '';
 		}
 
