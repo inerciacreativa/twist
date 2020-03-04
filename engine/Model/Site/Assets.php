@@ -6,11 +6,11 @@ use Twist\App\App;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 use Twist\Model\Site\Assets\AssetsGroup;
-use Twist\Model\Site\Assets\Title;
-use Twist\Model\Site\Assets\Metas;
 use Twist\Model\Site\Assets\Links;
-use Twist\Model\Site\Assets\Styles;
+use Twist\Model\Site\Assets\Metas;
 use Twist\Model\Site\Assets\Scripts;
+use Twist\Model\Site\Assets\Styles;
+use Twist\Model\Site\Assets\Title;
 use Twist\Twist;
 
 /**
@@ -142,8 +142,9 @@ class Assets
 			$svg['aria-hidden'] = 'true';
 		}
 
-		return $svg->content(Tag::use(['xlink:href' => "#icon-$icon"]))
-				   ->render(true);
+		return $svg->content(Tag::use(['xlink:href'  => "#icon-$icon",
+									   'aria-hidden' => 'true',
+		]))->render(true);
 	}
 
 	/**
