@@ -17,7 +17,12 @@ class Classes implements ArrayAccess, Countable
 	/**
 	 * @var array
 	 */
-	private $classes = [];
+	protected $classes = [];
+
+	/**
+	 * @var Attributes
+	 */
+	protected $attributes;
 
 	/**
 	 * @param array|string $classes
@@ -33,10 +38,32 @@ class Classes implements ArrayAccess, Countable
 	 * Classes constructor.
 	 *
 	 * @param array|string $classes
+	 * @param Attributes   $attributes
 	 */
-	public function __construct($classes = [])
+	public function __construct($classes = [], Attributes $attributes = null)
 	{
-		$this->classes = self::parse($classes);
+		$this->classes    = self::parse($classes);
+		$this->attributes = $attributes;
+	}
+
+	/**
+	 * @return Attributes|null
+	 */
+	public function attributes(): ?Attributes
+	{
+		return $this->attributes;
+	}
+
+	/**
+	 * @return Tag|null
+	 */
+	public function tag(): ?Tag
+	{
+		if ($this->attributes && $tag = $this->attributes->tag()) {
+			return $tag;
+		}
+
+		return null;
 	}
 
 	/**
@@ -229,7 +256,10 @@ class Classes implements ArrayAccess, Countable
 	 */
 	protected static function parseArray(array $values): array
 	{
-		$values = array_map([self::class, 'parseString'], Arr::flatten($values));
+		$values = array_map([
+			self::class,
+			'parseString',
+		], Arr::flatten($values));
 
 		return array_merge(...$values);
 	}
