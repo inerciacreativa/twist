@@ -5,7 +5,6 @@ namespace Twist\Model\Navigation;
 
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
-use Twist\Library\Html\Classes;
 use Twist\Model\Link\Links;
 use Twist\Model\Taxonomy\Taxonomy;
 use Twist\Model\Taxonomy\Term;
@@ -18,16 +17,6 @@ use Walker_Nav_Menu;
  */
 class Walker extends Walker_Nav_Menu
 {
-
-	/**
-	 * @var array
-	 */
-	protected static $classes = [
-		'current-menu-item'     => 'is-current',
-		'current-menu-parent'   => 'is-current-parent',
-		'current-menu-ancestor' => 'is-current-ancestor',
-		'has-children'          => 'has-dropdown',
-	];
 
 	/**
 	 * @var Links
@@ -76,7 +65,6 @@ class Walker extends Walker_Nav_Menu
 
 	/**
 	 * @inheritdoc
-	 * @throws AppException
 	 */
 	public function start_el(&$output, $item, $depth = 0, $arguments = [], $id = 0): void
 	{
@@ -144,11 +132,13 @@ class Walker extends Walker_Nav_Menu
 	 * @param object $arguments
 	 * @param int    $depth
 	 *
-	 * @return Classes
+	 * @return array
 	 */
-	protected function getClasses(object $item, object $arguments, int $depth): Classes
+	protected function getClasses(object $item, object $arguments, int $depth): array
 	{
-		return Classes::make(Hook::apply('nav_menu_css_class', $item->classes, $item, $arguments, $depth));
+		$classes = empty($item->classes) ? [] : (array) $item->classes;
+
+		return Hook::apply('nav_menu_css_class', $classes, $item, $arguments, $depth);
 	}
 
 	/**
@@ -156,27 +146,29 @@ class Walker extends Walker_Nav_Menu
 	 * @param object $item
 	 *
 	 * @return Link
-	 * @throws AppException
 	 */
 	protected function addChildrenTerms(Link $link, object $item): Link
 	{
-		$taxonomy = new Taxonomy($item->object);
-		$terms    = $taxonomy->terms(['child_of' => $item->object_id]);
+		try {
+			$taxonomy = new Taxonomy($item->object);
+			$terms    = $taxonomy->terms(['child_of' => $item->object_id]);
 
-		$link->class()->add('has-dropdown');
+			$link->class()->add('has-dropdown');
 
-		/** @var Term $term */
-		foreach ($terms as $term) {
-			if ($term->is_current()) {
-				$link->class()->add('is-current-parent');
+			/** @var Term $term */
+			foreach ($terms as $term) {
+				if ($term->is_current()) {
+					$link->class()->add('is-current-parent');
+				}
+
+				$link->children()->add(new Link([
+					'id'    => $term->id(),
+					'title' => $term->name(),
+					'class' => $term->is_current() ? 'is-current' : null,
+					'href'  => $term->link(),
+				]));
 			}
-
-			$link->children()->add(new Link([
-				'id'    => $term->id(),
-				'title' => $term->name(),
-				'class' => $term->is_current() ? 'is-current' : null,
-				'href'  => $term->link(),
-			]));
+		} catch (AppException $exception) {
 		}
 
 		return $link;
