@@ -280,7 +280,7 @@ class Classes implements ArrayAccess, Countable
 		$values = array_map([self::class, 'sanitize'], $values);
 		$values = array_unique($values);
 
-		return array_filter($values);
+		return array_values(array_filter($values));
 	}
 
 }
