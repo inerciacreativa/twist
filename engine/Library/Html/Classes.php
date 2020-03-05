@@ -85,7 +85,7 @@ class Classes implements ArrayAccess, Countable
 	 */
 	public function remove($classes): self
 	{
-		foreach ((array) $classes as $class) {
+		foreach (self::parse($classes) as $class) {
 			if (($index = array_search($class, $this->classes, true)) !== false) {
 				unset($this->classes[$index]);
 			}
@@ -210,11 +210,13 @@ class Classes implements ArrayAccess, Countable
 		$sanitized = preg_replace('/%[a-f0-9]{2}/i', '', $class);
 		$sanitized = preg_replace('/[^a-z0-9_-]/i', '', $sanitized);
 
-		if ($sanitized === '' && $fallback) {
+		$valid = preg_match('/^-?[_a-z]+[_a-z0-9-]*/im', $sanitized);
+
+		if ($fallback && ($sanitized === '' || !$valid)) {
 			return self::sanitize($fallback);
 		}
 
-		return $sanitized;
+		return $valid ? $sanitized : '';
 	}
 
 	/**
@@ -234,6 +236,10 @@ class Classes implements ArrayAccess, Countable
 
 		if (is_array($value)) {
 			return self::filter(self::parseArray($value));
+		}
+
+		if ($value instanceof self) {
+			return $value->get();
 		}
 
 		return [];
