@@ -116,7 +116,7 @@ class Attributes implements ArrayAccess
 	 * @param string     $name
 	 * @param mixed|null $value
 	 *
-	 * @return self
+	 * @return $this
 	 */
 	public function set(string $name, $value): self
 	{
@@ -124,12 +124,15 @@ class Attributes implements ArrayAccess
 			return $this->unset($name);
 		}
 
-		$name = strtolower($name);
+		$name  = strtolower($name);
+		$value = $this->getValidValue($name, $value);
 
-		if ($name === 'class') {
-			$this->classes->add($value);
-		} else {
-			$this->attributes[$name] = $value;
+		if ($value !== null) {
+			if ($name === 'class') {
+				$this->classes->add($value);
+			} else {
+				$this->attributes[$name] = $value;
+			}
 		}
 
 		return $this;
@@ -317,6 +320,25 @@ class Attributes implements ArrayAccess
 	protected function getClassesInstance(): Classes
 	{
 		return new Classes([], $this);
+	}
+
+	/**
+	 * @param string $name
+	 * @param mixed  $value
+	 *
+	 * @return mixed|null
+	 */
+	protected function getValidValue(string $name, $value)
+	{
+		if (is_string($value) || is_bool($value) || is_int($value) || is_float($value)) {
+			return $value;
+		}
+
+		if ($name === 'class' && (is_array($value) || $value instanceof Classes)) {
+			return $value;
+		}
+
+		return null;
 	}
 
 }
