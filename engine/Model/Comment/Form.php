@@ -31,7 +31,7 @@ class Form
 	public function __construct()
 	{
 		$decorator = Twist::config('form.comment.decorator');
-		if ($decorator === null) {
+		if (!($decorator instanceof FormDecoratorInterface)) {
 			$this->decorator = new FormDecorator(Twist::config('form.comment.classes', []));
 		} else {
 			$this->decorator = new $decorator;
