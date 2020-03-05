@@ -22,6 +22,12 @@ final class ClassesTest extends TestCase
 
         $classes->add('default');
         $this->assertEquals(['test', 'is-true', 'default'], $classes->get());
+
+		$classes->add([1, '-0test', ['_test']]);
+		$this->assertEquals(['test', 'is-true', 'default', '_test'], $classes->get());
+
+		$classes->add(Classes::make(['is-ok']));
+		$this->assertEquals(['test', 'is-true', 'default', '_test', 'is-ok'], $classes->get());
     }
 
     public function testRemove(): void
