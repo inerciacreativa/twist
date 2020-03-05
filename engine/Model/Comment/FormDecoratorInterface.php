@@ -13,6 +13,8 @@ interface FormDecoratorInterface
 {
 
 	/**
+	 * @see comment_form()
+	 *
 	 * @param array $arguments
 	 *
 	 * @return array
