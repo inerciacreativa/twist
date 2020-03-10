@@ -1,10 +1,10 @@
 <?php
-/** @noinspection NullPointerExceptionInspection */
 
 namespace Twist\Model\Navigation;
 
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
+use Twist\Library\Html\Classes;
 use Twist\Model\Link\Links;
 use Twist\Model\Taxonomy\Taxonomy;
 use Twist\Model\Taxonomy\Term;
@@ -15,38 +15,61 @@ use Walker_Nav_Menu;
  *
  * @package Twist\Model\Navigation
  */
-class Walker extends Walker_Nav_Menu
+class Builder extends Walker_Nav_Menu
 {
 
 	/**
 	 * @var Links
 	 */
-	private $root;
+	protected $root;
 
 	/**
 	 * @var Links
 	 */
-	private $links;
+	protected $links;
 
 	/**
 	 * @var Link
 	 */
-	private $link;
+	protected $link;
 
 	/**
-	 * Walker constructor.
+	 * @var array
 	 */
-	public function __construct()
+	protected $classes = [
+		'current-menu-item'     => 'is-current',
+		'current-menu-parent'   => 'is-current-parent',
+		'current-menu-ancestor' => 'is-current-ancestor',
+		'has-children'          => 'has-dropdown',
+	];
+
+	/**
+	 * @param array  $items
+	 * @param object $arguments
+	 *
+	 * @return Links
+	 */
+	public static function getLinks(array $items, object $arguments): Links
 	{
-		$this->root = $this->links = new Links();
+		$links = new Links();
+		if (empty($items)) {
+			return $links;
+		}
+
+		$builder = new static($links);
+		$builder->walk($items, $arguments->depth, $arguments);
+
+		return $links;
 	}
 
 	/**
-	 * @return Links
+	 * Walker constructor.
+	 *
+	 * @param Links $links
 	 */
-	public function getLinks(): Links
+	protected function __construct(Links $links)
 	{
-		return $this->root;
+		$this->root = $this->links = $links;
 	}
 
 	/**
@@ -71,11 +94,12 @@ class Walker extends Walker_Nav_Menu
 		$arguments = Hook::apply('nav_menu_item_args', $arguments, $item, $depth);
 
 		$link = new Link([
-			'id'    => $item->ID,
-			'title' => $this->getTitle($item, $arguments, $depth),
-			'href'  => $item->url,
-			'class' => $this->getClasses($item, $arguments, $depth),
-			'rel'   => $item->xfn,
+			'id'      => $item->ID,
+			'title'   => $this->getTitle($item, $arguments, $depth),
+			'current' => $item->current,
+			'class'   => $this->getClasses($item, $arguments, $depth),
+			'href'    => $item->url,
+			'rel'     => $item->xfn,
 		]);
 
 		$this->link = $item->has_children ? $this->addChildrenTerms($link, $item) : $link;
@@ -104,6 +128,7 @@ class Walker extends Walker_Nav_Menu
 
 	/**
 	 * @inheritdoc
+	 * @noinspection NullPointerExceptionInspection
 	 */
 	public function end_lvl(&$output, $depth = 0, $arguments = []): void
 	{
@@ -123,8 +148,9 @@ class Walker extends Walker_Nav_Menu
 	protected function getTitle(object $item, object $arguments, int $depth): string
 	{
 		$title = Hook::apply('the_title', $item->title, $item->ID);
+		$title = Hook::apply('nav_menu_item_title', $title, $item, $arguments, $depth);
 
-		return Hook::apply('nav_menu_item_title', $title, $item, $arguments, $depth);
+		return $title;
 	}
 
 	/**
@@ -132,13 +158,17 @@ class Walker extends Walker_Nav_Menu
 	 * @param object $arguments
 	 * @param int    $depth
 	 *
-	 * @return array
+	 * @return Classes
 	 */
-	protected function getClasses(object $item, object $arguments, int $depth): array
+	protected function getClasses(object $item, object $arguments, int $depth): Classes
 	{
 		$classes = empty($item->classes) ? [] : (array) $item->classes;
+		$classes = Hook::apply('nav_menu_css_class', $classes, $item, $arguments, $depth);
+		$classes = Classes::make($classes)
+						  ->only(array_keys($this->classes))
+						  ->replace(array_keys($this->classes), $this->classes);
 
-		return Hook::apply('nav_menu_css_class', $classes, $item, $arguments, $depth);
+		return $classes;
 	}
 
 	/**
@@ -146,6 +176,7 @@ class Walker extends Walker_Nav_Menu
 	 * @param object $item
 	 *
 	 * @return Link
+	 * @noinspection NullPointerExceptionInspection
 	 */
 	protected function addChildrenTerms(Link $link, object $item): Link
 	{
@@ -162,10 +193,11 @@ class Walker extends Walker_Nav_Menu
 				}
 
 				$link->children()->add(new Link([
-					'id'    => $term->id(),
-					'title' => $term->name(),
-					'class' => $term->is_current() ? 'is-current' : null,
-					'href'  => $term->link(),
+					'id'      => $term->id(),
+					'title'   => $term->name(),
+					'href'    => $term->link(),
+					'class'   => $term->is_current() ? 'is-current' : null,
+					'current' => $term->is_current(),
 				]));
 			}
 		} catch (AppException $exception) {
@@ -188,7 +220,7 @@ class Walker extends Walker_Nav_Menu
 			return false;
 		}
 
-		$query = $wpdb->prepare("SELECT COUNT(*) FROM $wpdb->term_taxonomy WHERE parent = %d", $item->object_id);
+		$query = $wpdb->prepare(/** @lang text */ "SELECT COUNT(*) FROM $wpdb->term_taxonomy WHERE parent = %d", $item->object_id);
 		$check = $wpdb->get_results($query);
 
 		return ($check) ? true : false;

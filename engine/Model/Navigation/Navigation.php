@@ -16,11 +16,6 @@ class Navigation
 {
 
 	/**
-	 * @var Links[]
-	 */
-	private static $cache = [];
-
-	/**
 	 * Get a navigation menu.
 	 *
 	 * @param int|string|array $menu
@@ -29,7 +24,7 @@ class Navigation
 	 */
 	public static function make($menu): Links
 	{
-		return (new static())->get($menu);
+		return (new static())->getLinks($menu);
 	}
 
 	/**
@@ -38,27 +33,14 @@ class Navigation
 	 * @param int|string|array $menu
 	 *
 	 * @return Links
+	 * @see wp_nav_menu()
 	 */
-	public function get($menu): Links
+	protected function getLinks($menu): Links
 	{
-		$id = serialize($menu);
-		if (isset(self::$cache[$id])) {
-			return self::$cache[$id];
-		}
-
 		$arguments = $this->getArguments($menu);
-		$items     = $this->getItems($arguments->menu, $arguments->theme_location);
+		$items     = $this->getItems($arguments);
 
-		if (empty($items)) {
-			return self::$cache[$id] = new Links();
-		}
-
-		$items  = $this->sortItems($items, $arguments);
-		$walker = new Walker();
-
-		$walker->walk($items, $arguments->depth, $arguments);
-
-		return self::$cache[$id] = $walker->getLinks();
+		return Builder::getLinks($items, $arguments);
 	}
 
 	/**
@@ -99,15 +81,15 @@ class Navigation
 	/**
 	 * Get the menu items.
 	 *
-	 * @param mixed  $menu
-	 * @param string $location
+	 * @param object $arguments
 	 *
 	 * @return array
 	 */
-	protected function getItems($menu, string $location = null): array
+	protected function getItems(object $arguments): array
 	{
-		$menu  = wp_get_nav_menu_object($menu);
-		$items = false;
+		$location = $arguments->theme_location;
+		$menu     = wp_get_nav_menu_object($arguments->menu);
+		$items    = false;
 
 		if (!$menu && $location && ($locations = get_nav_menu_locations()) && isset($locations[$location])) {
 			$menu = wp_get_nav_menu_object($locations[$location]);
@@ -134,7 +116,7 @@ class Navigation
 			return [];
 		}
 
-		return $items;
+		return $this->sortItems($items, $arguments);
 	}
 
 	/**
