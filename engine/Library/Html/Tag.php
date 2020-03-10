@@ -177,7 +177,7 @@ class Tag implements ArrayAccess
 		$attributes = Arr::get($arguments, 0, []);
 		$content    = Arr::get($arguments, 1);
 
-		if (is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
+		if (($attributes instanceof Attributes) || (is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes)))) {
 			return new static($tag, $attributes, $content);
 		}
 
@@ -188,13 +188,13 @@ class Tag implements ArrayAccess
 	/**
 	 * Static Tag constructor.
 	 *
-	 * @param string $tag
-	 * @param array  $attributes
-	 * @param mixed  $content
+	 * @param string   $tag
+	 * @param iterable $attributes
+	 * @param mixed    $content
 	 *
 	 * @return static
 	 */
-	public static function make(string $tag, array $attributes = [], $content = null): Tag
+	public static function make(string $tag, iterable $attributes = [], $content = null): self
 	{
 		return new static($tag, $attributes, $content);
 	}
@@ -206,7 +206,7 @@ class Tag implements ArrayAccess
 	 *
 	 * @return static|null
 	 */
-	public static function parse(string $html): ?Tag
+	public static function parse(string $html): ?self
 	{
 		$options = LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL;
 		try {
@@ -225,11 +225,11 @@ class Tag implements ArrayAccess
 	/**
 	 * Tag constructor.
 	 *
-	 * @param string $tag
-	 * @param array  $attributes
-	 * @param mixed  $content
+	 * @param string   $tag
+	 * @param iterable $attributes
+	 * @param mixed    $content
 	 */
-	public function __construct(string $tag, array $attributes = [], $content = null)
+	public function __construct(string $tag, iterable $attributes = [], $content = null)
 	{
 		$this->tag        = $tag;
 		$this->attributes = new Attributes($attributes, $this);
@@ -345,7 +345,7 @@ class Tag implements ArrayAccess
 		if (static::isVoid($this->tag)) {
 			$tag = sprintf('<%s%s>', $this->tag, $attributes);
 		} else {
-			$tag = sprintf('<%1$s%2$s>%3$s', $this->tag, $attributes, $this->content);
+			$tag = sprintf('<%s%s>%s', $this->tag, $attributes, $this->content);
 		}
 
 		return $print ? print($tag) : $tag;
@@ -461,13 +461,7 @@ class Tag implements ArrayAccess
 	 */
 	protected static function getAttributes(Attributes $attributes): string
 	{
-		$result = $attributes->render();
-
-		if (!empty($result)) {
-			$result = ' ' . $result;
-		}
-
-		return $result;
+		return $attributes->render();
 	}
 
 	/**
