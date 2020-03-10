@@ -2,7 +2,6 @@
 
 namespace Twist\Model\Site;
 
-use Kint\Kint;
 use Twist\App\AppException;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Macroable;
