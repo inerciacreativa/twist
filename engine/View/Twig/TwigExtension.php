@@ -6,6 +6,7 @@ use Kint\Kint;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use Twist\Library\Html\Attributes;
 use Twist\Library\Html\Classes;
 use Twist\Twist;
 
@@ -33,6 +34,9 @@ class TwigExtension extends AbstractExtension
 		return [
 			new TwigFilter('classes', static function ($classes) {
 				return Classes::make($classes)->render();
+			}),
+			new TwigFilter('attributes', static function ($attributes) {
+				return Attributes::make($attributes)->render();
 			}),
 			new TwigFilter('normalize', static function ($content) {
 				return trim(preg_replace('/>\s+</', '> <', $content));
