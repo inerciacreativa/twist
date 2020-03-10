@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Link;
 
+use Twist\Library\Html\Attributes;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Arr;
 use Twist\Model\Model;
@@ -26,9 +27,14 @@ abstract class Link extends Model
 	protected $title;
 
 	/**
-	 * @var array
+	 * @var bool
 	 */
-	protected $attributes = [];
+	protected $current;
+
+	/**
+	 * @var Attributes
+	 */
+	protected $attributes;
 
 	/**
 	 * Link constructor.
@@ -40,27 +46,16 @@ abstract class Link extends Model
 		$properties = array_merge([
 			'id'      => 0,
 			'title'   => '',
-			'href'    => null,
+			'current' => false,
 			'class'   => [],
+			'href'    => null,
 		], $properties);
 
-		$this->id    = Arr::pull($properties, 'id');
-		$this->title = Arr::pull($properties, 'title');
-
-		if (!($properties['class'] instanceof Classes)) {
-			$properties['class'] = new Classes($properties['class']);
-		}
-
-		$properties['class']->only(array_keys(static::CLASSES))
-			 ->replace(array_keys(static::CLASSES), static::CLASSES);
-
-		$this->attributes = $properties;
+		$this->id         = Arr::pull($properties, 'id');
+		$this->title      = Arr::pull($properties, 'title');
+		$this->current    = Arr::pull($properties, 'current');
+		$this->attributes = new Attributes($properties);
 	}
-
-	/**
-	 * @return string
-	 */
-	abstract public function render(): string;
 
 	/**
 	 * @inheritdoc
@@ -71,19 +66,11 @@ abstract class Link extends Model
 	}
 
 	/**
-	 * @param null|string $title
-	 *
-	 * @return string|self
+	 * @return string
 	 */
-	public function title(string $title = null)
+	public function title(): string
 	{
-		if (empty($title)) {
-			return $this->title;
-		}
-
-		$this->title = $title;
-
-		return $this;
+		return $this->title;
 	}
 
 	/**
@@ -95,24 +82,19 @@ abstract class Link extends Model
 	}
 
 	/**
-	 * @param null|string|array $classes
-	 * @param bool $add
-	 *
-	 * @return Classes|self
+	 * @return Classes
 	 */
-	public function class($classes = null, bool $add = false)
+	public function classes(): Classes
 	{
-		if (empty($classes)) {
-			return $this->attributes['class'];
-		}
+		return $this->attributes->classes();
+	}
 
-		if ($add) {
-			$this->attributes['class']->add($classes);
-		} else {
-			$this->attributes['class']->set($classes);
-		}
-
-		return $this;
+	/**
+	 * @return Attributes
+	 */
+	public function attributes(): Attributes
+	{
+		return $this->attributes;
 	}
 
 	/**
@@ -128,15 +110,7 @@ abstract class Link extends Model
 	 */
 	public function is_current(): bool
 	{
-		return $this->class()->has('is-current');
-	}
-
-	/**
-	 * @return string
-	 */
-	public function __toString(): string
-	{
-		return $this->render();
+		return $this->current;
 	}
 
 }
