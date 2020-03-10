@@ -134,13 +134,14 @@ class Taxonomy implements TaxonomyInterface
 			'show_count'       => 0,
 		], $options);
 
-		$arguments['taxonomy'] = $this->taxonomy->name;
+		$arguments['taxonomy']     = $this->taxonomy->name;
+		$arguments['hierarchical'] = (bool) $arguments['hierarchical'];
 
 		if (!isset($arguments['pad_counts']) && $arguments['show_count'] && $arguments['hierarchical']) {
 			$arguments['pad_counts'] = true;
 		}
 
-		if ((bool) $arguments['hierarchical'] === true) {
+		if ($arguments['hierarchical'] === true) {
 			$exclude = [];
 
 			if ($arguments['exclude_tree']) {
@@ -155,26 +156,19 @@ class Taxonomy implements TaxonomyInterface
 			$arguments['exclude']      = '';
 		}
 
-		$walker  = new Walker($this);
-		$objects = get_terms($arguments);
+		$items = get_terms($arguments);
 
-		if ($objects) {
-			$arguments['walker'] = $walker;
-
+		if (is_array($items)) {
 			if (empty($arguments['current_category']) && ($current = $this->current())) {
 				$arguments['current_category'] = $current->id();
 			}
 
-			if ($arguments['hierarchical']) {
-				$depth = $arguments['depth'];
-			} else {
-				$depth = -1;
+			if (!$arguments['hierarchical']) {
+				$arguments['depth'] = -1;
 			}
-
-			walk_category_tree($objects, $depth, $arguments);
 		}
 
-		return $walker->getTerms();
+		return Builder::getTerms($this, $items, $arguments);
 	}
 
 	/**
