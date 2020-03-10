@@ -27,9 +27,9 @@ class Classes implements ArrayAccess, Countable
 	/**
 	 * @param array|string $classes
 	 *
-	 * @return Classes
+	 * @return static
 	 */
-	public static function make($classes = []): Classes
+	public static function make($classes = []): self
 	{
 		return new static($classes);
 	}
@@ -42,7 +42,7 @@ class Classes implements ArrayAccess, Countable
 	 */
 	public function __construct($classes = [], Attributes $attributes = null)
 	{
-		$this->classes    = self::parse($classes);
+		$this->set($classes);
 		$this->attributes = $attributes;
 	}
 
@@ -64,6 +64,18 @@ class Classes implements ArrayAccess, Countable
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param array|string $classes
+	 *
+	 * @return $this
+	 */
+	public function set($classes): self
+	{
+		$this->classes = self::parse($classes);
+
+		return $this;
 	}
 
 	/**
