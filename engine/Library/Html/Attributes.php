@@ -3,6 +3,8 @@
 namespace Twist\Library\Html;
 
 use ArrayAccess;
+use ArrayIterator;
+use IteratorAggregate;
 use Twist\Library\Support\Arr;
 
 /**
@@ -10,7 +12,7 @@ use Twist\Library\Support\Arr;
  *
  * @package Twist\Library\Html
  */
-class Attributes implements ArrayAccess
+class Attributes implements ArrayAccess, IteratorAggregate
 {
 
 	/**
@@ -77,12 +79,22 @@ class Attributes implements ArrayAccess
 	protected $tag;
 
 	/**
+	 * @param iterable $attributes
+	 *
+	 * @return static
+	 */
+	public static function make(iterable $attributes = []): self
+	{
+		return new static($attributes);
+	}
+
+	/**
 	 * Attributes constructor.
 	 *
 	 * @param array $attributes
 	 * @param Tag   $tag
 	 */
-	public function __construct(array $attributes = [], Tag $tag = null)
+	public function __construct(iterable $attributes = [], Tag $tag = null)
 	{
 		$this->classes = $this->getClassesInstance();
 		$this->tag     = $tag;
@@ -103,7 +115,7 @@ class Attributes implements ArrayAccess
 	 *
 	 * @return $this
 	 */
-	public function add(array $attributes): self
+	public function add(iterable $attributes): self
 	{
 		foreach ($attributes as $name => $value) {
 			$this->set($name, $value);
@@ -192,6 +204,11 @@ class Attributes implements ArrayAccess
 		return $this->attributes[$name];
 	}
 
+	public function all(): array
+	{
+		return array_merge($this->attributes, ['class' => $this->classes]);
+	}
+
 	/**
 	 * @return Classes
 	 */
@@ -251,6 +268,14 @@ class Attributes implements ArrayAccess
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public function getIterator(): ArrayIterator
+	{
+		return new ArrayIterator($this->all());
+	}
+
+	/**
 	 * @return string
 	 */
 	public function render(): string
@@ -273,7 +298,13 @@ class Attributes implements ArrayAccess
 			return sprintf('%s="%s"', $name, $value);
 		});
 
-		return trim(implode(' ', array_filter($attributes)));
+		$result = trim(implode(' ', array_filter($attributes)));
+
+		if (!empty($result)) {
+			$result = ' ' . $result;
+		}
+
+		return $result;
 	}
 
 	/**
