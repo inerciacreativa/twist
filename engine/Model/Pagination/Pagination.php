@@ -2,6 +2,8 @@
 
 namespace Twist\Model\Pagination;
 
+use Twist\Library\Hook\Hookable;
+use Twist\Library\Html\Classes;
 use Twist\Library\Html\Tag;
 use Twist\Library\Support\Str;
 use Twist\Model\Link\Links;
@@ -9,57 +11,42 @@ use Twist\Model\Link\Links;
 /**
  * Class Pagination
  *
- * @package Twist\Model\Navigation
+ * @package Twist\Model\Pagination
  */
 abstract class Pagination implements PaginationInterface
 {
 
+	use Hookable;
+
+	protected $classes = [
+		'current' => 'is-current',
+		'prev'    => 'is-prev',
+		'next'    => 'is-next',
+		'dots'    => 'is-dots',
+	];
+
 	/**
-	 * @return Links
+	 * @inheritDoc
 	 */
 	public function simple(): Links
 	{
-		$links = new Links();
-		if (!$this->has_pages()) {
-			return $links;
-		}
+		$items = $this->has_pages() ? $this->getPrevNextLinks() : [];
 
-		$items = $this->getPrevNextLinks();
-		$index = 1;
-
-		foreach ($items as $class => $item) {
-			$links->add($this->getLink($index, $item, $class));
-			$index++;
-		}
-
-		return $links;
+		return $this->getLinks($items);
 	}
 
 	/**
-	 * @param array $arguments
-	 *
-	 * @return Links
+	 * @inheritDoc
 	 */
 	public function extended(array $arguments = []): Links
 	{
-		$links = new Links();
-		if (!$this->has_pages()) {
-			return $links;
-		}
+		$items = $this->has_pages() ? $this->getPaginatedLinks($arguments) : [];
 
-		$items = $this->getPaginatedLinks($arguments);
-
-		foreach ($items as $index => $item) {
-			$links->add($this->getLink($index + 1, $item));
-		}
-
-		return $links;
+		return $this->getLinks($items);
 	}
 
 	/**
-	 * @param array $arguments
-	 *
-	 * @return Links
+	 * @inheritDoc
 	 */
 	public function numeric(array $arguments = []): Links
 	{
@@ -79,36 +66,78 @@ abstract class Pagination implements PaginationInterface
 	abstract protected function getPaginatedLinks(array $arguments): array;
 
 	/**
-	 * @param int         $index
-	 * @param string      $item
-	 * @param string|null $class
+	 * @param array $items
 	 *
-	 * @return Link
+	 * @return Links
 	 */
-	protected function getLink(int $index, string $item, string $class = null): Link
+	protected function getLinks(array $items): Links
 	{
-		$tag   = Tag::parse(Str::fromEntities($item));
-		$class = $class ?? trim(str_replace('page-numbers', '', $tag['class']));
-		$title = $tag->content();
-		$label = sprintf(__('Goto page %s', 'twist'), $title);
+		$links = new Links();
 
-		if ($class === 'prev') {
-			$label = __('Goto previous page', 'twist');
-		} else if ($class === 'next') {
-			$label = __('Goto next page', 'twist');
-		} else if ($class === 'current') {
-			$label = sprintf(__('Current page, page %s', 'twist'), $title);
-		} else if ($class === 'dots') {
-			$label = '';
+		foreach ($items as $index => $item) {
+			$links->add($this->getLink($index + 1, $item));
 		}
 
+		return $links;
+	}
+
+	/**
+	 * @param int    $index
+	 * @param string $item
+	 *
+	 * @return Link
+	 * @noinspection NullPointerExceptionInspection
+	 */
+	protected function getLink(int $index, string $item): Link
+	{
+		$tag     = Tag::parse(Str::fromEntities($item));
+		$title   = $tag->content();
+		$classes = $this->getClasses($tag['class']);
+		$label   = $this->getLabel($title, $classes);
+
 		return new Link([
-			'id'    => $index,
-			'title' => $title,
-			'href'  => $tag['href'],
-			'class' => $class,
-			'label' => $label,
+			'id'         => $index,
+			'title'      => $title,
+			'current'    => $classes->has('is-current'),
+			'class'      => $classes,
+			'href'       => $tag['href'],
+			'aria-label' => $label,
 		]);
+	}
+
+	/**
+	 * @param array $classes
+	 *
+	 * @return Classes
+	 */
+	protected function getClasses(array $classes): Classes
+	{
+		return Classes::make($classes)
+					  ->only(array_keys($this->classes))
+					  ->replace(array_keys($this->classes), $this->classes);
+	}
+
+	/**
+	 * @param string  $title
+	 * @param Classes $classes
+	 *
+	 * @return string
+	 */
+	protected function getLabel(string $title, Classes $classes): ?string
+	{
+		$label = sprintf(__('Goto page %s', 'twist'), $title);
+
+		if ($classes->has('is-prev')) {
+			$label = __('Goto previous page', 'twist');
+		} else if ($classes->has('is-next')) {
+			$label = __('Goto next page', 'twist');
+		} else if ($classes->has('is-current')) {
+			$label = sprintf(__('Page %s', 'twist'), $title);
+		} else if ($classes->has('is-dots')) {
+			$label = null;
+		}
+
+		return $label;
 	}
 
 }

@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Comment;
 
+use Twist\App\AppException;
 use Twist\Library\Hook\Hookable;
 use Twist\Model\Pagination\Pagination as BasePagination;
 use Twist\Model\Post\Query;
@@ -46,7 +47,13 @@ class Pagination extends BasePagination
 		$this->post_link  = $post_link;
 
 		$this->hook()
-			 ->on('paginate_links', 'filterLink');
+			 ->on('paginate_links', 'filterLink')
+			 ->on('previous_comments_link_attributes', static function () {
+				 return 'class="prev"';
+			 })
+			 ->on('next_comments_link_attributes', static function () {
+				 return 'class="next"';
+			 });
 	}
 
 	/**
@@ -70,7 +77,12 @@ class Pagination extends BasePagination
 	 */
 	public function current(): int
 	{
-		return (int) Query::main()->get('cpage', 1);
+		try {
+			return (int) Query::main()->get('cpage', 1);
+		} catch (AppException $exception) {
+		}
+
+		return 1;
 	}
 
 	/**
@@ -79,8 +91,8 @@ class Pagination extends BasePagination
 	protected function getPrevNextLinks(): array
 	{
 		return array_filter([
-			'prev' => get_previous_comments_link(_x('Previous', 'previous set of posts', 'twist')),
-			'next' => get_next_comments_link(_x('Next', 'next set of posts', 'twist'), $this->page_count),
+			get_previous_comments_link(_x('Previous', 'previous set of posts', 'twist')),
+			get_next_comments_link(_x('Next', 'next set of posts', 'twist'), $this->page_count),
 		]);
 	}
 
@@ -120,7 +132,7 @@ class Pagination extends BasePagination
 			return str_replace($search, '', $link);
 		}
 
-		if (strpos($link,'cpage=' . $this->page_first)) {
+		if (strpos($link, 'cpage=' . $this->page_first)) {
 			return add_query_arg('cpage', false, $link);
 		}
 

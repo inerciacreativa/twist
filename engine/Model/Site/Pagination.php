@@ -29,6 +29,14 @@ class Pagination extends BasePagination
 	public function __construct(Query $query = null)
 	{
 		$this->query = $query ?: Query::main();
+
+		$this->hook()
+			 ->on('previous_posts_link_attributes', static function () {
+				return 'class="prev"';
+			})
+			 ->on('next_posts_link_attributes', static function () {
+				return 'class="next"';
+			});
 	}
 
 	/**
@@ -77,8 +85,8 @@ class Pagination extends BasePagination
 	protected function getPrevNextLinks(): array
 	{
 		return array_filter([
-			'prev' => get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist')),
-			'next' => get_next_posts_link(_x('Next', 'next set of posts', 'twist')),
+			get_previous_posts_link(_x('Previous', 'previous set of posts', 'twist')),
+			get_next_posts_link(_x('Next', 'next set of posts', 'twist')),
 		]);
 	}
 

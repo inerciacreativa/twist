@@ -4,6 +4,11 @@ namespace Twist\Model\Pagination;
 
 use Twist\Model\Link\Links;
 
+/**
+ * Interface PaginationInterface
+ *
+ * @package Twist\Model\Pagination
+ */
 interface PaginationInterface
 {
 	/**
@@ -32,5 +37,12 @@ interface PaginationInterface
 	 * @return Links
 	 */
 	public function extended(array $arguments = []): Links;
+
+	/**
+	 * @param array $arguments
+	 *
+	 * @return Links
+	 */
+	public function numeric(array $arguments = []): Links;
 
 }
