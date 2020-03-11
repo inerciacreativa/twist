@@ -71,12 +71,56 @@ class Post extends Model
 	private $has_children;
 
 	/**
+	 * @param string            $url
+	 * @param string|array|null $type
+	 *
+	 * @return static|null
+	 *
+	 * @throws AppException
+	 */
+	public static function by_path(string $url, $type = null): ?self
+	{
+		if (empty($type)) {
+			$type = 'page';
+		}
+
+		$post = get_page_by_path($url, OBJECT, $type);
+		if (!($post instanceof WP_Post)) {
+			return null;
+		}
+
+		return new static($post);
+	}
+
+	/**
+	 * @param string            $title
+	 * @param string|array|null $type
+	 *
+	 * @return static|null
+	 *
+	 * @throws AppException
+	 */
+	public static function by_title(string $title, $type = null): ?self
+	{
+		if (empty($type)) {
+			$type = 'page';
+		}
+
+		$post = get_page_by_title($title, OBJECT, $type);
+		if (!($post instanceof WP_Post)) {
+			return null;
+		}
+
+		return new static($post);
+	}
+
+	/**
 	 * @param WP_Post|int $post
 	 *
 	 * @return Post
 	 * @throws AppException
 	 */
-	public static function make($post): Post
+	public static function make($post): self
 	{
 		return new static($post);
 	}
