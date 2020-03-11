@@ -43,7 +43,7 @@ class Image extends Model
 	 *
 	 * @return static|null
 	 */
-	public static function by_url($url): ?self
+	public static function by_path($url): ?self
 	{
 		/** @var $wpdb wpdb */ global $wpdb;
 
