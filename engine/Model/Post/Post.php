@@ -143,11 +143,14 @@ class Post extends Model
 
 	/**
 	 * @return $this
+	 *
 	 * @throws AppException
 	 */
 	public function setup(): self
 	{
-		if (!setup_postdata($this->post)) {
+		global $id;
+
+		if ($id !== $this->post->ID && !setup_postdata($this->post)) {
 			new AppException('There is no active WP_Query instance');
 		}
 
@@ -794,6 +797,12 @@ class Post extends Model
 
 		if ($this->is_password_required()) {
 			return $this->getPasswordForm();
+		}
+
+		try {
+			$this->setup();
+		} catch (AppException $exception) {
+			return '';
 		}
 
 		if ($more_link === null) {
