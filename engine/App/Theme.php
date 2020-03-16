@@ -371,15 +371,16 @@ class Theme
 	}
 
 	/**
-	 * @param array $contact
+	 * @param array $add
+	 * @param array $remove
 	 *
 	 * @return $this
 	 * @see filter 'user_contactmethods'
 	 *
 	 */
-	public function contact(array $contact): self
+	public function contact(array $add, array $remove = []): self
 	{
-		$this->contact = array_merge($this->contact, $contact);
+		$this->contact = compact('add', 'remove');
 
 		return $this;
 	}
@@ -735,7 +736,10 @@ SCRIPT;
 	 */
 	protected function addContactMethods(array $methods): array
 	{
-		return array_merge($methods, $this->contact);
+		$methods = array_merge($methods, $this->contact['add']);
+		$methods = Arr::remove($methods, $this->contact['remove'], false);
+
+		return $methods;
 	}
 
 	/**
