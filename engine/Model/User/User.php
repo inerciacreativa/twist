@@ -291,17 +291,21 @@ class User implements UserInterface
 	 */
 	public function posts(int $number = 5): Query
 	{
-		$query = [
+		return $this->query([
 			'author'         => $this->id(),
 			'posts_per_page' => $number,
 			'orderby'        => 'post_date',
 			'order'          => 'DESC',
-		];
+		]);
+	}
 
-		if (isset($GLOBALS['post'])) {
-			$query['post__not_in'] = [$GLOBALS['post']->id];
-		}
-
+	/**
+	 * @param array $query
+	 *
+	 * @return Query
+	 */
+	protected function query(array $query): Query
+	{
 		return Query::make($query);
 	}
 

@@ -15,19 +15,25 @@ class Author extends User
 {
 
 	/**
+	 * @var Post
+	 */
+	private $post;
+
+	/**
 	 * Author constructor.
 	 *
 	 * @param int      $user
+	 * @param Post     $post
 	 *
 	 * @global WP_User $authordata
 	 */
-	public function __construct($user = 0)
+	public function __construct($user = 0, Post $post = null)
 	{
 		global $authordata;
 
-		$user = $user ?: $authordata;
+		$this->post = $post;
 
-		parent::__construct($user);
+		parent::__construct($user ?: $authordata);
 	}
 
 	/**
@@ -39,7 +45,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function name(): string
 	{
@@ -47,7 +53,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function first_name(): string
 	{
@@ -55,7 +61,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function last_name(): string
 	{
@@ -63,7 +69,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function email(): string
 	{
@@ -71,7 +77,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function url(): string
 	{
@@ -79,11 +85,25 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function description(): string
 	{
 		return $this->filter('description');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function query(array $query): Query
+	{
+		if ($this->post) {
+			$query['post__not_in'] = [$this->post->id()];
+		} else if (isset($GLOBALS['post'])) {
+			$query['post__not_in'] = [$GLOBALS['post']->ID];
+		}
+
+		return parent::query($query);
 	}
 
 	/**
