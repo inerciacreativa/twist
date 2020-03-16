@@ -47,11 +47,6 @@ class User implements UserInterface
 	private $profiles;
 
 	/**
-	 * @var Query
-	 */
-	private $posts;
-
-	/**
 	 * Get the current user.
 	 *
 	 * @return User
@@ -296,22 +291,18 @@ class User implements UserInterface
 	 */
 	public function posts(int $number = 5): Query
 	{
-		if ($this->posts === null) {
-			$query = [
-				'author'         => $this->user->ID,
-				'posts_per_page' => $number,
-				'orderby'        => 'post_date',
-				'order'          => 'DESC',
-			];
+		$query = [
+			'author'         => $this->id(),
+			'posts_per_page' => $number,
+			'orderby'        => 'post_date',
+			'order'          => 'DESC',
+		];
 
-			if (isset($GLOBALS['post'])) {
-				$query['post__not_in'] = [$GLOBALS['post']->id];
-			}
-
-			$this->posts = Query::make($query);
+		if (isset($GLOBALS['post'])) {
+			$query['post__not_in'] = [$GLOBALS['post']->id];
 		}
 
-		return $this->posts;
+		return Query::make($query);
 	}
 
 	/**
