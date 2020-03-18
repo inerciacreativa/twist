@@ -22,37 +22,27 @@ class Assets
 {
 
 	/**
-	 * @var AssetsGroup
-	 */
-	private $head;
-
-	/**
-	 * @var AssetsGroup
-	 */
-	private $foot;
-
-	/**
 	 * @return AssetsGroup
 	 */
-	public function head(): AssetsGroup
+	public static function head(): AssetsGroup
 	{
-		return $this->head ?? $this->head = new AssetsGroup(App::HEAD, [
-				Title::class,
-				Metas::class,
-				Links::class,
-				Styles::class,
-				Scripts::class,
-			]);
+		return new AssetsGroup(App::HEAD, [
+			Title::class,
+			Metas::class,
+			Links::class,
+			Styles::class,
+			Scripts::class,
+		]);
 	}
 
 	/**
 	 * @return AssetsGroup
 	 */
-	public function foot(): AssetsGroup
+	public static function foot(): AssetsGroup
 	{
-		return $this->foot ?? $this->foot = new AssetsGroup(App::FOOT, [
-				Scripts::class,
-			]);
+		return new AssetsGroup(App::FOOT, [
+			Scripts::class,
+		]);
 	}
 
 	/**
@@ -142,8 +132,9 @@ class Assets
 			$svg['aria-hidden'] = 'true';
 		}
 
-		return $svg->content(Tag::use(['xlink:href'  => "#icon-$icon",
-									   'aria-hidden' => 'true',
+		return $svg->content(Tag::use([
+			'xlink:href'  => "#icon-$icon",
+			'aria-hidden' => 'true',
 		]))->render(true);
 	}
 

@@ -1,6 +1,7 @@
 <?php
 
 use Twist\Model\Post\Query;
+use Twist\Model\Site\Assets;
 use Twist\Model\Site\Site;
 use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
@@ -11,8 +12,9 @@ use Twist\Service\CoreServiceProvider;
 use Twist\Twist;
 
 Twist::context()->set([
-	'posts' => Query::class,
-	'site'  => Site::class,
+	'posts'  => Query::class,
+	'site'   => Site::class,
+	'assets' => Assets::class,
 ]);
 
 Twist::theme()

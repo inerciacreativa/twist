@@ -24,11 +24,6 @@ class Site
 	use Macroable;
 
 	/**
-	 * @var Assets
-	 */
-	private $assets;
-
-	/**
 	 * @var Pagination
 	 */
 	private $pagination;
@@ -38,7 +33,7 @@ class Site
 	 */
 	public function head(): AssetsGroup
 	{
-		return $this->assets()->head();
+		return Assets::head();
 	}
 
 	/**
@@ -46,15 +41,7 @@ class Site
 	 */
 	public function foot(): AssetsGroup
 	{
-		return $this->assets()->foot();
-	}
-
-	/**
-	 * @return Assets
-	 */
-	public function assets(): Assets
-	{
-		return $this->assets ?? $this->assets = new Assets();
+		return Assets::foot();
 	}
 
 	/**
