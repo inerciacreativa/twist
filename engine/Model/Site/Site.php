@@ -88,6 +88,22 @@ class Site
 	/**
 	 * @return string
 	 */
+	public static function charset(): string
+	{
+		return get_bloginfo('charset');
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function language(): string
+	{
+		return get_bloginfo('language');
+	}
+
+	/**
+	 * @return string
+	 */
 	public static function id(): string
 	{
 		return str_replace('.', '-', parse_url(self::home_url(), PHP_URL_HOST));
@@ -104,17 +120,9 @@ class Site
 	/**
 	 * @return string
 	 */
-	public static function charset(): string
+	public static function description(): string
 	{
-		return get_bloginfo('charset');
-	}
-
-	/**
-	 * @return string
-	 */
-	public static function language(): string
-	{
-		return get_bloginfo('language');
+		return get_bloginfo('description');
 	}
 
 	/**
