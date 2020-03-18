@@ -74,10 +74,9 @@ Twist::theme()
 		 [
 			 'id'   => 'comment-reply',
 			 'load' => static function () {
-				 return Query::main()->is_single() && Query::main()
-														   ->posts()
-														   ->first()
-														   ->can_be_commented();
+				 return Query::main()->is_single() && ($post = Query::main()
+																	->posts()
+																	->first()) && $post->can_be_commented();
 			 },
 		 ],
 	 ])
