@@ -6,8 +6,8 @@ use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Assets;
 use Twist\App\Config;
-use Twist\App\Context;
 use Twist\App\Theme;
+use Twist\View\Context;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
 

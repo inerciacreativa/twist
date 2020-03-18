@@ -28,4 +28,12 @@ interface ViewInterface
      */
     public function display(string $template, array $context = []): void;
 
+	/**
+	 * Adds a path where templates are stored.
+	 *
+	 * @param string $path
+	 * @param string $namespace
+	 */
+	public function path(string $path, string $namespace): void;
+
 }

@@ -4,7 +4,6 @@ namespace Twist\View;
 
 use Twist\App\App;
 use Twist\App\Config;
-use Twist\App\Context;
 use Twist\Service\Service;
 
 /**

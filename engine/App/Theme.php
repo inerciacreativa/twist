@@ -446,6 +446,7 @@ class Theme
 				'service'   => TwigView::id(),
 				'namespace' => TwigView::MAIN_NAMESPACE,
 				'folder'    => '/templates',
+				'context'   => [],
 			],
 		]);
 

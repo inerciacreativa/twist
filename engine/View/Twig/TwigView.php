@@ -17,42 +17,85 @@ use Twist\View\View;
 class TwigView extends View
 {
 
-	/**
-	 *
-	 */
 	public const MAIN_NAMESPACE = FilesystemLoader::MAIN_NAMESPACE;
 
 	/**
 	 * @var FilesystemLoader
 	 */
-	protected $loader;
+	private $loader;
 
 	/**
 	 * @var Environment
 	 */
-	protected $environment;
+	private $environment;
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
+	 *
+	 * @throws AppException
 	 */
 	protected function init(): void
 	{
-		$this->loader = new FilesystemLoader();
+		$this->loader      = $this->getLoader();
+		$this->environment = $this->getEnvironment();
 
-		foreach ($this->config->get('view.paths') as $path) {
-			$this->loader->addPath($path['path'], $path['namespace']);
-		}
+		$this->addPaths();
+		$this->addExtensions();
+	}
 
-		$this->environment = new Environment($this->loader, [
+	/**
+	 * @return FilesystemLoader
+	 */
+	private function getLoader(): FilesystemLoader
+	{
+		return new FilesystemLoader();
+	}
+
+	/**
+	 * @return Environment
+	 */
+	private function getEnvironment(): Environment
+	{
+		return new Environment($this->loader, [
 			'cache'       => $this->config->get('view.cache', false),
 			'debug'       => $this->config->get('app.debug', false),
 			'auto_reload' => true,
 		]);
+	}
 
+	/**
+	 * @throws AppException
+	 */
+	private function addPaths(): void
+	{
+		foreach ($this->config->get('view.paths') as $path) {
+			$this->path($path['path'], $path['namespace']);
+		}
+	}
+
+	/**
+	 *
+	 */
+	private function addExtensions(): void
+	{
 		$this->environment->addExtension(new TwigExtension());
 
 		if ($this->config->get('app.debug')) {
 			$this->environment->addExtension(new DebugExtension());
+		}
+	}
+
+	/**
+	 * @throws AppException
+	 */
+	private function addGlobals(): void
+	{
+		try {
+			foreach ($this->context->all() as $name => $value) {
+				$this->environment->addGlobal($name, $value);
+			}
+		} catch (Throwable $exception) {
+			throw new AppException($exception);
 		}
 	}
 
@@ -63,50 +106,43 @@ class TwigView extends View
 	 *
 	 * @throws AppException
 	 */
-	protected function resolve(array $context): array
+	private function getContext(array $context): array
 	{
-		try {
-			foreach ($this->context->shared() as $name => $value) {
-				$this->environment->addGlobal($name, $value);
-			}
-		} catch (Throwable $exception) {
-			throw new AppException($exception);
-		}
+		$this->addGlobals();
 
 		return $this->context->resolve($context);
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 *
 	 * @throws AppException
 	 */
 	public function render(string $template, array $context = []): string
 	{
 		try {
-			return $this->environment->render($template, $this->resolve($context));
+			return $this->environment->render($template, $this->getContext($context));
 		} catch (Throwable $exception) {
 			throw new AppException($exception);
 		}
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 *
 	 * @throws AppException
 	 */
 	public function display(string $template, array $context = []): void
 	{
 		try {
-			$this->environment->display($template, $this->resolve($context));
+			$this->environment->display($template, $this->getContext($context));
 		} catch (Throwable $exception) {
 			throw new AppException($exception);
 		}
 	}
 
 	/**
-	 * @param string $path
-	 * @param string $namespace
+	 * @inheritDoc
 	 *
 	 * @throws AppException
 	 */

@@ -3,6 +3,7 @@
 namespace Twist\App;
 
 use Twist\Service\ServiceProviderInterface;
+use Twist\View\Context;
 
 /**
  * Class AppServiceProvider
