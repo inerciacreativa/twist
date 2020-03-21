@@ -537,7 +537,6 @@ class Post extends Model
 
 	/**
 	 * @return CommentQuery
-	 * @throws AppException
 	 */
 	public function comments(): CommentQuery
 	{

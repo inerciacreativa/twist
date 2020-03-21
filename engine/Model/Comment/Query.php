@@ -2,175 +2,106 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Model\Post\Post;
-use Twist\Model\Post\Query as PostQuery;
-use Twist\Model\User\User;
-use WP_Comment;
-use WP_Comment_Query;
+use Twist\Twist;
+use WP_Query;
 
 /**
- * Class CommentQuery
+ * Class Query
  *
  * @package Twist\Model\Comment
  */
 class Query
 {
 
+	public const ALL = 'all';
+
+	public const COMMENTS = 'comment';
+
+	public const PINGS = 'pings';
+
 	/**
 	 * @var Post
 	 */
-	protected $post;
+	private $post;
 
 	/**
 	 * @var bool
 	 */
-	protected $is_ready;
+	private $loaded = false;
 
 	/**
-	 * @var array
-	 */
-	protected $arguments;
-
-	/**
-	 * @var int
-	 */
-	protected $max_depth = -1;
-
-	/**
-	 * @var int
-	 */
-	protected $per_page = 0;
-
-	/**
-	 * @var int
-	 */
-	protected $page = 0;
-
-	/**
-	 * @var int
-	 */
-	protected $page_total = 0;
-
-	/**
-	 * @var int
-	 */
-	protected $page_first = 0;
-
-	/**
-	 * @var string
-	 */
-	protected $page_default = '';
-
-	/**
-	 * @var string
-	 */
-	protected $order = '';
-
-	/**
-	 * @var bool
-	 */
-	protected $is_threaded = false;
-
-	/**
-	 * @var bool
-	 */
-	protected $is_paged = false;
-
-	/**
-	 * @var bool
-	 */
-	protected $is_page_override = false;
-
-	/**
-	 * @var Pagination
-	 */
-	protected $pagination;
-
-	/**
-	 * @var Form
-	 */
-	protected $form;
-
-	/**
-	 * CommentQuery constructor.
+	 * Query constructor.
 	 *
 	 * @param Post $post
-	 *
-	 * @throws AppException
 	 */
 	public function __construct(Post $post)
 	{
-		$this->post        = $post;
-		$this->is_threaded = (bool) get_option('thread_comments');
-		$this->is_paged    = (bool) get_option('page_comments');
-		$this->order       = get_option('comment_order');
+		$this->post = $post;
+		$this->load();
+	}
 
-		if ($this->is_threaded) {
-			$this->max_depth = (int) get_option('thread_comments_depth');
+	/**
+	 * Load the comments in the global @var WP_Query object.
+	 */
+	private function load(): void
+	{
+		Hook::add('comments_template', function () {
+			// If this filter is fired then the comments has been loaded.
+			$this->loaded = true;
+
+			// Load empty comments.php from parent theme always.
+			return Twist::config('dir.template') . '/comments.php';
+		});
+
+		comments_template();
+	}
+
+	/**
+	 * @param string $type
+	 * @param array  $arguments
+	 *
+	 * @return Comments
+	 */
+	private function build(string $type, array $arguments = []): Comments
+	{
+		$builder = new Builder($this, $type);
+
+		if ($this->loaded) {
+			wp_list_comments(array_merge($arguments, [
+				'type'      => $type,
+				'walker'    => $builder,
+				'max_depth' => $this->max_depth(),
+				'echo'      => false,
+			]));
 		}
 
-		if ($this->is_paged) {
-			$this->page_default = (string) get_option('default_comments_page');
-
-			$this->per_page = (int) PostQuery::main()->get('comments_per_page');
-			if ($this->per_page === 0) {
-				$this->per_page = (int) get_option('comments_per_page');
-			}
-
-			$this->page = (int) PostQuery::main()->get('cpage');
-		}
-
-		$this->is_ready  = $this->setup();
-		$this->arguments = $this->getArguments();
-
-		if ($this->is_paged) {
-			$this->page_total = $this->getPageTotal($this->arguments);
-			$this->page_first = ($this->page_default === 'newest') ? $this->page_total : 1;
-		}
+		return $builder->getComments();
 	}
 
 	/**
 	 * @return Comments
-	 * @throws AppException
-	 * @see wp_list_comments()
-	 *
 	 */
-	public function all(): ?Comments
+	public function all(): Comments
 	{
-		if (!$this->is_ready) {
-			return null;
-		}
-
-		$comments = PostQuery::main()->get_comments();
-
-		wp_queue_comments_for_comment_meta_lazyload($comments);
-
-		$walker = new Walker(new Comments($this));
-		$walker->paged_walk($comments, $this->max_depth, $this->page, $this->per_page, $this->arguments);
-
-		return $walker->getComments();
+		return $this->build(self::ALL);
 	}
 
 	/**
-	 * @return bool
+	 * @return Comments
 	 */
-	public function has_pagination(): bool
+	public function comments(): Comments
 	{
-		return $this->is_ready && $this->is_paged && ($this->page_total > 1);
+		return $this->build(self::COMMENTS);
 	}
 
 	/**
-	 * @return null|Pagination
+	 * @return Comments
 	 */
-	public function pagination(): Pagination
+	public function pings(): Comments
 	{
-		if ($this->pagination === null) {
-			$this->pagination = new Pagination($this->page_total, $this->page_first, $this->post->link());
-		}
-
-		return $this->pagination;
+		return $this->build(self::PINGS);
 	}
 
 	/**
@@ -178,11 +109,7 @@ class Query
 	 */
 	public function form(): string
 	{
-		if ($this->form === null) {
-			$this->form = new Form();
-		}
-
-		return $this->form;
+		return new Form();
 	}
 
 	/**
@@ -204,252 +131,19 @@ class Query
 	/**
 	 * @return int
 	 */
-	public function max_depth(): int
+	private function max_depth(): int
 	{
-		return $this->max_depth;
-	}
+		static $max_depth;
 
-	/**
-	 * @return bool
-	 */
-	public function are_open(): bool
-	{
-		return $this->post->can_be_commented();
-	}
-
-	/**
-	 * @return bool
-	 * @throws AppException
-	 * @see comments_template()
-	 *
-	 */
-	protected function setup(): bool
-	{
-		if (!(PostQuery::main()->is_single() || PostQuery::main()->is_page())) {
-			return false;
-		}
-
-		$arguments = [
-			'no_found_rows'             => false,
-			'update_comment_meta_cache' => false,
-			'hierarchical'              => $this->is_threaded ? 'threaded' : false,
-			'status'                    => 'approve',
-			'orderby'                   => 'comment_date_gmt',
-		];
-
-		if ($this->is_paged) {
-			$arguments['number'] = $this->per_page;
-			$arguments['offset'] = $this->getQueryOffset();
-		}
-
-		$query    = $this->getQuery($arguments);
-		$comments = $this->is_threaded ? $this->getFlattenedComments($query->comments, $arguments) : $query->comments;
-		$comments = Hook::apply('comments_array', $comments, $this->post->id());
-
-		PostQuery::main()->set_comments($comments, $query->max_num_pages);
-
-		if ($this->page === 0 && $query->max_num_pages > 1) {
-			$this->page             = (int) ($this->page_default === 'newest') ? $query->max_num_pages : 1;
-			$this->is_page_override = true;
-
-			PostQuery::main()->set('cpage', $this->page);
-		}
-
-		return PostQuery::main()->has_comments();
-	}
-
-	/**
-	 * @return array
-	 * @throws AppException
-	 */
-	protected function getArguments(): array
-	{
-		$arguments = [
-			'type'              => 'all',
-			'page'              => '',
-			'per_page'          => '',
-			'max_depth'         => $this->is_threaded ? $this->max_depth : -1,
-			'reverse_top_level' => $this->order === 'desc',
-		];
-
-		if (PostQuery::main()->comment_pages()) {
-			if ($this->page_default === 'newest') {
-				$arguments['cpage'] = $this->page;
-			} else if ($this->page === 1) {
-				$arguments['cpage'] = '';
+		if ($max_depth === null) {
+			if (get_option('thread_comments')) {
+				$max_depth = (int) get_option('thread_comments_depth');
 			} else {
-				$arguments['cpage'] = $this->page;
-			}
-
-			$arguments['page']     = 0;
-			$arguments['per_page'] = 0;
-		}
-
-		if ($this->is_paged && $arguments['per_page'] === '') {
-			$arguments['per_page'] = $this->per_page;
-		}
-
-		if (empty($arguments['per_page'])) {
-			$arguments['page']     = 0;
-			$arguments['per_page'] = 0;
-		}
-
-		if ($arguments['page'] === '') {
-			if ($this->is_page_override) {
-				$arguments['page'] = ($this->page_default === 'newest') ? $this->getPageCount($arguments, true) : 1;
-			} else {
-				$arguments['page'] = $this->page;
+				$max_depth = -1;
 			}
 		}
 
-		if ($arguments['page'] === 0 && $arguments['per_page'] !== 0) {
-			$arguments['page'] = 1;
-		}
-
-		$this->page      = $arguments['page'];
-		$this->per_page  = $arguments['per_page'];
-		$this->max_depth = $arguments['max_depth'];
-
-		return $arguments;
-	}
-
-	/**
-	 * @param array $arguments
-	 * @param bool  $results
-	 *
-	 * @return WP_Comment_Query|array|int
-	 */
-	protected function getQuery(array $arguments = [], $results = false)
-	{
-		$arguments = array_merge([
-			'post_id'            => $this->post->id(),
-			'orderby'            => 'comment_date_gmt',
-			'order'              => 'ASC',
-			'status'             => 'approve',
-			'include_unapproved' => $this->getUser(),
-		], $arguments);
-
-		if ($results) {
-			return (new WP_Comment_Query())->query($arguments);
-		}
-
-		return new WP_Comment_Query($arguments);
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getQueryOffset(): int
-	{
-		if ($this->page) {
-			return ($this->page - 1) * $this->per_page;
-		}
-
-		if ($this->page_default === 'oldest') {
-			return 0;
-		}
-
-		$count = $this->getQuery([
-			'count'   => true,
-			'orderby' => false,
-			'parent'  => $this->is_threaded ? 0 : '',
-		], true);
-
-		return (int) (ceil($count / $this->per_page) - 1) * $this->per_page;
-	}
-
-	/**
-	 * @param WP_Comment[] $comments
-	 * @param array        $arguments
-	 *
-	 * @return WP_Comment[]
-	 */
-	protected function getFlattenedComments(array $comments, array $arguments): array
-	{
-		$flattened = [[]];
-
-		foreach ($comments as $comment) {
-			$children = $comment->get_children([
-				'format'  => 'flat',
-				'status'  => $arguments['status'],
-				'orderby' => $arguments['orderby'],
-			]);
-
-			$flattened[] = [$comment];
-			$flattened[] = $children;
-		}
-
-		return array_merge(...$flattened);
-	}
-
-	/**
-	 * @param array $arguments
-	 * @param bool  $set
-	 *
-	 * @return int
-	 * @throws AppException
-	 */
-	protected function getPageCount(array $arguments, bool $set = false): int
-	{
-		if (!$this->is_paged || $arguments['per_page'] === 0) {
-			return 1;
-		}
-
-		if ($arguments['max_depth'] !== 1) {
-			// Count root comments
-			$count = array_reduce(PostQuery::main()
-			                               ->get_comments(), static function (int $count, WP_Comment $comment) {
-				if ($comment->comment_parent === 0) {
-					$count++;
-				}
-
-				return $count;
-			}, 0);
-		} else {
-			// Count all comments
-			$count = PostQuery::main()->comment_count();
-		}
-
-		$count = (int) ceil($count / $arguments['per_page']);
-
-		if ($set) {
-			PostQuery::main()->set('cpage', $count);
-		}
-
-		return $count;
-	}
-
-	/**
-	 * @param array $arguments
-	 *
-	 * @return int
-	 * @throws AppException
-	 */
-	protected function getPageTotal(array $arguments): int
-	{
-		if ($count = PostQuery::main()->comment_pages()) {
-			return $count;
-		}
-
-		return $this->getPageCount($arguments);
-	}
-
-	/**
-	 * @return int|string
-	 */
-	protected function getUser()
-	{
-		$user = User::current();
-
-		if ($user->exists()) {
-			return $user->id();
-		}
-
-		if (!empty($user->email())) {
-			return $user->email();
-		}
-
-		return '';
+		return $max_depth;
 	}
 
 }

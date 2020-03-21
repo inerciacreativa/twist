@@ -23,9 +23,9 @@ class Comment extends Model
 {
 
 	/**
-	 * @var Query
+	 * @var Comments
 	 */
-	private $query;
+	private $comments;
 
 	/**
 	 * @var WP_Comment
@@ -36,6 +36,11 @@ class Comment extends Model
 	 * @var int
 	 */
 	private $depth;
+
+	/**
+	 * @var int
+	 */
+	private $max_depth;
 
 	/**
 	 * @var Author
@@ -54,11 +59,12 @@ class Comment extends Model
 	 * @param WP_Comment $comment
 	 * @param int        $depth
 	 */
-	public function __construct(Comments $comments, WP_Comment $comment, int $depth = 0)
+	public function __construct(Comments $comments, WP_Comment $comment, int $depth, int $max_depth)
 	{
-		$this->query   = $comments->query();
-		$this->comment = $comment;
-		$this->depth   = $depth;
+		$this->comments = $comments;
+		$this->comment  = $comment;
+		$this->depth    = $depth;
+		$this->max_depth = $max_depth;
 
 		if ($comments->has_parent()) {
 			$this->set_parent($comments->parent());
@@ -71,7 +77,7 @@ class Comment extends Model
 	public function children(): ?CollectionInterface
 	{
 		if ($this->children === null) {
-			$this->set_children(new Comments($this->query, $this));
+			$this->set_children(new Comments($this->comments->query(), $this));
 		}
 
 		return $this->children;
@@ -110,7 +116,7 @@ class Comment extends Model
 	 */
 	public function post(): Post
 	{
-		return $this->query->post();
+		return $this->comments->query()->post();
 	}
 
 	/**
@@ -337,11 +343,11 @@ class Comment extends Model
 	 */
 	public function can_be_replied(): bool
 	{
-		if (!$this->query->are_open()) {
+		if (!$this->post()->can_be_commented()) {
 			return false;
 		}
 
-		if ($this->query->max_depth() <= $this->depth) {
+		if ($this->max_depth <= $this->depth) {
 			return false;
 		}
 

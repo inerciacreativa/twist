@@ -216,49 +216,6 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @return array
-	 */
-	public function get_comments(): array
-	{
-		return (array) $this->query->comments;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function has_comments(): bool
-	{
-		return !empty($this->query->comments);
-	}
-
-	/**
-	 * @param array $comments
-	 * @param int   $pages
-	 */
-	public function set_comments(array $comments, $pages): void
-	{
-		$this->query->comments              = $comments;
-		$this->query->comment_count         = count($comments);
-		$this->query->max_num_comment_pages = (int) $pages;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function comment_count(): int
-	{
-		return (int) $this->query->comment_count;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function comment_pages(): int
-	{
-		return (int) $this->query->max_num_comment_pages;
-	}
-
-	/**
 	 * @param string $variable
 	 * @param null   $default
 	 *
