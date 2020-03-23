@@ -5,8 +5,11 @@ namespace Twist;
 use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Assets;
+use Twist\App\AssetsQueue;
 use Twist\App\Config;
 use Twist\App\Theme;
+use Twist\Asset\Manifest;
+use Twist\Asset\Queue;
 use Twist\View\Context;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
@@ -63,11 +66,19 @@ class Twist
 	}
 
 	/**
-	 * @return Assets
+	 * @return Manifest
 	 */
-	final public static function assets(): Assets
+	final public static function manifest(): Manifest
 	{
-		return self::app('assets');
+		return self::app('asset_manifest');
+	}
+
+	/**
+	 * @return Queue
+	 */
+	final public static function queue(): Queue
+	{
+		return self::app('asset_queue');
 	}
 
 	/**

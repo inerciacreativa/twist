@@ -3,13 +3,13 @@
 namespace Twist\App;
 
 use Closure;
+use Twist\Asset\Fonts;
+use Twist\Asset\Queue;
 use Twist\Library\Data\Collection;
 use Twist\Library\Hook\Hookable;
 use Twist\Library\Html\Tag;
 use Twist\Library\Support\Arr;
-use Twist\Library\Support\Data;
 use Twist\Service\ServiceProviderInterface;
-use Twist\Twist;
 use Twist\View\Twig\TwigView;
 
 /**
@@ -22,130 +22,118 @@ class Theme
 
 	use Hookable;
 
+	public const PARENT = 'template';
+
+	public const CHILD = 'stylesheet';
+
 	/**
 	 * @var App
 	 */
-	protected $app;
+	private $app;
 
 	/**
 	 * @var Config
 	 */
-	protected $config;
+	private $config;
+
+	/**
+	 * @var Queue
+	 */
+	private $queue;
+
+	/**
+	 * @var Fonts
+	 */
+	private $fonts;
 
 	/**
 	 * @var bool
 	 */
-	protected $parent = true;
+	private $parent = true;
 
 	/**
 	 * @var Closure
 	 */
-	protected $setup;
+	private $setup;
 
 	/**
 	 * @var array
 	 */
-	protected $services = [];
+	private $services = [];
 
 	/**
 	 * @var array
 	 */
-	protected $options = [];
+	private $options = [];
+
+	/**
+	 * @var array
+	 */
+	private $links = [];
+
+	/**
+	 * @var array
+	 */
+	private $metas = [];
 
 	/**
 	 * @var Collection
 	 */
-	protected $styles;
-
-	/**
-	 * @var Collection
-	 */
-	protected $scripts;
+	private $sidebars;
 
 	/**
 	 * @var array
 	 */
-	protected $inline = [];
+	private $resources = [];
 
 	/**
 	 * @var array
 	 */
-	protected $links = [];
+	private $logo = [];
 
 	/**
 	 * @var array
 	 */
-	protected $metas = [];
-
-	/**
-	 * @var Collection
-	 */
-	protected $sidebars;
+	private $images = [];
 
 	/**
 	 * @var array
 	 */
-	protected $fonts = [
-		'config' => [],
-		'loader' => 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
-	];
+	private $menus = [];
 
 	/**
 	 * @var array
 	 */
-	protected $resources = [];
+	private $contact = [];
 
 	/**
 	 * @var array
 	 */
-	protected $logo = [];
-
-	/**
-	 * @var array
-	 */
-	protected $images = [];
-
-	/**
-	 * @var array
-	 */
-	protected $menus = [];
-
-	/**
-	 * @var array
-	 */
-	protected $contact = [];
-
-	/**
-	 * @var array
-	 */
-	protected $formats = [];
+	private $formats = [];
 
 	/**
 	 * Theme constructor.
 	 *
 	 * @param App    $app
 	 * @param Config $config
+	 * @param Queue  $queue
 	 */
-	public function __construct(App $app, Config $config)
+	public function __construct(App $app, Config $config, Queue $queue, Fonts $fonts)
 	{
 		$this->app    = $app;
 		$this->config = $config;
+		$this->queue  = $queue;
+		$this->fonts  = $fonts;
 
-		$this->styles   = new Collection();
-		$this->scripts  = new Collection();
 		$this->sidebars = new Collection();
 
 		$this->hook()
 			 ->before(App::BOOT, 'boot')
 			 ->on('show_admin_bar', '__return_false')
 			 ->on('user_contactmethods', 'addContactMethods')
-			 ->on('wp_enqueue_scripts', 'addStyles')
-			 ->on('wp_enqueue_scripts', 'addScripts')
 			 ->on('twist_site_links', 'addLinks')
 			 ->on('twist_site_metas', 'addMetas')
 			 ->on('widgets_init', 'addSidebars')
-			 ->after('wp_footer', 'addInlineScripts')
-			 ->after('script_loader_tag', 'addScriptsAttributes', ['arguments' => 2])
 			 ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2]);
 	}
 
@@ -185,11 +173,17 @@ class Theme
 		return $this;
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $manifest
+	 *
+	 * @return $this
+	 */
 	public function assets(string $path, string $manifest): self
 	{
 		return $this->options([
 			'asset' => [
-				$this->parent ? Assets::PARENT : Assets::CHILD => [
+				$this->parent ? self::PARENT : self::CHILD => [
 					'path'     => '/' . trim($path, '/') . '/',
 					'manifest' => $manifest,
 				],
@@ -204,7 +198,7 @@ class Theme
 	 */
 	public function styles(array $styles): self
 	{
-		$this->styles = $this->addAssets($this->styles, $styles);
+		$this->queue->styles($styles, $this->parent);
 
 		return $this;
 	}
@@ -216,7 +210,7 @@ class Theme
 	 */
 	public function scripts(array $scripts): self
 	{
-		$this->scripts = $this->addAssets($this->scripts, $scripts);
+		$this->queue->scripts($scripts, $this->parent);
 
 		return $this;
 	}
@@ -228,7 +222,7 @@ class Theme
 	 */
 	public function inline($script): self
 	{
-		$this->inline[] = $script;
+		$this->queue->inline($script);
 
 		return $this;
 	}
@@ -258,24 +252,14 @@ class Theme
 	}
 
 	/**
-	 * @param array       $config
+	 * @param array       $fonts
 	 * @param string|bool $loader
 	 *
 	 * @return $this
 	 */
-	public function webfonts(array $config, $loader = true): self
+	public function webfonts(array $fonts, $loader = true): self
 	{
-		$this->fonts['config'] = Arr::map($config, static function ($config, $id) {
-			if ($id === 'google') {
-				$config = ['families' => $config];
-			}
-
-			return (object) $config;
-		});
-
-		if (!$loader || is_string($loader)) {
-			$this->fonts['loader'] = $loader;
-		}
+		$this->fonts->add($fonts, $loader);
 
 		return $this;
 	}
@@ -305,14 +289,15 @@ class Theme
 	}
 
 	/**
+	 * [
+	 *   'height'      (int)
+	 *   'width'       (int)
+	 *   'flex-width'  (bool)
+	 *   'flex-height' (bool)
+	 *   'header-text' (string)
+	 * ]
+	 *
 	 * @param array $logo
-	 *   [
-	 *   'height' => (int)
-	 *   'width' => (int)
-	 *   'flex-width' => (bool)
-	 *   'flex-height' => (bool)
-	 *   'header-text' => (string)
-	 *   ]
 	 *
 	 * @return $this
 	 * @see add_theme_support()
@@ -413,7 +398,6 @@ class Theme
 		$this->addConfig();
 		$this->addLanguages();
 		$this->addThemeSupport();
-		$this->addWebFonts();
 		$this->addServices();
 
 		$this->app->boot();
@@ -551,94 +535,6 @@ class Theme
 	}
 
 	/**
-	 * Adds web fonts using a link to Google Fonts or Web Font Loader.
-	 *
-	 * @see https://github.com/typekit/webfontloader
-	 */
-	protected function addWebFonts(): void
-	{
-		if (!empty($this->fonts['config'])) {
-			if (is_string($this->fonts['loader'])) {
-				$script = $this->fonts['loader'];
-				$config = str_replace('"', "'", json_encode($this->fonts['config']));
-
-				$this->inline("(function(i,s,o,g,r,a,m) {i['WebFontConfig']=r;
-				      a=s.createElement(o);a.src=g;a.async=1;a.crossOrigin='anonymous';
-				      m=s.getElementsByTagName(o)[0];m.parentNode.insertBefore(a,m);
-				   })(window,document,'script','$script',$config);");
-			} else if (array_key_exists('google', $this->fonts['config'])) {
-				$families = implode('|', $this->fonts['config']['google']->families);
-
-				$this->styles([
-					[
-						'id'   => 'fonts',
-						'load' => 'https://fonts.googleapis.com/css?family=' . $families,
-					],
-				]);
-			}
-		}
-	}
-
-	/**
-	 * Enqueue styles.
-	 */
-	protected function addStyles(): void
-	{
-		$this->styles->each(static function ($style) {
-			$load = Data::value(Arr::value($style, 'load'));
-
-			if ($load) {
-				if (is_string($load)) {
-					wp_enqueue_style($style['id'], Twist::assets()
-														->url($load, $style['parent']), $style['deps'], null);
-				} else {
-					wp_enqueue_style($style['id']);
-				}
-			} else {
-				wp_dequeue_style($style['id']);
-			}
-		});
-	}
-
-	/**
-	 * Enqueue scripts.
-	 */
-	protected function addScripts(): void
-	{
-		$this->scripts->each(static function ($script) {
-			$load = Data::value(Arr::value($script, 'load'));
-
-			if ($load) {
-				if (is_string($load)) {
-					wp_deregister_script($script['id']);
-					wp_enqueue_script($script['id'], Twist::assets()
-														  ->url($load, $script['parent']), $script['deps'], null, true);
-				} else {
-					wp_enqueue_script($script['id']);
-				}
-			} else {
-				wp_dequeue_script($script['id']);
-			}
-		});
-	}
-
-	/**
-	 * Adds inline <script> in the footer.
-	 */
-	protected function addInlineScripts(): void
-	{
-		foreach ($this->inline as $script) {
-			$script = Data::value($script);
-
-			echo <<<SCRIPT
-	<script>
-$script
-   </script>
-SCRIPT;
-		}
-	}
-
-	/**
 	 * @param array $links
 	 *
 	 * @return array
@@ -668,33 +564,6 @@ SCRIPT;
 		}
 
 		return $metas;
-	}
-
-	/**
-	 * Adds extra HTML attributes to script elements.
-	 *
-	 * @param string $script
-	 * @param string $handle
-	 *
-	 * @return string
-	 */
-	protected function addScriptsAttributes(string $script, string $handle): string
-	{
-		$scripts = $this->scripts->filter(static function ($script) {
-			return isset($script['attr']);
-		})->pluck('attr', 'id')->all();
-
-		if (array_key_exists($handle, $scripts)) {
-			$attribute = $scripts[$handle];
-			$tag       = Tag::parse($script);
-
-			if ($tag) {
-				$tag[$attribute] = $attribute;
-				$script          = (string) $tag;
-			}
-		}
-
-		return $script;
 	}
 
 	/**
@@ -741,29 +610,6 @@ SCRIPT;
 		$methods = Arr::remove($methods, $this->contact['remove'], false);
 
 		return $methods;
-	}
-
-	/**
-	 * @param Collection $collection
-	 * @param array      $assets
-	 *
-	 * @return Collection
-	 */
-	protected function addAssets(Collection $collection, array $assets): Collection
-	{
-		return $this->addToCollection($collection, array_map(function (array $asset) {
-			if (isset($asset['load']) && $asset['load'] !== false) {
-				if (!isset($asset['parent'])) {
-					$asset['parent'] = $this->parent;
-				}
-
-				if (!isset($asset['deps'])) {
-					$asset['deps'] = [];
-				}
-			}
-
-			return $asset;
-		}, $assets));
 	}
 
 	/**

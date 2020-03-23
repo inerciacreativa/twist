@@ -1,33 +1,31 @@
 <?php
 
-namespace Twist\App;
+namespace Twist\Asset;
 
 use Twist\Library\Data\Repository;
 use Twist\Library\Support\Json;
 use Twist\Library\Support\Url;
+use Twist\App\Config;
 use RuntimeException;
+use Twist\App\Theme;
 
 /**
- * Class Asset
+ * Class Manifest
  *
- * @package Twist\App
+ * @package Twist\Asset
  */
-class Assets
+class Manifest
 {
-
-	public const PARENT = 'template';
-
-	public const CHILD = 'stylesheet';
 
 	/**
 	 * @var Repository[]
 	 */
-	protected $manifest = [];
+	private $manifest = [];
 
 	/**
 	 * @var Config
 	 */
-	protected $config;
+	private $config;
 
 	/**
 	 * Asset constructor.
@@ -45,7 +43,7 @@ class Assets
 	 *
 	 * @return Repository
 	 */
-	protected function manifest(string $theme, string $filename): Repository
+	private function manifest(string $theme, string $filename): Repository
 	{
 		if (!array_key_exists($theme, $this->manifest)) {
 			$path = $this->config->get("dir.$theme");
@@ -68,9 +66,9 @@ class Assets
 	 *
 	 * @return array
 	 */
-	protected function get(string $filename, bool $parent): array
+	private function get(string $filename, bool $parent): array
 	{
-		$theme    = $parent ? self::PARENT : self::CHILD;
+		$theme    = $parent ? Theme::PARENT : Theme::CHILD;
 		$config   = $this->config->get("asset.$theme", [
 			'path'     => '/',
 			'manifest' => '',

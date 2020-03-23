@@ -53,7 +53,7 @@ class Assets
 	 */
 	public function url(string $filename, bool $parent = false): string
 	{
-		return Twist::assets()->url($filename, $parent);
+		return Twist::manifest()->url($filename, $parent);
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Assets
 		if (empty($filename) && ($id = get_theme_mod('custom_logo'))) {
 			$logo = Tag::parse(wp_get_attachment_image($id, 'full'));
 		} else {
-			$logo = Tag::img(['src' => Twist::assets()->url($filename)]);
+			$logo = Tag::img(['src' => Twist::manifest()->url($filename)]);
 		}
 
 		$logo->attributes(array_merge([
@@ -86,7 +86,7 @@ class Assets
 	 */
 	public function image(string $filename, array $attributes = [], bool $parent = false): string
 	{
-		$image = Tag::img(['src' => Twist::assets()->url($filename, $parent)]);
+		$image = Tag::img(['src' => Twist::manifest()->url($filename, $parent)]);
 		$image->attributes(array_merge([
 			'alt' => '',
 		], $attributes));
@@ -101,7 +101,7 @@ class Assets
 	 */
 	public function svg_inline(string $path): string
 	{
-		$image = Twist::assets()->path($path);
+		$image = Twist::manifest()->path($path);
 
 		return (string) @file_get_contents($image);
 	}

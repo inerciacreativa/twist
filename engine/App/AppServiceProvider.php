@@ -2,8 +2,11 @@
 
 namespace Twist\App;
 
+use Twist\Asset\Fonts;
 use Twist\Service\ServiceProviderInterface;
 use Twist\View\Context;
+use Twist\Asset\Manifest;
+use Twist\Asset\Queue;
 
 /**
  * Class AppServiceProvider
@@ -22,12 +25,20 @@ class AppServiceProvider implements ServiceProviderInterface
 			return new Config();
 		});
 
-		$app->service('assets', static function (App $app) {
-			return new Assets($app['config']);
+		$app->service('asset_manifest', static function (App $app) {
+			return new Manifest($app['config']);
+		});
+
+		$app->service('asset_queue', static function () {
+			return new Queue();
+		});
+
+		$app->service('asset_fonts', static function (App $app) {
+			return new Fonts($app['asset_queue']);
 		});
 
 		$app->service('theme', static function (App $app) {
-			return new Theme($app, $app['config']);
+			return new Theme($app, $app['config'], $app['asset_queue'], $app['asset_fonts']);
 		});
 
 		$app->service('context', static function (App $app) {
