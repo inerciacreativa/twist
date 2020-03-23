@@ -18,13 +18,48 @@ class FormDecorator implements FormDecoratorInterface
 	protected $classes;
 
 	/**
+	 * @var array
+	 */
+	protected $ids;
+
+	/**
 	 * FormDecorator constructor.
 	 *
 	 * @param array $classes
+	 * @param array $ids
 	 */
-	public function __construct(array $classes = [])
+	public function __construct(array $classes = [], array $ids = [])
 	{
 		$this->classes = array_merge($this->getClasses(), $classes);
+		$this->ids     = array_merge($this->getIds(), $ids);
+	}
+
+	/**
+	 * @param string $for
+	 *
+	 * @return string|null
+	 */
+	public function getClass(string $for): ?string
+	{
+		if (array_key_exists($for, $this->classes)) {
+			return $this->classes[$for];
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param string $for
+	 *
+	 * @return string|null
+	 */
+	public function getId(string $for): ?string
+	{
+		if (array_key_exists($for, $this->ids)) {
+			return $this->ids[$for];
+		}
+
+		return null;
 	}
 
 	/**
@@ -33,20 +68,34 @@ class FormDecorator implements FormDecoratorInterface
 	protected function getClasses(): array
 	{
 		return [
-			'field'   => 'field',
+			'wrapper' => 'comment-respond',
+			'title'   => 'subtitle',
+			'form'    => 'comment-form',
 			// Class for the field wrapper.
-			'label'   => 'label',
+			'field'   => 'field',
 			// Class for the <label>.
-			'input'   => null,
+			'label'   => 'label',
 			// Class for the <input> or <textarea>. If null the tag name is used.
-			'control' => 'control',
+			'input'   => null,
 			// Class for the <span> wrapper of the input. If empty no wrapper will be applied.
-			'actions' => 'field actions',
+			'control' => 'control',
 			// Class for the submit button wrapper.
-			'submit'  => 'button is-primary is-large',
+			'actions' => 'field actions',
 			// Class for the submit <input> button.
-			'cancel'  => 'button is-warning is-small',
+			'submit'  => 'button is-primary is-large',
 			// Class for the cancel <button>.
+			'cancel'  => 'button is-warning is-small',
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getIds(): array
+	{
+		return [
+			'wrapper' => 'respond',
+			'form'    => 'comment-form',
 		];
 	}
 
@@ -56,7 +105,9 @@ class FormDecorator implements FormDecoratorInterface
 	public function getDefaults(array $arguments): array
 	{
 		return array_merge($arguments, [
-			'title_reply_before' => '<h2 class="subtitle">',
+			'id_form'            => $this->ids['form'],
+			'class_form'         => $this->classes['form'],
+			'title_reply_before' => '<h2 class="' . $this->classes['title'] . '">',
 			'title_reply_after'  => '</h2>',
 			'submit_field'       => '<p class="' . $this->classes['actions'] . '">%1$s%2$s</p>',
 		]);
@@ -155,7 +206,10 @@ class FormDecorator implements FormDecoratorInterface
 			$label = [
 				$text,
 				' ',
-				Tag::span(['class' => 'required', 'aria-hidden' => 'true'], '*'),
+				Tag::span([
+					'class'       => 'required',
+					'aria-hidden' => 'true',
+				], '*'),
 			];
 		} else {
 			$label = $text;

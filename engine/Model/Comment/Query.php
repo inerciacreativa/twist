@@ -105,11 +105,14 @@ class Query
 	}
 
 	/**
+	 * @param array $classes
+	 * @param array $ids
+	 *
 	 * @return string
 	 */
-	public function form(): string
+	public function form(array $classes = [], array $ids = []): string
 	{
-		return new Form();
+		return new Form($classes, $ids);
 	}
 
 	/**
