@@ -2,7 +2,8 @@
 
 namespace Twist\Model\Site;
 
-use Twist\App\App;
+use Twist\App\Action;
+use Twist\Asset;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 use Twist\Model\Site\Assets\AssetsGroup;
@@ -11,7 +12,6 @@ use Twist\Model\Site\Assets\Metas;
 use Twist\Model\Site\Assets\Scripts;
 use Twist\Model\Site\Assets\Styles;
 use Twist\Model\Site\Assets\Title;
-use Twist\Twist;
 
 /**
  * Class Asset
@@ -26,7 +26,7 @@ class Assets
 	 */
 	public static function head(): AssetsGroup
 	{
-		return new AssetsGroup(App::HEAD, [
+		return new AssetsGroup(Action::HEAD, [
 			Title::class,
 			Metas::class,
 			Links::class,
@@ -40,7 +40,7 @@ class Assets
 	 */
 	public static function foot(): AssetsGroup
 	{
-		return new AssetsGroup(App::FOOT, [
+		return new AssetsGroup(Action::FOOT, [
 			Scripts::class,
 		]);
 	}
@@ -53,7 +53,7 @@ class Assets
 	 */
 	public function url(string $filename, bool $parent = false): string
 	{
-		return Twist::manifest()->url($filename, $parent);
+		return Asset::url($filename, $parent);
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Assets
 		if (empty($filename) && ($id = get_theme_mod('custom_logo'))) {
 			$logo = Tag::parse(wp_get_attachment_image($id, 'full'));
 		} else {
-			$logo = Tag::img(['src' => Twist::manifest()->url($filename)]);
+			$logo = Tag::img(['src' => Asset::url($filename)]);
 		}
 
 		$logo->attributes(array_merge([
@@ -86,7 +86,7 @@ class Assets
 	 */
 	public function image(string $filename, array $attributes = [], bool $parent = false): string
 	{
-		$image = Tag::img(['src' => Twist::manifest()->url($filename, $parent)]);
+		$image = Tag::img(['src' => Asset::url($filename, $parent)]);
 		$image->attributes(array_merge([
 			'alt' => '',
 		], $attributes));
@@ -101,7 +101,7 @@ class Assets
 	 */
 	public function svg_inline(string $path): string
 	{
-		$image = Twist::manifest()->path($path);
+		$image = Asset::path($path);
 
 		return (string) @file_get_contents($image);
 	}

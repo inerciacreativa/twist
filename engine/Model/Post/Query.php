@@ -2,7 +2,7 @@
 
 namespace Twist\Model\Post;
 
-use Twist\App\App;
+use Twist\App\Action;
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Support\Arr;
@@ -50,7 +50,7 @@ class Query implements IterableInterface
 	 */
 	public static function main(): Query
 	{
-		if (!Hook::fired(App::QUERY)) {
+		if (!Hook::fired(Action::QUERY)) {
 			new AppException('The main query has not been parsed yet.');
 		}
 

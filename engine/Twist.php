@@ -6,8 +6,7 @@ use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Config;
 use Twist\App\Theme;
-use Twist\Asset\Manifest;
-use Twist\Asset\Queue;
+use Twist\Service\ServiceProviderInterface;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
 
@@ -25,18 +24,33 @@ class Twist
 	private static $app;
 
 	/**
-	 * @param null|string $id
-	 *
-	 * @return App|mixed
+	 * @return App
 	 */
-	final public static function app(string $id = null)
+	final public static function app(): App
 	{
 		if (self::$app === null) {
-			self::$app = (new App())->provider(new AppServiceProvider())
-									->provider(new ViewServiceProvider());
+			self::$app = self::create();
 		}
 
-		return $id === null ? self::$app : self::$app[$id];
+		return self::$app;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 */
+	final public static function service(string $id)
+	{
+		return self::app()[$id];
+	}
+
+	/**
+	 * @param ServiceProviderInterface $provider
+	 */
+	final public static function provider(ServiceProviderInterface $provider): void
+	{
+		self::app()->provider($provider);
 	}
 
 	/**
@@ -48,10 +62,10 @@ class Twist
 	final public static function config(string $key = null, $default = null)
 	{
 		if ($key === null) {
-			return self::app('config');
+			return self::service('config');
 		}
 
-		return self::app('config')->get($key, $default);
+		return self::service('config')->get($key, $default);
 	}
 
 	/**
@@ -59,23 +73,7 @@ class Twist
 	 */
 	final public static function theme(): Theme
 	{
-		return self::app('theme');
-	}
-
-	/**
-	 * @return Manifest
-	 */
-	final public static function manifest(): Manifest
-	{
-		return self::app('asset_manifest');
-	}
-
-	/**
-	 * @return Queue
-	 */
-	final public static function queue(): Queue
-	{
-		return self::app('asset_queue');
+		return self::service('theme');
 	}
 
 	/**
@@ -83,7 +81,16 @@ class Twist
 	 */
 	final public static function view(): ViewInterface
 	{
-		return self::app('view');
+		return self::service('view');
+	}
+
+	/**
+	 * @return App
+	 */
+	private static function create(): App
+	{
+		return (new App())->provider(new AppServiceProvider())
+						  ->provider(new ViewServiceProvider());
 	}
 
 }

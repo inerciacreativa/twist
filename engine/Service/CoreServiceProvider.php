@@ -2,10 +2,10 @@
 
 namespace Twist\Service;
 
+use Twist\App\Action;
 use Twist\App\App;
 use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
-use Twist\Service\Core\LazyLoadService;
 use Twist\Service\Core\RelativeUrlService;
 use Twist\Service\Core\SslCertificatesService;
 use Twist\Service\Core\SubresourceIntegrityService;
@@ -25,27 +25,27 @@ class CoreServiceProvider implements ServiceProviderInterface
 	public function register(App $app): void
 	{
 		$app->service(SslCertificatesService::id(), static function (App $app) {
-			return new SslCertificatesService($app, App::INIT);
+			return new SslCertificatesService($app['config'], Action::INIT);
 		}, true);
 
 		$app->service(HeadCleanerService::id(), static function (App $app) {
-			return new HeadCleanerService($app, App::INIT);
+			return new HeadCleanerService($app['config'], Action::INIT);
 		}, true);
 
 		$app->service(SubresourceIntegrityService::id(), static function (App $app) {
-			return new SubresourceIntegrityService($app, App::INIT);
+			return new SubresourceIntegrityService($app['config'], Action::INIT);
 		}, true);
 
 		$app->service(ContentCleanerService::id(), static function (App $app) {
-			return new ContentCleanerService($app);
+			return new ContentCleanerService($app['config']);
 		}, true);
 
 		$app->service(RelativeUrlService::id(), static function (App $app) {
-			return new RelativeUrlService($app);
+			return new RelativeUrlService($app['config']);
 		}, true);
 
 		$app->service(ThumbnailGeneratorService::id(), static function (App $app) {
-			return new ThumbnailGeneratorService($app);
+			return new ThumbnailGeneratorService($app['config']);
 		}, true);
 	}
 

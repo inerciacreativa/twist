@@ -2,15 +2,15 @@
 
 namespace Twist\View;
 
+use Twist\App\Config;
 use Twist\Library\Support\Data;
-use Twist\Service\Service;
 
 /**
  * Class Context
  *
  * @package Twist\View
  */
-class Context extends Service
+class Context
 {
 
 	/**
@@ -19,19 +19,13 @@ class Context extends Service
 	private $context = [];
 
 	/**
-	 * @inheritDoc
+	 * Context constructor.
+	 *
+	 * @param Config $config
 	 */
-	public function boot(): bool
+	public function __construct(Config $config)
 	{
-		return true;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function init(): void
-	{
-		$this->set((array) $this->config->get('view.context', []));
+		$this->set((array) $config->get('view.context', []));
 	}
 
 	/**

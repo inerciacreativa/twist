@@ -85,7 +85,7 @@ class TwigExtension extends AbstractExtension
 			}, ['is_safe' => ['html']]),
 		];
 
-		if (Twist::config('app.debug') && class_exists(Kint::class)) {
+		if (Twist::config('view.debug') && class_exists(Kint::class)) {
 			$functions[] = new TwigFunction('kint', static function ($debug) {
 				Kint::dump($debug);
 			}, ['is_safe' => ['all']]);

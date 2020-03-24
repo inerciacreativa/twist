@@ -46,7 +46,7 @@ class ContentModule implements ModuleInterface
 			$found = true;
 			$resolver->add([
 				'id'     => $this->getId($image),
-				'src'    => $source->get(),
+				'src'    => $source->render(),
 				'alt'    => $image->getAttribute('alt'),
 				'width'  => $image->getAttribute('width', 0),
 				'height' => $image->getAttribute('height', 0),

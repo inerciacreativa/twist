@@ -2,7 +2,7 @@
 
 namespace Twist\Service\Core;
 
-use Twist\App\App;
+use Twist\App\Action;
 use Twist\Library\Data\Cache;
 use Twist\Library\Support\Arr;
 use Twist\Library\Support\Url;
@@ -79,7 +79,7 @@ class SubresourceIntegrityService extends Service
 			$this->hook()->after('twist_site_styles', 'parse');
 		}
 
-		$this->hook()->before(App::SHUTDOWN, 'saveCache');
+		$this->hook()->before(Action::SHUTDOWN, 'saveCache');
 	}
 
 
@@ -130,7 +130,7 @@ class SubresourceIntegrityService extends Service
 
 		if ($source instanceof Url) {
 			$content = $local ? $this->readLocalResource($source->getPath()) : $this->fetchExternalResource($source);
-			$source  = $source->get();
+			$source  = $source->render();
 		} else {
 			$content = $source;
 		}

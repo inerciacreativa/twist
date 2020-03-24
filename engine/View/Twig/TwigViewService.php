@@ -36,6 +36,8 @@ class TwigViewService extends ViewService
 	 */
 	protected function init(): void
 	{
+		parent::init();
+
 		$this->loader      = $this->getLoader();
 		$this->environment = $this->getEnvironment();
 
@@ -46,7 +48,7 @@ class TwigViewService extends ViewService
 	/**
 	 * @return FilesystemLoader
 	 */
-	private function getLoader(): FilesystemLoader
+	protected function getLoader(): FilesystemLoader
 	{
 		return new FilesystemLoader();
 	}
@@ -54,11 +56,11 @@ class TwigViewService extends ViewService
 	/**
 	 * @return Environment
 	 */
-	private function getEnvironment(): Environment
+	protected function getEnvironment(): Environment
 	{
 		return new Environment($this->loader, [
 			'cache'       => $this->config->get('view.cache', false),
-			'debug'       => $this->config->get('app.debug', false),
+			'debug'       => $this->config->get('view.debug', false),
 			'auto_reload' => true,
 		]);
 	}
@@ -66,7 +68,7 @@ class TwigViewService extends ViewService
 	/**
 	 * @throws AppException
 	 */
-	private function addPaths(): void
+	protected function addPaths(): void
 	{
 		foreach ($this->config->get('view.paths') as $path) {
 			$this->path($path['path'], $path['namespace']);
@@ -76,7 +78,7 @@ class TwigViewService extends ViewService
 	/**
 	 *
 	 */
-	private function addExtensions(): void
+	protected function addExtensions(): void
 	{
 		$this->environment->addExtension(new TwigExtension());
 
@@ -88,7 +90,7 @@ class TwigViewService extends ViewService
 	/**
 	 * @throws AppException
 	 */
-	private function addGlobals(): void
+	protected function addGlobals(): void
 	{
 		try {
 			foreach ($this->context->all() as $name => $value) {
@@ -106,7 +108,7 @@ class TwigViewService extends ViewService
 	 *
 	 * @throws AppException
 	 */
-	private function getContext(array $context): array
+	protected function getContext(array $context): array
 	{
 		$this->addGlobals();
 

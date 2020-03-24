@@ -297,7 +297,7 @@ class Url
 	public function isValid(): bool
 	{
 		if ($this->isAbsolute()) {
-			return filter_var($this->get(), FILTER_VALIDATE_URL, []);
+			return filter_var($this->render(), FILTER_VALIDATE_URL, []);
 		}
 
 		return $this->getDomain() === '';
@@ -334,7 +334,7 @@ class Url
 	/**
 	 * @return string
 	 */
-	public function get(): string
+	public function render(): string
 	{
 		return $this->getDomain() . $this->getRoute();
 	}
@@ -344,7 +344,7 @@ class Url
 	 */
 	public function __toString(): string
 	{
-		return $this->get();
+		return $this->render();
 	}
 
 }

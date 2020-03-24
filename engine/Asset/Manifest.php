@@ -2,12 +2,12 @@
 
 namespace Twist\Asset;
 
+use RuntimeException;
+use Twist\App\Config;
+use Twist\App\Theme;
 use Twist\Library\Data\Repository;
 use Twist\Library\Support\Json;
 use Twist\Library\Support\Url;
-use Twist\App\Config;
-use RuntimeException;
-use Twist\App\Theme;
 
 /**
  * Class Manifest
@@ -38,26 +38,51 @@ class Manifest
 	}
 
 	/**
-	 * @param string $theme
+	 * @param string $path
 	 * @param string $filename
-	 *
-	 * @return Repository
+	 * @param bool   $parent
 	 */
-	private function manifest(string $theme, string $filename): Repository
+	public function manifest(string $path, string $filename, bool $parent): void
 	{
-		if (!array_key_exists($theme, $this->manifest)) {
-			$path = $this->config->get("dir.$theme");
+		$this->config->set([
+			'asset' => [
+				$parent ? Theme::PARENT : Theme::CHILD => [
+					'path'     => '/' . trim($path, '/') . '/',
+					'manifest' => $filename,
+				],
+			],
+		]);
+	}
 
-			try {
-				$manifest = Json::load($path . $filename);
-			} catch (RuntimeException $exception) {
-				$manifest = new Repository();
-			}
-
-			$this->manifest[$theme] = $manifest;
+	/**
+	 * @param string $filename
+	 * @param bool   $parent
+	 *
+	 * @return Url
+	 */
+	public function url(string $filename, bool $parent = false): Url
+	{
+		$url = Url::parse($filename);
+		if ($url->isValid() && $url->isAbsolute()) {
+			return $url;
 		}
 
-		return $this->manifest[$theme];
+		[$theme, $file] = $this->get($filename, $parent);
+
+		return Url::parse($this->config->get("uri.$theme") . $file);
+	}
+
+	/**
+	 * @param string $filename
+	 * @param bool   $parent
+	 *
+	 * @return string
+	 */
+	public function path(string $filename, bool $parent = false): string
+	{
+		[$theme, $file] = $this->get($filename, $parent);
+
+		return $this->config->get("dir.$theme") . $file;
 	}
 
 	/**
@@ -74,50 +99,33 @@ class Manifest
 			'manifest' => '',
 		]);
 		$manifest = $config['path'] . $config['manifest'];
-		$filename = $config['path'] . $this->manifest($theme, $manifest)
+		$filename = $config['path'] . $this->repository($theme, $manifest)
 										   ->get($filename, $filename);
 
-		return [
-			$theme,
-			$filename,
-		];
+		return [$theme, $filename];
 	}
 
 	/**
+	 * @param string $theme
 	 * @param string $filename
-	 * @param bool   $parent
 	 *
-	 * @return string
+	 * @return Repository
 	 */
-	public function url(string $filename, bool $parent = false): string
+	private function repository(string $theme, string $filename): Repository
 	{
-		$url = Url::parse($filename);
-		if ($url->isValid() && $url->isAbsolute()) {
-			return $filename;
+		if (!array_key_exists($theme, $this->manifest)) {
+			$path = $this->config->get("dir.$theme");
+
+			try {
+				$manifest = Json::load($path . $filename);
+			} catch (RuntimeException $exception) {
+				$manifest = new Repository();
+			}
+
+			$this->manifest[$theme] = $manifest;
 		}
 
-		[
-			$theme,
-			$file,
-		] = $this->get($filename, $parent);
-
-		return $this->config->get("uri.$theme") . $file;
-	}
-
-	/**
-	 * @param string $filename
-	 * @param bool   $parent
-	 *
-	 * @return string
-	 */
-	public function path(string $filename, bool $parent = false): string
-	{
-		[
-			$theme,
-			$file,
-		] = $this->get($filename, $parent);
-
-		return $this->config->get("dir.$theme") . $file;
+		return $this->manifest[$theme];
 	}
 
 }

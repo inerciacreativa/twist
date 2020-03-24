@@ -2,7 +2,7 @@
 
 namespace Twist\Service;
 
-use Twist\App\App;
+use Twist\App\Action;
 use Twist\App\Config;
 use Twist\Library\Hook\Hookable;
 use Twist\Library\Support\Str;
@@ -16,11 +16,6 @@ abstract class Service implements ServiceInterface
 {
 
 	use Hookable;
-
-	/**
-	 * @var App
-	 */
-	protected $app;
 
 	/**
 	 * @var Config
@@ -50,16 +45,14 @@ abstract class Service implements ServiceInterface
 	/**
 	 * Service constructor.
 	 *
-	 * @param App    $app
+	 * @param Config $config
 	 * @param string $init
 	 */
-	public function __construct(App $app, string $init = App::SETUP)
+	public function __construct(Config $config, string $init = Action::SETUP)
 	{
-		$this->app    = $app;
-		$this->config = $this->app['config'];
+		$this->config = $config;
 
-		$this->hook()
-		     ->before($init, 'init');
+		$this->hook()->before($init, 'init');
 	}
 
 	/**
@@ -68,8 +61,7 @@ abstract class Service implements ServiceInterface
 	public function enable(): void
 	{
 		if (!$this->enabled) {
-			$this->hook()
-			     ->enable();
+			$this->hook()->enable();
 
 			$this->enabled = true;
 		}
@@ -81,8 +73,7 @@ abstract class Service implements ServiceInterface
 	public function disable(): void
 	{
 		if ($this->enabled) {
-			$this->hook()
-			     ->disable();
+			$this->hook()->disable();
 
 			$this->enabled = false;
 		}

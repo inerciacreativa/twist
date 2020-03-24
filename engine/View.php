@@ -3,6 +3,7 @@
 namespace Twist;
 
 use Twist\View\Context;
+use Twist\View\ViewInterface;
 
 /**
  * Class View
@@ -17,16 +18,18 @@ class View
 	 */
 	final public static function context(): Context
 	{
-		return Twist::app('context');
+		return Twist::service('context');
 	}
 
 	/**
 	 * @param string $template
 	 * @param array  $data
+	 *
+	 * @see ViewInterface::display()
 	 */
 	final public static function display(string $template = null, array $data = []): void
 	{
-		Twist::app('view')->display($template, $data);
+		Twist::service('view')->display($template, $data);
 	}
 
 	/**
@@ -34,19 +37,23 @@ class View
 	 * @param array  $data
 	 *
 	 * @return string
+	 *
+	 * @see ViewInterface::render()
 	 */
 	final public static function render(string $template, array $data = []): string
 	{
-		return Twist::app('view')->render($template, $data);
+		return Twist::service('view')->render($template, $data);
 	}
 
 	/**
 	 * @param string      $path
 	 * @param string|null $namespace
+	 *
+	 * @see ViewInterface::path()
 	 */
 	final public static function path(string $path, string $namespace = null): void
 	{
-		Twist::app('view')->path($path, $namespace);
+		Twist::service('view')->path($path, $namespace);
 	}
 
 }

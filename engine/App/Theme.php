@@ -3,13 +3,9 @@
 namespace Twist\App;
 
 use Closure;
-use Twist\Asset\Fonts;
-use Twist\Asset\Queue;
 use Twist\Library\Data\Collection;
 use Twist\Library\Hook\Hookable;
-use Twist\Library\Html\Tag;
 use Twist\Library\Support\Arr;
-use Twist\Service\ServiceProviderInterface;
 use Twist\View\Twig\TwigViewService;
 
 /**
@@ -37,29 +33,9 @@ class Theme
 	private $config;
 
 	/**
-	 * @var Queue
+	 * @var Closure[]
 	 */
-	private $queue;
-
-	/**
-	 * @var Fonts
-	 */
-	private $fonts;
-
-	/**
-	 * @var bool
-	 */
-	private $parent = true;
-
-	/**
-	 * @var Closure
-	 */
-	private $setup;
-
-	/**
-	 * @var array
-	 */
-	private $services = [];
+	private $setup = [];
 
 	/**
 	 * @var array
@@ -67,24 +43,9 @@ class Theme
 	private $options = [];
 
 	/**
-	 * @var array
-	 */
-	private $links = [];
-
-	/**
-	 * @var array
-	 */
-	private $metas = [];
-
-	/**
 	 * @var Collection
 	 */
 	private $sidebars;
-
-	/**
-	 * @var array
-	 */
-	private $resources = [];
 
 	/**
 	 * @var array
@@ -116,49 +77,34 @@ class Theme
 	 *
 	 * @param App    $app
 	 * @param Config $config
-	 * @param Queue  $queue
 	 */
-	public function __construct(App $app, Config $config, Queue $queue, Fonts $fonts)
+	public function __construct(App $app, Config $config)
 	{
-		$this->app    = $app;
-		$this->config = $config;
-		$this->queue  = $queue;
-		$this->fonts  = $fonts;
-
+		$this->app      = $app;
+		$this->config   = $config;
 		$this->sidebars = new Collection();
 
 		$this->hook()
-			 ->before(App::BOOT, 'boot')
+			 ->before(Action::BOOT, 'boot')
 			 ->on('show_admin_bar', '__return_false')
 			 ->on('user_contactmethods', 'addContactMethods')
-			 ->on('twist_site_links', 'addLinks')
-			 ->on('twist_site_metas', 'addMetas')
-			 ->on('widgets_init', 'addSidebars')
-			 ->after('wp_resource_hints', 'addResourceHints', ['arguments' => 2]);
+			 ->on('widgets_init', 'addSidebars');
 	}
 
 	/**
 	 * @param Closure $setup
-	 *
-	 * @return $this
 	 */
-	public function setup(Closure $setup): self
+	public function child(Closure $setup): void
 	{
-		$this->setup = $setup;
-
-		return $this;
+		$this->setup[self::CHILD] = $setup;
 	}
 
 	/**
-	 * @param ServiceProviderInterface $services
-	 *
-	 * @return $this
+	 * @param Closure $setup
 	 */
-	public function services(ServiceProviderInterface $services): self
+	public function parent(Closure $setup): void
 	{
-		$this->services[] = $services;
-
-		return $this;
+		$this->setup[self::PARENT] = $setup;
 	}
 
 	/**
@@ -169,109 +115,6 @@ class Theme
 	public function options(array $options): self
 	{
 		$this->options = Arr::merge($this->options, $options);
-
-		return $this;
-	}
-
-	/**
-	 * @param string $path
-	 * @param string $manifest
-	 *
-	 * @return $this
-	 */
-	public function assets(string $path, string $manifest): self
-	{
-		return $this->options([
-			'asset' => [
-				$this->parent ? self::PARENT : self::CHILD => [
-					'path'     => '/' . trim($path, '/') . '/',
-					'manifest' => $manifest,
-				],
-			],
-		]);
-	}
-
-	/**
-	 * @param array $styles
-	 *
-	 * @return $this
-	 */
-	public function styles(array $styles): self
-	{
-		$this->queue->styles($styles, $this->parent);
-
-		return $this;
-	}
-
-	/**
-	 * @param array $scripts
-	 *
-	 * @return $this
-	 */
-	public function scripts(array $scripts): self
-	{
-		$this->queue->scripts($scripts, $this->parent);
-
-		return $this;
-	}
-
-	/**
-	 * @param string|callable $script
-	 *
-	 * @return $this
-	 */
-	public function inline($script): self
-	{
-		$this->queue->inline($script);
-
-		return $this;
-	}
-
-	/**
-	 * @param array $links
-	 *
-	 * @return $this
-	 */
-	public function links(array $links): self
-	{
-		$this->links = $links;
-
-		return $this;
-	}
-
-	/**
-	 * @param array $metas
-	 *
-	 * @return $this
-	 */
-	public function metas(array $metas): self
-	{
-		$this->metas = $metas;
-
-		return $this;
-	}
-
-	/**
-	 * @param array       $fonts
-	 * @param string|bool $loader
-	 *
-	 * @return $this
-	 */
-	public function webfonts(array $fonts, $loader = true): self
-	{
-		$this->fonts->add($fonts, $loader);
-
-		return $this;
-	}
-
-	/**
-	 * @param array $resources
-	 *
-	 * @return $this
-	 */
-	public function resources(array $resources): self
-	{
-		$this->resources = Arr::merge($this->resources, $resources);
 
 		return $this;
 	}
@@ -395,10 +238,9 @@ class Theme
 	 */
 	protected function boot(): void
 	{
-		$this->addConfig();
-		$this->addLanguages();
+		$this->setConfig();
+		$this->loadLanguages();
 		$this->addThemeSupport();
-		$this->addServices();
 
 		$this->app->boot();
 	}
@@ -406,11 +248,26 @@ class Theme
 	/**
 	 * Adds config options.
 	 */
-	protected function addConfig(): void
+	protected function setConfig(): void
 	{
-		$debug = defined('WP_DEBUG') && WP_DEBUG;
+		$this->config->set($this->getDefaultConfig(defined('WP_DEBUG') && WP_DEBUG));
 
-		$this->config->set([
+		$this->setup[self::PARENT]();
+		if (isset($this->setup[self::CHILD])) {
+			$this->setup[self::CHILD]();
+		}
+
+		$this->config->set($this->options);
+	}
+
+	/**
+	 * @param bool $debug
+	 *
+	 * @return array
+	 */
+	protected function getDefaultConfig(bool $debug): array
+	{
+		return [
 			'app'  => [
 				'debug' => $debug,
 			],
@@ -426,77 +283,23 @@ class Theme
 				'template'   => get_template_directory_uri(),
 			],
 			'view' => [
-				'cache'     => !$debug,
+				'debug'     => $debug,
 				'service'   => TwigViewService::id(),
 				'namespace' => TwigViewService::MAIN_NAMESPACE,
 				'folder'    => '/templates',
 				'context'   => [],
 			],
-		]);
-
-		if ($setup = $this->setup) {
-			$this->parent = false;
-			$setup($this);
-		}
-
-		$this->config->set($this->options);
-
-		$this->config->set([
-			'view' => [
-				'cache' => $this->config->get('view.cache') ? $this->config->get('dir.upload') . '/view_cache' : false,
-				'paths' => $this->getViewPaths($this->config->get('dir.stylesheet'), $this->config->get('dir.template'), $this->config->get('view.folder'), $this->config->get('view.namespace')),
-			],
-		]);
-	}
-
-	/**
-	 * @param string      $stylesheet
-	 * @param string      $template
-	 * @param string      $folder
-	 * @param string|null $namespace
-	 *
-	 * @return array
-	 */
-	protected function getViewPaths(string $stylesheet, string $template, string $folder, string $namespace = null): array
-	{
-		$paths = [];
-
-		if ($namespace) {
-			$paths[] = [$namespace, $stylesheet];
-		}
-
-		$paths[] = [basename($stylesheet), $stylesheet];
-
-		if ($template !== $stylesheet) {
-			$paths[] = [basename($template), $template];
-		}
-
-		return array_map(static function (array $path) use ($folder) {
-			return [
-				'namespace' => $path[0],
-				'path'      => $path[1] . $folder,
-			];
-		}, $paths);
+		];
 	}
 
 	/**
 	 * Load translations.
 	 */
-	protected function addLanguages(): void
+	protected function loadLanguages(): void
 	{
 		load_theme_textdomain('twist', $this->config->get('dir.template') . '/languages');
 		if ($this->config->get('dir.template') !== $this->config->get('dir.stylesheet')) {
 			load_theme_textdomain('twist', $this->config->get('dir.stylesheet') . '/languages');
-		}
-	}
-
-	/**
-	 * Adds service providers.
-	 */
-	protected function addServices(): void
-	{
-		foreach ($this->services as $service) {
-			$this->app->provider($service);
 		}
 	}
 
@@ -532,55 +335,6 @@ class Theme
 		if (!empty($this->menus)) {
 			register_nav_menus($this->menus);
 		}
-	}
-
-	/**
-	 * @param array $links
-	 *
-	 * @return array
-	 */
-	protected function addLinks(array $links): array
-	{
-		foreach ($this->links as $attributes) {
-			ksort($attributes);
-
-			$links[] = Tag::link($attributes);
-		}
-
-		return $links;
-	}
-
-	/**
-	 * @param array $metas
-	 *
-	 * @return array
-	 */
-	protected function addMetas(array $metas): array
-	{
-		foreach ($this->metas as $attributes) {
-			krsort($attributes);
-
-			$metas[] = Tag::meta($attributes);
-		}
-
-		return $metas;
-	}
-
-	/**
-	 *  Add resource hints for Google fonts and scripts.
-	 *
-	 * @param array  $urls
-	 * @param string $relation
-	 *
-	 * @return array
-	 */
-	protected function addResourceHints(array $urls, string $relation): array
-	{
-		if (array_key_exists($relation, $this->resources)) {
-			$urls = Arr::merge($urls, $this->resources[$relation]);
-		}
-
-		return $urls;
 	}
 
 	/**
