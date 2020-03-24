@@ -10,8 +10,9 @@ use Twist\Service\Core\SubresourceIntegrityService;
 use Twist\Service\Core\ThumbnailGeneratorService;
 use Twist\Service\CoreServiceProvider;
 use Twist\Twist;
+use Twist\View;
 
-Twist::context()->set([
+View::context()->set([
 	'posts'  => Query::class,
 	'site'   => Site::class,
 	'assets' => Assets::class,

@@ -10,7 +10,7 @@ use Twist\Library\Hook\Hookable;
 use Twist\Library\Html\Tag;
 use Twist\Library\Support\Arr;
 use Twist\Service\ServiceProviderInterface;
-use Twist\View\Twig\TwigView;
+use Twist\View\Twig\TwigViewService;
 
 /**
  * Class Theme
@@ -427,8 +427,8 @@ class Theme
 			],
 			'view' => [
 				'cache'     => !$debug,
-				'service'   => TwigView::id(),
-				'namespace' => TwigView::MAIN_NAMESPACE,
+				'service'   => TwigViewService::id(),
+				'namespace' => TwigViewService::MAIN_NAMESPACE,
 				'folder'    => '/templates',
 				'context'   => [],
 			],

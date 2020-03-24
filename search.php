@@ -1,5 +1,5 @@
 <?php
 
-use Twist\Twist;
+use Twist\View;
 
-Twist::view('search.html.twig');
+View::display('search.html.twig');

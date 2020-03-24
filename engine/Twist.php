@@ -4,13 +4,10 @@ namespace Twist;
 
 use Twist\App\App;
 use Twist\App\AppServiceProvider;
-use Twist\App\Assets;
-use Twist\App\AssetsQueue;
 use Twist\App\Config;
 use Twist\App\Theme;
 use Twist\Asset\Manifest;
 use Twist\Asset\Queue;
-use Twist\View\Context;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
 
@@ -36,7 +33,7 @@ class Twist
 	{
 		if (self::$app === null) {
 			self::$app = (new App())->provider(new AppServiceProvider())
-			                        ->provider(new ViewServiceProvider());
+									->provider(new ViewServiceProvider());
 		}
 
 		return $id === null ? self::$app : self::$app[$id];
@@ -82,31 +79,11 @@ class Twist
 	}
 
 	/**
-	 * @return Context
+	 * @return ViewInterface
 	 */
-	final public static function context(): Context
+	final public static function view(): ViewInterface
 	{
-		return self::app('context');
-	}
-
-	/**
-	 * @param null|string $template
-	 * @param array       $data
-	 * @param bool        $renderOnly
-	 *
-	 * @return ViewInterface|string
-	 */
-	final public static function view(string $template = null, array $data = [], bool $renderOnly = false)
-	{
-		if ($template === null) {
-			return self::app('view');
-		}
-
-		if ($renderOnly) {
-			return self::app('view')->render($template, $data);
-		}
-
-		return self::app('view')->display($template, $data);
+		return self::app('view');
 	}
 
 }

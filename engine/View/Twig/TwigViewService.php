@@ -7,14 +7,14 @@ use Twig\Environment;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 use Twist\App\AppException;
-use Twist\View\View;
+use Twist\View\ViewService;
 
 /**
  * Class TwigService
  *
  * @package Twist\View\Twig
  */
-class TwigView extends View
+class TwigViewService extends ViewService
 {
 
 	public const MAIN_NAMESPACE = FilesystemLoader::MAIN_NAMESPACE;

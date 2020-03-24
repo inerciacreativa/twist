@@ -11,7 +11,7 @@ use Twist\Service\Service;
  *
  * @package Twist\View
  */
-abstract class View extends Service implements ViewInterface
+abstract class ViewService extends Service implements ViewInterface
 {
 
 	/**

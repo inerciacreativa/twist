@@ -1,5 +1,5 @@
 <?php
 
-use Twist\Twist;
+use Twist\View;
 
-Twist::view('post.html.twig');
+View::display('post.html.twig');

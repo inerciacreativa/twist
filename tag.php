@@ -1,8 +1,8 @@
 <?php
 
 use Twist\Model\Taxonomy\Tag;
-use Twist\Twist;
+use Twist\View;
 
-Twist::view('tag.html.twig', [
+View::display('tag.html.twig', [
 	'tag' => new Tag(),
 ]);
