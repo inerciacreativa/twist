@@ -275,7 +275,7 @@ class Theme
 				'home'       => defined('WP_ROOT') ? WP_ROOT : ABSPATH,
 				'stylesheet' => get_stylesheet_directory(),
 				'template'   => get_template_directory(),
-				'upload'     => wp_upload_dir()['basedir'],
+				'upload'     => wp_upload_dir(null, false)['basedir'],
 			],
 			'uri'  => [
 				'home'       => home_url(),
