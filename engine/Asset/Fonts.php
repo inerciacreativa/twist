@@ -35,7 +35,7 @@ class Fonts
 	/**
 	 * @var string
 	 */
-	private $script = 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.28/webfont.js';
+	private $script = 'https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js';
 
 	/**
 	 * @var array
