@@ -41,7 +41,7 @@ Twist::theme()->parent(static function () {
 				'algorithm' => 'sha265',
 			],
 			SslCertificatesService::id()      => [
-				'enable' => (defined('WP_ENV') && WP_ENV) || class_exists('WP_CLI'),
+				'enable' => (defined('WP_ENV') && WP_ENV === 'development') || class_exists('WP_CLI'),
 			],
 		],
 		'credentials' => [
