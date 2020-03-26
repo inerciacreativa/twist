@@ -224,10 +224,9 @@ class Classes implements ArrayAccess, Countable
 		// Limit to A-Z,a-z,0-9,_,-
 		$sanitized = preg_replace('/[^a-z0-9_-]/i', '', $sanitized);
 
-		// Check that is a valid class name
-		$valid = preg_match('/^-?[_a-z]+[_a-z0-9-]*/im', $sanitized);
+		$valid = self::isValid($sanitized);
 
-		if ($fallback && ($sanitized === '' || !$valid)) {
+		if ($fallback && !$valid) {
 			return self::sanitize($fallback);
 		}
 
