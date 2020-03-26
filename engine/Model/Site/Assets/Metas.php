@@ -41,10 +41,6 @@ class Metas implements AssetsInterface
 				$name    = $node->getAttribute($type);
 				$content = trim($node->getAttribute('content'));
 
-				if (Str::contains($name, ':title')) {
-					$content = $this->getTitle();
-				}
-
 				$this->metas[$name] = $this->getTag($type, $name, $content);
 			}
 
@@ -79,20 +75,6 @@ class Metas implements AssetsInterface
 		]);
 
 		return Hook::apply($filter, $meta);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getTitle(): string
-	{
-		static $title;
-
-		if ($title === null) {
-			$title = Str::fromEntities(the_title_attribute(['echo' => false]));
-		}
-
-		return $title;
 	}
 
 }
