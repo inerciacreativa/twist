@@ -3,6 +3,7 @@
 namespace Twist\Model\Site;
 
 use Twist\App\AppException;
+use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Macroable;
 use Twist\Model\Link\Links;
@@ -70,6 +71,24 @@ class Site
 	public function pagination(): Pagination
 	{
 		return $this->pagination ?? $this->pagination = new Pagination();
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function title(): string
+	{
+		static $title;
+
+		if (!isset($title)) {
+			Hook::add('document_title_separator', static function () {
+				return '–';
+			});
+
+			$title = wp_get_document_title();
+		}
+
+		return $title;
 	}
 
 	/**
