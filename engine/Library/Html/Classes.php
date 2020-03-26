@@ -214,14 +214,17 @@ class Classes implements ArrayAccess, Countable
 	 * @param string $fallback
 	 *
 	 * @return string
-	 * @see sanitize_html_class()
 	 *
+	 * @see sanitize_html_class()
 	 */
 	public static function sanitize(string $class, string $fallback = ''): string
 	{
+		// Strip out any % encoded octets
 		$sanitized = preg_replace('/%[a-f0-9]{2}/i', '', $class);
+		// Limit to A-Z,a-z,0-9,_,-
 		$sanitized = preg_replace('/[^a-z0-9_-]/i', '', $sanitized);
 
+		// Check that is a valid class name
 		$valid = preg_match('/^-?[_a-z]+[_a-z0-9-]*/im', $sanitized);
 
 		if ($fallback && ($sanitized === '' || !$valid)) {
@@ -229,6 +232,16 @@ class Classes implements ArrayAccess, Countable
 		}
 
 		return $valid ? $sanitized : '';
+	}
+
+	/**
+	 * @param string $class
+	 *
+	 * @return bool
+	 */
+	protected static function isValid(string $class): bool
+	{
+		return !($class === '' || preg_match('/^-?[_a-z]+[_a-z0-9-]*/im', $class) !== 1);
 	}
 
 	/**
@@ -274,10 +287,9 @@ class Classes implements ArrayAccess, Countable
 	 */
 	protected static function parseArray(array $values): array
 	{
-		$values = array_map([
-			self::class,
-			'parseString',
-		], Arr::flatten($values));
+		$values = Arr::flatten($values);
+		$values = array_filter($values);
+		$values = array_map([self::class, 'parseString'], $values);
 
 		return array_merge(...$values);
 	}
