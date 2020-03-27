@@ -6,7 +6,6 @@ use Twist\App\Action;
 use Twist\App\App;
 use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
-use Twist\Service\Core\RelativeUrlService;
 use Twist\Service\Core\SslCertificatesService;
 use Twist\Service\Core\SubresourceIntegrityService;
 use Twist\Service\Core\ThumbnailGeneratorService;
