@@ -43,10 +43,6 @@ class CoreServiceProvider implements ServiceProviderInterface
 			return new ContentCleanerService($app['config']);
 		}, true);
 
-		$app->service(RelativeUrlService::id(), static function (App $app) {
-			return new RelativeUrlService($app['config']);
-		}, true);
-
 		$app->service(ThumbnailGeneratorService::id(), static function (App $app) {
 			return new ThumbnailGeneratorService($app['config']);
 		}, true);
