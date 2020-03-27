@@ -65,11 +65,11 @@ class SubresourceIntegrityService extends Service
 		$this->hook()->before(Action::SHUTDOWN, 'saveCache');
 
 		if ($this->config('script')) {
-			$this->hook()->after('twist_site_scripts', 'parse');
+			$this->hook()->after('twist_site_scripts', 'parseResources');
 		}
 
 		if ($this->config('style')) {
-			$this->hook()->after('twist_site_styles', 'parse');
+			$this->hook()->after('twist_site_styles', 'parseResources');
 		}
 	}
 
@@ -92,7 +92,7 @@ class SubresourceIntegrityService extends Service
 	 *
 	 * @return array
 	 */
-	protected function parse(array $resources): array
+	private function parseResources(array $resources): array
 	{
 		/** @var Tag $resource */
 		foreach ($resources as &$resource) {
