@@ -6,8 +6,6 @@ use Twist\Model\Site\Assets;
 use Twist\Model\Site\Site;
 use Twist\Service\Core\ContentCleanerService;
 use Twist\Service\Core\HeadCleanerService;
-use Twist\Service\Core\SslCertificatesService;
-use Twist\Service\Core\SubresourceIntegrityService;
 use Twist\Service\Core\ThumbnailGeneratorService;
 use Twist\Service\CoreServiceProvider;
 use Twist\Twist;
@@ -19,26 +17,21 @@ Twist::theme()->parent(static function () {
 
 	Twist::theme()->options([
 		'service'     => [
-			HeadCleanerService::id()          => [
+			HeadCleanerService::id()        => [
 				'enable'    => true,
 				'generator' => true,
 				'edit'      => true,
 				'emoji'     => true,
 			],
-			ContentCleanerService::id()       => [
+			ContentCleanerService::id()     => [
 				'enable'     => true,
 				'attributes' => [],
 				'styles'     => [],
 				'comments'   => true,
 			],
-			ThumbnailGeneratorService::id()   => [
+			ThumbnailGeneratorService::id() => [
 				'enable'  => true,
 				'modules' => [],
-			],
-			SubresourceIntegrityService::id() => [
-				'script'    => false,
-				'style'     => false,
-				'algorithm' => 'sha265',
 			],
 		],
 		'credentials' => [
