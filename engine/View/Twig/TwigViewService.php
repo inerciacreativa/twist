@@ -82,7 +82,7 @@ class TwigViewService extends ViewService
 	{
 		$this->environment->addExtension(new TwigExtension());
 
-		if ($this->config->get('app.debug')) {
+		if ($this->config->get('view.debug')) {
 			$this->environment->addExtension(new DebugExtension());
 		}
 	}
