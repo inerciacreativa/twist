@@ -4,6 +4,7 @@ namespace Twist\Service\Core;
 
 use Twist\App\Action;
 use Twist\Library\Data\Cache;
+use Twist\Library\Html\Tag;
 use Twist\Library\Support\Arr;
 use Twist\Library\Support\Url;
 use Twist\Model\Post\Query;
@@ -17,14 +18,14 @@ use Twist\Service\Service;
 class SubresourceIntegrityService extends Service
 {
 
-	protected const CACHE = 'twist_sri';
+	private const CACHE = 'twist_sri';
 
 	/**
 	 * Allowed algorithms.
 	 *
 	 * @var array
 	 */
-	protected static $algorithms = [
+	private static $algorithms = [
 		'sha256',
 		'sha384',
 		'sha512',
@@ -33,29 +34,24 @@ class SubresourceIntegrityService extends Service
 	/**
 	 * @var string
 	 */
-	protected $algorithm;
-
-	/**
-	 * @var Url
-	 */
-	protected $home;
+	private $algorithm;
 
 	/**
 	 * @var array
 	 */
-	protected $cache = [];
+	private $cache = [];
 
 	/**
 	 * @var bool
 	 */
-	protected $staled = false;
+	private $staled = false;
 
 	/**
 	 * @inheritdoc
 	 */
 	public function boot(): bool
 	{
-		return ($this->config('script') || $this->config('style')) && !Query::is_admin();
+		return !Query::is_admin() && ($this->config('script') || $this->config('style'));
 	}
 
 	/**
@@ -63,13 +59,10 @@ class SubresourceIntegrityService extends Service
 	 */
 	protected function init(): void
 	{
-		$this->cache = Cache::get(self::CACHE, []);
-		$this->home  = Url::parse($this->config->get('uri.home'));
+		$this->algorithm = $this->getAlgorithm();
+		$this->cache     = $this->loadCache();
 
-		$this->algorithm = $this->config('algorithm');
-		if (!in_array($this->algorithm, self::$algorithms, true)) {
-			$this->algorithm = reset(self::$algorithms);
-		}
+		$this->hook()->before(Action::SHUTDOWN, 'saveCache');
 
 		if ($this->config('script')) {
 			$this->hook()->after('twist_site_scripts', 'parse');
@@ -78,10 +71,21 @@ class SubresourceIntegrityService extends Service
 		if ($this->config('style')) {
 			$this->hook()->after('twist_site_styles', 'parse');
 		}
-
-		$this->hook()->before(Action::SHUTDOWN, 'saveCache');
 	}
 
+	/**
+	 * @return string
+	 */
+	private function getAlgorithm(): string
+	{
+		$algorithm = $this->config('algorithm');
+
+		if (!in_array($this->algorithm, self::$algorithms, true)) {
+			$algorithm = reset(self::$algorithms);
+		}
+
+		return $algorithm;
+	}
 
 	/**
 	 * @param array $resources
@@ -90,25 +94,21 @@ class SubresourceIntegrityService extends Service
 	 */
 	protected function parse(array $resources): array
 	{
+		/** @var Tag $resource */
 		foreach ($resources as &$resource) {
 			if ($resource->tag() === 'style') {
 				continue;
 			}
 
-			if (!isset($resource['href']) && !isset($resource['src'])) {
-				$source = $resource->content();
-				$local  = null;
-			} else {
-				$source = isset($resource['href']) ? Url::parse($resource['href']) : Url::parse($resource['src']);
-				$local  = $source->getDomain() === $this->home->getDomain();
-			}
+			$source = $this->getSource($resource);
+			$id     = $this->getId($source);
 
-			if (($hash = $this->getHash($source, $local)) === null) {
+			if (($hash = $this->getHash($id, $source)) === null) {
 				continue;
 			}
 
 			$resource['integrity'] = $hash;
-			if ($local === false) {
+			if ($source instanceof Url && !$source->isLocal()) {
 				$resource['crossorigin'] = 'anonymous';
 			}
 		}
@@ -117,31 +117,74 @@ class SubresourceIntegrityService extends Service
 	}
 
 	/**
+	 * @param Tag $resource
+	 *
+	 * @return Url|string
+	 */
+	private function getSource(Tag $resource)
+	{
+		if (isset($resource['href'])) {
+			return Url::parse($resource['href']);
+		}
+
+		if (isset($resource['src'])) {
+			return Url::parse($resource['src']);
+		}
+
+		return $resource->content();
+	}
+
+	/**
+	 * @param Url|string $source
+	 *
+	 * @return string
+	 */
+	private function getId($source): string
+	{
+		if ($source instanceof Url) {
+			return $source;
+		}
+
+		return hash('md5', $source);
+	}
+
+	/**
+	 * @param string     $id
 	 * @param string|Url $source
-	 * @param bool|null  $local
 	 *
 	 * @return string|null
 	 */
-	protected function getHash($source, bool $local = null): ?string
+	private function getHash(string $id, $source): ?string
 	{
-		if ($hash = $this->getCache($source)) {
+		if ($hash = $this->getCache($id)) {
 			return $hash;
 		}
 
-		if ($source instanceof Url) {
-			$content = $local ? $this->readLocalResource($source->getPath()) : $this->fetchExternalResource($source);
-			$source  = $source->render();
-		} else {
-			$content = $source;
-		}
-
-		if ($content) {
+		if ($content = $this->getContent($source)) {
 			$hash = $this->generateHash($content);
 
-			return $this->setCache($source, $hash);
+			return $this->addCache($id, $hash);
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param Url|string $source
+	 *
+	 * @return string|null
+	 */
+	private function getContent($source): ?string
+	{
+		if ($source instanceof Url) {
+			if ($source->isLocal()) {
+				return $this->getLocalResource($source->getPath());
+			}
+
+			return $this->getExternalResource($source);
+		}
+
+		return $source;
 	}
 
 	/**
@@ -149,7 +192,7 @@ class SubresourceIntegrityService extends Service
 	 *
 	 * @return string
 	 */
-	protected function readLocalResource(string $file): string
+	private function getLocalResource(string $file): string
 	{
 		return file_get_contents($this->config->get('dir.home') . $file);
 	}
@@ -159,7 +202,7 @@ class SubresourceIntegrityService extends Service
 	 *
 	 * @return string|null
 	 */
-	protected function fetchExternalResource(string $url): ?string
+	private function getExternalResource(string $url): ?string
 	{
 		$response = wp_remote_get($url);
 
@@ -175,40 +218,48 @@ class SubresourceIntegrityService extends Service
 	 *
 	 * @return string
 	 */
-	protected function generateHash(string $content): string
+	private function generateHash(string $content): string
 	{
 		return $this->algorithm . '-' . base64_encode(hash($this->algorithm, $content, true));
 	}
 
 	/**
-	 * @param string|Url $source
+	 * @param string $id
 	 *
 	 * @return string|null
 	 */
-	protected function getCache($source): ?string
+	private function getCache(string $id): ?string
 	{
-		return Arr::get($this->cache, (string) $source);
+		return Arr::get($this->cache, $id);
 	}
 
 	/**
-	 * @param string|Url $source
-	 * @param string     $hash
+	 * @param string $id
+	 * @param string $hash
 	 *
 	 * @return string
 	 */
-	protected function setCache($source, string $hash): string
+	private function addCache(string $id, string $hash): string
 	{
 		$this->staled = true;
 
-		Arr::set($this->cache, (string) $source, $hash);
+		Arr::set($this->cache, $id, $hash);
 
 		return $hash;
 	}
 
 	/**
+	 * @return array
+	 */
+	private function loadCache(): array
+	{
+		return Cache::get(self::CACHE, []);
+	}
+
+	/**
 	 *
 	 */
-	protected function saveCache(): void
+	private function saveCache(): void
 	{
 		if ($this->staled) {
 			Cache::set(self::CACHE, $this->cache);
