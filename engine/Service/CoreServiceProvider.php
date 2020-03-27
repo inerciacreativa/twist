@@ -10,6 +10,7 @@ use Twist\Service\Core\RelativeUrlService;
 use Twist\Service\Core\SslCertificatesService;
 use Twist\Service\Core\SubresourceIntegrityService;
 use Twist\Service\Core\ThumbnailGeneratorService;
+use Twist\Twist;
 
 /**
  * Class CoreServiceProvider
@@ -24,9 +25,11 @@ class CoreServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
-		$app->service(SslCertificatesService::id(), static function (App $app) {
-			return new SslCertificatesService($app['config'], Action::INIT);
-		}, true);
+		if (Twist::isDevelopment()) {
+			$app->service(SslCertificatesService::id(), static function (App $app) {
+				return new SslCertificatesService($app['config'], Action::INIT);
+			}, true);
+		}
 
 		$app->service(HeadCleanerService::id(), static function (App $app) {
 			return new HeadCleanerService($app['config'], Action::INIT);

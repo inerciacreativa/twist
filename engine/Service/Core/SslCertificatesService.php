@@ -19,7 +19,7 @@ class SslCertificatesService extends Service
 	 */
 	public function boot(): bool
 	{
-		return $this->config('enable');
+		return true;
 	}
 
 	/**

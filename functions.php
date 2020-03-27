@@ -40,9 +40,6 @@ Twist::theme()->parent(static function () {
 				'style'     => false,
 				'algorithm' => 'sha265',
 			],
-			SslCertificatesService::id()      => [
-				'enable' => (defined('WP_ENV') && WP_ENV === 'development') || class_exists('WP_CLI'),
-			],
 		],
 		'credentials' => [
 			'youtube' => ['key' => ''],
