@@ -6,6 +6,7 @@ use Closure;
 use Twist\Library\Data\Collection;
 use Twist\Library\Hook\Hookable;
 use Twist\Library\Support\Arr;
+use Twist\Twist;
 use Twist\View\Twig\TwigViewService;
 
 /**
@@ -250,7 +251,7 @@ class Theme
 	 */
 	protected function setConfig(): void
 	{
-		$this->config->set($this->getDefaultConfig(defined('WP_DEBUG') && WP_DEBUG));
+		$this->config->set($this->getDefaultConfig());
 
 		$this->setup[self::PARENT]();
 		if (isset($this->setup[self::CHILD])) {
@@ -261,16 +262,11 @@ class Theme
 	}
 
 	/**
-	 * @param bool $debug
-	 *
 	 * @return array
 	 */
-	protected function getDefaultConfig(bool $debug): array
+	protected function getDefaultConfig(): array
 	{
 		return [
-			'app'  => [
-				'debug' => $debug,
-			],
 			'dir'  => [
 				'home'       => defined('WP_ROOT') ? WP_ROOT : ABSPATH,
 				'stylesheet' => get_stylesheet_directory(),
@@ -283,7 +279,7 @@ class Theme
 				'template'   => get_template_directory_uri(),
 			],
 			'view' => [
-				'debug'     => $debug,
+				'debug'     => Twist::isDebug(),
 				'service'   => TwigViewService::id(),
 				'namespace' => TwigViewService::MAIN_NAMESPACE,
 				'folder'    => '/templates',

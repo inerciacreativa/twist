@@ -85,6 +85,22 @@ class Twist
 	}
 
 	/**
+	 * @return bool
+	 */
+	final public static function isDevelopment(): bool
+	{
+		return (defined('WP_ENV') && WP_ENV === 'development') || class_exists('WP_CLI');
+	}
+
+	/**
+	 * @return bool
+	 */
+	final public static function isDebug(): bool
+	{
+		return defined('WP_DEBUG') && WP_DEBUG;
+	}
+
+	/**
 	 * @return App
 	 */
 	private static function create(): App
