@@ -111,7 +111,7 @@ class Classes implements ArrayAccess, Countable
 	/**
 	 * @return array
 	 */
-	public function get(): array
+	public function all(): array
 	{
 		return $this->classes;
 	}
@@ -164,7 +164,7 @@ class Classes implements ArrayAccess, Countable
 	 */
 	public function render(): string
 	{
-		return implode(' ', $this->get());
+		return implode(' ', $this->all());
 	}
 
 	/**
@@ -263,7 +263,7 @@ class Classes implements ArrayAccess, Countable
 		}
 
 		if ($value instanceof self) {
-			return $value->get();
+			return $value->all();
 		}
 
 		return [];

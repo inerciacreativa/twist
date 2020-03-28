@@ -198,7 +198,7 @@ class Attributes implements ArrayAccess, IteratorAggregate
 		}
 
 		if ($name === 'class') {
-			return $this->classes->get();
+			return $this->classes->all();
 		}
 
 		return $this->attributes[$name];
