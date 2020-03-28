@@ -258,6 +258,28 @@ class Post extends Model
 	}
 
 	/**
+	 * @param string $taxonomy
+	 * @param array  $exclude
+	 *
+	 * @return Post|null
+	 */
+	public function prev(string $taxonomy = '', array $exclude = []): ?Post
+	{
+		return $this->getAdjacentPost(true, $taxonomy, $exclude);
+	}
+
+	/**
+	 * @param string $taxonomy
+	 * @param array  $exclude
+	 *
+	 * @return Post|null
+	 */
+	public function next(string $taxonomy = '', array $exclude = []): ?Post
+	{
+		return $this->getAdjacentPost(false, $taxonomy, $exclude);
+	}
+
+	/**
 	 * @return string
 	 */
 	public function link(): string
@@ -281,6 +303,36 @@ class Post extends Model
 	public function archive_link(): string
 	{
 		return get_post_type_archive_link($this->type());
+	}
+
+	/**
+	 * @param string $taxonomy
+	 * @param array  $exclude
+	 *
+	 * @return string|null
+	 */
+	public function prev_link(string $taxonomy = '', array $exclude = []): ?string
+	{
+		if ($post = $this->prev($taxonomy, $exclude)) {
+			return $post->link();
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param string $taxonomy
+	 * @param array  $exclude
+	 *
+	 * @return string|null
+	 */
+	public function next_link(string $taxonomy = '', array $exclude = []): ?string
+	{
+		if ($post = $this->next($taxonomy, $exclude)) {
+			return $post->link();
+		}
+
+		return null;
 	}
 
 	/**
@@ -858,7 +910,7 @@ class Post extends Model
 		}
 
 		if ($preview) {
-			$output = preg_replace_callback('/\%u([0-9A-F]{4})/', static function ($match) {
+			$output = preg_replace_callback('/%u([0-9A-F]{4})/', static function ($match) {
 				return '&#' . base_convert($match[1], 16, 10) . ';';
 			}, $output);
 		}
@@ -937,6 +989,30 @@ class Post extends Model
 		$date   = (string) Hook::apply("get_{$filter}", $date, $format, $this->post);
 
 		return Hook::apply($filter, $date, $format, '', '');
+	}
+
+	/**
+	 * @param bool   $previous
+	 * @param string $taxonomy
+	 * @param array  $exclude
+	 *
+	 * @return Post|null
+	 */
+	private function getAdjacentPost(bool $previous, string $taxonomy = '', array $exclude = []): ?Post
+	{
+		try {
+			$this->setup();
+
+			if ($post = get_adjacent_post(!empty($taxonomy), $exclude, $previous, empty($taxonomy) ? 'category' : $taxonomy)) {
+				$post = new static($post);
+			}
+
+			$this->reset();
+		} catch (AppException $exception){
+			$post = null;
+		}
+
+		return $post;
 	}
 
 }
