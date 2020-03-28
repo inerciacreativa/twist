@@ -139,12 +139,12 @@ class Classes implements ArrayAccess, Countable
 	}
 
 	/**
-	 * @param array $search
-	 * @param array $replace
+	 * @param string|array $search
+	 * @param string|array $replace
 	 *
 	 * @return $this
 	 */
-	public function replace(array $search, array $replace): self
+	public function replace($search, $replace): self
 	{
 		$this->classes = self::parse(str_replace($search, $replace, $this->render()));
 
