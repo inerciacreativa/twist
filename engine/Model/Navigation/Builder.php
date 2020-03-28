@@ -2,7 +2,6 @@
 
 namespace Twist\Model\Navigation;
 
-use Kint\Kint;
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
@@ -169,6 +168,7 @@ class Builder extends Walker_Nav_Menu
 		$classes = Classes::make($classes)
 						  ->only(array_keys($this->classes))
 						  ->replace(array_keys($this->classes), $this->classes);
+
 		return $classes;
 	}
 
