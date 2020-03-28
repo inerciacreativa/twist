@@ -3,6 +3,7 @@
 namespace Twist\Model\Comment;
 
 use Twist\Model\Collection;
+use Twist\Model\CollectionIteratorInterface;
 
 /**
  * Class Comments
@@ -36,6 +37,14 @@ class Comments extends Collection
 	public function query(): Query
 	{
 		return $this->query;
+	}
+
+	/**
+	 * @return Iterator
+	 */
+	public function getIterator(): CollectionIteratorInterface
+	{
+		return new Iterator($this->models);
 	}
 
 }
