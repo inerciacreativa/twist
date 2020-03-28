@@ -3,6 +3,7 @@
 namespace Twist\Model\Taxonomy;
 
 use Twist\App\AppException;
+use Twist\Library\Html\Classes;
 use Walker_Category;
 use WP_Term;
 
@@ -48,8 +49,9 @@ class Builder extends Walker_Category
 			return $terms;
 		}
 
+		$depth   = $taxonomy->is_hierarchical() ? 0 : 1;
 		$builder = new static($taxonomy, $terms);
-		$builder->walk($items, $arguments['depth'], $arguments);
+		$builder->walk($items, $depth, $arguments);
 
 		return $terms;
 	}
@@ -80,7 +82,10 @@ class Builder extends Walker_Category
 	 */
 	public function start_el(&$output, $term, $depth = 0, $arguments = [], $id = 0): void
 	{
-		$this->term = new Term($term, $this->taxonomy);
+		$class   = $this->getClasses($term, $arguments);
+		$current = $class->has('is-current');
+
+		$this->term = new Term($term, $this->taxonomy, compact('class', 'current'));
 
 		if ($this->terms->has_parent()) {
 			$this->term->set_parent($this->terms->parent());
@@ -115,6 +120,71 @@ class Builder extends Walker_Category
 
 		$this->terms = $term->has_parent() ? $term->parent()
 												  ->children() : $this->root;
+	}
+
+	/**
+	 * @param WP_Term $term
+	 * @param array   $arguments
+	 *
+	 * @return Classes
+	 */
+	private function getClasses(WP_Term $term, array $arguments): Classes
+	{
+		$classes      = new Classes();
+		$currentTerms = $this->getCurrentTerms($arguments);
+
+		foreach ($currentTerms as $current) {
+			if ($term->term_id === $current->term_id) {
+				$classes[] = 'is-current';
+			} else if ($term->term_id === $current->parent) {
+				$classes[] = 'is-current-parent';
+			} else {
+				while ($current->parent) {
+					$current = get_term($current->parent, $term->taxonomy);
+
+					if ($term->term_id === $current->parent) {
+						$classes = 'is-current-parent';
+						break;
+					}
+				}
+			}
+		}
+
+		return $classes;
+	}
+
+	/**
+	 * @param array $arguments
+	 *
+	 * @return WP_Term[]
+	 */
+	private function getCurrentTerms(array $arguments): array
+	{
+		static $terms;
+
+		if (isset($terms)) {
+			return $terms;
+		}
+
+		$ids = [];
+
+		if (!empty($arguments['current'])) {
+			$ids = wp_parse_id_list($arguments['current']);
+		} else if ($term = $this->taxonomy->current()) {
+			$ids = [$term->id()];
+		}
+
+		if (empty($ids)) {
+			$terms = [];
+		} else {
+			$terms = get_terms([
+				'taxonomy'   => $this->taxonomy->name(),
+				'include'    => $ids,
+				'hide_empty' => false,
+			]);
+		}
+
+		return $terms;
 	}
 
 }

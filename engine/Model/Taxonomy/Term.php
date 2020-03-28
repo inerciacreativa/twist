@@ -4,6 +4,7 @@ namespace Twist\Model\Taxonomy;
 
 use Twist\App\AppException;
 use Twist\Library\Html\Classes;
+use Twist\Library\Support\Arr;
 use Twist\Model\CollectionInterface;
 use Twist\Model\Model;
 use WP_Term;
@@ -21,30 +22,43 @@ class Term extends Model
 	/**
 	 * @var TaxonomyInterface
 	 */
-	protected $taxonomy;
+	private $taxonomy;
 
 	/**
 	 * @var WP_Term
 	 */
-	protected $term;
+	private $term;
 
 	/**
 	 * @var Meta
 	 */
-	protected $meta;
+	private $meta;
+
+	/**
+	 * @var array
+	 */
+	private $class;
+
+	/**
+	 * @var bool
+	 */
+	private $current;
 
 	/**
 	 * Term constructor.
 	 *
 	 * @param WP_Term           $term
 	 * @param TaxonomyInterface $taxonomy
+	 * @param array             $properties
 	 *
 	 * @throws AppException
 	 */
-	public function __construct(WP_Term $term, TaxonomyInterface $taxonomy = null)
+	public function __construct(WP_Term $term, TaxonomyInterface $taxonomy = null, array $properties = [])
 	{
 		$this->term     = $term;
 		$this->taxonomy = $taxonomy ?? new Taxonomy($term->taxonomy);
+		$this->class    = Arr::get($properties, 'class', []);
+		$this->current  = Arr::get($properties, 'current', false);
 	}
 
 	/**
@@ -138,9 +152,7 @@ class Term extends Model
 	 */
 	public function is_current(): bool
 	{
-		$current = $this->taxonomy->current();
-
-		return $current && $current->id() === $this->id();
+		return $this->current;
 	}
 
 	/**
@@ -153,9 +165,7 @@ class Term extends Model
 			$this->term->slug,
 		]);
 
-		if ($this->is_current()) {
-			$classes->add('is-current');
-		}
+		$classes->add($this->class);
 
 		return $classes;
 	}
