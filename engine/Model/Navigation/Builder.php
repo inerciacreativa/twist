@@ -2,6 +2,7 @@
 
 namespace Twist\Model\Navigation;
 
+use Kint\Kint;
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Classes;
@@ -37,10 +38,12 @@ class Builder extends Walker_Nav_Menu
 	 * @var array
 	 */
 	protected $classes = [
-		'current-menu-item'     => 'is-current',
-		'current-menu-parent'   => 'is-current-parent',
-		'current-menu-ancestor' => 'is-current-ancestor',
-		'has-children'          => 'has-dropdown',
+		'current-menu-item'         => 'is-current',
+		'current-menu-parent'       => 'is-current-parent',
+		'current-category-parent'   => 'is-current-parent',
+		'current-menu-ancestor'     => 'is-current-parent',
+		'current-category-ancestor' => 'is-current-parent',
+		'has-children'              => 'has-dropdown',
 	];
 
 	/**
@@ -163,11 +166,9 @@ class Builder extends Walker_Nav_Menu
 	protected function getClasses(object $item, object $arguments, int $depth): Classes
 	{
 		$classes = empty($item->classes) ? [] : (array) $item->classes;
-		$classes = Hook::apply('nav_menu_css_class', $classes, $item, $arguments, $depth);
 		$classes = Classes::make($classes)
 						  ->only(array_keys($this->classes))
 						  ->replace(array_keys($this->classes), $this->classes);
-
 		return $classes;
 	}
 
@@ -196,7 +197,7 @@ class Builder extends Walker_Nav_Menu
 					'id'      => $term->id(),
 					'title'   => $term->name(),
 					'href'    => $term->link(),
-					'class'   => $term->is_current() ? 'is-current' : null,
+					'class'   => $term->classes()->only($this->classes),
 					'current' => $term->is_current(),
 				]));
 			}
