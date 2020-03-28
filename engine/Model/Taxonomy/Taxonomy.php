@@ -90,63 +90,57 @@ class Taxonomy implements TaxonomyInterface
 
 		return $function($id);
 	}
-
 	/**
 	 * @return Term|null
 	 */
 	public function current(): ?Term
 	{
-		if ($this->current === null) {
-			$this->current = false;
+		static $current;
 
+		if ($current === null) {
 			try {
 				if ($this->is_current(Query::main()->queried_id())) {
 					/** @var WP_Term $term */
 					$term = Query::main()->queried_object();
 
-					$this->current = new Term($term, $this);
+					$current = new Term($term, $this);
 				}
 			} catch (AppException $exception) {
-
+				$current = false;
 			}
 		}
 
-		return $this->current === false ? null : $this->current;
+		return !$current ? null : $current;
 	}
 
 	/**
-	 * @param array $options
+	 * Retrieve a Collection of Term. The 'current_category' argument used in wp_list_categories()
+	 * has been renamed to current.
+	 *
+	 * @param array $arguments
 	 *
 	 * @return Terms
 	 *
 	 * @see \WP_Term_Query::__construct()
+	 * @see wp_list_categories()
 	 */
-	public function terms(array $options = []): Terms
+	public function terms(array $arguments = []): Terms
 	{
-		$arguments = $this->getArguments('all', $options);
+		$terms = $this->getTerms('all', $arguments);
 
-		$items = get_terms($arguments);
-
-		$arguments['depth'] = $arguments['hierarchical'] ? 0 : -1;
-		if (is_array($items) && empty($arguments['current_category']) && ($current = $this->current())) {
-			$arguments['current_category'] = $current->id();
-		}
-
-		return Builder::getTerms($this, $items, $arguments);
+		return Builder::getTerms($this, $terms, $arguments);
 	}
 
 	/**
-	 * @param array $options
+	 * @param array $arguments
 	 *
 	 * @return int
 	 *
 	 * @see \WP_Term_Query::__construct()
 	 */
-	public function count(array $options = []): int
+	public function count(array $arguments = []): int
 	{
-		$arguments = $this->getArguments('count', $options);
-
-		return (int) get_terms($arguments);
+		return (int) $this->getTerms('count', $arguments);
 	}
 
 	/**
@@ -159,19 +153,21 @@ class Taxonomy implements TaxonomyInterface
 
 	/**
 	 * @param string $fields
-	 * @param array  $options
+	 * @param array  $arguments
 	 *
-	 * @return array
+	 * @return array|int
 	 */
-	protected function getArguments(string $fields, array $options): array
+	protected function getTerms(string $fields, array $arguments)
 	{
-		return array_merge([
+		$arguments = array_merge([
 			'hide_empty' => true,
-		], $options, [
+		], $arguments, [
 			'fields'       => $fields,
 			'taxonomy'     => $this->taxonomy->name,
 			'hierarchical' => (bool) $this->taxonomy->hierarchical,
 		]);
+
+		return get_terms($arguments);
 	}
 
 }

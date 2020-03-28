@@ -33,10 +33,10 @@ interface TaxonomyInterface
 	public function current(): ?Term;
 
 	/**
-	 * @param array $options
+	 * @param array $arguments
 	 *
 	 * @return Terms
 	 */
-	public function terms(array $options = []): Terms;
+	public function terms(array $arguments = []): Terms;
 
 }
