@@ -118,57 +118,35 @@ class Taxonomy implements TaxonomyInterface
 	 * @param array $options
 	 *
 	 * @return Terms
+	 *
+	 * @see \WP_Term_Query::__construct()
 	 */
 	public function terms(array $options = []): Terms
 	{
-		$arguments = array_merge([
-			'child_of'         => 0,
-			'current_category' => 0,
-			'depth'            => 0,
-			'exclude'          => '',
-			'exclude_tree'     => '',
-			'hide_empty'       => 1,
-			'hierarchical'     => $this->taxonomy->hierarchical,
-			'order'            => 'ASC',
-			'orderby'          => 'name',
-			'show_count'       => 0,
-		], $options);
-
-		$arguments['taxonomy']     = $this->taxonomy->name;
-		$arguments['hierarchical'] = (bool) $arguments['hierarchical'];
-
-		if (!isset($arguments['pad_counts']) && $arguments['show_count'] && $arguments['hierarchical']) {
-			$arguments['pad_counts'] = true;
-		}
-
-		if ($arguments['hierarchical'] === true) {
-			$exclude = [];
-
-			if ($arguments['exclude_tree']) {
-				$exclude = array_merge($exclude, wp_parse_id_list($arguments['exclude_tree']));
-			}
-
-			if ($arguments['exclude']) {
-				$exclude = array_merge($exclude, wp_parse_id_list($arguments['exclude']));
-			}
-
-			$arguments['exclude_tree'] = $exclude;
-			$arguments['exclude']      = '';
-		}
+		$arguments = $this->getArguments('all', $options);
 
 		$items = get_terms($arguments);
 
-		if (is_array($items)) {
-			if (empty($arguments['current_category']) && ($current = $this->current())) {
-				$arguments['current_category'] = $current->id();
-			}
-
-			if (!$arguments['hierarchical']) {
-				$arguments['depth'] = -1;
-			}
+		$arguments['depth'] = $arguments['hierarchical'] ? 0 : -1;
+		if (is_array($items) && empty($arguments['current_category']) && ($current = $this->current())) {
+			$arguments['current_category'] = $current->id();
 		}
 
 		return Builder::getTerms($this, $items, $arguments);
+	}
+
+	/**
+	 * @param array $options
+	 *
+	 * @return int
+	 *
+	 * @see \WP_Term_Query::__construct()
+	 */
+	public function count(array $options = []): int
+	{
+		$arguments = $this->getArguments('count', $options);
+
+		return (int) get_terms($arguments);
 	}
 
 	/**
@@ -177,6 +155,23 @@ class Taxonomy implements TaxonomyInterface
 	public function __toString()
 	{
 		return $this->name();
+	}
+
+	/**
+	 * @param string $fields
+	 * @param array  $options
+	 *
+	 * @return array
+	 */
+	protected function getArguments(string $fields, array $options): array
+	{
+		return array_merge([
+			'hide_empty' => true,
+		], $options, [
+			'fields'       => $fields,
+			'taxonomy'     => $this->taxonomy->name,
+			'hierarchical' => (bool) $this->taxonomy->hierarchical,
+		]);
 	}
 
 }
