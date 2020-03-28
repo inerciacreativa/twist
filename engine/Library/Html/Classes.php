@@ -91,13 +91,13 @@ class Classes implements ArrayAccess, Countable
 	}
 
 	/**
-	 * @param array|string $classes
+	 * @param array $classes
 	 *
 	 * @return $this
 	 */
-	public function remove($classes): self
+	public function remove(array $classes): self
 	{
-		foreach (self::parse($classes) as $class) {
+		foreach ($classes as $class) {
 			if (($index = array_search($class, $this->classes, true)) !== false) {
 				unset($this->classes[$index]);
 			}
@@ -127,26 +127,26 @@ class Classes implements ArrayAccess, Countable
 	}
 
 	/**
-	 * @param array|string $classes
+	 * @param array $classes
 	 *
 	 * @return $this
 	 */
-	public function only($classes): self
+	public function only(array $classes): self
 	{
-		$this->classes = array_intersect($this->classes, self::parse($classes));
+		$this->classes = array_intersect($this->classes, $classes);
 
 		return $this;
 	}
 
 	/**
-	 * @param array|string $search
-	 * @param array|string $replace
+	 * @param array $search
+	 * @param array $replace
 	 *
 	 * @return $this
 	 */
-	public function replace($search, $replace): self
+	public function replace(array $search, array $replace): self
 	{
-		$this->classes = self::parse(str_replace(self::parse($search), self::parse($replace), $this->render()));
+		$this->classes = self::parse(str_replace($search, $replace, $this->render()));
 
 		return $this;
 	}
@@ -202,7 +202,7 @@ class Classes implements ArrayAccess, Countable
 	}
 
 	/**
-	 * @param array|string $classes
+	 * @param array $classes
 	 */
 	public function offsetUnset($classes): void
 	{
