@@ -18,27 +18,27 @@ final class ClassesTest extends TestCase
     {
         $classes = Classes::make('test');
         $classes->add(['is-true', 'is-true']);
-        $this->assertEquals(['test', 'is-true'], $classes->get());
+        $this->assertEquals(['test', 'is-true'], $classes->all());
 
         $classes->add('default');
-        $this->assertEquals(['test', 'is-true', 'default'], $classes->get());
+        $this->assertEquals(['test', 'is-true', 'default'], $classes->all());
 
 		$classes->add([1, '-0test', ['_test']]);
-		$this->assertEquals(['test', 'is-true', 'default', '_test'], $classes->get());
+		$this->assertEquals(['test', 'is-true', 'default', '_test'], $classes->all());
 
 		$classes->add(Classes::make(['is-ok']));
-		$this->assertEquals(['test', 'is-true', 'default', '_test', 'is-ok'], $classes->get());
+		$this->assertEquals(['test', 'is-true', 'default', '_test', 'is-ok'], $classes->all());
     }
 
     public function testRemove(): void
     {
         $classes = Classes::make(['is-true', 'is-false', 'is-delete']);
-        $classes->remove('is-false');
-        $this->assertEquals(['is-true', 'is-delete'], $classes->get());
+        $classes->remove(['is-false']);
+        $this->assertEquals(['is-true', 'is-delete'], $classes->all());
 
         $classes->add(['is-default', 'to-delete']);
         $classes->remove(['is-delete', 'to-delete']);
-        $this->assertEquals(['is-true', 'is-default'], $classes->get());
+        $this->assertEquals(['is-true', 'is-default'], $classes->all());
     }
 
 	public function testHas(): void
@@ -53,22 +53,22 @@ final class ClassesTest extends TestCase
     public function testOnly(): void
     {
         $classes = Classes::make(['is-true', 'is-false', 'is-delete']);
-        $this->assertEquals(['is-true'], $classes->only('is-true')->get());
+        $this->assertEquals(['is-true'], $classes->only(['is-true'])->all());
 
         $classes = Classes::make(['is-true', 'is-false', 'is-delete']);
-        $this->assertEquals(['is-true', 'is-false'], $classes->only(['is-true', 'is-false'])->get());
+        $this->assertEquals(['is-true', 'is-false'], $classes->only(['is-true', 'is-false'])->all());
 
         $classes = Classes::make(['is-true', 'is-false', 'is-delete']);
-        $this->assertEquals(['is-true'], $classes->only(['is-true', 'is-default'])->get());
+        $this->assertEquals(['is-true'], $classes->only(['is-true', 'is-default'])->all());
     }
 
     public function testReplace(): void
 	{
 		$classes = Classes::make(['is-true', 'is-false', 'is-delete']);
 		$classes->replace('is-true', 'is-test');
-		$this->assertEquals(['is-test', 'is-false', 'is-delete'], $classes->get());
+		$this->assertEquals(['is-test', 'is-false', 'is-delete'], $classes->all());
 
 		$classes->replace(['is-test', 'is-delete'], ['test', 'delete']);
-		$this->assertEquals(['test', 'is-false', 'delete'], $classes->get());
+		$this->assertEquals(['test', 'is-false', 'delete'], $classes->all());
 	}
 }
