@@ -58,6 +58,14 @@ class Taxonomy implements TaxonomyInterface
 	}
 
 	/**
+	 * @return array
+	 */
+	public function post_types(): array
+	{
+		return $this->taxonomy->object_type;
+	}
+
+	/**
 	 * @param int|string|array $term
 	 *
 	 * @return bool
