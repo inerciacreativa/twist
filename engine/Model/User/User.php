@@ -262,22 +262,23 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @param bool         $public_only
-	 * @param string|array $post_type
+	 * @param string|array $type
+	 * @param bool         $private
 	 *
 	 * @return int
 	 */
-	public function count_posts(bool $public_only = false, $post_type = 'post'): int
+	public function count_posts($type = 'post', bool $private = false): int
 	{
-		return count_user_posts($this->id(), $post_type, $public_only);
+		return count_user_posts($this->id(), $type, !$private);
 	}
 
 	/**
-	 * @param int $number
+	 * @param int          $number
+	 * @param string|array $type
 	 *
 	 * @return Query|null
 	 */
-	public function posts(int $number = 5): ?Query
+	public function posts(int $number = 10, $type = 'post'): ?Query
 	{
 		if (!$this->exists()) {
 			return null;
@@ -285,6 +286,7 @@ class User implements UserInterface
 
 		return $this->query([
 			'author'         => $this->id(),
+			'post_type'      => $type,
 			'posts_per_page' => $number,
 			'orderby'        => 'post_date',
 			'order'          => 'DESC',
