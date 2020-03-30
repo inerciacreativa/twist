@@ -132,6 +132,14 @@ class Site
 	}
 
 	/**
+	 * @return string
+	 */
+	public static function search(): string
+	{
+		return get_search_query();
+	}
+
+	/**
 	 * @param string $path
 	 *
 	 * @return string
@@ -282,14 +290,6 @@ class Site
 		if (is_active_sidebar($sidebar)) {
 			dynamic_sidebar($sidebar);
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function search(): string
-	{
-		return get_search_query();
 	}
 
 }
