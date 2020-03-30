@@ -7,6 +7,7 @@ use Twist\Library\Html\Classes;
 use Twist\Library\Support\Arr;
 use Twist\Model\CollectionInterface;
 use Twist\Model\Model;
+use Twist\Model\Post\Query;
 use WP_Term;
 
 /**
@@ -140,14 +141,6 @@ class Term extends Model
 	}
 
 	/**
-	 * @return int
-	 */
-	public function count(): int
-	{
-		return (int) $this->sanitize('count');
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function is_current(): bool
@@ -180,6 +173,40 @@ class Term extends Model
 		}
 
 		return $this->meta;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function count_posts(): int
+	{
+		return (int) $this->sanitize('count');
+	}
+
+	/**
+	 * @param int          $number
+	 * @param string|array $type
+	 *
+	 * @return Query
+	 */
+	public function posts(int $number = 10, $type = ''): Query
+	{
+		if (empty($type)) {
+			$type = $this->taxonomy->post_types();
+		}
+
+		return Query::make([
+			'post_type'      => $type,
+			'posts_per_page' => $number,
+			'orderby'        => 'post_date',
+			'order'          => 'DESC',
+			'tax_query'      => [
+				[
+					'taxonomy' => $this->taxonomy->name(),
+					'terms'    => $this->id(),
+				],
+			],
+		]);
 	}
 
 	/**
