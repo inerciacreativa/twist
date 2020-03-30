@@ -22,6 +22,10 @@ class Profiles extends Enumerable
 	 */
 	public function __construct(User $user)
 	{
+		if (!$user->exists()) {
+			return;
+		}
+
 		$this->fill(Arr::map(wp_get_user_contact_methods(), static function (string $title, string $name) use ($user) {
 			$url = $user->meta()->get($name);
 

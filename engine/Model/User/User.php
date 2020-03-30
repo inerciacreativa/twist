@@ -2,9 +2,7 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
-use Twist\Library\Support\Str;
 use Twist\Model\Post\Query;
 use WP_User;
 
@@ -17,24 +15,9 @@ class User implements UserInterface
 {
 
 	/**
-	 * @var static
-	 */
-	private static $current;
-
-	/**
-	 * @var static
-	 */
-	private static $commenter;
-
-	/**
 	 * @var WP_User
 	 */
 	private $user;
-
-	/**
-	 * @var Tag[]
-	 */
-	private $avatar = [];
 
 	/**
 	 * @var Meta
@@ -49,15 +32,18 @@ class User implements UserInterface
 	/**
 	 * Get the current user.
 	 *
-	 * @return User
+	 * @return UserInterface
 	 */
-	final public static function current(): User
+	public static function current(): UserInterface
 	{
-		if (static::$current === null) {
-			static::$current = new static();
+		static $current;
+
+		if ($current === null) {
+			$user    = wp_get_current_user();
+			$current = new static($user);
 		}
 
-		return static::$current;
+		return $current;
 	}
 
 	/**
@@ -65,53 +51,45 @@ class User implements UserInterface
 	 *
 	 * @return User
 	 */
-	final public static function commenter(): User
+	public static function commenter(): UserInterface
 	{
-		if (static::$commenter === null) {
-			$user      = new static();
-			$commenter = wp_get_current_commenter();
+		static $commenter;
 
-			if ($commenter['comment_author']) {
-				$user->user->display_name = $commenter['comment_author'];
+		if ($commenter === null) {
+			$user    = wp_get_current_user();
+			$cookies = wp_get_current_commenter();
+
+			if ($cookies['comment_author']) {
+				$user->display_name = $cookies['comment_author'];
 			}
 
-			if ($commenter['comment_author_email']) {
-				$user->user->user_email = $commenter['comment_author_email'];
+			if ($cookies['comment_author_email']) {
+				$user->user_email = $cookies['comment_author_email'];
 			}
 
-			if ($commenter['comment_author_url']) {
-				$user->user->user_url = $commenter['comment_author_url'];
+			if ($cookies['comment_author_url']) {
+				$user->user_url = $cookies['comment_author_url'];
 			}
 
-			static::$commenter = $user;
+			$commenter = new static($user);
 		}
 
-		return static::$commenter;
-	}
-
-	/**
-	 * @param WP_User|object|int|string $user
-	 *
-	 * @return User
-	 */
-	final public static function make($user): User
-	{
-		return new static($user);
+		return $commenter;
 	}
 
 	/**
 	 * User constructor.
 	 *
-	 * @param WP_User|object|int|string|null $user
+	 * @param WP_User|int|string $user
 	 */
-	public function __construct($user = null)
+	public function __construct($user)
 	{
-		if ($user === null) {
-			$this->user = wp_get_current_user();
-		} else if ($user instanceof WP_User) {
+		if ($user instanceof WP_User) {
 			$this->user = $user;
-		} else if (is_object($user) || is_int($user) || is_string($user)) {
+		} else if (is_int($user)) {
 			$this->user = new WP_User($user);
+		} else if (is_string($user)) {
+			$this->user = new WP_User(0, $user);
 		}
 	}
 
@@ -140,7 +118,11 @@ class User implements UserInterface
 	 */
 	public function edit_link(): string
 	{
-		return get_edit_user_link($this->id());
+		if ($this->exists()) {
+			return get_edit_user_link($this->id());
+		}
+
+		return '';
 	}
 
 	/**
@@ -233,18 +215,13 @@ class User implements UserInterface
 	 */
 	public function avatar(int $size = 96, array $attributes = []): Tag
 	{
-		if (array_key_exists($size, $this->avatar)) {
-			$avatar = $this->avatar[$size];
-		} else {
-			$title  = sprintf(__('Image of %s', 'twist'), Str::fromEntities($this->name()));
-			$avatar = get_avatar($this->user->user_email, $size, '', $title);
-			$avatar = $this->avatar[$size] = Tag::parse($avatar);
+		static $avatar;
+
+		if ($avatar === null) {
+			$avatar = new Avatar($this);
 		}
 
-		$avatar->attributes(array_merge(['class' => 'avatar photo'], $attributes));
-		$avatar = Hook::apply('twist_user_avatar', $avatar);
-
-		return $avatar;
+		return $avatar->get($size, $attributes);
 	}
 
 	/**
@@ -285,12 +262,27 @@ class User implements UserInterface
 	}
 
 	/**
+	 * @param bool         $public_only
+	 * @param string|array $post_type
+	 *
+	 * @return int
+	 */
+	public function count_posts(bool $public_only = false, $post_type = 'post'): int
+	{
+		return count_user_posts($this->id(), $post_type, $public_only);
+	}
+
+	/**
 	 * @param int $number
 	 *
-	 * @return Query
+	 * @return Query|null
 	 */
-	public function posts(int $number = 5): Query
+	public function posts(int $number = 5): ?Query
 	{
+		if (!$this->exists()) {
+			return null;
+		}
+
 		return $this->query([
 			'author'         => $this->id(),
 			'posts_per_page' => $number,
@@ -310,20 +302,22 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @param string      $field
-	 * @param string|null $value
+	 * @param string $field
+	 * @param string $value
+	 */
+	protected function setField(string $field, string $value): void
+	{
+		$this->user->$field = $value;
+	}
+
+	/**
+	 * @param string $field
 	 *
 	 * @return string
 	 */
-	protected function field(string $field, string $value = null): ?string
+	protected function getField(string $field): string
 	{
-		if ($value === null) {
-			return $this->user->$field;
-		}
-
-		$this->user->$field = $value;
-
-		return null;
+		return $this->user->$field;
 	}
 
 }

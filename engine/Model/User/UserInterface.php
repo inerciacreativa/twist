@@ -36,4 +36,11 @@ interface UserInterface extends IdentifiableInterface
 	 */
 	public function avatar(int $size = 96, array $attributes = []): Tag;
 
+	/**
+	 * @param string $capability
+	 *
+	 * @return bool
+	 */
+	public function can(string $capability): bool;
+
 }
