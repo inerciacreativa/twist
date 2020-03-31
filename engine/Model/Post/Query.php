@@ -28,16 +28,16 @@ class Query implements IterableInterface
 	private $query;
 
 	/**
-	 * @param array $parameters
+	 * @param array $query
 	 *
 	 * @return Query
 	 */
-	private static function query(array $parameters = []): Query
+	private static function query(array $query = []): Query
 	{
-		$id = json_encode($parameters);
+		$id = json_encode($query);
 
 		if (!array_key_exists($id, static::$queries)) {
-			static::$queries[$id] = new static($parameters);
+			static::$queries[$id] = new static($query);
 		}
 
 		return static::$queries[$id];
@@ -58,45 +58,40 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @param array $parameters
+	 * @param array $query
 	 * @param bool  $defaults
 	 *
 	 * @return Query
 	 */
-	public static function make(array $parameters, bool $defaults = true): Query
+	public static function make(array $query, bool $defaults = true): Query
 	{
 		if ($defaults) {
-			$parameters = array_merge($parameters, [
+			$query = array_merge($query, [
 				'suppress_filters'    => true,
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
 			]);
 		}
 
-		$parameters = array_merge([
+		$query = array_merge([
 			'post_type'      => 'post',
 			'posts_per_page' => get_option('posts_per_page'),
-		], $parameters);
+		], $query);
 
-		if (empty($parameters['post_status'])) {
-			$parameters['post_status'] = ($parameters['post_type'] === 'attachment') ? 'inherit' : 'publish';
+		if (empty($query['post_status'])) {
+			$query['post_status'] = ($query['post_type'] === 'attachment') ? 'inherit' : 'publish';
 		}
 
-		if (!empty($parameters['include'])) {
-			$ids = wp_parse_id_list($parameters['include']);
+		if (!empty($query['include'])) {
+			$ids = wp_parse_id_list($query['include']);
 
-			$parameters['posts_per_page'] = count($ids);
-			$parameters['post__in']       = $ids;
-		} else if (!empty($parameters['exclude'])) {
-			$parameters['post__not_in'] = wp_parse_id_list($parameters['exclude']);
+			$query['posts_per_page'] = count($ids);
+			$query['post__in']       = $ids;
+		} else if (!empty($query['exclude'])) {
+			$query['post__not_in'] = wp_parse_id_list($query['exclude']);
 		}
 
-		$id = json_encode($parameters);
-		if (!array_key_exists($id, static::$queries)) {
-			static::$queries[$id] = new static($parameters);
-		}
-
-		return static::query($parameters);
+		return static::query($query);
 	}
 
 	/**
@@ -133,10 +128,7 @@ class Query implements IterableInterface
 			$search  = (string) preg_replace('/[^a-z ]/i', '', $search);
 		}
 
-		$parameters = array_merge([
-			'post_type' => 'any',
-			//'posts_per_page' => 5,
-		], $query, [
+		$parameters = array_merge($query, [
 			's' => $search,
 		]);
 
