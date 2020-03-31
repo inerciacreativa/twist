@@ -27,7 +27,7 @@ class Author extends User
 	 *
 	 * @global WP_User $authordata
 	 */
-	public function __construct($user = 0, Post $post = null)
+	public function __construct(int $user = 0, Post $post = null)
 	{
 		global $authordata;
 

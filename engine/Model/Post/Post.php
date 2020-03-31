@@ -552,7 +552,7 @@ class Post extends Model
 	 */
 	public function author(): Author
 	{
-		return $this->author ?? $this->author = new Author($this->post->post_author, $this);
+		return $this->author ?? $this->author = new Author((int) $this->post->post_author, $this);
 	}
 
 	/**
