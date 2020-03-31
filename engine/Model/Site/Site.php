@@ -140,6 +140,16 @@ class Site
 	}
 
 	/**
+	 * @return string
+	 */
+	public static function url(): string
+	{
+		global $wp;
+
+		return self::home_url($wp->request);
+	}
+
+	/**
 	 * @param string $path
 	 *
 	 * @return string
