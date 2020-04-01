@@ -111,11 +111,17 @@ class Url
 				unset($components[$key]);
 			}
 
-			// Check for non US-ASCII chars in the path
-			// It may fail to parse, so
-			// encode each part of the path if necessary
-			if (array_key_exists('path', $components) && !preg_match('/^[[:graph:]]+$/', $url)) {
-				$components['path'] = static::encodePath($components, $url);
+			if (array_key_exists('path', $components)) {
+				if (strpos($components['path'], '/') !== 0) {
+					$components['path'] = '/' . $components['path'];
+				}
+
+				// Check for non US-ASCII chars in the path
+				// It may fail to parse, so
+				// encode each part of the path if necessary
+				if (!preg_match('/^[[:graph:]]+$/', $url)) {
+					$components['path'] = static::encodePath($components, $url);
+				}
 			}
 
 			if (array_key_exists('query', $components)) {
@@ -175,11 +181,13 @@ class Url
 		if ($component === 'path' && strpos($value, '/') !== 0) {
 			$value = '/' . $value;
 		} else if ($component === 'query') {
-			if (!is_array($value)) {
+			if (empty($value)) {
+				$value = [];
+			} else if (is_array($value)) {
+				$value = array_replace_recursive($this->components['query'], $value);
+			} else {
 				throw new InvalidArgumentException('The query must be an array');
 			}
-
-			$value = array_replace_recursive($this->components[$component], (array) $value);
 		} else if ($component === 'port') {
 			$value = (int) $value;
 		}
