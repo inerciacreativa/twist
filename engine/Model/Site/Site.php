@@ -119,11 +119,11 @@ class Site
 	/**
 	 * @return string
 	 */
-	public static function url(): string
+	public static function current_url(): string
 	{
 		global $wp;
 
-		return self::home_url($wp->request);
+		return self::home_url(trailingslashit($wp->request));
 	}
 
 	/**
