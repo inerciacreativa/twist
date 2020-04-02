@@ -2,8 +2,14 @@
 
 namespace Twist\Model\Comment;
 
+use IteratorAggregate;
+use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
+use Twist\Model\CollectionIteratorInterface;
+use Twist\Model\Pagination\HasPaginationInterface;
+use Twist\Model\Pagination\PaginationInterface;
 use Twist\Model\Post\Post;
+use Twist\Model\Post\Query as PostQuery;
 use Twist\Twist;
 use WP_Query;
 
@@ -12,14 +18,8 @@ use WP_Query;
  *
  * @package Twist\Model\Comment
  */
-class Query
+class Query implements HasPaginationInterface, IteratorAggregate
 {
-
-	public const ALL = 'all';
-
-	public const COMMENTS = 'comment';
-
-	public const PINGS = 'pings';
 
 	/**
 	 * @var Post
@@ -32,6 +32,16 @@ class Query
 	private $loaded = false;
 
 	/**
+	 * @var Comments
+	 */
+	private $comments;
+
+	/**
+	 * @var Pagination
+	 */
+	private $pagination;
+
+	/**
 	 * Query constructor.
 	 *
 	 * @param Post $post
@@ -39,7 +49,9 @@ class Query
 	public function __construct(Post $post)
 	{
 		$this->post = $post;
+
 		$this->load();
+		$this->build();
 	}
 
 	/**
@@ -59,33 +71,33 @@ class Query
 	}
 
 	/**
-	 * @param string $type
-	 * @param array  $arguments
-	 *
-	 * @return Comments
+	 * Build the Comments collection.
 	 */
-	private function build(string $type, array $arguments = []): Comments
+	private function build(): void
 	{
-		$builder = new Builder($this, $type);
+		$builder = new Builder($this);
 
 		if ($this->loaded) {
-			wp_list_comments(array_merge($arguments, [
-				'type'      => $type,
+			wp_list_comments([
 				'walker'    => $builder,
 				'max_depth' => $this->max_depth(),
 				'echo'      => false,
-			]));
+			]);
 		}
 
-		return $builder->getComments();
+		$this->comments = $builder->getComments();
 	}
 
 	/**
-	 * @return Comments
+	 * @return int
 	 */
-	public function all(): Comments
+	private function max_depth(): int
 	{
-		return $this->build(self::ALL);
+		if (get_option('thread_comments')) {
+			return (int) get_option('thread_comments_depth');
+		}
+
+		return -1;
 	}
 
 	/**
@@ -93,15 +105,7 @@ class Query
 	 */
 	public function comments(): Comments
 	{
-		return $this->build(self::COMMENTS);
-	}
-
-	/**
-	 * @return Comments
-	 */
-	public function pings(): Comments
-	{
-		return $this->build(self::PINGS);
+		return $this->comments;
 	}
 
 	/**
@@ -124,29 +128,106 @@ class Query
 	}
 
 	/**
-	 * @return int
+	 * @inheritDoc
 	 */
-	public function count(): int
+	public function total(): int
 	{
 		return $this->post->comment_count();
 	}
 
 	/**
-	 * @return int
+	 * @inheritDoc
 	 */
-	private function max_depth(): int
+	public function count(): int
 	{
-		static $max_depth;
+		return $this->comments->count();
+	}
 
-		if ($max_depth === null) {
-			if (get_option('thread_comments')) {
-				$max_depth = (int) get_option('thread_comments_depth');
-			} else {
-				$max_depth = -1;
+	/**
+	 * @inheritDoc
+	 */
+	public function per_page(): int
+	{
+		static $per_page;
+
+		if (!isset($per_page)) {
+			try {
+				$per_page = (int) PostQuery::main()->get('comments_per_page');
+			} catch (AppException $exception) {
+				$per_page = 0;
+			}
+
+			if (0 === $per_page) {
+				$per_page = (int) get_option('comments_per_page');
 			}
 		}
 
-		return $max_depth;
+		return $per_page;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function total_pages(): int
+	{
+		static $total_pages;
+
+		if (!isset($total_pages)) {
+			$total_pages = (int) get_comment_pages_count();
+		}
+
+		return $total_pages;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function current_page(): int
+	{
+		try {
+			return max(1, (int) PostQuery::main()->get('cpage'));
+		} catch (AppException $exception) {
+		}
+
+		return 1;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function first_page(): int
+	{
+		static $first_page;
+
+		if (!isset($first_page)) {
+			$first_page = (get_option('default_comments_page') === 'newest') ? $this->total_pages() : 1;
+		}
+
+		return $first_page;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function has_pagination(): bool
+	{
+		return $this->total_pages() > 1;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function pagination(): PaginationInterface
+	{
+		return $this->pagination ?? $this->pagination = new Pagination($this);
+	}
+
+	/**
+	 * @return Iterator
+	 */
+	public function getIterator(): CollectionIteratorInterface
+	{
+		return $this->comments->getIterator();
 	}
 
 }

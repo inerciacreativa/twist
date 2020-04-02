@@ -2,6 +2,7 @@
 
 namespace Twist\Model;
 
+use Countable;
 use IteratorAggregate;
 
 /**
@@ -9,7 +10,7 @@ use IteratorAggregate;
  *
  * @package Twist\Model
  */
-interface EnumerableInterface extends IteratorAggregate
+interface EnumerableInterface extends IteratorAggregate, Countable
 {
 
 	/**

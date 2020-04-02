@@ -30,7 +30,7 @@ abstract class Pagination implements PaginationInterface
 	 */
 	public function simple(): Links
 	{
-		$items = $this->has_pages() ? $this->getPrevNextLinks() : [];
+		$items = $this->getPrevNextLinks();
 
 		return $this->getLinks($items);
 	}
@@ -40,7 +40,7 @@ abstract class Pagination implements PaginationInterface
 	 */
 	public function extended(array $arguments = []): Links
 	{
-		$items = $this->has_pages() ? $this->getPaginatedLinks($arguments) : [];
+		$items = $this->getPaginatedLinks($arguments);
 
 		return $this->getLinks($items);
 	}
@@ -86,6 +86,7 @@ abstract class Pagination implements PaginationInterface
 	 * @param string $item
 	 *
 	 * @return Link
+	 *
 	 * @noinspection NullPointerExceptionInspection
 	 */
 	protected function getLink(int $index, string $item): Link
@@ -121,7 +122,7 @@ abstract class Pagination implements PaginationInterface
 	 * @param string  $title
 	 * @param Classes $classes
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	protected function getLabel(string $title, Classes $classes): ?string
 	{

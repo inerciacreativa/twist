@@ -100,7 +100,7 @@ class FormDecorator implements FormDecoratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getDefaults(array $arguments): array
 	{
@@ -114,7 +114,7 @@ class FormDecorator implements FormDecoratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getTextField(string $id, string $label, array $attributes): Tag
 	{
@@ -122,7 +122,7 @@ class FormDecorator implements FormDecoratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getTextareaField(string $id, string $label, array $attributes): Tag
 	{
@@ -130,7 +130,7 @@ class FormDecorator implements FormDecoratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getSubmitButton(string $id, string $text): Tag
 	{
@@ -150,7 +150,7 @@ class FormDecorator implements FormDecoratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getCancelButton(string $id, string $text, string $form): Tag
 	{

@@ -87,13 +87,13 @@ class Author extends User
 	/**
 	 * @inheritDoc
 	 */
-	protected function query(array $query): Query
+	protected function getQuery(array $query): Query
 	{
 		if ($this->post) {
 			$query['post__not_in'] = [$this->post->id()];
 		}
 
-		return parent::query($query);
+		return parent::getQuery($query);
 	}
 
 	/**

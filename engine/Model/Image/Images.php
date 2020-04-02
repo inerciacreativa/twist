@@ -12,6 +12,20 @@ use Twist\Model\Post\Query;
  * Class Images
  *
  * @package Twist\Model\Image
+ *
+ * @method Image parent()
+ * @method Image|null get(int $id)
+ * @method Image[] all()
+ * @method Image|null first(callable $callback = null, $default = null)
+ * @method Image|null last(callable $callback = null, $default = null)
+ * @method Images merge($models)
+ * @method Images only(array $ids)
+ * @method Images except(array $ids)
+ * @method Images slice(int $offset, int $length = null)
+ * @method Images take(int $limit)
+ * @method Images filter(callable $callback)
+ * @method Images where(string $method, string $operator, $value = null)
+ * @method Images shuffle()
  */
 class Images extends Collection
 {
@@ -24,8 +38,7 @@ class Images extends Collection
 	 */
 	public static function make(Post $post, array $parameters = []): Images
 	{
-		$collection = new static();
-		$collection->set_parent($post);
+		$collection = new static($post);
 
 		if (isset($parameters['orderby'])) {
 			$parameters['orderby'] = sanitize_sql_orderby($parameters['orderby']);
@@ -75,7 +88,9 @@ class Images extends Collection
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
+	 *
+	 * @return Images
 	 */
 	public function sort(string $method = null, bool $descending = false, int $options = SORT_REGULAR): CollectionInterface
 	{

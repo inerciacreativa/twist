@@ -12,9 +12,12 @@ use Twist\Library\Support\Macroable;
 use Twist\Library\Support\Str;
 use Twist\Model\CollectionInterface;
 use Twist\Model\Comment\Query as CommentQuery;
+use Twist\Model\HasChildren;
+use Twist\Model\HasChildrenInterface;
+use Twist\Model\HasParent;
+use Twist\Model\HasParentInterface;
 use Twist\Model\Image\Image;
 use Twist\Model\Image\Images;
-use Twist\Model\Model;
 use Twist\Model\ModelInterface;
 use Twist\Model\Site\Site;
 use Twist\Model\Taxonomy\Term;
@@ -25,8 +28,12 @@ use WP_Post;
  *
  * @package Twist\Model\Post
  */
-class Post extends Model
+class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 {
+
+	use HasParent;
+
+	use HasChildren;
 
 	use Macroable;
 
@@ -186,7 +193,7 @@ class Post extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function has_parent(): bool
 	{
@@ -203,6 +210,7 @@ class Post extends Model
 
 	/**
 	 * @return Post|null
+	 *
 	 * @throws AppException
 	 */
 	public function parent(): ?ModelInterface
@@ -215,7 +223,7 @@ class Post extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function has_children(): bool
 	{
@@ -226,23 +234,12 @@ class Post extends Model
 		$type = $this->type(true);
 
 		if (!$type || !$type->hierarchical) {
-			return $this->has_children = false;
+			$this->has_children = false;
+		} else {
+			$this->has_children = Query::has_children($this);
 		}
 
-		$query = Query::make([
-			'post_parent'    => $this->id(),
-			'post_type'      => $this->type(),
-			'post_status'    => 'any',
-			'posts_per_page' => -1,
-		]);
-
-		if ($query->count() > 0) {
-			$this->set_children($query->posts());
-
-			return $this->has_children = true;
-		}
-
-		return $this->has_children = false;
+		return $this->has_children;
 	}
 
 	/**
@@ -250,11 +247,11 @@ class Post extends Model
 	 */
 	public function children(): ?CollectionInterface
 	{
-		if ($this->has_children()) {
-			return $this->children;
+		if ($this->children === null && $this->has_children()) {
+			$this->set_children(Query::children($this));
 		}
 
-		return null;
+		return $this->children;
 	}
 
 	/**
@@ -943,7 +940,7 @@ class Post extends Model
 			'class'  => 'password-form',
 			'action' => Site::site_url('wp-login.php?action=postpass', 'login_post'),
 		], [
-			Tag::p(sprintf(__('This content is password protected. To view it <label for="%">please enter your password</label> below:'), $label)),
+			Tag::p(sprintf(__('This content is password protected. To view it <label for="%s">please enter your password</label> below:', 'twist'), $label)),
 			Tag::p(['class' => 'field has-addons'], [
 				Tag::div(['class' => 'control'], Tag::input([
 					'id'   => $label,
@@ -1008,7 +1005,7 @@ class Post extends Model
 			}
 
 			$this->reset();
-		} catch (AppException $exception){
+		} catch (AppException $exception) {
 			$post = null;
 		}
 

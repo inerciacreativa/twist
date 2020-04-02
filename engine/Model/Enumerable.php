@@ -3,7 +3,6 @@
 namespace Twist\Model;
 
 use ArrayIterator;
-use Countable;
 use Twist\Library\Support\Data;
 
 /**
@@ -11,7 +10,7 @@ use Twist\Library\Support\Data;
  *
  * @package Twist\Model
  */
-class Enumerable implements EnumerableInterface, Countable
+class Enumerable implements EnumerableInterface
 {
 
 	/**
@@ -20,7 +19,7 @@ class Enumerable implements EnumerableInterface, Countable
 	private $values = [];
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function count(): int
 	{
@@ -45,7 +44,7 @@ class Enumerable implements EnumerableInterface, Countable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 *
 	 * @param mixed $default
 	 */
@@ -55,7 +54,7 @@ class Enumerable implements EnumerableInterface, Countable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function has(string $name): bool
 	{
@@ -63,7 +62,7 @@ class Enumerable implements EnumerableInterface, Countable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getValues(): array
 	{
@@ -71,7 +70,7 @@ class Enumerable implements EnumerableInterface, Countable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getNames(): array
 	{
@@ -79,7 +78,7 @@ class Enumerable implements EnumerableInterface, Countable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getIterator(): ArrayIterator
 	{

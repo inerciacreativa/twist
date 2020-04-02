@@ -21,7 +21,7 @@ class Scripts implements AssetsInterface
 	private $scripts = [];
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(Document $dom): void
 	{
@@ -52,7 +52,7 @@ class Scripts implements AssetsInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function all(): array
 	{

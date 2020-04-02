@@ -25,11 +25,6 @@ class Site
 	use Macroable;
 
 	/**
-	 * @var Pagination
-	 */
-	private $pagination;
-
-	/**
 	 * @return AssetsGroup
 	 */
 	public function head(): AssetsGroup
@@ -53,24 +48,6 @@ class Site
 	public function navigation($menu): Links
 	{
 		return Navigation::make($menu);
-	}
-
-	/**
-	 * @return bool
-	 * @throws AppException
-	 */
-	public function has_pagination(): bool
-	{
-		return $this->pagination()->has_pages();
-	}
-
-	/**
-	 * @return Pagination
-	 * @throws AppException
-	 */
-	public function pagination(): Pagination
-	{
-		return $this->pagination ?? $this->pagination = new Pagination();
 	}
 
 	/**

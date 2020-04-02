@@ -7,6 +7,8 @@ use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Support\Arr;
 use Twist\Model\IterableInterface;
+use Twist\Model\Pagination\HasPaginationInterface;
+use Twist\Model\Pagination\PaginationInterface;
 use WP_Query;
 
 /**
@@ -14,7 +16,7 @@ use WP_Query;
  *
  * @package Twist\Model\Post
  */
-class Query implements IterableInterface
+class Query implements IterableInterface, HasPaginationInterface
 {
 
 	/**
@@ -26,6 +28,16 @@ class Query implements IterableInterface
 	 * @var WP_Query
 	 */
 	private $query;
+
+	/**
+	 * @var Posts
+	 */
+	private $posts;
+
+	/**
+	 * @var Pagination
+	 */
+	private $pagination;
 
 	/**
 	 * @param array $query
@@ -136,6 +148,39 @@ class Query implements IterableInterface
 	}
 
 	/**
+	 * @param Post $post
+	 *
+	 * @return bool
+	 * @noinspection SqlResolve
+	 */
+	public static function has_children(Post $post): bool
+	{
+		/** @var /wpdb $wpdb */ global $wpdb;
+
+		$query = $wpdb->prepare("SELECT COUNT(*) FROM $wpdb->posts WHERE post_parent = %d", $post->id());
+		$check = $wpdb->get_results($query);
+
+		return ($check) ? true : false;
+	}
+
+	/**
+	 * @param Post $post
+	 *
+	 * @return Posts
+	 */
+	public static function children(Post $post): Posts
+	{
+		$query = self::make([
+			'post_parent'    => $post->id(),
+			'post_type'      => $post->type(),
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+		])->object();
+
+		return Posts::make($query->posts, $post);
+	}
+
+	/**
 	 * PostQuery constructor.
 	 *
 	 * @param array $query
@@ -188,23 +233,11 @@ class Query implements IterableInterface
 	 */
 	public function posts(): Posts
 	{
-		return Posts::make($this->query->posts);
-	}
+		if ($this->posts === null) {
+			$this->posts = Posts::make($this->query->posts);
+		}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function count(): int
-	{
-		return $this->query->post_count;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function total(): int
-	{
-		return $this->query->found_posts;
+		return $this->posts;
 	}
 
 	/**
@@ -228,7 +261,7 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function rewind(): void
 	{
@@ -236,14 +269,14 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function next(): void
 	{
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function valid(): bool
 	{
@@ -262,19 +295,11 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function key(): int
 	{
 		return $this->query->post->ID;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function is_paginated(): bool
-	{
-		return $this->query->max_num_pages > 1;
 	}
 
 	/**
@@ -481,35 +506,41 @@ class Query implements IterableInterface
 	}
 
 	/**
+	 * @return bool
+	 */
+	public static function is_admin(): bool
+	{
+		return is_admin();
+	}
+
+	/**
 	 * @param int $page
 	 *
 	 * @return bool
 	 */
 	public function is_current_page(int $page = 1): bool
 	{
-		return $this->has_pages() && ($page === $this->current_page());
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function has_pages(): bool
-	{
-		return $this->total_pages() > 1;
+		return $this->has_pagination() && ($page === $this->current_page());
 	}
 
 	/**
 	 * @return int
 	 */
-	public function current_page(): int
+	public function total(): int
 	{
-		$current = (int) $this->query->get('paged', 1);
-
-		return ($current === 0 && $this->has_pages()) ? 1 : $current;
+		return $this->query->found_posts;
 	}
 
 	/**
-	 * @return int
+	 * @inheritDoc
+	 */
+	public function count(): int
+	{
+		return $this->query->post_count;
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function total_pages(): int
 	{
@@ -517,11 +548,19 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @return int
+	 * @inheritDoc
 	 */
-	public function posts_per_page(): int
+	public function current_page(): int
 	{
-		if ($this->has_pages()) {
+		return max(1, (int) $this->query->get('paged'));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function per_page(): int
+	{
+		if ($this->has_pagination()) {
 			return ceil($this->total() / $this->total_pages());
 		}
 
@@ -529,11 +568,19 @@ class Query implements IterableInterface
 	}
 
 	/**
-	 * @return bool
+	 * @inheritDoc
 	 */
-	public static function is_admin(): bool
+	public function has_pagination(): bool
 	{
-		return is_admin();
+		return $this->total_pages() > 1;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function pagination(): PaginationInterface
+	{
+		return $this->pagination ?? $this->pagination = new Pagination($this);
 	}
 
 }

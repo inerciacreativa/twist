@@ -6,7 +6,6 @@ use Twist\Library\Dom\Document;
 use Twist\Library\Dom\Element;
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
-use Twist\Library\Support\Str;
 
 /**
  * Class Metas
@@ -22,7 +21,7 @@ class Metas implements AssetsInterface
 	private $metas = [];
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(Document $dom): void
 	{
@@ -49,7 +48,7 @@ class Metas implements AssetsInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function all(): array
 	{

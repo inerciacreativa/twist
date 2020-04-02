@@ -20,6 +20,11 @@ class User implements UserInterface
 	private $user;
 
 	/**
+	 * @var Avatar
+	 */
+	private $avatar;
+
+	/**
 	 * @var Meta
 	 */
 	private $meta;
@@ -32,9 +37,9 @@ class User implements UserInterface
 	/**
 	 * Get the current user.
 	 *
-	 * @return UserInterface
+	 * @return User
 	 */
-	public static function current(): UserInterface
+	public static function current(): User
 	{
 		static $current;
 
@@ -51,7 +56,7 @@ class User implements UserInterface
 	 *
 	 * @return User
 	 */
-	public static function commenter(): UserInterface
+	public static function commenter(): User
 	{
 		static $commenter;
 
@@ -94,7 +99,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function id(): int
 	{
@@ -102,55 +107,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @return string
-	 */
-	public function link(): string
-	{
-		if ($this->exists()) {
-			return get_author_posts_url($this->id(), $this->nice_name());
-		}
-
-		return '';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function edit_link(): string
-	{
-		if ($this->exists()) {
-			return get_edit_user_link($this->id());
-		}
-
-		return '';
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function exists(): bool
-	{
-		return $this->id() > 0;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function is_logged(): bool
-	{
-		return $this->exists();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function is_admin(): bool
-	{
-		return $this->exists() && $this->user->has_cap('administrator');
-	}
-
-	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function name(): string
 	{
@@ -158,7 +115,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function nice_name(): string
 	{
@@ -166,7 +123,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function first_name(): string
 	{
@@ -174,7 +131,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function last_name(): string
 	{
@@ -182,9 +139,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * Retrieve the user email.
-	 *
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function email(): string
 	{
@@ -192,7 +147,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function url(): string
 	{
@@ -200,7 +155,7 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function description(): string
 	{
@@ -208,42 +163,43 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @param int   $size
-	 * @param array $attributes
-	 *
-	 * @return Tag
+	 * @inheritDoc
 	 */
 	public function avatar(int $size = 96, array $attributes = []): Tag
 	{
-		static $avatar;
-
-		if ($avatar === null) {
-			$avatar = new Avatar($this);
+		if ($this->avatar === null) {
+			$this->avatar = new Avatar($this);
 		}
 
-		return $avatar->get($size, $attributes);
+		return $this->avatar->get($size, $attributes);
 	}
 
 	/**
-	 * @return Meta
+	 * @inheritDoc
 	 */
-	public function meta(): Meta
+	public function exists(): bool
 	{
-		return $this->meta ?? $this->meta = new Meta($this);
+		return $this->id() > 0;
 	}
 
 	/**
-	 * @return Profiles
+	 * @inheritDoc
 	 */
-	public function profiles(): Profiles
+	public function is_logged(): bool
 	{
-		return $this->profiles ?? $this->profiles = new Profiles($this);
+		return $this->exists();
 	}
 
 	/**
-	 * @param string $capability
-	 *
-	 * @return bool
+	 * @inheritDoc
+	 */
+	public function is_admin(): bool
+	{
+		return $this->exists() && $this->user->has_cap('administrator');
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function can(string $capability): bool
 	{
@@ -262,21 +218,67 @@ class User implements UserInterface
 	}
 
 	/**
-	 * @param string|array $type
-	 * @param bool         $private
-	 *
-	 * @return int
+	 * @inheritDoc
+	 */
+	public function link(): ?string
+	{
+		if (!$this->exists()) {
+			return null;
+		}
+
+		return get_author_posts_url($this->id(), $this->nice_name());
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function edit_link(): ?string
+	{
+		if (!$this->exists()) {
+			return null;
+		}
+
+		return get_edit_user_link($this->id());
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function meta(): ?Meta
+	{
+		if (!$this->exists()) {
+			return null;
+		}
+
+		return $this->meta ?? $this->meta = new Meta($this);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function profiles(): ?Profiles
+	{
+		if (!$this->exists()) {
+			return null;
+		}
+
+		return $this->profiles ?? $this->profiles = new Profiles($this);
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function count_posts($type = 'post', bool $private = false): int
 	{
+		if (!$this->exists()) {
+			return 0;
+		}
+
 		return count_user_posts($this->id(), $type, !$private);
 	}
 
 	/**
-	 * @param int          $number
-	 * @param string|array $type
-	 *
-	 * @return Query|null
+	 * @inheritDoc
 	 */
 	public function posts(int $number = 10, $type = 'post'): ?Query
 	{
@@ -284,7 +286,7 @@ class User implements UserInterface
 			return null;
 		}
 
-		return $this->query([
+		return $this->getQuery([
 			'author'         => $this->id(),
 			'post_type'      => $type,
 			'posts_per_page' => $number,
@@ -298,7 +300,7 @@ class User implements UserInterface
 	 *
 	 * @return Query
 	 */
-	protected function query(array $query): Query
+	protected function getQuery(array $query): Query
 	{
 		return Query::make($query);
 	}

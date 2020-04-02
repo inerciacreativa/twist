@@ -60,7 +60,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function name(): string
 	{
@@ -68,7 +68,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function email(): string
 	{
@@ -76,7 +76,7 @@ class Author extends User
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function url(): string
 	{

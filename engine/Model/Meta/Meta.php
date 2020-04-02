@@ -5,20 +5,19 @@ namespace Twist\Model\Meta;
 use ArrayIterator;
 use Twist\Library\Hook\Hook;
 use Twist\Model\EnumerableInterface;
-use Twist\Model\IdentifiableInterface;
+use Twist\Model\HasParent;
+use Twist\Model\HasParentInterface;
+use Twist\Model\ModelInterface;
 
 /**
  * Class Meta
  *
  * @package Twist\Model\Meta
  */
-class Meta implements EnumerableInterface
+class Meta implements EnumerableInterface, HasParentInterface
 {
 
-	/**
-	 * @var IdentifiableInterface
-	 */
-	private $parent;
+	use HasParent;
 
 	/**
 	 * @var string Type of object metadata is for (e.g., comment, post, term, or user).
@@ -28,37 +27,26 @@ class Meta implements EnumerableInterface
 	/**
 	 * Meta constructor.
 	 *
-	 * @param IdentifiableInterface $parent
-	 * @param string                $type
+	 * @param ModelInterface $parent
+	 * @param string         $type
 	 */
-	public function __construct(IdentifiableInterface $parent, string $type)
+	public function __construct(ModelInterface $parent, string $type)
 	{
-		$this->parent = $parent;
-		$this->type   = $type;
+		$this->set_parent($parent);
+
+		$this->type = $type;
 	}
 
 	/**
-	 * Return the model.
-	 *
-	 * @return IdentifiableInterface
+	 * @inheritDoc
 	 */
-	public function parent(): IdentifiableInterface
+	public function count(): int
 	{
-		return $this->parent;
+		return count($this->getValues());
 	}
 
 	/**
-	 * @inheritdoc
-	 */
-	public function set(string $name, $value): EnumerableInterface
-	{
-		update_metadata($this->type, $this->parent->id(), $name, $value);
-
-		return $this;
-	}
-
-	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(string $name, bool $all = false)
 	{
@@ -66,19 +54,7 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
-	 * @inheritdoc
-	 */
-	public function forget(string $name): EnumerableInterface
-	{
-		delete_metadata($this->type, $this->parent->id(), $name);
-
-		return $this;
-	}
-
-	/**
-	 * @param string $name
-	 *
-	 * @return bool
+	 * @inheritDoc
 	 */
 	public function has(string $name): bool
 	{
@@ -86,7 +62,23 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
+	 */
+	public function set(string $name, $value): void
+	{
+		update_metadata($this->type, $this->parent->id(), $name, $value);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function forget(string $name): void
+	{
+		delete_metadata($this->type, $this->parent->id(), $name);
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function getValues(): array
 	{
@@ -94,7 +86,7 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getNames(): array
 	{
@@ -102,7 +94,7 @@ class Meta implements EnumerableInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getIterator()
 	{

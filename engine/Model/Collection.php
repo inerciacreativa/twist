@@ -39,15 +39,19 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function add(ModelInterface $model): void
 	{
+		if (($model instanceof HasParentInterface) && $this->has_parent()) {
+			$model->set_parent($this->parent());
+		}
+
 		$this->models[$model->id()] = $model;
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(int $id): ?ModelInterface
 	{
@@ -55,7 +59,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function forget(int $id): void
 	{
@@ -63,7 +67,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function has(int $id): bool
 	{
@@ -71,7 +75,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function count(): int
 	{
@@ -79,7 +83,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function ids(): array
 	{
@@ -87,7 +91,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function all(): array
 	{
@@ -95,7 +99,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function first(callable $callback = null, $default = null): ?ModelInterface
 	{
@@ -107,7 +111,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function last(callable $callback = null, $default = null): ?ModelInterface
 	{
@@ -119,7 +123,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function merge($models): CollectionInterface
 	{
@@ -127,7 +131,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function only(array $ids): CollectionInterface
 	{
@@ -135,7 +139,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function except(array $ids): CollectionInterface
 	{
@@ -143,7 +147,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function slice(int $offset, int $length = null): CollectionInterface
 	{
@@ -151,7 +155,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function take(int $limit): CollectionInterface
 	{
@@ -163,7 +167,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function filter(callable $callback): CollectionInterface
 	{
@@ -171,7 +175,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function where(string $method, string $operator, $value = null): CollectionInterface
 	{
@@ -184,7 +188,7 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function sort(string $method = null, bool $descending = false, int $options = SORT_REGULAR): CollectionInterface
 	{
@@ -209,7 +213,18 @@ class Collection implements CollectionInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
+	 */
+	public function shuffle(): CollectionInterface
+	{
+		$models = $this->models;
+		shuffle($models);
+
+		return new static($this->parent, $models);
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function getIterator(): CollectionIteratorInterface
 	{

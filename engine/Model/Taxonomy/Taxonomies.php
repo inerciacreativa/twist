@@ -39,7 +39,7 @@ class Taxonomies extends Enumerable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(string $key, $default = null): ?Taxonomy
 	{
@@ -63,7 +63,7 @@ class Taxonomies extends Enumerable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getValues(): array
 	{

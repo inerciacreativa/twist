@@ -11,20 +11,6 @@ use Twist\Model\Link\Links;
  */
 interface PaginationInterface
 {
-	/**
-	 * @return bool
-	 */
-	public function has_pages(): bool;
-
-	/**
-	 * @return int
-	 */
-	public function total(): int;
-
-	/**
-	 * @return int
-	 */
-	public function current(): int;
 
 	/**
 	 * @return Links

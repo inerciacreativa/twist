@@ -28,14 +28,18 @@ class Builder extends Walker_Comment
 	protected $comment;
 
 	/**
+	 * @var int
+	 */
+	protected $count;
+
+	/**
 	 * Walker constructor.
 	 *
-	 * @param Query  $query
-	 * @param string $type
+	 * @param Query $query
 	 */
-	public function __construct(Query $query, string $type)
+	public function __construct(Query $query)
 	{
-		$this->root = $this->comments = new CommentsRoot($query, $type);
+		$this->root = $this->comments = new Comments($query);
 	}
 
 	/**
@@ -47,7 +51,7 @@ class Builder extends Walker_Comment
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function start_el(&$output, $comment, $depth = 0, $arguments = [], $id = 0): void
 	{
@@ -57,14 +61,14 @@ class Builder extends Walker_Comment
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function end_el(&$output, $comment, $depth = 0, $arguments = []): void
 	{
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function start_lvl(&$output, $depth = 0, $arguments = []): void
 	{
@@ -72,7 +76,7 @@ class Builder extends Walker_Comment
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function end_lvl(&$output, $depth = 0, $arguments = []): void
 	{

@@ -165,4 +165,11 @@ interface CollectionInterface extends Countable, HasParentInterface, IteratorAgg
 	 */
 	public function sort(string $method = null, bool $descending = false, int $options = SORT_REGULAR): CollectionInterface;
 
+	/**
+	 * Shuffle the collection.
+	 *
+	 * @return CollectionInterface
+	 */
+	public function shuffle(): CollectionInterface;
+
 }

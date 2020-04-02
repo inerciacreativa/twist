@@ -19,7 +19,7 @@ class Title implements AssetsInterface
 	private $title = [];
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(Document $dom): void
 	{
@@ -33,7 +33,7 @@ class Title implements AssetsInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function all(): array
 	{

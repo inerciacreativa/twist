@@ -12,6 +12,8 @@ use Twist\Model\ModelInterface;
  * @package Twist\Model\Post
  *
  * @property Post[] $models
+ *
+ * @method Post|null offsetGet($id)
  */
 class Iterator extends CollectionIterator
 {
@@ -25,7 +27,7 @@ class Iterator extends CollectionIterator
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function rewind(): void
 	{
@@ -34,7 +36,7 @@ class Iterator extends CollectionIterator
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function valid(): bool
 	{
@@ -48,7 +50,8 @@ class Iterator extends CollectionIterator
 	}
 
 	/**
-	 * @return null|Post
+	 * @return Post|null
+	 *
 	 * @throws AppException
 	 */
 	public function current(): ?ModelInterface

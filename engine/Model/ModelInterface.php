@@ -7,7 +7,7 @@ namespace Twist\Model;
  *
  * @package Twist\Model
  */
-interface ModelInterface extends HasChildrenInterface, HasParentInterface, IdentifiableInterface
+interface ModelInterface extends IdentifiableInterface
 {
 
 }

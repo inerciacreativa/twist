@@ -75,7 +75,7 @@ class Builder extends Walker_Nav_Menu
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function display_element($item, &$children_elements, $max_depth, $depth, $arguments, &$output): void
 	{
@@ -89,7 +89,7 @@ class Builder extends Walker_Nav_Menu
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function start_el(&$output, $item, $depth = 0, $arguments = [], $id = 0): void
 	{
@@ -99,7 +99,7 @@ class Builder extends Walker_Nav_Menu
 			'id'      => $item->ID,
 			'title'   => $this->getTitle($item, $arguments, $depth),
 			'current' => $item->current,
-			'class'   => $this->getClasses($item, $arguments, $depth),
+			'class'   => $this->getClasses($item),
 			'href'    => $item->url,
 			'rel'     => $item->xfn,
 		]);
@@ -114,14 +114,14 @@ class Builder extends Walker_Nav_Menu
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function end_el(&$output, $item, $depth = 0, $arguments = []): void
 	{
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function start_lvl(&$output, $depth = 0, $arguments = []): void
 	{
@@ -129,7 +129,7 @@ class Builder extends Walker_Nav_Menu
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 * @noinspection NullPointerExceptionInspection
 	 */
 	public function end_lvl(&$output, $depth = 0, $arguments = []): void
@@ -157,12 +157,10 @@ class Builder extends Walker_Nav_Menu
 
 	/**
 	 * @param object $item
-	 * @param object $arguments
-	 * @param int    $depth
 	 *
 	 * @return Classes
 	 */
-	protected function getClasses(object $item, object $arguments, int $depth): Classes
+	protected function getClasses(object $item): Classes
 	{
 		$classes = empty($item->classes) ? [] : (array) $item->classes;
 		$classes = Classes::make($classes)
@@ -212,6 +210,7 @@ class Builder extends Walker_Nav_Menu
 	 * @param object $arguments
 	 *
 	 * @return bool
+	 * @noinspection SqlResolve
 	 */
 	protected function hasChildrenTerms(object $item, object $arguments): bool
 	{
@@ -221,7 +220,7 @@ class Builder extends Walker_Nav_Menu
 			return false;
 		}
 
-		$query = $wpdb->prepare(/** @lang text */ "SELECT COUNT(*) FROM $wpdb->term_taxonomy WHERE parent = %d", $item->object_id);
+		$query = $wpdb->prepare("SELECT COUNT(*) FROM $wpdb->term_taxonomy WHERE parent = %d", $item->object_id);
 		$check = $wpdb->get_results($query);
 
 		return ($check) ? true : false;

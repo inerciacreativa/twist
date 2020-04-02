@@ -30,7 +30,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function count(): int
 	{
@@ -38,7 +38,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function seek($position): void
 	{
@@ -59,7 +59,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function rewind(): void
 	{
@@ -67,7 +67,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function current(): ?ModelInterface
 	{
@@ -75,7 +75,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function key(): ?int
 	{
@@ -83,7 +83,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function next(): void
 	{
@@ -91,7 +91,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function valid(): bool
 	{
@@ -99,7 +99,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function offsetExists($id): bool
 	{
@@ -107,7 +107,7 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function offsetGet($id): ?ModelInterface
 	{
@@ -115,14 +115,14 @@ class CollectionIterator implements CollectionIteratorInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function offsetSet($id, $model): void
 	{
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function offsetUnset($id): void
 	{

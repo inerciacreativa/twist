@@ -25,7 +25,7 @@ class Links implements AssetsInterface
 	private $styles = [];
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(Document $dom): void
 	{
@@ -60,7 +60,7 @@ class Links implements AssetsInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function all(): array
 	{

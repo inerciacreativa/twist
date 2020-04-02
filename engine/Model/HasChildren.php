@@ -32,7 +32,7 @@ trait HasChildren
 	}
 
 	/**
-	 * @return null|CollectionInterface
+	 * @return CollectionInterface|null
 	 */
 	public function children(): ?CollectionInterface
 	{

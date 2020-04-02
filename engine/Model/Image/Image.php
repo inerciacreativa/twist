@@ -7,7 +7,8 @@ use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
 use Twist\Library\Support\Macroable;
 use Twist\Library\Support\Url;
-use Twist\Model\Model;
+use Twist\Model\HasParent;
+use Twist\Model\HasParentInterface;
 use Twist\Model\ModelInterface;
 use Twist\Model\Post\Post;
 use WP_Post;
@@ -18,8 +19,10 @@ use wpdb;
  *
  * @package Twist\Model\Image
  */
-class Image extends Model
+class Image implements ModelInterface, HasParentInterface
 {
+
+	use HasParent;
 
 	use Macroable;
 
@@ -99,7 +102,7 @@ class Image extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function id(): int
 	{
@@ -107,7 +110,7 @@ class Image extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function has_parent(): bool
 	{
@@ -128,14 +131,6 @@ class Image extends Model
 		}
 
 		return $this->parent;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function has_children(): bool
-	{
-		return false;
 	}
 
 	/**

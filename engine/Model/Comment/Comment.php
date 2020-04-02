@@ -8,7 +8,11 @@ use Twist\Library\Html\Classes;
 use Twist\Library\Support\Arr;
 use Twist\Library\Support\Str;
 use Twist\Model\CollectionInterface;
-use Twist\Model\Model;
+use Twist\Model\HasChildren;
+use Twist\Model\HasChildrenInterface;
+use Twist\Model\HasParent;
+use Twist\Model\HasParentInterface;
+use Twist\Model\ModelInterface;
 use Twist\Model\Post\Post;
 use Twist\Model\Site\Site;
 use Twist\Model\User\User;
@@ -19,8 +23,12 @@ use WP_Comment;
  *
  * @package Twist\Model\Comment
  */
-class Comment extends Model
+class Comment implements ModelInterface, HasParentInterface, HasChildrenInterface
 {
+
+	use HasParent;
+
+	use HasChildren;
 
 	/**
 	 * @var Comments
@@ -58,12 +66,13 @@ class Comment extends Model
 	 * @param Comments   $comments
 	 * @param WP_Comment $comment
 	 * @param int        $depth
+	 * @param int        $max_depth
 	 */
 	public function __construct(Comments $comments, WP_Comment $comment, int $depth, int $max_depth)
 	{
-		$this->comments = $comments;
-		$this->comment  = $comment;
-		$this->depth    = $depth;
+		$this->comments  = $comments;
+		$this->comment   = $comment;
+		$this->depth     = $depth;
 		$this->max_depth = $max_depth;
 
 		if ($comments->has_parent()) {
@@ -72,7 +81,9 @@ class Comment extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
+	 *
+	 * @return Comments
 	 */
 	public function children(): ?CollectionInterface
 	{

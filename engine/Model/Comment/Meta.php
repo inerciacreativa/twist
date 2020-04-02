@@ -8,6 +8,9 @@ use Twist\Model\Meta\Meta as BaseMeta;
  * Class Meta
  *
  * @package Twist\Model\Comment
+ *
+ * @method set_parent(Comment $parent)
+ * @method Comment parent()
  */
 class Meta extends BaseMeta
 {

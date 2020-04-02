@@ -15,7 +15,7 @@ class Avatar
 {
 
 	/**
-	 * @var UserInterface
+	 * @var User
 	 */
 	private $user;
 
@@ -24,7 +24,12 @@ class Avatar
 	 */
 	private $avatar = [];
 
-	public function __construct(UserInterface $user)
+	/**
+	 * Avatar constructor.
+	 *
+	 * @param User $user
+	 */
+	public function __construct(User $user)
 	{
 		$this->user = $user;
 	}

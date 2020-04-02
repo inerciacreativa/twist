@@ -31,7 +31,9 @@ class Taxonomies extends Enumerable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
+	 *
+	 * @return Terms|null
 	 */
 	public function get(string $key, $default = null): ?Terms
 	{
@@ -55,7 +57,7 @@ class Taxonomies extends Enumerable
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function getValues(): array
 	{

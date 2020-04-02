@@ -8,6 +8,9 @@ use Twist\Model\Meta\Meta as BaseMeta;
  * Class Meta
  *
  * @package Twist\Model\Taxonomy
+ *
+ * @method set_parent(Term $parent)
+ * @method Term parent()
  */
 class Meta extends BaseMeta
 {

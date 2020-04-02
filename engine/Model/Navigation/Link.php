@@ -3,6 +3,8 @@
 namespace Twist\Model\Navigation;
 
 use Twist\Model\CollectionInterface;
+use Twist\Model\HasChildren;
+use Twist\Model\HasChildrenInterface;
 use Twist\Model\Link\Link as BaseLink;
 use Twist\Model\Link\Links;
 
@@ -13,11 +15,13 @@ use Twist\Model\Link\Links;
  *
  * @method Link|null parent()
  */
-class Link extends BaseLink
+class Link extends BaseLink implements HasChildrenInterface
 {
 
+	use HasChildren;
+
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function __construct(array $properties)
 	{
@@ -29,7 +33,7 @@ class Link extends BaseLink
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 *
 	 * @return Links
 	 */
@@ -43,7 +47,7 @@ class Link extends BaseLink
 	}
 
 	/**
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function rel(): ?string
 	{

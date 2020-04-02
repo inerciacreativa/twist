@@ -5,15 +5,18 @@ namespace Twist\Model\Image;
 use Twist\Model\Meta\Meta as BaseMeta;
 
 /**
- * Class ImageMeta
+ * Class Meta
  *
  * @package Twist\Model\Image
+ *
+ * @method set_parent(Image $parent)
+ * @method Image parent()
  */
 class Meta extends BaseMeta
 {
 
 	/**
-	 * ImageMeta constructor.
+	 * Meta constructor.
 	 *
 	 * @param Image $image
 	 */

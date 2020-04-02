@@ -6,7 +6,11 @@ use Twist\App\AppException;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Arr;
 use Twist\Model\CollectionInterface;
-use Twist\Model\Model;
+use Twist\Model\HasChildren;
+use Twist\Model\HasChildrenInterface;
+use Twist\Model\HasParent;
+use Twist\Model\HasParentInterface;
+use Twist\Model\ModelInterface;
 use Twist\Model\Post\Query;
 use WP_Term;
 
@@ -15,10 +19,14 @@ use WP_Term;
  *
  * @package Twist\Model\Taxonomy
  *
- * @method null|Term parent()
+ * @method Term|null parent()
  */
-class Term extends Model
+class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 {
+
+	use HasParent;
+
+	use HasChildren;
 
 	/**
 	 * @var TaxonomyInterface
@@ -63,7 +71,7 @@ class Term extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 *
 	 * @return Terms
 	 */

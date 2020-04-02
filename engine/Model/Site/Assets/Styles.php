@@ -21,7 +21,7 @@ class Styles implements AssetsInterface
 	private $styles = [];
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function get(Document $dom): void
 	{
@@ -49,7 +49,7 @@ class Styles implements AssetsInterface
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function all(): array
 	{

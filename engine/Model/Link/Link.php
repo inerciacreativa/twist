@@ -5,16 +5,21 @@ namespace Twist\Model\Link;
 use Twist\Library\Html\Attributes;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Arr;
-use Twist\Model\Model;
+use Twist\Model\HasParent;
+use Twist\Model\HasParentInterface;
+use Twist\Model\ModelInterface;
 
 /**
  * Class Link
  *
  * @package Twist\Model\Link
  *
+ * @method Link|null parent()
  */
-abstract class Link extends Model
+abstract class Link implements ModelInterface, HasParentInterface
 {
+
+	use HasParent;
 
 	/**
 	 * @var int
@@ -58,7 +63,7 @@ abstract class Link extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
 	public function id(): int
 	{
@@ -74,7 +79,7 @@ abstract class Link extends Model
 	}
 
 	/**
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function url(): ?string
 	{

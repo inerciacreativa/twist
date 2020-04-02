@@ -2,8 +2,6 @@
 
 namespace Twist\Model\User;
 
-use Twist\Library\Support\Arr;
-use Twist\Library\Support\Str;
 use Twist\Library\Support\Url;
 use Twist\Model\Enumerable;
 
@@ -18,31 +16,70 @@ class Profiles extends Enumerable
 	/**
 	 * Profiles constructor.
 	 *
-	 * @param User $user
+	 * @param UserInterface $user
 	 */
-	public function __construct(User $user)
+	public function __construct(UserInterface $user)
 	{
-		if (!$user->exists()) {
-			return;
-		}
+		$methods  = $this->getMethods();
+		$profiles = $this->getProfiles($methods, $user);
 
-		$this->fill(Arr::map(wp_get_user_contact_methods(), static function (string $title, string $name) use ($user) {
+		$this->fill($profiles);
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getMethods(): array
+	{
+		$methods = array_keys(wp_get_user_contact_methods());
+
+		return array_combine($methods, $methods);
+	}
+
+	/**
+	 * @param array         $methods
+	 * @param UserInterface $user
+	 *
+	 * @return array
+	 *
+	 * @noinspection NullPointerExceptionInspection
+	 */
+	private function getProfiles(array $methods, UserInterface $user): array
+	{
+		$profiles = array_map(function (string $name) use ($user) {
 			$url = $user->meta()->get($name);
 
-			if ($name === 'twitter') {
-				if (Str::startsWith($url, '@')) {
-					$url = 'https://twitter.com/' . ltrim($url, '@');
-				} else if (!Str::startsWith($url, 'http')) {
-					$url = 'https://twitter.com/' . $url;
-				}
-
-				$url = Url::parse($url);
-				$url->scheme = 'https';
-				$url->host = 'twitter.com';
+			if (empty($url)) {
+				return null;
 			}
 
-			return compact('title', 'url');
-		}));
+			if ($name === 'twitter') {
+				$url = $this->getTwitterUrl($url);
+			}
+
+			return $url;
+		}, $methods);
+
+		return array_filter($profiles);
+	}
+
+	/**
+	 * @param string $handle
+	 *
+	 * @return string
+	 */
+	private function getTwitterUrl(string $handle): string
+	{
+		if (strpos($handle, '@') === 0) {
+			$handle = ltrim($handle, '@');
+		}
+
+		$url         = Url::parse($handle);
+		$url->scheme = 'https';
+		$url->host   = 'twitter.com';
+		$url->query  = null;
+
+		return $url;
 	}
 
 }
