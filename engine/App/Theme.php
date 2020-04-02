@@ -242,6 +242,7 @@ class Theme
 		$this->setConfig();
 		$this->loadLanguages();
 		$this->addThemeSupport();
+		$this->removeLinkManager();
 
 		$this->app->boot();
 	}
@@ -330,6 +331,22 @@ class Theme
 
 		if (!empty($this->menus)) {
 			register_nav_menus($this->menus);
+		}
+	}
+
+	/**
+	 * Remove link manager.
+	 */
+	protected function removeLinkManager(): void
+	{
+		if (!Twist::isAdmin()) {
+			return;
+		}
+
+		$enabled = get_option('link_manager_enabled');
+
+		if ($enabled !== 0) {
+			update_option('link_manager_enabled', 0);
 		}
 	}
 
