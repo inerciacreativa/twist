@@ -101,6 +101,14 @@ class Twist
 	}
 
 	/**
+	 * @return bool
+	 */
+	final public static function isAdmin(): bool
+	{
+		return is_admin();
+	}
+
+	/**
 	 * @return App
 	 */
 	private static function create(): App
