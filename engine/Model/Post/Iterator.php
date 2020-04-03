@@ -29,15 +29,6 @@ class Iterator extends CollectionIterator
 	/**
 	 * @inheritDoc
 	 */
-	public function rewind(): void
-	{
-		parent::rewind();
-		$this->reset();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public function valid(): bool
 	{
 		$valid = parent::valid();
