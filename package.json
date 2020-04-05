@@ -20,7 +20,7 @@
 		"url": "https://inerciacreativa.com/"
 	},
 	"engines": {
-		"node": ">= 8.10.0 || >= 10.13.0"
+		"node": ">= 10.13.0"
 	},
 	"devDependencies": {
 		"redukt": "^2.3.0"
