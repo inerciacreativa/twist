@@ -23,7 +23,7 @@
 		"node": ">= 8.10.0 || >= 10.13.0"
 	},
 	"devDependencies": {
-		"redukt": "^2.2.1"
+		"redukt": "^2.3.0"
 	},
 	"dependencies": {
 		"jquery": "^3.4.1",
