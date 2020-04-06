@@ -40,7 +40,7 @@ class Navigation
 		$arguments = $this->getArguments($menu);
 		$items     = $this->getItems($arguments);
 
-		return Builder::getLinks($items, $arguments);
+		return NavigationBuilder::getLinks($items, $arguments);
 	}
 
 	/**

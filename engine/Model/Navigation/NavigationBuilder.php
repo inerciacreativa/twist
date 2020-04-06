@@ -4,7 +4,6 @@ namespace Twist\Model\Navigation;
 
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
-use Twist\Library\Html\Classes;
 use Twist\Model\Link\Links;
 use Twist\Model\Taxonomy\Taxonomy;
 use Twist\Model\Taxonomy\Term;
@@ -15,7 +14,7 @@ use Walker_Nav_Menu;
  *
  * @package Twist\Model\Navigation
  */
-class Builder extends Walker_Nav_Menu
+class NavigationBuilder extends Walker_Nav_Menu
 {
 
 	/**
@@ -29,21 +28,9 @@ class Builder extends Walker_Nav_Menu
 	protected $links;
 
 	/**
-	 * @var Link
+	 * @var NavigationLink
 	 */
 	protected $link;
-
-	/**
-	 * @var array
-	 */
-	protected $classes = [
-		'current-menu-item'         => 'is-current',
-		'current-menu-parent'       => 'is-current-parent',
-		'current-category-parent'   => 'is-current-parent',
-		'current-menu-ancestor'     => 'is-current-parent',
-		'current-category-ancestor' => 'is-current-parent',
-		'has-children'              => 'has-dropdown',
-	];
 
 	/**
 	 * @param array  $items
@@ -95,20 +82,16 @@ class Builder extends Walker_Nav_Menu
 	{
 		$arguments = Hook::apply('nav_menu_item_args', $arguments, $item, $depth);
 
-		$link = new Link([
+		$link = new NavigationLink([
 			'id'      => $item->ID,
 			'title'   => $this->getTitle($item, $arguments, $depth),
 			'current' => $item->current,
-			'class'   => $this->getClasses($item),
+			'class'   => $this->getClasses($item, $arguments, $depth),
 			'href'    => $item->url,
 			'rel'     => $item->xfn,
-		]);
+		], $this->links->has_parent() ? $this->links->parent() : null);
 
 		$this->link = $item->has_children ? $this->addChildrenTerms($link, $item) : $link;
-
-		if ($this->links->has_parent()) {
-			$this->link->set_parent($this->links->parent());
-		}
 
 		$this->links->add($this->link);
 	}
@@ -157,47 +140,43 @@ class Builder extends Walker_Nav_Menu
 
 	/**
 	 * @param object $item
+	 * @param object $arguments
+	 * @param int    $depth
 	 *
-	 * @return Classes
+	 * @return array
 	 */
-	protected function getClasses(object $item): Classes
+	protected function getClasses(object $item, object $arguments, int $depth): array
 	{
 		$classes = empty($item->classes) ? [] : (array) $item->classes;
-		$classes = Classes::make($classes)
-						  ->only(array_keys($this->classes))
-						  ->replace(array_keys($this->classes), $this->classes);
+		$classes = Hook::apply('nav_menu_css_class', array_filter($classes), $item, $arguments, $depth);
 
 		return $classes;
 	}
 
 	/**
-	 * @param Link   $link
-	 * @param object $item
+	 * @param NavigationLink $link
+	 * @param object         $item
 	 *
-	 * @return Link
+	 * @return NavigationLink
 	 * @noinspection NullPointerExceptionInspection
 	 */
-	protected function addChildrenTerms(Link $link, object $item): Link
+	protected function addChildrenTerms(NavigationLink $link, object $item): NavigationLink
 	{
 		try {
 			$taxonomy = new Taxonomy($item->object);
 			$terms    = $taxonomy->terms(['child_of' => $item->object_id]);
 
-			$link->classes()->add('has-dropdown');
-
 			/** @var Term $term */
 			foreach ($terms as $term) {
-				if ($term->is_current()) {
-					$link->classes()->add('is-current-parent');
-				}
-
-				$link->children()->add(new Link([
+				$child = new NavigationLink([
 					'id'      => $term->id(),
 					'title'   => $term->name(),
 					'href'    => $term->link(),
-					'class'   => $term->classes()->only($this->classes),
+					'class'   => $term->is_current() ? ['current-menu-item'] : [],
 					'current' => $term->is_current(),
-				]));
+				], $link);
+
+				$link->children()->add($child);
 			}
 		} catch (AppException $exception) {
 		}

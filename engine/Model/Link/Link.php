@@ -5,21 +5,14 @@ namespace Twist\Model\Link;
 use Twist\Library\Html\Attributes;
 use Twist\Library\Html\Classes;
 use Twist\Library\Support\Arr;
-use Twist\Model\HasParent;
-use Twist\Model\HasParentInterface;
-use Twist\Model\ModelInterface;
 
 /**
  * Class Link
  *
  * @package Twist\Model\Link
- *
- * @method Link|null parent()
  */
-abstract class Link implements ModelInterface, HasParentInterface
+abstract class Link implements LinkInterface
 {
-
-	use HasParent;
 
 	/**
 	 * @var int
@@ -59,7 +52,7 @@ abstract class Link implements ModelInterface, HasParentInterface
 		$this->id         = Arr::pull($properties, 'id');
 		$this->title      = Arr::pull($properties, 'title');
 		$this->current    = Arr::pull($properties, 'current');
-		$this->attributes = new Attributes($properties);
+		$this->attributes = $this->getAttributes($properties);
 	}
 
 	/**
@@ -71,7 +64,7 @@ abstract class Link implements ModelInterface, HasParentInterface
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function title(): string
 	{
@@ -79,7 +72,7 @@ abstract class Link implements ModelInterface, HasParentInterface
 	}
 
 	/**
-	 * @return string|null
+	 * @inheritDoc
 	 */
 	public function url(): ?string
 	{
@@ -87,7 +80,7 @@ abstract class Link implements ModelInterface, HasParentInterface
 	}
 
 	/**
-	 * @return Classes
+	 * @inheritDoc
 	 */
 	public function classes(): Classes
 	{
@@ -95,7 +88,7 @@ abstract class Link implements ModelInterface, HasParentInterface
 	}
 
 	/**
-	 * @return Attributes
+	 * @inheritDoc
 	 */
 	public function attributes(): Attributes
 	{
@@ -103,7 +96,7 @@ abstract class Link implements ModelInterface, HasParentInterface
 	}
 
 	/**
-	 * @return bool
+	 * @inheritDoc
 	 */
 	public function is_disabled(): bool
 	{
@@ -111,11 +104,30 @@ abstract class Link implements ModelInterface, HasParentInterface
 	}
 
 	/**
-	 * @return bool
+	 * @inheritDoc
 	 */
 	public function is_current(): bool
 	{
 		return $this->current;
 	}
+
+	/**
+	 * @param array $attributes
+	 *
+	 * @return Attributes
+	 */
+	protected function getAttributes(array $attributes): Attributes
+	{
+		$attributes['class'] = $this->getClasses($attributes['class']);
+
+		return new Attributes($attributes);
+	}
+
+	/**
+	 * @param array $classes
+	 *
+	 * @return Classes
+	 */
+	abstract protected function getClasses(array $classes): Classes;
 
 }

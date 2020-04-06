@@ -85,37 +85,25 @@ abstract class Pagination implements PaginationInterface
 	 * @param int    $index
 	 * @param string $item
 	 *
-	 * @return Link
+	 * @return PaginationLink
 	 *
 	 * @noinspection NullPointerExceptionInspection
 	 */
-	protected function getLink(int $index, string $item): Link
+	protected function getLink(int $index, string $item): PaginationLink
 	{
 		$tag     = Tag::parse(Str::fromEntities($item));
 		$title   = $tag->content();
-		$classes = $this->getClasses($tag['class']);
+		$classes = $tag->classes();
 		$label   = $this->getLabel($title, $classes);
 
-		return new Link([
+		return new PaginationLink([
 			'id'         => $index,
 			'title'      => $title,
-			'current'    => $classes->has('is-current'),
-			'class'      => $classes,
+			'current'    => $classes->has('current'),
+			'class'      => $classes->all(),
 			'href'       => $tag['href'],
 			'aria-label' => $label,
 		]);
-	}
-
-	/**
-	 * @param array $classes
-	 *
-	 * @return Classes
-	 */
-	protected function getClasses(array $classes): Classes
-	{
-		return Classes::make($classes)
-					  ->only(array_keys($this->classes))
-					  ->replace(array_keys($this->classes), $this->classes);
 	}
 
 	/**
@@ -128,13 +116,13 @@ abstract class Pagination implements PaginationInterface
 	{
 		$label = sprintf(__('Goto page %s', 'twist'), $title);
 
-		if ($classes->has('is-prev')) {
+		if ($classes->has('prev')) {
 			$label = __('Goto previous page', 'twist');
-		} else if ($classes->has('is-next')) {
+		} else if ($classes->has('next')) {
 			$label = __('Goto next page', 'twist');
-		} else if ($classes->has('is-current')) {
+		} else if ($classes->has('current')) {
 			$label = sprintf(__('Page %s', 'twist'), $title);
-		} else if ($classes->has('is-dots')) {
+		} else if ($classes->has('dots')) {
 			$label = null;
 		}
 
