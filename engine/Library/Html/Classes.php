@@ -4,6 +4,7 @@ namespace Twist\Library\Html;
 
 use ArrayAccess;
 use Countable;
+use Closure;
 use Twist\Library\Support\Arr;
 
 /**
@@ -91,13 +92,13 @@ class Classes implements ArrayAccess, Countable
 	}
 
 	/**
-	 * @param array $classes
+	 * @param string|array $classes
 	 *
 	 * @return $this
 	 */
-	public function remove(array $classes): self
+	public function remove($classes): self
 	{
-		foreach ($classes as $class) {
+		foreach ((array) $classes as $class) {
 			if (($index = array_search($class, $this->classes, true)) !== false) {
 				unset($this->classes[$index]);
 			}
@@ -147,6 +148,30 @@ class Classes implements ArrayAccess, Countable
 	public function replace($search, $replace): self
 	{
 		$this->classes = self::parse(str_replace($search, $replace, $this->render()));
+
+		return $this;
+	}
+
+	/**
+	 * @param callable $filter
+	 *
+	 * @return $this
+	 */
+	public function filter(callable $filter): self
+	{
+		$this->classes = array_filter($this->classes, $filter);
+
+		return $this;
+	}
+
+	/**
+	 * @param callable $transform
+	 *
+	 * @return $this
+	 */
+	public function transform(callable $transform): self
+	{
+		$this->classes = self::parse(array_map($transform, $this->classes));
 
 		return $this;
 	}
@@ -255,11 +280,11 @@ class Classes implements ArrayAccess, Countable
 		}
 
 		if (is_string($value)) {
-			return self::filter(self::parseString($value));
+			return self::filterArray(self::parseString($value));
 		}
 
 		if (is_array($value)) {
-			return self::filter(self::parseArray($value));
+			return self::filterArray(self::parseArray($value));
 		}
 
 		if ($value instanceof self) {
@@ -298,7 +323,7 @@ class Classes implements ArrayAccess, Countable
 	 *
 	 * @return array
 	 */
-	protected static function filter(array $values): array
+	protected static function filterArray(array $values): array
 	{
 		$values = array_map([self::class, 'sanitize'], $values);
 		$values = array_unique($values);
