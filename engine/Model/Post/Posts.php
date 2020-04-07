@@ -55,11 +55,11 @@ class Posts extends Collection
 	}
 
 	/**
-	 * @return Iterator
+	 * @return PostsIterator
 	 */
 	public function getIterator(): CollectionIteratorInterface
 	{
-		return new Iterator($this->models);
+		return new PostsIterator($this->models);
 	}
 
 }

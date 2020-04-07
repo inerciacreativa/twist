@@ -7,11 +7,11 @@ use Twist\Library\Html\Tag;
 use Twist\Library\Support\Str;
 
 /**
- * Class Avatar
+ * Class UserAvatar
  *
  * @package Twist\Model\User
  */
-class Avatar
+class UserAvatar
 {
 
 	/**

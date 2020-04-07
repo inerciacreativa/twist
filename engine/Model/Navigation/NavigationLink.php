@@ -8,10 +8,9 @@ use Twist\Model\CollectionInterface;
 use Twist\Model\HasChildren;
 use Twist\Model\HasParent;
 use Twist\Model\Link\Link;
-use Twist\Model\Link\Links;
 
 /**
- * Class Link
+ * Class NavigationLink
  *
  * @package Twist\Model\Navigation
  *
@@ -55,12 +54,12 @@ class NavigationLink extends Link implements NavigationLinkInterface
 	/**
 	 * @inheritDoc
 	 *
-	 * @return Links
+	 * @return NavigationLinks
 	 */
 	public function children(): ?CollectionInterface
 	{
 		if ($this->children === null) {
-			$this->set_children(new Links($this));
+			$this->set_children(new NavigationLinks($this));
 			$this->classes()->add('has-dropdown');
 		}
 

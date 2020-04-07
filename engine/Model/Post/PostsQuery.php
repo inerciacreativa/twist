@@ -16,11 +16,11 @@ use WP_Query;
  *
  * @package Twist\Model\Post
  */
-class Query implements IterableInterface, HasPaginationInterface
+class PostsQuery implements IterableInterface, HasPaginationInterface
 {
 
 	/**
-	 * @var Query[]
+	 * @var PostsQuery[]
 	 */
 	static private $queries = [];
 
@@ -35,16 +35,16 @@ class Query implements IterableInterface, HasPaginationInterface
 	private $posts;
 
 	/**
-	 * @var Pagination
+	 * @var PostsPagination
 	 */
 	private $pagination;
 
 	/**
 	 * @param array $query
 	 *
-	 * @return Query
+	 * @return PostsQuery
 	 */
-	private static function query(array $query = []): Query
+	private static function query(array $query = []): PostsQuery
 	{
 		$id = json_encode($query);
 
@@ -56,11 +56,11 @@ class Query implements IterableInterface, HasPaginationInterface
 	}
 
 	/**
-	 * @return Query
+	 * @return PostsQuery
 	 *
 	 * @throws AppException
 	 */
-	public static function main(): Query
+	public static function main(): PostsQuery
 	{
 		if (!Hook::fired(Action::QUERY)) {
 			new AppException('The main query has not been parsed yet.');
@@ -73,9 +73,9 @@ class Query implements IterableInterface, HasPaginationInterface
 	 * @param array $query
 	 * @param bool  $defaults
 	 *
-	 * @return Query
+	 * @return PostsQuery
 	 */
-	public static function make(array $query, bool $defaults = true): Query
+	public static function make(array $query, bool $defaults = true): PostsQuery
 	{
 		if ($defaults) {
 			$query = array_merge($query, [
@@ -110,9 +110,9 @@ class Query implements IterableInterface, HasPaginationInterface
 	 * @param int   $number
 	 * @param array $query
 	 *
-	 * @return Query
+	 * @return PostsQuery
 	 */
-	public static function latest(int $number = 5, array $query = []): Query
+	public static function latest(int $number = 5, array $query = []): PostsQuery
 	{
 		$parameters = array_merge([
 			'orderby' => 'post_date',
@@ -128,9 +128,9 @@ class Query implements IterableInterface, HasPaginationInterface
 	 * @param string $search
 	 * @param array  $query
 	 *
-	 * @return Query
+	 * @return PostsQuery
 	 */
-	public static function search(string $search = '', array $query = []): Query
+	public static function search(string $search = '', array $query = []): PostsQuery
 	{
 		global $wp;
 
@@ -580,7 +580,7 @@ class Query implements IterableInterface, HasPaginationInterface
 	 */
 	public function pagination(): PaginationInterface
 	{
-		return $this->pagination ?? $this->pagination = new Pagination($this);
+		return $this->pagination ?? $this->pagination = new PostsPagination($this);
 	}
 
 }

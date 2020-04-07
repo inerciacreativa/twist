@@ -5,11 +5,11 @@ namespace Twist\Model\Comment;
 use Walker_Comment;
 
 /**
- * Class Builder
+ * Class CommentsBuilder
  *
  * @package Twist\Model\Comment
  */
-class Builder extends Walker_Comment
+class CommentsBuilder extends Walker_Comment
 {
 
 	/**
@@ -35,9 +35,9 @@ class Builder extends Walker_Comment
 	/**
 	 * Walker constructor.
 	 *
-	 * @param Query $query
+	 * @param CommentsQuery $query
 	 */
-	public function __construct(Query $query)
+	public function __construct(CommentsQuery $query)
 	{
 		$this->root = $this->comments = new Comments($query);
 	}

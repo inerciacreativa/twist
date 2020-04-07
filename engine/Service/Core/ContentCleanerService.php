@@ -3,8 +3,8 @@
 namespace Twist\Service\Core;
 
 use Twist\Library\Dom\Document;
-use Twist\Model\Post\Query;
 use Twist\Service\Service;
+use Twist\Twist;
 
 /**
  * Class ContentCleanerService
@@ -19,7 +19,7 @@ class ContentCleanerService extends Service
 	 */
 	public function boot(): bool
 	{
-		return $this->config('enable') && !Query::is_admin();
+		return $this->config('enable') && !Twist::isAdmin();
 	}
 
 	/**
@@ -28,8 +28,8 @@ class ContentCleanerService extends Service
 	protected function init(): void
 	{
 		$this->hook()
-		     ->before('twist_post_content', 'clean')
-		     ->before('twist_comment_content', 'clean');
+			 ->before('twist_post_content', 'clean')
+			 ->before('twist_comment_content', 'clean');
 	}
 
 	/**

@@ -6,11 +6,11 @@ use Twist\Library\Support\Url;
 use Twist\Model\Enumerable;
 
 /**
- * Class Profiles
+ * Class UserProfiles
  *
  * @package Twist\Model\User
  */
-class Profiles extends Enumerable
+class UserProfiles extends Enumerable
 {
 
 	/**

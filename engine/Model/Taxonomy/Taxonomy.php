@@ -3,7 +3,7 @@
 namespace Twist\Model\Taxonomy;
 
 use Twist\App\AppException;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostsQuery;
 use WP_Taxonomy;
 use WP_Term;
 
@@ -81,17 +81,17 @@ class Taxonomy implements TaxonomyInterface
 			switch ($taxonomy) {
 				case 'category':
 					$function = static function ($id) {
-						return Query::main()->is_category($id);
+						return PostsQuery::main()->is_category($id);
 					};
 					break;
 				case 'post_tag':
 					$function = static function ($id) {
-						return Query::main()->is_tag($id);
+						return PostsQuery::main()->is_tag($id);
 					};
 					break;
 				default:
 					$function = static function ($id) use ($taxonomy) {
-						return Query::main()->is_taxonomy($taxonomy, $id);
+						return PostsQuery::main()->is_taxonomy($taxonomy, $id);
 					};
 			}
 		}
@@ -107,9 +107,9 @@ class Taxonomy implements TaxonomyInterface
 
 		if ($current === null) {
 			try {
-				if ($this->is_current(Query::main()->queried_id())) {
+				if ($this->is_current(PostsQuery::main()->queried_id())) {
 					/** @var WP_Term $term */
-					$term = Query::main()->queried_object();
+					$term = PostsQuery::main()->queried_object();
 
 					$current = new Term($term, $this);
 				}
@@ -136,7 +136,7 @@ class Taxonomy implements TaxonomyInterface
 	{
 		$terms = $this->getTerms('all', $arguments);
 
-		return Builder::getTerms($this, $terms, $arguments);
+		return TermsBuilder::getTerms($this, $terms, $arguments);
 	}
 
 	/**

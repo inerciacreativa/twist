@@ -51,12 +51,12 @@ class Comment implements ModelInterface, HasParentInterface, HasChildrenInterfac
 	private $max_depth;
 
 	/**
-	 * @var Author
+	 * @var CommentAuthor
 	 */
 	private $author;
 
 	/**
-	 * @var Meta
+	 * @var CommentMeta
 	 */
 	private $meta;
 
@@ -368,19 +368,19 @@ class Comment implements ModelInterface, HasParentInterface, HasChildrenInterfac
 	/**
 	 * Returns the author of this comment.
 	 *
-	 * @return Author
+	 * @return CommentAuthor
 	 */
-	public function author(): Author
+	public function author(): CommentAuthor
 	{
-		return $this->author ?? $this->author = new Author($this);
+		return $this->author ?? $this->author = new CommentAuthor($this);
 	}
 
 	/**
-	 * @return Meta
+	 * @return CommentMeta
 	 */
-	public function meta(): Meta
+	public function meta(): CommentMeta
 	{
-		return $this->meta ?? $this->meta = new Meta($this);
+		return $this->meta ?? $this->meta = new CommentMeta($this);
 	}
 
 	/**

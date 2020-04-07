@@ -2,12 +2,12 @@
 
 namespace Twist\Service\Core;
 
-use Twist\Model\Post\Meta;
 use Twist\Model\Post\Post;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostMeta;
 use Twist\Service\Core\ImageSearch\ImageFinder;
 use Twist\Service\Core\ImageSearch\ImageResolver;
 use Twist\Service\Service;
+use Twist\Twist;
 
 /**
  * Class ThumbnailGeneratorService
@@ -27,7 +27,7 @@ class ThumbnailGeneratorService extends Service
 	 */
 	public function boot(): bool
 	{
-		return $this->config('enable') && !Query::is_admin();
+		return $this->config('enable') && !Twist::isAdmin();
 	}
 
 	/**
@@ -39,9 +39,9 @@ class ThumbnailGeneratorService extends Service
 	}
 
 	/**
-	 * @param mixed  $value
-	 * @param string $key
-	 * @param Meta   $meta
+	 * @param mixed    $value
+	 * @param string   $key
+	 * @param PostMeta $meta
 	 *
 	 * @return mixed
 	 */
@@ -67,7 +67,8 @@ class ThumbnailGeneratorService extends Service
 	{
 		$resolver = new ImageResolver($post);
 
-		if (($image = $this->getFinder()->search($resolver)) && $image->set_featured()) {
+		if (($image = $this->getFinder()
+						   ->search($resolver)) && $image->set_featured()) {
 			return $image->id();
 		}
 

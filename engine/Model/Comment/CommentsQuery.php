@@ -9,16 +9,16 @@ use Twist\Model\CollectionIteratorInterface;
 use Twist\Model\Pagination\HasPaginationInterface;
 use Twist\Model\Pagination\PaginationInterface;
 use Twist\Model\Post\Post;
-use Twist\Model\Post\Query as PostQuery;
+use Twist\Model\Post\PostsQuery;
 use Twist\Twist;
 use WP_Query;
 
 /**
- * Class Query
+ * Class CommentsQuery
  *
  * @package Twist\Model\Comment
  */
-class Query implements HasPaginationInterface, IteratorAggregate
+class CommentsQuery implements HasPaginationInterface, IteratorAggregate
 {
 
 	/**
@@ -37,7 +37,7 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	private $comments;
 
 	/**
-	 * @var Pagination
+	 * @var CommentsPagination
 	 */
 	private $pagination;
 
@@ -75,7 +75,7 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	 */
 	private function build(): void
 	{
-		$builder = new Builder($this);
+		$builder = new CommentsBuilder($this);
 
 		if ($this->loaded) {
 			wp_list_comments([
@@ -152,7 +152,7 @@ class Query implements HasPaginationInterface, IteratorAggregate
 
 		if (!isset($per_page)) {
 			try {
-				$per_page = (int) PostQuery::main()->get('comments_per_page');
+				$per_page = (int) PostsQuery::main()->get('comments_per_page');
 			} catch (AppException $exception) {
 				$per_page = 0;
 			}
@@ -185,7 +185,7 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	public function current_page(): int
 	{
 		try {
-			return max(1, (int) PostQuery::main()->get('cpage'));
+			return max(1, (int) PostsQuery::main()->get('cpage'));
 		} catch (AppException $exception) {
 		}
 
@@ -219,11 +219,11 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	 */
 	public function pagination(): PaginationInterface
 	{
-		return $this->pagination ?? $this->pagination = new Pagination($this);
+		return $this->pagination ?? $this->pagination = new CommentsPagination($this);
 	}
 
 	/**
-	 * @return Iterator
+	 * @return CommentsIterator
 	 */
 	public function getIterator(): CollectionIteratorInterface
 	{

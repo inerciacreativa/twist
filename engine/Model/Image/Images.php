@@ -6,7 +6,7 @@ use Twist\App\AppException;
 use Twist\Model\Collection;
 use Twist\Model\CollectionInterface;
 use Twist\Model\Post\Post;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostsQuery;
 
 /**
  * Class Images
@@ -74,7 +74,7 @@ class Images extends Collection
 			'posts_per_page' => -1,
 		]);
 
-		$query = Query::make($parameters, false);
+		$query = PostsQuery::make($parameters, false);
 
 		try {
 			foreach ($query->posts() as $image) {

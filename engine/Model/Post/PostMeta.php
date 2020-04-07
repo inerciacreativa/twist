@@ -2,17 +2,17 @@
 
 namespace Twist\Model\Post;
 
-use Twist\Model\Meta\Meta as BaseMeta;
+use Twist\Model\Meta\Meta;
 
 /**
- * Class Meta
+ * Class PostMeta
  *
  * @package Twist\Model\Post
  *
  * @method set_parent(Post $parent)
  * @method Post parent()
  */
-class Meta extends BaseMeta
+class PostMeta extends Meta
 {
 
 	/**

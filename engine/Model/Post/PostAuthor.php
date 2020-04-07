@@ -7,11 +7,11 @@ use Twist\Model\User\User;
 use WP_User;
 
 /**
- * Class Author
+ * Class PostAuthor
  *
  * @package Twist\Model\Post
  */
-class Author extends User
+class PostAuthor extends User
 {
 
 	/**
@@ -87,7 +87,7 @@ class Author extends User
 	/**
 	 * @inheritDoc
 	 */
-	protected function getQuery(array $query): Query
+	protected function getQuery(array $query): PostsQuery
 	{
 		if ($this->post) {
 			$query['post__not_in'] = [$this->post->id()];

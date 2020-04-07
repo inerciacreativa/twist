@@ -7,11 +7,11 @@ use Twist\Model\Enumerable;
 use Twist\Model\Taxonomy\Taxonomy;
 
 /**
- * Class Taxonomies
+ * Class PostTaxonomies
  *
  * @package Twist\Model\Post
  */
-class Taxonomies extends Enumerable
+class PostTaxonomies extends Enumerable
 {
 
 	/**
@@ -33,9 +33,9 @@ class Taxonomies extends Enumerable
 	/**
 	 * @inheritDoc
 	 *
-	 * @return Terms|null
+	 * @return PostTerms|null
 	 */
-	public function get(string $key, $default = null): ?Terms
+	public function get(string $key, $default = null): ?PostTerms
 	{
 		if (!$this->has($key)) {
 			return null;
@@ -43,9 +43,9 @@ class Taxonomies extends Enumerable
 
 		$terms = parent::get($key);
 
-		if (!($terms instanceof Terms)) {
+		if (!($terms instanceof PostTerms)) {
 			try {
-				$terms = new Terms($this->post, new Taxonomy($key));
+				$terms = new PostTerms($this->post, new Taxonomy($key));
 
 				$this->set($key, $terms);
 			} catch (AppException $exception) {

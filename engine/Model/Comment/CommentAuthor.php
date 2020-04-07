@@ -6,11 +6,11 @@ use Twist\Library\Hook\Hook;
 use Twist\Model\User\User;
 
 /**
- * Class Author
+ * Class CommentAuthor
  *
  * @package Twist\Model\Comment
  */
-class Author extends User
+class CommentAuthor extends User
 {
 
 	/**

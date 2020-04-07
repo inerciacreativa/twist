@@ -2,17 +2,17 @@
 
 namespace Twist\Model\Image;
 
-use Twist\Model\Meta\Meta as BaseMeta;
+use Twist\Model\Meta\Meta;
 
 /**
- * Class Meta
+ * Class ImageMeta
  *
  * @package Twist\Model\Image
  *
  * @method set_parent(Image $parent)
  * @method Image parent()
  */
-class Meta extends BaseMeta
+class ImageMeta extends Meta
 {
 
 	/**

@@ -4,7 +4,7 @@ namespace Twist\Model\User;
 
 use Twist\Library\Html\Tag;
 use Twist\Model\ModelInterface;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostsQuery;
 
 /**
  * Interface UserInterface
@@ -90,14 +90,14 @@ interface UserInterface extends ModelInterface
 	public function edit_link(): ?string;
 
 	/**
-	 * @return Meta|null
+	 * @return UserMeta|null
 	 */
-	public function meta(): ?Meta;
+	public function meta(): ?UserMeta;
 
 	/**
-	 * @return Profiles|null
+	 * @return UserProfiles|null
 	 */
-	public function profiles(): ?Profiles;
+	public function profiles(): ?UserProfiles;
 
 	/**
 	 * @param string|array $type
@@ -111,8 +111,8 @@ interface UserInterface extends ModelInterface
 	 * @param int          $number
 	 * @param string|array $type
 	 *
-	 * @return Query|null
+	 * @return PostsQuery|null
 	 */
-	public function posts(int $number = 10, $type = 'post'): ?Query;
+	public function posts(int $number = 10, $type = 'post'): ?PostsQuery;
 
 }

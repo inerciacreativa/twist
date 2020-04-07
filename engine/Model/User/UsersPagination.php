@@ -3,27 +3,27 @@
 namespace Twist\Model\User;
 
 use Twist\Library\Html\Tag;
-use Twist\Model\Pagination\Pagination as BasePagination;
+use Twist\Model\Pagination\Pagination;
 
 /**
- * Class Pagination
+ * Class UsersPagination
  *
  * @package Twist\Model\User
  */
-class Pagination extends BasePagination
+class UsersPagination extends Pagination
 {
 
 	/**
-	 * @var Query
+	 * @var UsersQuery
 	 */
 	private $query;
 
 	/**
 	 * Pagination constructor.
 	 *
-	 * @param Query $query
+	 * @param UsersQuery $query
 	 */
-	public function __construct(Query $query)
+	public function __construct(UsersQuery $query)
 	{
 		$this->query = $query;
 	}

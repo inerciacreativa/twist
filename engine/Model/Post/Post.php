@@ -11,7 +11,7 @@ use Twist\Library\Support\Arr;
 use Twist\Library\Support\Macroable;
 use Twist\Library\Support\Str;
 use Twist\Model\CollectionInterface;
-use Twist\Model\Comment\Query as CommentQuery;
+use Twist\Model\Comment\CommentsQuery;
 use Twist\Model\HasChildren;
 use Twist\Model\HasChildrenInterface;
 use Twist\Model\HasParent;
@@ -43,22 +43,22 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	private $post;
 
 	/**
-	 * @var Taxonomies
+	 * @var PostTaxonomies
 	 */
 	private $taxonomies;
 
 	/**
-	 * @var Author
+	 * @var PostAuthor
 	 */
 	private $author;
 
 	/**
-	 * @var Meta
+	 * @var PostMeta
 	 */
 	private $meta;
 
 	/**
-	 * @var CommentQuery
+	 * @var CommentsQuery
 	 */
 	private $comments;
 
@@ -236,7 +236,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 		if (!$type || !$type->hierarchical) {
 			$this->has_children = false;
 		} else {
-			$this->has_children = Query::has_children($this);
+			$this->has_children = PostsQuery::has_children($this);
 		}
 
 		return $this->has_children;
@@ -248,7 +248,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	public function children(): ?CollectionInterface
 	{
 		if ($this->children === null && $this->has_children()) {
-			$this->set_children(Query::children($this));
+			$this->set_children(PostsQuery::children($this));
 		}
 
 		return $this->children;
@@ -498,11 +498,11 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	}
 
 	/**
-	 * @return Meta
+	 * @return PostMeta
 	 */
-	public function meta(): Meta
+	public function meta(): PostMeta
 	{
-		return $this->meta ?? $this->meta = new Meta($this);
+		return $this->meta ?? $this->meta = new PostMeta($this);
 	}
 
 	/**
@@ -545,33 +545,33 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	/**
 	 * Retrieve the post {@see Author} object.
 	 *
-	 * @return Author
+	 * @return PostAuthor
 	 */
-	public function author(): Author
+	public function author(): PostAuthor
 	{
-		return $this->author ?? $this->author = new Author((int) $this->post->post_author, $this);
+		return $this->author ?? $this->author = new PostAuthor((int) $this->post->post_author, $this);
 	}
 
 	/**
-	 * @return Taxonomies
+	 * @return PostTaxonomies
 	 */
-	public function taxonomies(): Taxonomies
+	public function taxonomies(): PostTaxonomies
 	{
-		return $this->taxonomies ?? $this->taxonomies = new Taxonomies($this);
+		return $this->taxonomies ?? $this->taxonomies = new PostTaxonomies($this);
 	}
 
 	/**
-	 * @return Terms
+	 * @return PostTerms
 	 */
-	public function categories(): ?Terms
+	public function categories(): ?PostTerms
 	{
 		return $this->taxonomies()->get('category');
 	}
 
 	/**
-	 * @return Terms
+	 * @return PostTerms
 	 */
-	public function tags(): ?Terms
+	public function tags(): ?PostTerms
 	{
 		return $this->taxonomies()->get('post_tag');
 	}
@@ -585,11 +585,11 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	}
 
 	/**
-	 * @return CommentQuery
+	 * @return CommentsQuery
 	 */
-	public function comments(): CommentQuery
+	public function comments(): CommentsQuery
 	{
-		return $this->comments ?? $this->comments = new CommentQuery($this);
+		return $this->comments ?? $this->comments = new CommentsQuery($this);
 	}
 
 	/**
@@ -819,7 +819,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	public function is_preview(): bool
 	{
 		try {
-			return Query::main()->is_preview();
+			return PostsQuery::main()->is_preview();
 		} catch (AppException $exception) {
 			return false;
 		}

@@ -4,13 +4,12 @@ namespace Twist\Model\Navigation;
 
 use Twist\App\AppException;
 use Twist\Library\Hook\Hook;
-use Twist\Model\Link\Links;
 use Twist\Model\Taxonomy\Taxonomy;
 use Twist\Model\Taxonomy\Term;
 use Walker_Nav_Menu;
 
 /**
- * Class Walker
+ * Class NavigationBuilder
  *
  * @package Twist\Model\Navigation
  */
@@ -18,12 +17,12 @@ class NavigationBuilder extends Walker_Nav_Menu
 {
 
 	/**
-	 * @var Links
+	 * @var NavigationLinks
 	 */
 	protected $root;
 
 	/**
-	 * @var Links
+	 * @var NavigationLinks
 	 */
 	protected $links;
 
@@ -36,11 +35,11 @@ class NavigationBuilder extends Walker_Nav_Menu
 	 * @param array  $items
 	 * @param object $arguments
 	 *
-	 * @return Links
+	 * @return NavigationLinks
 	 */
-	public static function getLinks(array $items, object $arguments): Links
+	public static function getLinks(array $items, object $arguments): NavigationLinks
 	{
-		$links = new Links();
+		$links = new NavigationLinks();
 		if (empty($items)) {
 			return $links;
 		}
@@ -54,9 +53,9 @@ class NavigationBuilder extends Walker_Nav_Menu
 	/**
 	 * Walker constructor.
 	 *
-	 * @param Links $links
+	 * @param NavigationLinks $links
 	 */
-	protected function __construct(Links $links)
+	protected function __construct(NavigationLinks $links)
 	{
 		$this->root = $this->links = $links;
 	}

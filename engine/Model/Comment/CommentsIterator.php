@@ -6,7 +6,7 @@ use Twist\Model\CollectionIterator;
 use Twist\Model\ModelInterface;
 
 /**
- * Class Iterator
+ * Class CommentsIterator
  *
  * @package Twist\Model\Comment
  *
@@ -14,7 +14,7 @@ use Twist\Model\ModelInterface;
  *
  * @method Comment|null offsetGet($id)
  */
-class Iterator extends CollectionIterator
+class CommentsIterator extends CollectionIterator
 {
 
 	/**

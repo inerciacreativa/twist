@@ -32,7 +32,7 @@ class Image implements ModelInterface, HasParentInterface
 	protected $image;
 
 	/**
-	 * @var Meta
+	 * @var ImageMeta
 	 */
 	protected $meta;
 
@@ -161,12 +161,12 @@ class Image implements ModelInterface, HasParentInterface
 	}
 
 	/**
-	 * @return Meta
+	 * @return ImageMeta
 	 */
-	public function meta(): Meta
+	public function meta(): ImageMeta
 	{
 		if ($this->meta === null) {
-			$this->meta = new Meta($this);
+			$this->meta = new ImageMeta($this);
 		}
 
 		return $this->meta;

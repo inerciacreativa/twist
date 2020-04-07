@@ -7,7 +7,7 @@ use Twist\Model\CollectionIterator;
 use Twist\Model\ModelInterface;
 
 /**
- * Class Iterator
+ * Class PostsIterator
  *
  * @package Twist\Model\Post
  *
@@ -15,7 +15,7 @@ use Twist\Model\ModelInterface;
  *
  * @method Post|null offsetGet($id)
  */
-class Iterator extends CollectionIterator
+class PostsIterator extends CollectionIterator
 {
 
 	/**

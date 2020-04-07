@@ -9,7 +9,7 @@ use Twist\Library\Support\Macroable;
 use Twist\Model\Link\Links;
 use Twist\Model\Navigation\Navigation;
 use Twist\Model\Post\Post;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostsQuery;
 use Twist\Model\Site\Assets\AssetsGroup;
 use Twist\Model\Taxonomy\Term;
 use Twist\Model\User\User;
@@ -169,41 +169,41 @@ class Site
 	{
 		$classes = Classes::make($class);
 
-		if (Query::main()->is_front_page()) {
+		if (PostsQuery::main()->is_front_page()) {
 			$classes->add('home');
 		}
 
-		if (Query::main()->is_home()) {
+		if (PostsQuery::main()->is_home()) {
 			$classes->add('blog');
 		}
 
-		if (Query::main()->is_archive()) {
+		if (PostsQuery::main()->is_archive()) {
 			$classes->add('archive');
 		}
 
-		if (Query::main()->is_date()) {
+		if (PostsQuery::main()->is_date()) {
 			$classes->add('date');
 		}
 
-		if (Query::main()->is_search()) {
+		if (PostsQuery::main()->is_search()) {
 			$classes->add('search');
-			$classes->add(Query::main()
-							   ->total() > 0 ? 'search-has-results' : 'search-has-no-results');
+			$classes->add(PostsQuery::main()
+									->total() > 0 ? 'search-has-results' : 'search-has-no-results');
 		}
 
-		if (Query::main()->is_404()) {
+		if (PostsQuery::main()->is_404()) {
 			$classes->add('not-found');
 		}
 
-		if (Query::main()->is_paged()) {
+		if (PostsQuery::main()->is_paged()) {
 			$classes->add('paged');
 		}
 
-		if (Query::main()->is_singular()) {
+		if (PostsQuery::main()->is_singular()) {
 			/** @var Post $post */
-			$post = Query::main()->posts()->first();
+			$post = PostsQuery::main()->posts()->first();
 
-			if (Query::main()->is_single()) {
+			if (PostsQuery::main()->is_single()) {
 				$classes->add('single single-' . Classes::sanitize($post->type(), $post->id()));
 
 				if ($post->has_format()) {
@@ -211,11 +211,11 @@ class Site
 				}
 			}
 
-			if (Query::main()->is_attachment()) {
+			if (PostsQuery::main()->is_attachment()) {
 				$classes->add('attachment attachment-' . $post->mime_type());
 			}
 
-			if (Query::main()->is_page()) {
+			if (PostsQuery::main()->is_page()) {
 				$classes->add('page page-' . Classes::sanitize($post->name()));
 				if ($post->has_parent()) {
 					$classes->add('page-has-parent');
@@ -224,28 +224,28 @@ class Site
 					$classes->add('page-has-children');
 				}
 			}
-		} else if (Query::main()->is_archive()) {
-			if (Query::main()->is_post_type_archive()) {
-				$type = Query::main()->get('post_type');
+		} else if (PostsQuery::main()->is_archive()) {
+			if (PostsQuery::main()->is_post_type_archive()) {
+				$type = PostsQuery::main()->get('post_type');
 				if (is_array($type)) {
 					$type = reset($type);
 				}
 
 				$classes->add('archive-' . Classes::sanitize($type));
-			} else if (Query::main()->is_author()) {
-				$author = new User(Query::main()->queried_object());
+			} else if (PostsQuery::main()->is_author()) {
+				$author = new User(PostsQuery::main()->queried_object());
 
 				$classes->add('archive-author author-' . Classes::sanitize($author->nice_name(), $author->id()));
-			} else if (Query::main()->is_category()) {
-				$term = new Term(Query::main()->queried_object());
+			} else if (PostsQuery::main()->is_category()) {
+				$term = new Term(PostsQuery::main()->queried_object());
 
 				$classes->add('archive-category category-' . Classes::sanitize($term->slug(), $term->id()));
-			} else if (Query::main()->is_tag()) {
-				$term = new Term(Query::main()->queried_object());
+			} else if (PostsQuery::main()->is_tag()) {
+				$term = new Term(PostsQuery::main()->queried_object());
 
 				$classes->add('archive-tag tag-' . Classes::sanitize($term->slug(), $term->id()));
-			} else if (Query::main()->is_taxonomy()) {
-				$term     = new Term(Query::main()->queried_object());
+			} else if (PostsQuery::main()->is_taxonomy()) {
+				$term     = new Term(PostsQuery::main()->queried_object());
 				$taxonomy = Classes::sanitize($term->taxonomy());
 
 				$classes->add("$taxonomy $taxonomy-" . Classes::sanitize($term->slug(), $term->id()));

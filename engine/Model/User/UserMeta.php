@@ -2,17 +2,17 @@
 
 namespace Twist\Model\User;
 
-use Twist\Model\Meta\Meta as BaseMeta;
+use Twist\Model\Meta\Meta;
 
 /**
- * Class Meta
+ * Class UserMeta
  *
  * @package Twist\Model\User
  *
  * @method set_parent(UserInterface $parent)
  * @method UserInterface parent()
  */
-class Meta extends BaseMeta
+class UserMeta extends Meta
 {
 
 	/**

@@ -11,7 +11,7 @@ use Twist\Model\HasChildrenInterface;
 use Twist\Model\HasParent;
 use Twist\Model\HasParentInterface;
 use Twist\Model\ModelInterface;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostsQuery;
 use WP_Term;
 
 /**
@@ -39,7 +39,7 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	private $term;
 
 	/**
-	 * @var Meta
+	 * @var TermMeta
 	 */
 	private $meta;
 
@@ -172,12 +172,12 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	}
 
 	/**
-	 * @return Meta
+	 * @return TermMeta
 	 */
-	public function meta(): Meta
+	public function meta(): TermMeta
 	{
 		if ($this->meta === null) {
-			$this->meta = new Meta($this);
+			$this->meta = new TermMeta($this);
 		}
 
 		return $this->meta;
@@ -195,15 +195,15 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	 * @param int          $number
 	 * @param string|array $type
 	 *
-	 * @return Query
+	 * @return PostsQuery
 	 */
-	public function posts(int $number = 10, $type = ''): Query
+	public function posts(int $number = 10, $type = ''): PostsQuery
 	{
 		if (empty($type)) {
 			$type = $this->taxonomy->post_types();
 		}
 
-		return Query::make([
+		return PostsQuery::make([
 			'post_type'      => $type,
 			'posts_per_page' => $number,
 			'orderby'        => 'post_date',

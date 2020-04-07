@@ -4,15 +4,15 @@ namespace Twist\Model\Comment;
 
 use Twist\Library\Support\Str;
 use Twist\Library\Support\Url;
-use Twist\Model\Pagination\Pagination as BasePagination;
+use Twist\Model\Pagination\Pagination;
 use WP_Rewrite;
 
 /**
- * Class Pagination
+ * Class CommentsPagination
  *
  * @package Twist\Model\Comment
  */
-class Pagination extends BasePagination
+class CommentsPagination extends Pagination
 {
 
 	private $query;
@@ -20,9 +20,9 @@ class Pagination extends BasePagination
 	/**
 	 * Pagination constructor.
 	 *
-	 * @param Query $query
+	 * @param CommentsQuery $query
 	 */
-	public function __construct(Query $query)
+	public function __construct(CommentsQuery $query)
 	{
 		$this->query = $query;
 

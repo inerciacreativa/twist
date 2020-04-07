@@ -2,27 +2,27 @@
 
 namespace Twist\Model\Post;
 
-use Twist\Model\Pagination\Pagination as BasePagination;
+use Twist\Model\Pagination\Pagination;
 
 /**
  * Class Pagination
  *
  * @package Twist\Model\Post
  */
-class Pagination extends BasePagination
+class PostsPagination extends Pagination
 {
 
 	/**
-	 * @var Query
+	 * @var PostsQuery
 	 */
 	private $query;
 
 	/**
 	 * Pagination constructor.
 	 *
-	 * @param Query $query
+	 * @param PostsQuery $query
 	 */
-	public function __construct(Query $query)
+	public function __construct(PostsQuery $query)
 	{
 		$this->query = $query;
 

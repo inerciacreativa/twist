@@ -3,7 +3,7 @@
 namespace Twist\Model\User;
 
 use Twist\Library\Html\Tag;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostsQuery;
 use WP_User;
 
 /**
@@ -20,17 +20,17 @@ class User implements UserInterface
 	private $user;
 
 	/**
-	 * @var Avatar
+	 * @var UserAvatar
 	 */
 	private $avatar;
 
 	/**
-	 * @var Meta
+	 * @var UserMeta
 	 */
 	private $meta;
 
 	/**
-	 * @var Profiles
+	 * @var UserProfiles
 	 */
 	private $profiles;
 
@@ -168,7 +168,7 @@ class User implements UserInterface
 	public function avatar(int $size = 96, array $attributes = []): Tag
 	{
 		if ($this->avatar === null) {
-			$this->avatar = new Avatar($this);
+			$this->avatar = new UserAvatar($this);
 		}
 
 		return $this->avatar->get($size, $attributes);
@@ -244,25 +244,25 @@ class User implements UserInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function meta(): ?Meta
+	public function meta(): ?UserMeta
 	{
 		if (!$this->exists()) {
 			return null;
 		}
 
-		return $this->meta ?? $this->meta = new Meta($this);
+		return $this->meta ?? $this->meta = new UserMeta($this);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function profiles(): ?Profiles
+	public function profiles(): ?UserProfiles
 	{
 		if (!$this->exists()) {
 			return null;
 		}
 
-		return $this->profiles ?? $this->profiles = new Profiles($this);
+		return $this->profiles ?? $this->profiles = new UserProfiles($this);
 	}
 
 	/**
@@ -280,7 +280,7 @@ class User implements UserInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function posts(int $number = 10, $type = 'post'): ?Query
+	public function posts(int $number = 10, $type = 'post'): ?PostsQuery
 	{
 		if (!$this->exists()) {
 			return null;
@@ -298,11 +298,11 @@ class User implements UserInterface
 	/**
 	 * @param array $query
 	 *
-	 * @return Query
+	 * @return UsersQuery
 	 */
-	protected function getQuery(array $query): Query
+	protected function getQuery(array $query): PostsQuery
 	{
-		return Query::make($query);
+		return PostsQuery::make($query);
 	}
 
 	/**

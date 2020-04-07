@@ -4,8 +4,8 @@ namespace Twist\Service\Core;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Html\Tag;
-use Twist\Model\Post\Query;
 use Twist\Service\Service;
+use Twist\Twist;
 
 /**
  * Class HeadCleanerService
@@ -33,7 +33,7 @@ class HeadCleanerService extends Service
 	 */
 	public function boot(): bool
 	{
-		return $this->config('enable') && !Query::is_admin();
+		return $this->config('enable') && !Twist::isAdmin();
 	}
 
 	/**
@@ -85,9 +85,9 @@ class HeadCleanerService extends Service
 	protected function removeEmoji(): void
 	{
 		$this->hook()
-		     ->on('init', 'removeFilters')
-		     ->on('tiny_mce_plugins', 'removeEditorPlugin')
-		     ->on('wp_resource_hints', 'removeResourceHints', ['arguments' => 2]);
+			 ->on('init', 'removeFilters')
+			 ->on('tiny_mce_plugins', 'removeEditorPlugin')
+			 ->on('wp_resource_hints', 'removeResourceHints', ['arguments' => 2]);
 
 	}
 

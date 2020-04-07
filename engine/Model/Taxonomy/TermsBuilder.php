@@ -8,11 +8,11 @@ use Walker_Category;
 use WP_Term;
 
 /**
- * Class Builder
+ * Class TermsBuilder
  *
  * @package Twist\Model\Taxonomy
  */
-class Builder extends Walker_Category
+class TermsBuilder extends Walker_Category
 {
 
 	/**
@@ -49,7 +49,7 @@ class Builder extends Walker_Category
 			return $terms;
 		}
 
-		$depth   = $taxonomy->is_hierarchical() ? 0 : 1;
+		$depth   = $taxonomy->is_hierarchical() ? 0 : -1;
 		$builder = new static($taxonomy, $terms);
 		$builder->walk($items, $depth, $arguments);
 

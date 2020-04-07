@@ -2,17 +2,17 @@
 
 namespace Twist\Model\Comment;
 
-use Twist\Model\Meta\Meta as BaseMeta;
+use Twist\Model\Meta\Meta;
 
 /**
- * Class Meta
+ * Class CommentMeta
  *
  * @package Twist\Model\Comment
  *
  * @method set_parent(Comment $parent)
  * @method Comment parent()
  */
-class Meta extends BaseMeta
+class CommentMeta extends Meta
 {
 
 	/**

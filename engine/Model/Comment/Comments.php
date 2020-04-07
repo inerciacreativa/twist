@@ -29,17 +29,17 @@ class Comments extends Collection
 {
 
 	/**
-	 * @var Query
+	 * @var CommentsQuery
 	 */
 	protected $query;
 
 	/**
 	 * Comments constructor.
 	 *
-	 * @param Query   $query
-	 * @param Comment $parent
+	 * @param CommentsQuery $query
+	 * @param Comment       $parent
 	 */
-	public function __construct(Query $query, Comment $parent = null)
+	public function __construct(CommentsQuery $query, Comment $parent = null)
 	{
 		parent::__construct($parent);
 
@@ -47,19 +47,19 @@ class Comments extends Collection
 	}
 
 	/**
-	 * @return Query
+	 * @return CommentsQuery
 	 */
-	public function query(): Query
+	public function query(): CommentsQuery
 	{
 		return $this->query;
 	}
 
 	/**
-	 * @return Iterator
+	 * @return CommentsIterator
 	 */
 	public function getIterator(): CollectionIteratorInterface
 	{
-		return new Iterator($this->models);
+		return new CommentsIterator($this->models);
 	}
 
 }

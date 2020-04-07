@@ -8,15 +8,15 @@ use Twist\App\AppException;
 use Twist\Model\CollectionIteratorInterface;
 use Twist\Model\Pagination\HasPaginationInterface;
 use Twist\Model\Pagination\PaginationInterface;
-use Twist\Model\Post\Query as PostQuery;
+use Twist\Model\Post\PostsQuery;
 use WP_User_Query;
 
 /**
- * Class Query
+ * Class UsersQuery
  *
  * @package Twist\Model\User
  */
-class Query implements HasPaginationInterface, IteratorAggregate
+class UsersQuery implements HasPaginationInterface, IteratorAggregate
 {
 
 	/**
@@ -30,16 +30,16 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	private $users;
 
 	/**
-	 * @var Pagination
+	 * @var UsersPagination
 	 */
 	private $pagination;
 
 	/**
 	 * @param array $query
 	 *
-	 * @return Query
+	 * @return UsersQuery
 	 */
-	public static function main(array $query = []): Query
+	public static function main(array $query = []): UsersQuery
 	{
 		$instance = new static();
 
@@ -56,9 +56,9 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	/**
 	 * @param array $query
 	 *
-	 * @return Query
+	 * @return UsersQuery
 	 */
-	public static function make(array $query = []): Query
+	public static function make(array $query = []): UsersQuery
 	{
 		$query = array_merge($query, [
 			'count_total' => false,
@@ -74,7 +74,7 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	 *
 	 * @see WP_User_Query::prepare_query()
 	 */
-	public function query(array $query): Query
+	public function query(array $query): UsersQuery
 	{
 		$this->query = new WP_User_Query($query);
 		$this->users = Users::make($this->query->get_results());
@@ -132,7 +132,7 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	public function current_page(): int
 	{
 		try {
-			return max(1, (int) PostQuery::main()->get('paged'));
+			return PostsQuery::main()->current_page();
 		} catch (AppException $exception) {
 		}
 
@@ -156,7 +156,7 @@ class Query implements HasPaginationInterface, IteratorAggregate
 	 */
 	public function pagination(): PaginationInterface
 	{
-		return $this->pagination ?? $this->pagination = new Pagination($this);
+		return $this->pagination ?? $this->pagination = new UsersPagination($this);
 	}
 
 	/**
