@@ -1,7 +1,7 @@
 <?php
 
 use Twist\Asset;
-use Twist\Model\Post\Query;
+use Twist\Model\Post\PostsQuery;
 use Twist\Model\Site\Assets;
 use Twist\Model\Site\Site;
 use Twist\Service\Core\ContentCleanerService;
@@ -93,9 +93,9 @@ Twist::theme()->parent(static function () {
 		[
 			'id'   => 'comment-reply',
 			'load' => static function () {
-				return Query::main()->is_single() && ($post = Query::main()
-																   ->posts()
-																   ->first()) && $post->can_be_commented();
+				return PostsQuery::main()->is_single() && ($post = PostsQuery::main()
+																			 ->posts()
+																			 ->first()) && $post->can_be_commented();
 			},
 		],
 	], true);
@@ -106,7 +106,7 @@ Twist::theme()->parent(static function () {
 	], true);
 
 	View::context()->set([
-		'posts'  => Query::class,
+		'posts'  => PostsQuery::class,
 		'site'   => Site::class,
 		'assets' => Assets::class,
 	]);
