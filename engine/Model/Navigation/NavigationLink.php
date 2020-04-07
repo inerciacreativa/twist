@@ -60,7 +60,7 @@ class NavigationLink extends Link implements NavigationLinkInterface
 	{
 		if ($this->children === null) {
 			$this->set_children(new NavigationLinks($this));
-			$this->classes()->add('has-dropdown');
+			$this->classes()->add('has-children');
 		}
 
 		return $this->children;
