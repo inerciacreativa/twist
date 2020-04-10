@@ -6,6 +6,7 @@ use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
 use Twist\Library\Support\Arr;
+use Twist\Library\Support\Url;
 
 /**
  * Class Attributes
@@ -363,6 +364,10 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	{
 		if (is_string($value) || is_bool($value) || is_int($value) || is_float($value)) {
 			return $value;
+		}
+
+		if ($value instanceof Url) {
+			return (string) $value;
 		}
 
 		if ($name === 'class' && (is_array($value) || $value instanceof Classes)) {
