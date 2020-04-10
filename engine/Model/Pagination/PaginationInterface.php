@@ -2,8 +2,6 @@
 
 namespace Twist\Model\Pagination;
 
-use Twist\Model\Link\Links;
-
 /**
  * Interface PaginationInterface
  *
@@ -13,22 +11,22 @@ interface PaginationInterface
 {
 
 	/**
-	 * @return Links
+	 * @return PaginationLinks
 	 */
-	public function simple(): Links;
+	public function simple(): PaginationLinks;
 
 	/**
 	 * @param array $arguments
 	 *
-	 * @return Links
+	 * @return PaginationLinks
 	 */
-	public function extended(array $arguments = []): Links;
+	public function extended(array $arguments = []): PaginationLinks;
 
 	/**
 	 * @param array $arguments
 	 *
-	 * @return Links
+	 * @return PaginationLinks
 	 */
-	public function numeric(array $arguments = []): Links;
+	public function numeric(array $arguments = []): PaginationLinks;
 
 }

@@ -28,7 +28,7 @@ abstract class Pagination implements PaginationInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function simple(): Links
+	public function simple(): PaginationLinks
 	{
 		$items = $this->getPrevNextLinks();
 
@@ -38,7 +38,7 @@ abstract class Pagination implements PaginationInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function extended(array $arguments = []): Links
+	public function extended(array $arguments = []): PaginationLinks
 	{
 		$items = $this->getPaginatedLinks($arguments);
 
@@ -48,7 +48,7 @@ abstract class Pagination implements PaginationInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function numeric(array $arguments = []): Links
+	public function numeric(array $arguments = []): PaginationLinks
 	{
 		return $this->extended(array_merge($arguments, ['prev_next' => false]));
 	}
@@ -68,11 +68,11 @@ abstract class Pagination implements PaginationInterface
 	/**
 	 * @param array $items
 	 *
-	 * @return Links
+	 * @return PaginationLinks
 	 */
-	protected function getLinks(array $items): Links
+	protected function getLinks(array $items): PaginationLinks
 	{
-		$links = new Links();
+		$links = new PaginationLinks();
 
 		foreach ($items as $index => $item) {
 			$links->add($this->getLink($index + 1, $item));

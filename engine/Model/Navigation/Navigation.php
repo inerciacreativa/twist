@@ -4,7 +4,6 @@ namespace Twist\Model\Navigation;
 
 use Twist\Library\Hook\Hook;
 use Twist\Library\Support\Arr;
-use Twist\Model\Link\Links;
 use Twist\Model\Taxonomy\Taxonomies;
 
 /**
@@ -20,9 +19,9 @@ class Navigation
 	 *
 	 * @param int|string|array $menu
 	 *
-	 * @return Links
+	 * @return NavigationLinks
 	 */
-	public static function make($menu): Links
+	public static function make($menu): NavigationLinks
 	{
 		return (new static())->getLinks($menu);
 	}
@@ -32,10 +31,10 @@ class Navigation
 	 *
 	 * @param int|string|array $menu
 	 *
-	 * @return Links
+	 * @return NavigationLinks
 	 * @see wp_nav_menu()
 	 */
-	protected function getLinks($menu): Links
+	protected function getLinks($menu): NavigationLinks
 	{
 		$arguments = $this->getArguments($menu);
 		$items     = $this->getItems($arguments);
