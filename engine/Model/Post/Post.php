@@ -21,6 +21,7 @@ use Twist\Model\Image\Images;
 use Twist\Model\ModelInterface;
 use Twist\Model\Site\Site;
 use Twist\Model\Taxonomy\Term;
+use Twist\Model\Taxonomy\Terms;
 use WP_Post;
 
 /**
@@ -561,17 +562,17 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	}
 
 	/**
-	 * @return PostTerms
+	 * @return Terms
 	 */
-	public function categories(): ?PostTerms
+	public function categories(): Terms
 	{
 		return $this->taxonomies()->get('category');
 	}
 
 	/**
-	 * @return PostTerms
+	 * @return Terms
 	 */
-	public function tags(): ?PostTerms
+	public function tags(): Terms
 	{
 		return $this->taxonomies()->get('post_tag');
 	}

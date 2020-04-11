@@ -5,6 +5,8 @@ namespace Twist\Model\Post;
 use Twist\App\AppException;
 use Twist\Model\Enumerable;
 use Twist\Model\Taxonomy\Taxonomy;
+use Twist\Model\Taxonomy\Term;
+use Twist\Model\Taxonomy\Terms;
 
 /**
  * Class PostTaxonomies
@@ -33,9 +35,9 @@ class PostTaxonomies extends Enumerable
 	/**
 	 * @inheritDoc
 	 *
-	 * @return PostTerms|null
+	 * @return Terms
 	 */
-	public function get(string $key, $default = null): ?PostTerms
+	public function get(string $key, $default = null): Terms
 	{
 		if (!$this->has($key)) {
 			return null;
@@ -43,13 +45,12 @@ class PostTaxonomies extends Enumerable
 
 		$terms = parent::get($key);
 
-		if (!($terms instanceof PostTerms)) {
+		if (!($terms instanceof Terms)) {
 			try {
-				$terms = new PostTerms($this->post, new Taxonomy($key));
+				$terms = $this->getTerms(new Taxonomy($key));
 
 				$this->set($key, $terms);
 			} catch (AppException $exception) {
-				$terms = null;
 			}
 		}
 
@@ -66,6 +67,28 @@ class PostTaxonomies extends Enumerable
 		}
 
 		return parent::getValues();
+	}
+
+	/**
+	 * @param Taxonomy $taxonomy
+	 *
+	 * @return Terms
+	 */
+	protected function getTerms(Taxonomy $taxonomy): Terms
+	{
+		$collection = new Terms();
+		$terms      = get_the_terms($this->post->object(), $taxonomy->name());
+
+		if (is_array($terms)) {
+			foreach ($terms as $term) {
+				try {
+					$collection->add(new Term($term, $taxonomy));
+				} catch (AppException $exception) {
+				}
+			}
+		}
+
+		return $collection;
 	}
 
 }

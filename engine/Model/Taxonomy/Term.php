@@ -18,8 +18,6 @@ use WP_Term;
  * Class Term
  *
  * @package Twist\Model\Taxonomy
- *
- * @method Term|null parent()
  */
 class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 {
@@ -72,13 +70,48 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 
 	/**
 	 * @inheritDoc
+	 */
+	public function has_parent(): bool
+	{
+		return $this->term->parent > 0;
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return Term|null
+	 */
+	public function parent(): ?ModelInterface
+	{
+		if ($this->parent === null && $this->has_parent()) {
+			$parent = get_term($this->term->parent, $this->taxonomy->name());
+
+			try {
+				$this->set_parent(new static($parent, $this->taxonomy));
+			} catch (AppException $exception) {
+			}
+		}
+
+		return $this->parent;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function has_children(): bool
+	{
+		return $this->children() !== null;
+	}
+
+	/**
+	 * @inheritDoc
 	 *
 	 * @return Terms
 	 */
 	public function children(): ?CollectionInterface
 	{
 		if ($this->children === null) {
-			$this->set_children(new Terms($this));
+			$this->set_children($this->taxonomy->terms(['child_of' => $this->id()]));
 		}
 
 		return $this->children;
