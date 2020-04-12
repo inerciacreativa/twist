@@ -120,14 +120,12 @@ class Assets
 		$svg['focusable'] = 'false';
 
 		if ($title) {
-			[$add, $id] = $this->getSvgTitle($class, $title);
+			$id = $this->getSvgTitle($class, $title);
 
 			$svg['role']            = 'img';
 			$svg['aria-labelledby'] = $id;
 
-			if ($add) {
-				$svg->content(Tag::title(['id' => $id], $title));
-			}
+			$svg->content(Tag::title(['id' => $id], $title));
 		} else {
 			$svg['aria-hidden'] = 'true';
 		}
@@ -142,23 +140,13 @@ class Assets
 	 * @param string $class
 	 * @param string $title
 	 *
-	 * @return array
+	 * @return string
 	 */
-	protected function getSvgTitle(string $class, string $title): array
+	protected function getSvgTitle(string $class, string $title): string
 	{
 		static $titles = [];
 
 		$id = "${class}__title";
-
-		if (empty($titles) || ($key = array_search($id, array_column($titles, 'id'), true)) === false) {
-			$titles[] = ['id' => $id, 'title' => $title];
-
-			return [true, $id];
-		}
-
-		if ($titles[$key]['title'] === $title) {
-			return [false, $titles[$key]['id']];
-		}
 
 		$count = array_reduce($titles, static function (int $count, array $item) use ($id) {
 			if (strpos($item['id'], $id) === 0) {
@@ -171,7 +159,7 @@ class Assets
 		$id       .= "-$count";
 		$titles[] = ['id' => $id, 'title' => $title];
 
-		return [true, $id];
+		return $id;
 	}
 
 }
