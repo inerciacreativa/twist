@@ -50,7 +50,7 @@ class PaginationLink extends Link implements PaginationLinkInterface
 	 */
 	public function is_next(): bool
 	{
-		return $this->classes()->has('next');
+		return $this->classes()->has('is-next');
 	}
 
 	/**
@@ -58,7 +58,7 @@ class PaginationLink extends Link implements PaginationLinkInterface
 	 */
 	public function is_previous(): bool
 	{
-		return $this->classes()->has('prev');
+		return $this->classes()->has('is-prev');
 	}
 
 	/**
@@ -66,7 +66,7 @@ class PaginationLink extends Link implements PaginationLinkInterface
 	 */
 	public function is_dots(): bool
 	{
-		return $this->classes()->has('dots');
+		return $this->classes()->has('is-dots');
 	}
 
 	/**
