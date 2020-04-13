@@ -447,9 +447,11 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 			$words = Hook::apply('excerpt_length', $words);
 			$more  = Hook::apply('excerpt_more', ' [&hellip;]');
 
+			$excerpt = Hook::apply('twist_post_excerpt_before', $excerpt, $this);
 			$excerpt = Str::stripTags($excerpt, ['figure']);
 			$excerpt = Str::whitespace($excerpt);
 			$excerpt = Str::words($excerpt, $words, $more);
+			$excerpt = Hook::apply('twist_post_excerpt_after', $excerpt, $this);
 		}
 
 		$excerpt = Hook::apply('wp_trim_excerpt', $excerpt, $this->post->post_excerpt);
