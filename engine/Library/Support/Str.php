@@ -107,22 +107,56 @@ class Str
 	}
 
 	/**
+	 * Strip all HTML tags. It also removes the contents of script, style
+	 * and the tags specified in $blockTags.
+	 *
 	 * @param string $string
-	 * @param array $tags
+	 * @param array  $blockTags
 	 *
 	 * @return string
 	 */
-	public static function stripTags(string $string, array $tags = []): string
+	public static function stripTags(string $string, array $blockTags = []): string
+	{
+		$string = self::stripBlockTags($string, array_merge($blockTags, ['script', 'style']));
+		$string = strip_tags($string);
+
+		return trim($string);
+	}
+
+	/**
+	 * Strip HTML tags and their contents.
+	 *
+	 * @param string $string
+	 * @param array  $tags
+	 *
+	 * @return string
+	 */
+	public static function stripBlockTags(string $string, array $tags): string
 	{
 		$tags = array_map(static function (string $tag) {
 			return preg_replace('/[^A-Z1-6]/i', '', $tag);
 		}, $tags);
-		$tags = array_merge($tags, ['script', 'style']);
 
-		$string = preg_replace('@<(' . implode('|', $tags) . ')[^>]*?>.*?</\\1>@si', '', $string);
-		$string = strip_tags($string);
+		if (!empty($tags)) {
+			$string = preg_replace('@<(' . implode('|', $tags) . ')[^>]*?>.*?</\\1>@si', '', $string);
+		}
 
 		return trim($string);
+	}
+
+	/**
+	 * Strip only specified HTML tags.
+	 *
+	 * @param string $string
+	 * @param array  $tags
+	 *
+	 * @return string
+	 */
+	public static function stripOnlyTags(string $string, array $tags): string
+	{
+		$string = preg_replace('@</?(' . implode('|', $tags) . ')[^>]*?>@si', '', $string);
+
+		return $string;
 	}
 
 	/**
@@ -440,6 +474,20 @@ class Str
 		}
 
 		return rtrim($matches[0], " \t\n\r\0.,;") . $end;
+	}
+
+	/**
+	 * @param string $string
+	 * @param int    $limit
+	 * @param bool   $empty
+	 *
+	 * @return array
+	 */
+	public static function paragraphs(string $string, int $limit = -1, bool $empty = false): array
+	{
+		$flags = $empty ? 0 : PREG_SPLIT_NO_EMPTY;
+
+		return preg_split('#<p([^>])*>#', str_replace('</p>', '', $string), $limit, $flags);
 	}
 
 	/**
