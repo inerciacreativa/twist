@@ -473,7 +473,7 @@ class Str
 			return $string;
 		}
 
-		return rtrim($matches[0], " \t\n\r\0.,;") . $end;
+		return static::rtrim($matches[0], '.,;') . $end;
 	}
 
 	/**
@@ -488,6 +488,54 @@ class Str
 		$flags = $empty ? 0 : PREG_SPLIT_NO_EMPTY;
 
 		return preg_split('#<p([^>])*>#', str_replace('</p>', '', $string), $limit, $flags);
+	}
+
+	/**
+	 * @param string $string
+	 * @param string $chars
+	 * @param bool   $spaces
+	 *
+	 * @return string
+	 */
+	public static function trim(string $string, $chars = '', bool $spaces = true): string
+	{
+		if ($spaces) {
+			$chars .= '\pZ\pC';
+		}
+
+		return preg_replace('/^[' . $chars . ']+|[' . $chars . ']+$/u', '', $string);
+	}
+
+	/**
+	 * @param string $string
+	 * @param string $chars
+	 * @param bool   $spaces
+	 *
+	 * @return string
+	 */
+	public static function ltrim(string $string, $chars = '', bool $spaces = true): string
+	{
+		if ($spaces) {
+			$chars .= '\pZ\pC';
+		}
+
+		return preg_replace('/^[' . $chars . ']+/u', '', $string);
+	}
+
+	/**
+	 * @param string $string
+	 * @param string $chars
+	 * @param bool   $spaces
+	 *
+	 * @return string
+	 */
+	public static function rtrim(string $string, $chars = '', bool $spaces = true): string
+	{
+		if ($spaces) {
+			$chars .= '\pZ\pC';
+		}
+
+		return preg_replace('/[' . $chars . ']+$/u', '', $string);
 	}
 
 	/**
