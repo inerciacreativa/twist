@@ -8,6 +8,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twist\Library\Html\Attributes;
 use Twist\Library\Html\Classes;
+use Twist\Library\Support\Str;
 use Twist\Twist;
 
 /**
@@ -38,8 +39,11 @@ class TwigExtension extends AbstractExtension
 			new TwigFilter('attributes', static function ($attributes) {
 				return Attributes::make($attributes)->render();
 			}),
-			new TwigFilter('normalize', static function ($content) {
+			new TwigFilter('normalize', static function (string $content) {
 				return trim(preg_replace('/>\s+</', '> <', $content));
+			}, ['is_safe' => ['html']]),
+			new TwigFilter('words', static function ($content, int $words, string $end = '…') {
+				return Str::words($content, $words, $end);
 			}, ['is_safe' => ['html']]),
 		];
 	}
