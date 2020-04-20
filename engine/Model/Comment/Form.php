@@ -31,10 +31,11 @@ class Form
 	public function __construct(array $classes = [], array $ids = [])
 	{
 		$decorator = Twist::config('form.comment.decorator');
-		if (!($decorator instanceof FormDecoratorInterface)) {
+
+		if (!is_a($decorator, FormDecoratorInterface::class, true)) {
 			$this->decorator = new FormDecorator($classes, $ids);
 		} else {
-			$this->decorator = new $decorator;
+			$this->decorator = ($decorator instanceof FormDecoratorInterface) ? $decorator : new $decorator;
 		}
 
 		Hook::add('comment_form_defaults', function (array $arguments) {
@@ -96,8 +97,11 @@ class Form
 	{
 		$defaults = $this->decorator->getDefaults($arguments);
 
-		$defaults['title_reply']    = Tag::span($arguments['title_reply']);
-		$defaults['title_reply_to'] = Tag::span($arguments['title_reply_to']);
+		$title_reply    = $defaults['title_reply'] ?? $arguments['title_reply'];
+		$title_reply_to = $defaults['title_reply_to'] ?? $arguments['title_reply_to'];
+
+		$defaults['title_reply']    = Tag::span($title_reply);
+		$defaults['title_reply_to'] = Tag::span($title_reply_to);
 
 		$defaults['cancel_reply_before'] = ' ';
 		$defaults['cancel_reply_after']  = '';
