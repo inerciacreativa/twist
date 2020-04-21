@@ -35,7 +35,7 @@ class Form
 		if (!is_a($decorator, FormDecoratorInterface::class, true)) {
 			$this->decorator = new FormDecorator($classes, $ids);
 		} else {
-			$this->decorator = ($decorator instanceof FormDecoratorInterface) ? $decorator : new $decorator;
+			$this->decorator = ($decorator instanceof FormDecoratorInterface) ? $decorator : new $decorator($classes, $ids);
 		}
 
 		Hook::add('comment_form_defaults', function (array $arguments) {
