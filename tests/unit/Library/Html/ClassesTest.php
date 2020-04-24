@@ -14,6 +14,17 @@ use PHPUnit\Framework\TestCase;
 final class ClassesTest extends TestCase
 {
 
+	public function testSet(): void
+	{
+		$classes = new Classes();
+
+		$classes->set(['first', 'second']);
+		$this->assertEquals(['first', 'second'], $classes->all());
+
+		$classes->set(['third', 'fourth']);
+		$this->assertEquals(['third', 'fourth'], $classes->all());
+	}
+
     public function testAdd(): void
     {
         $classes = Classes::make('test');
@@ -70,5 +81,29 @@ final class ClassesTest extends TestCase
 
 		$classes->replace(['is-test', 'is-delete'], ['test', 'delete']);
 		$this->assertEquals(['test', 'is-false', 'delete'], $classes->all());
+	}
+
+	public function testFilter(): void
+	{
+		$classes = Classes::make(['is-false', 'is-true', 'default']);
+		$classes->filter(static function (string $class) {
+			return !(strpos($class, 'is-') === 0);
+		});
+		$this->assertEquals(['default'], $classes->all());
+	}
+
+	public function testTransform(): void
+	{
+		$classes = Classes::make(['false', 'true', 'default']);
+		$classes->transform(static function (string $class) {
+			return 'is-' . $class;
+		});
+		$this->assertEquals(['is-false', 'is-true', 'is-default'], $classes->all());
+
+		$classes = Classes::make(['false', 'true', 'default']);
+		$classes->transform(static function (string $class) {
+			return 'is-' . $class . ' ' . $class;
+		});
+		$this->assertEquals(['is-false', 'false', 'is-true', 'true', 'is-default', 'default'], $classes->all());
 	}
 }
