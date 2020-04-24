@@ -4,7 +4,6 @@ namespace Twist\Library\Html;
 
 use ArrayAccess;
 use Countable;
-use Closure;
 use Twist\Library\Support\Arr;
 
 /**
@@ -110,14 +109,6 @@ class Classes implements ArrayAccess, Countable
 	}
 
 	/**
-	 * @return array
-	 */
-	public function all(): array
-	{
-		return $this->classes;
-	}
-
-	/**
 	 * @param string $class
 	 *
 	 * @return bool
@@ -159,7 +150,7 @@ class Classes implements ArrayAccess, Countable
 	 */
 	public function filter(callable $filter): self
 	{
-		$this->classes = array_filter($this->classes, $filter);
+		$this->classes = array_values(array_filter($this->classes, $filter));
 
 		return $this;
 	}
@@ -174,6 +165,14 @@ class Classes implements ArrayAccess, Countable
 		$this->classes = self::parse(array_map($transform, $this->classes));
 
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function all(): array
+	{
+		return $this->classes;
 	}
 
 	/**
@@ -259,16 +258,6 @@ class Classes implements ArrayAccess, Countable
 	}
 
 	/**
-	 * @param string $class
-	 *
-	 * @return bool
-	 */
-	protected static function isValid(string $class): bool
-	{
-		return !($class === '' || preg_match('/^-?[_a-z]+[_a-z0-9-]*/im', $class) !== 1);
-	}
-
-	/**
 	 * @param array|string $value
 	 *
 	 * @return array
@@ -292,6 +281,16 @@ class Classes implements ArrayAccess, Countable
 		}
 
 		return [];
+	}
+
+	/**
+	 * @param string $class
+	 *
+	 * @return bool
+	 */
+	protected static function isValid(string $class): bool
+	{
+		return !($class === '' || preg_match('/^-?[_a-z]+[_a-z0-9-]*/im', $class) !== 1);
 	}
 
 	/**
