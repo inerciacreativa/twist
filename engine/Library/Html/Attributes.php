@@ -134,7 +134,7 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	public function set(string $name, $value): self
 	{
 		if ($value === null) {
-			return $this->unset($name);
+			return $this->remove($name);
 		}
 
 		$name  = strtolower($name);
@@ -156,7 +156,7 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	 *
 	 * @return $this
 	 */
-	public function unset(string $name): self
+	public function remove(string $name): self
 	{
 		$name = strtolower($name);
 
@@ -265,7 +265,7 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	 */
 	public function offsetUnset($name): void
 	{
-		$this->unset($name);
+		$this->remove($name);
 	}
 
 	/**

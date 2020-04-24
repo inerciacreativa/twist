@@ -419,7 +419,7 @@ class Tag implements ArrayAccess
 	 */
 	public function offsetUnset($attribute): void
 	{
-		$this->attributes->unset($attribute);
+		$this->attributes->remove($attribute);
 	}
 
 	/**
