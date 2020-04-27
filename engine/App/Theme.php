@@ -252,41 +252,12 @@ class Theme
 	 */
 	protected function setConfig(): void
 	{
-		$this->config->set($this->getDefaultConfig());
-
 		$this->setup[self::PARENT]();
 		if (isset($this->setup[self::CHILD])) {
 			$this->setup[self::CHILD]();
 		}
 
 		$this->config->set($this->options);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getDefaultConfig(): array
-	{
-		return [
-			'dir'  => [
-				'home'       => defined('WP_ROOT') ? WP_ROOT : ABSPATH,
-				'stylesheet' => get_stylesheet_directory(),
-				'template'   => get_template_directory(),
-				'upload'     => wp_upload_dir(null, false)['basedir'],
-			],
-			'uri'  => [
-				'home'       => home_url(),
-				'stylesheet' => get_stylesheet_directory_uri(),
-				'template'   => get_template_directory_uri(),
-			],
-			'view' => [
-				'debug'     => Twist::isDebug(),
-				'service'   => TwigViewService::id(),
-				'namespace' => TwigViewService::MAIN_NAMESPACE,
-				'folder'    => '/templates',
-				'context'   => [],
-			],
-		];
 	}
 
 	/**
