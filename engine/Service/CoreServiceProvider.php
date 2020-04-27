@@ -24,7 +24,7 @@ class CoreServiceProvider implements ServiceProviderInterface
 	 */
 	public function register(App $app): void
 	{
-		if (Twist::isDevelopment()) {
+		if (Twist::isEnv(Twist::DEVELOPMENT)) {
 			$app->service(SslCertificatesService::id(), static function (App $app) {
 				return new SslCertificatesService($app['config'], Action::INIT);
 			}, true);
