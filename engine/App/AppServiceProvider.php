@@ -2,12 +2,15 @@
 
 namespace Twist\App;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Twist\Asset\Fonts;
-use Twist\Asset\Resources;
-use Twist\Service\ServiceProviderInterface;
-use Twist\View\Context;
 use Twist\Asset\Manifest;
 use Twist\Asset\Queue;
+use Twist\Asset\Resources;
+use Twist\Service\ServiceProviderInterface;
+use Twist\Twist;
+use Twist\View\Context;
 
 /**
  * Class AppServiceProvider
@@ -26,6 +29,19 @@ class AppServiceProvider implements ServiceProviderInterface
 			return new Config();
 		});
 
+		$app->service('logger', static function () {
+			$logger = new Logger('Twist');
+			if (Twist::isEnv([Twist::DEVELOPMENT, Twist::STAGING])) {
+				$logger->pushHandler(new StreamHandler(WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'app.log'));
+			}
+
+			return $logger;
+		});
+
+		$app->service('theme', static function (App $app) {
+			return new Theme($app, $app['config']);
+		});
+
 		$app->service('asset_manifest', static function (App $app) {
 			return new Manifest($app['config']);
 		});
@@ -40,10 +56,6 @@ class AppServiceProvider implements ServiceProviderInterface
 
 		$app->service('asset_resources', static function () {
 			return new Resources();
-		});
-
-		$app->service('theme', static function (App $app) {
-			return new Theme($app, $app['config']);
 		});
 
 		$app->service('context', static function (App $app) {
