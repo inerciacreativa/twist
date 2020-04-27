@@ -2,6 +2,7 @@
 
 namespace Twist;
 
+use Monolog\Logger;
 use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Config;
@@ -17,6 +18,12 @@ use Twist\View\ViewServiceProvider;
  */
 class Twist
 {
+
+	public const DEVELOPMENT = 'development';
+
+	public const STAGING = 'staging';
+
+	public const PRODUCTION = 'production';
 
 	/**
 	 * @var App
@@ -69,6 +76,14 @@ class Twist
 	}
 
 	/**
+	 * @return Logger
+	 */
+	final public static function logger(): Logger
+	{
+		return self::service('logger');
+	}
+
+	/**
 	 * @return Theme
 	 */
 	final public static function theme(): Theme
@@ -85,11 +100,29 @@ class Twist
 	}
 
 	/**
+	 * @return string
+	 */
+	final public static function env(): string
+	{
+		if (class_exists('WP_CLI')) {
+			return self::DEVELOPMENT;
+		}
+
+		if (defined('WP_ENV')) {
+			return WP_ENV;
+		}
+
+		return self::PRODUCTION;
+	}
+
+	/**
+	 * @param string|array $env
+	 *
 	 * @return bool
 	 */
-	final public static function isDevelopment(): bool
+	final public static function isEnv($env): bool
 	{
-		return (defined('WP_ENV') && WP_ENV === 'development') || class_exists('WP_CLI');
+		return in_array(self::env(), (array) $env, true);
 	}
 
 	/**
