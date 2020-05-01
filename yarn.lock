@@ -5554,10 +5554,10 @@ jest-worker@^25.1.0:
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
 
-jquery@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.1.tgz#714f1f8d9dde4bdfa55764ba37ef214630d80ef2"
-  integrity sha512-36+AdBzCL+y6qjw5Tx7HgzeGCzC81MDDgaUP8ld2zhx58HdqXGoBd+tHdrBMiyjGQs0Hxs/MLZTu/eHNJJuWPw==
+jquery@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.5.0.tgz#9980b97d9e4194611c36530e7dc46a58d7340fc9"
+  integrity sha512-Xb7SVYMvygPxbFMpTFQiHh1J7HClEaThguL15N/Gg37Lri/qKyhRGZYzHRyLH8Stq3Aow0LsHO2O2ci86fCrNQ==
 
 js-base64@^2.1.8:
   version "2.5.1"
@@ -7254,11 +7254,6 @@ pngquant-bin@^5.0.0:
     execa "^0.10.0"
     logalot "^2.0.0"
 
-popper.js@^1.15.0:
-  version "1.16.1"
-  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
-  integrity sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
-
 portscanner@2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/portscanner/-/portscanner-2.1.1.tgz#eabb409e4de24950f5a2a516d35ae769343fbb96"
@@ -8010,10 +8005,10 @@ redent@^3.0.0:
     indent-string "^4.0.0"
     strip-indent "^3.0.0"
 
-redukt@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/redukt/-/redukt-2.3.0.tgz#c76897f74d878a02609c20735924983a09c97626"
-  integrity sha512-VVUBIRrK0nUtWwED6uK5n/Zlfm5X9/PCIGpVInjN2FEUhEe7q7aH0G9rQC0TuCFd+yKUSN979tDndaj/HxN3yQ==
+redukt@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/redukt/-/redukt-2.3.1.tgz#7b9203748a671eb1f34981cc6bf3ac73a9b7d9bf"
+  integrity sha512-KYtMXbqHr4+TLEz/d/P80zo3ucijhEHts8sBrvwEMPjFfdLq7bWZP/nelfB38V5WmnOGoami4NxfGgppys8keA==
   dependencies:
     "@babel/core" "^7.9.0"
     "@babel/preset-env" "^7.9.0"
