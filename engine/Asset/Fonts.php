@@ -67,7 +67,7 @@ class Fonts
 	 *
 	 * @return $this
 	 */
-	public function add(array $fonts, $loader = true): self
+	public function add(array $fonts, $loader = false): self
 	{
 		$this->fonts = Arr::map($fonts, static function ($fonts, $id) {
 			if ($id === 'google') {
@@ -169,7 +169,7 @@ class Fonts
 	{
 		$this->queue->styles([
 			'id'   => 'fonts',
-			'load' => "https://fonts.googleapis.com/css?family=$fonts",
+			'load' => "https://fonts.googleapis.com/css?family=$fonts&display=swap",
 		]);
 	}
 }

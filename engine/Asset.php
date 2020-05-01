@@ -3,6 +3,7 @@
 namespace Twist;
 
 use Twist\Asset\Fonts;
+use Twist\Asset\GoogleFonts;
 use Twist\Asset\Manifest;
 use Twist\Asset\Queue;
 use Twist\Asset\Resources;
@@ -102,9 +103,19 @@ class Asset
 	 *
 	 * @see Fonts::add()
 	 */
-	public static function fonts(array $fonts, $loader = true): void
+	public static function fonts(array $fonts, $loader = false): void
 	{
 		Twist::service('asset_fonts')->add($fonts, $loader);
+	}
+
+	/**
+	 * @param string|array $families
+	 *
+	 * @see GoogleFonts::add()
+	 */
+	public static function google($families): void
+	{
+		Twist::service('asset_google')->add($families);
 	}
 
 	/**
