@@ -7,6 +7,7 @@ use Twist\App\App;
 use Twist\App\AppServiceProvider;
 use Twist\App\Config;
 use Twist\App\Theme;
+use Twist\Asset\AssetServiceProvider;
 use Twist\Service\ServiceProviderInterface;
 use Twist\View\ViewInterface;
 use Twist\View\ViewServiceProvider;
@@ -147,6 +148,7 @@ class Twist
 	private static function create(): App
 	{
 		return (new App())->provider(new AppServiceProvider())
+						  ->provider(new AssetServiceProvider())
 						  ->provider(new ViewServiceProvider());
 	}
 
