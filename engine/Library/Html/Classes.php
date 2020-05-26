@@ -312,9 +312,14 @@ class Classes implements ArrayAccess, Countable
 	{
 		$values = Arr::flatten($values);
 		$values = array_filter($values);
-		$values = array_map([self::class, 'parseString'], $values);
+		if (!empty($values)) {
+			$values = array_map([self::class, 'parseString'], $values);
+		}
+		if (!empty($values)) {
+			$values = array_merge(...$values);
+		}
 
-		return array_merge(...$values);
+		return $values;
 	}
 
 	/**
