@@ -96,14 +96,25 @@ class Assets
 
 	/**
 	 * @param string $path
+	 * @param array  $attributes
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	public function svg_inline(string $path): string
+	public function svg_inline(string $path, array $attributes = []): ?string
 	{
-		$image = Asset::path($path);
+		$file  = Asset::path($path);
+		$image = @file_get_contents($file);
 
-		return (string) @file_get_contents($image);
+		if (!$image) {
+			return null;
+		}
+
+		if ($attributes && ($svg = Tag::parse($image))) {
+			$svg->attributes($attributes);
+			$image = $svg->render();
+		}
+
+		return $image;
 	}
 
 	/**
