@@ -4,7 +4,6 @@ namespace Twist\Library\Html;
 
 use ArrayAccess;
 use Closure;
-use Exception;
 use InvalidArgumentException;
 use SimpleXMLElement;
 use Twist\Library\Support\Arr;
@@ -202,24 +201,27 @@ class Tag implements ArrayAccess
 	/**
 	 * Creates a Tag object from a string.
 	 *
-	 * @param string $html
+	 * @param string $string
 	 *
 	 * @return static|null
 	 */
-	public static function parse(string $html): ?self
+	public static function parse(string $string): ?self
 	{
-		$options = LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL;
-		try {
-			$xml = new SimpleXMLElement(trim($html), $options);
+		$options = LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL | LIBXML_NOBLANKS | LIBXML_HTML_NOIMPLIED | LIBXML_NOXMLDECL;
 
+		if ($xml = simplexml_load_string($string, SimpleXMLElement::class, $options)) {
 			$tag        = $xml->getName();
 			$attributes = current($xml->attributes());
-			$content    = (string) $xml;
+			$content    = '';
+
+			foreach ($xml->children() as $child) {
+				$content .= $child->asXML();
+			}
 
 			return new static($tag, $attributes, $content);
-		} catch (Exception $exception) {
-			return null;
 		}
+
+		return null;
 	}
 
 	/**
