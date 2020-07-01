@@ -48,6 +48,10 @@ class Links implements AssetsInterface
 
 			ksort($attributes);
 
+			if (isset($attributes['type']) && $attributes['type'] === 'text/css') {
+				unset($attributes['type']);
+			}
+
 			$link = Tag::link($attributes);
 
 			if (isset($link['rel']) && strpos($link['rel'], 'stylesheet') === 0) {

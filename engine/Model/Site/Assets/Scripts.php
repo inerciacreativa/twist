@@ -42,6 +42,10 @@ class Scripts implements AssetsInterface
 
 			ksort($attributes);
 
+			if (isset($attributes['type']) && $attributes['type'] === 'text/javascript') {
+				unset($attributes['type']);
+			}
+
 			if (isset($attributes['src'])) {
 				$attributes['src'] = htmlspecialchars($attributes['src']);
 				$this->scripts[]   = Tag::make('script', $attributes);

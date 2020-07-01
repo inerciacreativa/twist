@@ -41,6 +41,10 @@ class Styles implements AssetsInterface
 
 				ksort($attributes);
 
+				if (isset($attributes['type']) && $attributes['type'] === 'text/css') {
+					unset($attributes['type']);
+				}
+
 				$this->styles[] = Tag::make('style', $attributes, $content);
 			}
 
