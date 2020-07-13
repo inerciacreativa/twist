@@ -137,11 +137,10 @@ class Attributes implements ArrayAccess, IteratorAggregate
 			return $this->remove($name);
 		}
 
-		$name  = strtolower($name);
 		$value = $this->getValidValue($name, $value);
 
 		if ($value !== null) {
-			if ($name === 'class') {
+			if (strtolower($name) === 'class') {
 				$this->classes->add($value);
 			} else {
 				$this->attributes[$name] = $value;
@@ -158,9 +157,7 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	 */
 	public function remove(string $name): self
 	{
-		$name = strtolower($name);
-
-		if ($name === 'class') {
+		if (strtolower($name) === 'class') {
 			$this->classes = $this->getClassesInstance();
 		} else {
 			unset($this->attributes[$name]);
@@ -176,9 +173,7 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	 */
 	public function has(string $name): bool
 	{
-		$name = strtolower($name);
-
-		if ($name === 'class') {
+		if (strtolower($name) === 'class') {
 			return $this->classes->count() > 0;
 		}
 
@@ -192,13 +187,11 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	 */
 	public function get(string $name)
 	{
-		$name = strtolower($name);
-
 		if (!$this->has($name)) {
 			return null;
 		}
 
-		if ($name === 'class') {
+		if (strtolower($name) === 'class') {
 			return $this->classes->all();
 		}
 
@@ -282,6 +275,8 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	public function render(): string
 	{
 		$attributes = array_merge($this->attributes, ['class' => $this->classes->render()]);
+
+		ksort($attributes);
 
 		$attributes = Arr::map($attributes, static function ($value, $name) {
 			if (static::isBool($name)) {
@@ -370,7 +365,7 @@ class Attributes implements ArrayAccess, IteratorAggregate
 			return (string) $value;
 		}
 
-		if ($name === 'class' && (is_array($value) || $value instanceof Classes)) {
+		if ((is_array($value) || $value instanceof Classes) && (strtolower($name) === 'class')) {
 			return $value;
 		}
 
