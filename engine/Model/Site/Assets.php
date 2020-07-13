@@ -110,7 +110,10 @@ class Assets
 			return null;
 		}
 
-		if ($attributes && ($svg = Tag::parse($image))) {
+		if ($svg = Tag::parse($image)) {
+			$svg->attributes()->remove('version');
+			$svg->attributes()->remove('xmlns');
+			$svg->attributes()->remove('xmlns:xlink');
 			$svg->attributes($attributes);
 			$image = $svg->render();
 		}
