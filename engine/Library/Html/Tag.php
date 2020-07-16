@@ -214,12 +214,16 @@ class Tag implements ArrayAccess
 			$attributes = current($xml->attributes());
 			$content    = '';
 
-			foreach ($xml->children() as $child) {
-				if ($child->count() > 1) {
-					$content .= $child->asXML();
-				} else {
-					$content .= (string) $xml;
+			if ($xml->count() > 0) {
+				foreach ($xml->children() as $child) {
+					if ($child->count() > 0) {
+						$content .= $child->asXML();
+					} else {
+						$content .= $child;
+					}
 				}
+			} else {
+				$content .= $xml;
 			}
 
 			return new static($tag, $attributes, $content);
