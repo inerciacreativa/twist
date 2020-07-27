@@ -207,7 +207,7 @@ class Site
 				$classes->add('single single-' . Classes::sanitize($post->type(), $post->id()));
 
 				if ($post->has_format()) {
-					$classes->add($post->format('single-format'));
+					$classes->add($post->format($post->type()));
 				}
 			}
 
@@ -216,7 +216,7 @@ class Site
 			}
 
 			if (PostsQuery::main()->is_page()) {
-				$classes->add('page page-' . Classes::sanitize($post->name()));
+				$classes->add('single single-page page-' . Classes::sanitize($post->name()));
 				if ($post->has_parent()) {
 					$classes->add('page-has-parent');
 				}
