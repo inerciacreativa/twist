@@ -37,7 +37,7 @@ class PostTaxonomies extends Enumerable
 	 *
 	 * @return Terms
 	 */
-	public function get(string $key, $default = null): Terms
+	public function get(string $key, $default = null): ?Terms
 	{
 		if (!$this->has($key)) {
 			return null;

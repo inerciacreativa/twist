@@ -566,7 +566,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	/**
 	 * @return Terms
 	 */
-	public function categories(): Terms
+	public function categories(): ?Terms
 	{
 		return $this->taxonomies()->get('category');
 	}
@@ -574,7 +574,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	/**
 	 * @return Terms
 	 */
-	public function tags(): Terms
+	public function tags(): ?Terms
 	{
 		return $this->taxonomies()->get('post_tag');
 	}
