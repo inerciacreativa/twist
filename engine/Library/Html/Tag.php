@@ -211,12 +211,12 @@ class Tag implements ArrayAccess
 
 		if ($xml = simplexml_load_string($string, SimpleXMLElement::class, $options)) {
 			$tag        = $xml->getName();
-			$attributes = current($xml->attributes());
+			$attributes = (array) current($xml->attributes());
 			$content    = '';
 
 			if ($xml->count() > 0) {
 				foreach ($xml->children() as $child) {
-					if ($child->count() > 0) {
+					if ($child->count() > 0 || $child->getName() !== '' || count((array) $child->attributes()) > 0) {
 						$content .= $child->asXML();
 					} else {
 						$content .= $child;
