@@ -211,7 +211,7 @@ class Tag implements ArrayAccess
 
 		if ($xml = simplexml_load_string($string, SimpleXMLElement::class, $options)) {
 			$tag        = $xml->getName();
-			$attributes = (array) current($xml->attributes());
+			$attributes = count($xml->attributes()) ? current($xml->attributes()) : [];
 			$content    = '';
 
 			if ($xml->count() > 0) {
