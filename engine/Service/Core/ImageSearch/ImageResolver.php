@@ -7,6 +7,7 @@ use Twist\Library\Dom\Document;
 use Twist\Library\Support\Url;
 use Twist\Model\Image\Image;
 use Twist\Model\Post\Post;
+use Twist\Twist;
 
 /**
  * Class ImageResolver
@@ -127,6 +128,7 @@ class ImageResolver
 		$this->sort();
 
 		foreach ($this->images as $index => $image) {
+			Twist::logger()->debug('ImageResolver::get', ['index' => $index, 'image' => $image]);
 			if ($object = $this->getObject($image)) {
 				return $this->images[$index] = $object;
 			}
@@ -177,7 +179,7 @@ class ImageResolver
 		}
 
 		$result = null;
-		if (isset($image['id']) && $image['id'] > 0) {
+		if (isset($image['id']) && $image['id'] > 0 && Post::exists_id($image['id'])) {
 			$id = $image['id'];
 		} else {
 			$home   = Url::parse(home_url());
@@ -185,7 +187,6 @@ class ImageResolver
 
 			if ($source->host === $home->host) {
 				$source->scheme = $home->scheme;
-
 				$id = self::getLocal($source);
 			} else {
 				$id = self::getExternal($image, $this->post);
@@ -220,7 +221,6 @@ class ImageResolver
 		$slug = str_replace($base, '', $source);
 		$slug = preg_replace('/-\d+x\d+(?=\.(jpg|jpeg|png|gif)$)/i', '', $slug);
 
-		/** @noinspection SqlResolve */
 		$result = $wpdb->get_row($wpdb->prepare("SELECT posts.ID FROM $wpdb->posts AS posts, $wpdb->postmeta AS meta WHERE posts.ID = meta.post_id AND meta.meta_key = '_wp_attached_file' AND meta.meta_value = '%s' AND posts.post_type = 'attachment' LIMIT 1", $slug));
 
 		if (!$result) {
