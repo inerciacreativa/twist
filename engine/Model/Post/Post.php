@@ -123,6 +123,20 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	}
 
 	/**
+	 * @param int $post
+	 *
+	 * @return bool
+	 */
+	public static function exists_id(int $post): bool
+	{
+		global $wpdb;
+
+		$query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE ID = %d", $post);
+
+		return (bool) $wpdb->get_var($query);
+	}
+
+	/**
 	 * @param WP_Post|int $post
 	 *
 	 * @return Post
