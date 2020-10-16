@@ -87,7 +87,7 @@ class Image implements ModelInterface, HasParentInterface
 		}
 
 		if ($image->type() !== 'attachment') {
-			new AppException(sprintf('The post (ID %d) is not an attachment (type %s).', $this->id(), $this->image->type()));
+			throw new AppException(sprintf('The post (ID %d) is not an attachment (type %s).', $image->id(), $image->type()), false);
 		}
 
 		if ($parent) {
