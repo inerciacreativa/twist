@@ -104,15 +104,21 @@ class AppException extends Exception implements AppExceptionInterface
 		}
 
 		foreach ($trace as $index => $info) {
-			$call = isset($info['class']) ? sprintf('%s%s%s', $info['class'], $info['type'], $info['function']) : $info['function'];
-			$call = str_replace('{closure}', '{Closure}', $call);
-			$args = empty($info['args']) ? '' : self::getArguments($info['args']);
-			$file = str_replace(Twist::config('dir.home'), '', $info['file']);
+			$call     = isset($info['class']) ? sprintf('%s%s%s', $info['class'], $info['type'], $info['function']) : $info['function'];
+			$call     = str_replace('{closure}', '{Closure}', $call);
+			$args     = empty($info['args']) ? '' : self::getArguments($info['args']);
+			$location = '';
+
+			if (isset($info['file'])) {
+				$file     = str_replace(Twist::config('dir.home'), '', $info['file']);
+				$line     = $info['line'];
+				$location = sprintf('%s:%d', $file, $line);
+			}
 
 			$result[] = [
 				'number'   => ++$index,
 				'call'     => sprintf('%s(%s)', $call, $args),
-				'location' => sprintf('%s:%d', $file, $info['line']),
+				'location' => $location,
 			];
 		}
 
