@@ -3,6 +3,12 @@
 namespace Twist\Service\Core\ImageSearch;
 
 use Twist\Model\Image\Image;
+use Twist\Service\Core\ImageSearch\Module\AttachmentModule;
+use Twist\Service\Core\ImageSearch\Module\ContentModule;
+use Twist\Service\Core\ImageSearch\Module\ModuleInterface;
+use Twist\Service\Core\ImageSearch\Module\TedModule;
+use Twist\Service\Core\ImageSearch\Module\VimeoModule;
+use Twist\Service\Core\ImageSearch\Module\YouTubeModule;
 
 /**
  * Class ImageSearch
