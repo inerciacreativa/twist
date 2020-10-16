@@ -128,7 +128,6 @@ class ImageResolver
 		$this->sort();
 
 		foreach ($this->images as $index => $image) {
-			Twist::logger()->debug('ImageResolver::get', ['index' => $index, 'image' => $image]);
 			if ($object = $this->getObject($image)) {
 				return $this->images[$index] = $object;
 			}
@@ -178,30 +177,49 @@ class ImageResolver
 			return $image;
 		}
 
-		$result = null;
-		if (isset($image['id']) && $image['id'] > 0 && Post::exists_id($image['id'])) {
-			$id = $image['id'];
-		} else {
-			$home   = Url::parse(home_url());
-			$source = Url::parse($image['src']);
+		if ($object = $this->getImage($image)) {
+			return $object;
+		}
 
-			if ($source->host === $home->host) {
-				$source->scheme = $home->scheme;
-				$id = self::getLocal($source);
-			} else {
-				$id = self::getExternal($image, $this->post);
-			}
+		$source = Url::parse($image['src']);
+
+		if ($source->isLocal()) {
+			$id = $this->getLocal($source);
+		} else {
+			$id = $this->getExternal($image);
 		}
 
 		if ($id) {
 			try {
-				$result = new Image($id, $this->post);
+				$object = new Image($id, $this->post);
 			} catch (AppException $exception) {
-				$result = null;
+				$object = null;
+			}
+		} else {
+			$object = null;
+		}
+
+		return $object;
+	}
+
+	/**
+	 * @param array $image
+	 *
+	 * @return Image|null
+	 */
+	protected function getImage(array $image): ?Image
+	{
+		$object = null;
+
+		if (isset($image['id']) && $image['id'] > 0 && Post::exists_id($image['id'])) {
+			try {
+				$object = new Image($image['id'], $this->post);
+			} catch (AppException $exception) {
+				$object = null;
 			}
 		}
 
-		return $result;
+		return $object;
 	}
 
 	/**
@@ -209,7 +227,7 @@ class ImageResolver
 	 *
 	 * @return int
 	 */
-	protected static function getLocal(Url $source): int
+	protected function getLocal(Url $source): int
 	{
 		global $wpdb;
 
@@ -217,6 +235,9 @@ class ImageResolver
 		if (strpos($source, $base) === false) {
 			return 0;
 		}
+
+		$source->query    = [];
+		$source->fragment = '';
 
 		$slug = str_replace($base, '', $source);
 		$slug = preg_replace('/-\d+x\d+(?=\.(jpg|jpeg|png|gif)$)/i', '', $slug);
@@ -232,11 +253,10 @@ class ImageResolver
 
 	/**
 	 * @param array $image
-	 * @param Post  $post
 	 *
 	 * @return int
 	 */
-	protected static function getExternal(array $image, Post $post): int
+	protected function getExternal(array $image): int
 	{
 		if (!function_exists('download_url')) {
 			include ABSPATH . 'wp-admin/includes/file.php';
@@ -263,7 +283,7 @@ class ImageResolver
 			include ABSPATH . 'wp-admin/includes/image.php';
 		}
 
-		$id = media_handle_sideload($temp, $post->id(), $image['alt']);
+		$id = media_handle_sideload($temp, $this->post->id(), $image['alt']);
 
 		if (is_wp_error($id)) {
 			@unlink($temp['tmp_name']);
