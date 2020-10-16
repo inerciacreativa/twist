@@ -1,9 +1,10 @@
 <?php
 
-namespace Twist\Service\Core\ImageSearch;
+namespace Twist\Service\Core\ImageSearch\Module;
 
 use Twist\Library\Dom\Element;
 use Twist\Library\Support\Url;
+use Twist\Service\Core\ImageSearch\ImageResolver;
 
 /**
  * Class ContentModule
