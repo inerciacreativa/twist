@@ -449,6 +449,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 			$excerpt = $this->post->post_excerpt;
 		} else {
 			$excerpt = $this->getContent('');
+			$excerpt = Hook::apply('twist_post_excerpt_raw', $excerpt, $this);
 
 			$excerpt = strip_shortcodes($excerpt);
 			if (function_exists('excerpt_remove_blocks')) {
