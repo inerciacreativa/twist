@@ -111,6 +111,19 @@ class Element extends DOMElement
 	}
 
 	/**
+	 * @param string|array $classes
+	 *
+	 * @return bool
+	 */
+	public function hasClassNames($classes): bool
+	{
+		$current = $this->getClassNames();
+		$result  = array_diff((array) $classes, $current);
+
+		return empty($result);
+	}
+
+	/**
 	 * Clean the attributes.
 	 *
 	 * @param array $disallowedAttributes
