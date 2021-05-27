@@ -165,8 +165,6 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 
 	/**
 	 * @return $this
-	 *
-	 * @throws AppException
 	 */
 	public function setup(): self
 	{
@@ -493,7 +491,10 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 			'filter'       => true,
 		], $options);
 
-		$content = Hook::apply('the_content', $this->getContent($options['more_link'], $options['strip_teaser']));
+		$content = $this->getContent($options['more_link'], $options['strip_teaser']);
+		$content = $this->preFixContentEntities($content);
+		$content = Hook::apply('the_content', $content);
+		$content = $this->postFixContentEntities($content);
 
 		if ($options['filter']) {
 			$document = Hook::apply('twist_post_content', $this->getDocument($content), $this);
@@ -503,6 +504,26 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 		$content = str_replace(']]>', ']]&gt;', $content);
 
 		return $content;
+	}
+
+	/**
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	private function preFixContentEntities(string $content): string
+	{
+		return str_replace(['&lt;', '&#60;'], '%%less_than%%', $content);
+	}
+
+	/**
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	private function postFixContentEntities(string $content): string
+	{
+		return str_replace('%%less_than%%', '&lt;', $content);
 	}
 
 	/**
