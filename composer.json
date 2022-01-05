@@ -18,16 +18,17 @@
 		}
 	],
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"ext-dom": "*",
 		"ext-json": "*",
 		"ext-libxml": "*",
 		"ext-mbstring": "*",
 		"ext-simplexml": "*",
-		"composer/installers": "^1.5",
-		"monolog/monolog": "2.3.3",
+		"composer/installers": "^2.0",
+		"monolog/monolog": "^2.3",
 		"pimple/pimple": "^3.0",
-		"twig/twig": "^2.11"
+		"psr/log": "^1.0",
+		"twig/twig": "^3.0"
 	},
 	"require-dev": {
 		"kint-php/kint": "^3.3",
