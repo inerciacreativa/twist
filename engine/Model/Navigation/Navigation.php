@@ -115,6 +115,8 @@ class Navigation
 			return [];
 		}
 
+		$items = Hook::apply('twist_navigation_items', $items, $menu, $arguments);
+
 		return $this->sortItems($items, $arguments);
 	}
 
