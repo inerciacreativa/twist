@@ -4,6 +4,7 @@ namespace Twist\Asset;
 
 use Twist\Asset\Queue\Scripts;
 use Twist\Asset\Queue\Styles;
+use Twist\Model\Post\PostsQuery;
 
 /**
  * Class Queue
@@ -51,7 +52,9 @@ class Queue
 	 */
 	public function styles(array $styles, bool $parent = false): self
 	{
-		$this->styles->add($styles, $parent);
+		if (!PostsQuery::is_admin()) {
+			$this->styles->add($styles, $parent);
+		}
 
 		return $this;
 	}
@@ -72,7 +75,9 @@ class Queue
 	 */
 	public function scripts(array $scripts, bool $parent = false): self
 	{
-		$this->scripts->add($scripts, $parent);
+		if (!PostsQuery::is_admin()) {
+			$this->scripts->add($scripts, $parent);
+		}
 
 		return $this;
 	}
@@ -85,7 +90,9 @@ class Queue
 	 */
 	public function inline(string $id, $script): self
 	{
-		$this->scripts->inline($id, $script);
+		if (!PostsQuery::is_admin()) {
+			$this->scripts->inline($id, $script);
+		}
 
 		return $this;
 	}
