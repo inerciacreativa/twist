@@ -20,12 +20,12 @@
 		"url": "https://inerciacreativa.com/"
 	},
 	"engines": {
-		"node": ">= 10.13.0"
+		"node": ">= 12.13.0"
 	},
 	"devDependencies": {
-		"redukt": "^2.3.1"
+		"redukt": "^6.0.0"
 	},
 	"dependencies": {
-		"jquery": "^3.5.0"
+		"jquery": "^3.6.0"
 	}
 }
