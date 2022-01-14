@@ -7,6 +7,7 @@ use ArrayIterator;
 use IteratorAggregate;
 use Twist\Library\Support\Arr;
 use Twist\Library\Support\Url;
+use Twist\Twist;
 
 /**
  * Class Attributes
@@ -275,8 +276,6 @@ class Attributes implements ArrayAccess, IteratorAggregate
 	public function render(): string
 	{
 		$attributes = array_merge($this->attributes, ['class' => $this->classes->render()]);
-
-		ksort($attributes);
 
 		$attributes = Arr::map($attributes, static function ($value, $name) {
 			if (static::isBool($name)) {
