@@ -37,8 +37,8 @@ class GoogleFonts
 		$this->resources = $resources;
 
 		$this->hook()
-			 ->on(Action::SETUP, 'addResources')
-			 ->on('twist_site_links', 'addLink');
+		     ->on(Action::SETUP, 'addResources')
+		     ->on('twist_site_links', 'addLink');
 	}
 
 	/**
@@ -48,9 +48,70 @@ class GoogleFonts
 	 */
 	public function add($families): self
 	{
-		$this->families = array_merge($this->families, (array) $families);
+		foreach ((array) $families as $family) {
+			if ($this->getApiVersion($family) < 2) {
+				$family = $this->fromApi1ToApi2($family);
+			}
+
+			$this->families[] = $family;
+		}
 
 		return $this;
+	}
+
+	/**
+	 * @param string $family
+	 *
+	 * @return int
+	 */
+	protected function getApiVersion(string $family): int
+	{
+		[$name, $styles] = explode(':', $family);
+
+		if (empty($styles) || strpos($styles, '@') !== false) {
+			return 2;
+		}
+
+		return 1;
+	}
+
+	/**
+	 * @param string $family
+	 *
+	 * @return string
+	 */
+	protected function fromApi1ToApi2(string $family): string
+	{
+		[$name, $styles] = explode(':', $family);
+		$styles = explode(',', $styles);
+		$weight = [];
+		$italic = [];
+
+		foreach ($styles as $style) {
+			if (is_numeric($style)) {
+				$weight[] = $style;
+			} else {
+				$italic[] = (int) $style;
+			}
+		}
+
+		sort($weight, SORT_NUMERIC);
+		sort($italic, SORT_NUMERIC);
+
+		if (!empty($italic)) {
+			$weight = array_map(static function ($item) {
+				return "0,$item";
+			}, $weight);
+			$italic = array_map(static function ($item) {
+				return "1,$item";
+			}, $italic);
+
+			$ranges = 'ital,wght@' . implode(';', [...$weight, ...$italic]);
+		} else {
+			$ranges = 'wght@' . implode(';', $weight);
+		}
+
+		return "$name:$ranges";
 	}
 
 	/**
@@ -62,7 +123,7 @@ class GoogleFonts
 			return;
 		}
 
-		$this->resources->add('dns-prefetch', 'https://fonts.googleapis.com');
+		$this->resources->add('preconnect', 'https://fonts.googleapis.com');
 		$this->resources->add('preconnect', 'https://fonts.gstatic.com');
 	}
 
@@ -100,7 +161,7 @@ class GoogleFonts
 	protected function getStyleLink(): Tag
 	{
 		return Tag::link([
-			'href'        => $this->getUrl(true),
+			'href'        => $this->getUrl(),
 			'media'       => 'print',
 			'rel'         => 'stylesheet',
 			'crossorigin' => true,
@@ -109,20 +170,39 @@ class GoogleFonts
 	}
 
 	/**
-	 * @param bool $style
+	 * @return string
+	 */
+	protected function getUrl(): string
+	{
+		return $this->getUrlApi2();
+	}
+
+	/**
+	 * Load fonts from API v1
 	 *
 	 * @return string
 	 */
-	protected function getUrl(bool $style = false): string
+	/** @noinspection SuspiciousAssignmentsInspection */
+	protected function getUrlApi1(): string
 	{
-		$url = new Url('https://fonts.googleapis.com/css');
-
+		$url        = new Url('https://fonts.googleapis.com/css');
 		$url->query = ['family' => implode('|', $this->families)];
-		if ($style) {
-			$url->query = ['display' => 'swap'];
-		}
+		$url->query = ['display' => 'swap'];
 
 		return $url;
+	}
+
+	/**
+	 * Load fonts from API v2
+	 *
+	 * @return string
+	 */
+	protected function getUrlApi2(): string
+	{
+		$url   = 'https://fonts.googleapis.com/css2';
+		$query = '?family=' . implode('&family=', $this->families);
+
+		return $url . $query . '&display=swap';
 	}
 
 }
