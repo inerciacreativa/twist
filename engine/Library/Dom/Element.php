@@ -69,7 +69,7 @@ class Element extends DOMElement
 	}
 
 	/**
-	 * Returns the content of the class attribute as an array.
+	 * Returns the classes as an array.
 	 *
 	 * @return array
 	 */
@@ -85,7 +85,18 @@ class Element extends DOMElement
 	}
 
 	/**
-	 * Adds a className to the class attribute.
+	 * Sets the class names.
+	 *
+	 * @param $classes
+	 */
+	public function setClassNames($classes): void
+	{
+		$this->removeClassNames();
+		$this->addClassNames($classes);
+	}
+
+	/**
+	 * Adds class names.
 	 *
 	 * @param string|array $classes
 	 */
@@ -98,12 +109,17 @@ class Element extends DOMElement
 	}
 
 	/**
-	 * Removes class names from the class attribute.
+	 * Removes class names.
 	 *
 	 * @param string|array $classes
 	 */
-	public function removeClassNames($classes): void
+	public function removeClassNames($classes = []): void
 	{
+		if (empty($classes)) {
+			$this->removeAttribute('class');
+			return;
+		}
+
 		$current = $this->getClassNames();
 		$result  = array_diff($current, (array) $classes);
 
