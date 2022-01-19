@@ -131,9 +131,13 @@ class Element extends DOMElement
 	 *
 	 * @return bool
 	 */
-	public function hasClassNames($classes): bool
+	public function hasClassNames($classes = []): bool
 	{
 		$current = $this->getClassNames();
+		if (empty($classes)) {
+			return !empty($current);
+		}
+
 		$result  = array_diff((array) $classes, $current);
 
 		return empty($result);
