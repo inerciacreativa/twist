@@ -97,6 +97,8 @@ class Taxonomy implements TaxonomyInterface
 					$term = PostsQuery::main()->queried_object();
 
 					$this->current = new Term($term, $this);
+				} else {
+					$this->current = false;
 				}
 			} catch (AppException $exception) {
 				$this->current = false;
