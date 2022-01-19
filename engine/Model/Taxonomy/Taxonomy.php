@@ -21,7 +21,7 @@ class Taxonomy implements TaxonomyInterface
 	protected $taxonomy;
 
 	/**
-	 * @var Term
+	 * @var Term|bool|null
 	 */
 	protected $current;
 
@@ -72,53 +72,38 @@ class Taxonomy implements TaxonomyInterface
 	 */
 	public function is_current($term = null): bool
 	{
-		static $function;
-
 		$taxonomy = $this->name();
 		$id       = $term instanceof Term ? $term->id() : $term;
 
-		if ($function === null) {
-			switch ($taxonomy) {
-				case 'category':
-					$function = static function ($id) {
-						return PostsQuery::main()->is_category($id);
-					};
-					break;
-				case 'post_tag':
-					$function = static function ($id) {
-						return PostsQuery::main()->is_tag($id);
-					};
-					break;
-				default:
-					$function = static function ($id) use ($taxonomy) {
-						return PostsQuery::main()->is_taxonomy($taxonomy, $id);
-					};
-			}
+		switch ($taxonomy) {
+			case 'category':
+				return PostsQuery::main()->is_category($id);
+			case 'post_tag':
+				return PostsQuery::main()->is_tag($id);
+			default:
+				return PostsQuery::main()->is_taxonomy($taxonomy, $id);
 		}
-
-		return $function($id);
 	}
+
 	/**
 	 * @return Term|null
 	 */
 	public function current(): ?Term
 	{
-		static $current;
-
-		if ($current === null) {
+		if ($this->current === null) {
 			try {
 				if ($this->is_current(PostsQuery::main()->queried_id())) {
 					/** @var WP_Term $term */
 					$term = PostsQuery::main()->queried_object();
 
-					$current = new Term($term, $this);
+					$this->current = new Term($term, $this);
 				}
 			} catch (AppException $exception) {
-				$current = false;
+				$this->current = false;
 			}
 		}
 
-		return !$current ? null : $current;
+		return !$this->current ? null : $this->current;
 	}
 
 	/**
@@ -163,7 +148,7 @@ class Taxonomy implements TaxonomyInterface
 	 * @param string $fields
 	 * @param array  $arguments
 	 *
-	 * @return array|int
+	 * @return array|string
 	 */
 	protected function getTerms(string $fields, array $arguments)
 	{

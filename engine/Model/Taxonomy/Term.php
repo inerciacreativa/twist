@@ -12,6 +12,7 @@ use Twist\Model\HasParent;
 use Twist\Model\HasParentInterface;
 use Twist\Model\ModelInterface;
 use Twist\Model\Post\PostsQuery;
+use Twist\Twist;
 use WP_Term;
 
 /**
@@ -54,9 +55,9 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	/**
 	 * Term constructor.
 	 *
-	 * @param WP_Term           $term
-	 * @param TaxonomyInterface $taxonomy
-	 * @param array             $properties
+	 * @param WP_Term                $term
+	 * @param TaxonomyInterface|null $taxonomy
+	 * @param array                  $properties
 	 *
 	 * @throws AppException
 	 */
@@ -65,7 +66,7 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 		$this->term     = $term;
 		$this->taxonomy = $taxonomy ?? new Taxonomy($term->taxonomy);
 		$this->class    = Arr::get($properties, 'class', []);
-		$this->current  = Arr::get($properties, 'current', false);
+		$this->current  = Arr::get($properties, 'current');
 	}
 
 	/**
@@ -89,6 +90,7 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 			try {
 				$this->set_parent(new static($parent, $this->taxonomy));
 			} catch (AppException $exception) {
+				// Do nothing
 			}
 		}
 
@@ -100,7 +102,7 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	 */
 	public function has_children(): bool
 	{
-		return $this->children() !== null;
+		return $this->children()->count() > 0;
 	}
 
 	/**
@@ -108,7 +110,7 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	 *
 	 * @return Terms
 	 */
-	public function children(): ?CollectionInterface
+	public function children(): CollectionInterface
 	{
 		if ($this->children === null) {
 			$this->set_children($this->taxonomy->terms(['child_of' => $this->id()]));
@@ -130,7 +132,7 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	 */
 	public function id(): int
 	{
-		return (int) $this->term->term_id;
+		return $this->term->term_id;
 	}
 
 	/**
@@ -186,6 +188,10 @@ class Term implements ModelInterface, HasParentInterface, HasChildrenInterface
 	 */
 	public function is_current(): bool
 	{
+		if ($this->current === null) {
+			$this->current = $this->taxonomy()->is_current($this);
+		}
+
 		return $this->current;
 	}
 
