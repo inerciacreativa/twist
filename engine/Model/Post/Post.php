@@ -447,7 +447,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 			$excerpt = $this->post->post_excerpt;
 		} else {
 			$excerpt = $this->getContent('');
-			$excerpt = Hook::apply('twist_post_excerpt_raw', $excerpt, $this);
+			//$excerpt = Hook::apply('twist_post_excerpt_raw', $excerpt, $this);
 
 			$excerpt = strip_shortcodes($excerpt);
 			if (function_exists('excerpt_remove_blocks')) {
@@ -456,15 +456,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 
 			$excerpt = Hook::apply('the_content', $excerpt);
 			$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
-
-			$words = Hook::apply('excerpt_length', $words);
-			$more  = Hook::apply('excerpt_more', ' [&hellip;]');
-
-			$excerpt = Hook::apply('twist_post_excerpt_before', $excerpt, $this);
-			$excerpt = Str::stripTags($excerpt, ['figure']);
-			$excerpt = Str::whitespace($excerpt);
-			$excerpt = Str::words($excerpt, $words, $more);
-			$excerpt = Hook::apply('twist_post_excerpt_after', $excerpt, $this);
+			$excerpt = $this->getExcerpt($excerpt, $words);
 		}
 
 		$excerpt = Hook::apply('wp_trim_excerpt', $excerpt, $this->post->post_excerpt);
@@ -952,6 +944,19 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 		}
 
 		return $output;
+	}
+
+	private function getExcerpt(string $excerpt, int $words): string {
+		$words = (int) Hook::apply('excerpt_length', $words);
+		$more  = Hook::apply('excerpt_more', ' [&hellip;]');
+		$excerpt = Hook::apply('twist_post_excerpt_before', $excerpt, $words, $more, $this);
+
+		if (Hook::apply('twist_post_excerpt_generate', true)) {
+			$excerpt = Str::stripTags($excerpt, ['figure']);
+			$excerpt = Str::words($excerpt, $words, $more);
+		}
+
+		return Hook::apply('twist_post_excerpt_after', $excerpt, $this);
 	}
 
 	/**
