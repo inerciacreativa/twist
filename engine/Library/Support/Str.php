@@ -112,15 +112,22 @@ class Str
 	 *
 	 * @param string $string
 	 * @param array  $blockTags
+	 * @param bool $normalizeWhitespace
 	 *
 	 * @return string
 	 */
-	public static function stripTags(string $string, array $blockTags = []): string
+	public static function stripTags(string $string, array $blockTags = [], bool $normalizeWhitespace = true): string
 	{
 		$string = self::stripBlockTags($string, array_merge($blockTags, ['script', 'style']));
+		if ($normalizeWhitespace) {
+			$string = str_replace(['<br>', '><'], ['%BR%', '> <'], $string);
+		}
 		$string = strip_tags($string);
+		if ($normalizeWhitespace) {
+			$string = str_replace('%BR%', ' ', $string);
+		}
 
-		return trim($string);
+		return $normalizeWhitespace ? static::whitespace($string) : trim($string);
 	}
 
 	/**
