@@ -474,6 +474,7 @@ class Str
 	 */
 	public static function words(string $string, int $words = 100, string $end = '…'): string
 	{
+		$string = static::whitespace($string);
 		preg_match('/^\s*+(?:\S++\s*+){1,' . $words . '}/u', $string, $matches);
 
 		if (!isset($matches[0]) || static::length($string) === static::length($matches[0])) {
@@ -504,45 +505,47 @@ class Str
 	 *
 	 * @return string
 	 */
-	public static function trim(string $string, $chars = '', bool $spaces = true): string
+	public static function trim(string $string, string $chars = '', bool $spaces = true): string
 	{
+		if ($chars) {
+			$chars = preg_quote($chars, '/');
+		}
+
 		if ($spaces) {
 			$chars .= '\pZ\pC';
 		}
 
-		return preg_replace('/^[' . $chars . ']+|[' . $chars . ']+$/u', '', $string);
+		return preg_replace('/^[' . $chars . ']+|[' . $chars . ']+$/u', ' ', $string);
 	}
 
 	/**
 	 * @param string $string
 	 * @param string $chars
-	 * @param bool   $spaces
 	 *
 	 * @return string
 	 */
-	public static function ltrim(string $string, $chars = '', bool $spaces = true): string
+	public static function ltrim(string $string, string $chars = ''): string
 	{
-		if ($spaces) {
-			$chars .= '\pZ\pC';
+		if ($chars) {
+			$chars = preg_quote($chars, '/');
 		}
 
-		return preg_replace('/^[' . $chars . ']+/u', '', $string);
+		return preg_replace('/^[' . $chars . '\pZ\pC]+/u', ' ', $string);
 	}
 
 	/**
 	 * @param string $string
 	 * @param string $chars
-	 * @param bool   $spaces
 	 *
 	 * @return string
 	 */
-	public static function rtrim(string $string, $chars = '', bool $spaces = true): string
+	public static function rtrim(string $string, string $chars = ''): string
 	{
-		if ($spaces) {
-			$chars .= '\pZ\pC';
+		if ($chars) {
+			$chars = preg_quote($chars, '/');
 		}
 
-		return preg_replace('/[' . $chars . ']+$/u', '', $string);
+		return preg_replace('/[' .$chars . '\pZ\pC]+$/u', ' ', $string);
 	}
 
 	/**
@@ -554,7 +557,7 @@ class Str
 	 *
 	 * @return string
 	 */
-	public static function slug(string $string, string $separator = '-', $language = 'en'): string
+	public static function slug(string $string, string $separator = '-', string $language = 'en'): string
 	{
 		$string = $language ? static::ascii($string, $language) : $string;
 
