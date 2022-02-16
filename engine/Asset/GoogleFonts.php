@@ -38,7 +38,7 @@ class GoogleFonts
 
 		$this->hook()
 		     ->on(Action::SETUP, 'addResources')
-		     ->on('twist_site_links', 'addLink');
+		     ->on('twist_site_links', 'addLinks');
 	}
 
 	/**
@@ -132,7 +132,7 @@ class GoogleFonts
 	 *
 	 * @return array
 	 */
-	protected function addLink(array $links): array
+	protected function addLinks(array $links): array
 	{
 		if (!empty($this->families)) {
 			$links[] = $this->getPreloadLink();
@@ -162,8 +162,8 @@ class GoogleFonts
 	{
 		return Tag::link([
 			'href'        => $this->getUrl(),
-			'media'       => 'print',
 			'rel'         => 'stylesheet',
+			'media'       => 'print',
 			'crossorigin' => true,
 			'onload'      => "this.media='all'",
 		]);
