@@ -52,10 +52,7 @@ class Metas implements AssetsInterface
 	 */
 	public function all(): array
 	{
-		$metas = Hook::apply('twist_site_metas', $this->metas);
-		natcasesort($metas);
-
-		return $metas;
+		return Hook::apply('twist_site_metas', $this->metas);
 	}
 
 	/**

@@ -70,10 +70,8 @@ class Links implements AssetsInterface
 	{
 		$links  = Hook::apply('twist_site_links', $this->links);
 		$styles = Hook::apply('twist_site_styles', $this->styles);
-		$all    = array_merge($links, $styles);
-		natcasesort($all);
 
-		return $all;
+		return array_merge($links, $styles);
 	}
 
 }
