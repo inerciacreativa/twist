@@ -118,7 +118,7 @@ class TermsBuilder extends Walker_Category
 	{
 		$term = $this->terms->parent();
 
-		$this->terms = $term->has_parent() ? $term->parent()
+		$this->terms = ($term && $term->has_parent()) ? $term->parent()
 												  ->children() : $this->root;
 	}
 
