@@ -81,11 +81,4 @@ class Taxonomies extends Enumerable
 	{
 	}
 
-	/**
-	 * Prevent from being unserialized.
-	 */
-	private function __wakeup()
-	{
-	}
-
 }
