@@ -157,10 +157,10 @@ class PostsQuery implements IterableInterface, HasPaginationInterface
 	{
 		/** @var /wpdb $wpdb */ global $wpdb;
 
-		$query = $wpdb->prepare("SELECT COUNT(*) FROM $wpdb->posts WHERE post_parent = %d", $post->id());
-		$check = $wpdb->get_results($query);
+		$query = $wpdb->prepare("SELECT COUNT(*) FROM $wpdb->posts WHERE post_parent = %d AND post_type != %s", $post->id(), 'revision');
+		$check = $wpdb->get_var($query);
 
-		return ($check) ? true : false;
+		return (bool) $check;
 	}
 
 	/**
