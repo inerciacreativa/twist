@@ -82,7 +82,7 @@ class Document extends DOMDocument
 		$success = false;
 		$error   = libxml_use_internal_errors(true);
 
-		$this->preserveWhiteSpace = false;
+		$this->preserveWhiteSpace = true;
 		$this->substituteEntities = false;
 
 		if ($this->loadHTML(Str::toEntities($source), $this->getFlags())) {
@@ -112,7 +112,8 @@ class Document extends DOMDocument
 			$this->removeRootNode();
 		}
 
-		return Str::fromEntities($this->saveHTML($node));
+		//return Str::fromEntities($this->saveHTML($node));
+        return $this->saveHTML($node);
 	}
 
 	/**

@@ -481,6 +481,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 			'more_link'    => null,
 			'strip_teaser' => false,
 			'filter'       => true,
+            'spaces'       => false,
 		], $options);
 
 		$content = $this->getContent($options['more_link'], $options['strip_teaser']);
@@ -489,7 +490,7 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 		$content = $this->postFixContentEntities($content);
 
 		if ($options['filter']) {
-			$document = Hook::apply('twist_post_content', $this->getDocument($content), $this);
+			$document = Hook::apply('twist_post_content', $this->getDocument($content, $options['spaces']), $this);
 			$content  = $document->saveMarkup();
 		}
 
@@ -964,10 +965,15 @@ class Post implements ModelInterface, HasParentInterface, HasChildrenInterface
 	 *
 	 * @return Document
 	 */
-	private function getDocument(string $content): Document
+	private function getDocument(string $content, bool $normalizeSpaces = false): Document
 	{
 		$document = new Document(Site::language());
-		$document->loadMarkup(Str::whitespace($content));
+
+        if ($normalizeSpaces) {
+            $content = Str::whitespace($content);
+        }
+
+        $document->loadMarkup($content);
 
 		return $document;
 	}
