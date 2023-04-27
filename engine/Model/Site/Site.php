@@ -256,7 +256,7 @@ class Site
 			$classes->add('user-logged-in');
 		}
 
-		return $classes;
+		return Hook::apply('twist_site_classes', $classes);
 	}
 
 	/**
